@@ -1,0 +1,16 @@
+body {
+	font-family: Arial, sans-serif;
+	font-size: 12px;
+	margin: 0;
+	background-color: #EEE;
+}
+#media-box {
+	position: relative;
+	overflow: auto;
+}
+#media-box .jp-video {
+	text-align: left;
+}
+#media-box .video-js-box,#media-box .jp-video {
+	-webkit-box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.4);
+}

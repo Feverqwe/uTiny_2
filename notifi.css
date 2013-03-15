@@ -1,0 +1,28 @@
+body {
+	margin: 5;
+	margin-top: 3px;
+	font-size: 13px;
+	font-family: Arial, sans-serif;
+}
+#image {
+	float: left;
+	width: 32px;
+	height: 32px;
+	margin: 2px;
+	margin-right: 5px;
+	background: url('images/icon.png') no-repeat center center;
+}
+#name {
+	padding-top: 4px;
+	font-weight: bold;
+	max-width: 290px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+#status {
+	max-width: 290px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}

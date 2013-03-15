@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head> 	
+	<meta charset="utf-8" />
+	<link rel="stylesheet" type="text/css" href="options.css"> 
+	<script src="js/jquery.min.js"></script>
+	<script src="js/jquery-ui-1.8.16.custom.min.js"></script>
+	<script src="js/lang.js"></script>
+	<script src="js/options.js"></script>
+</head>
+<body>
+	<div id="timer"></div>
+	<center><h1>uTorrent easy client</h1></center>
+	<center><h2 data-lang="39"></h2></center>
+	<form name="save_opt" action="#">
+	<fieldset>
+        <legend data-lang="63"></legend>
+		<div class="options">
+			<div class="name" data-lang="64"></div><div class="value">
+<select name="lang">
+	<option value="en" data-lang="65_0"></option>
+	<option value="ru" data-lang="65_1"></option>
+</select>
+			</div>
+		</div>
+	</fieldset>
+	<fieldset>
+        <legend data-lang="40"></legend>
+		<div class="options">
+			<div class="name" data-lang="41"></div><div class="value"><input class="text" type="text" id="utorrent_ip" value="" placeholder="127.0.0.1" /></div><br/>
+			<div class="name" data-lang="42"></div><div class="value"><input class="text"  type="number" id="utorrent_port" value="" placeholder="8080" /></div><br/>
+			<div class="name" data-lang="43"></div><div class="value"><input class="text"  type="text" id="utorrent_path" value="" placeholder="gui/" /></div><br/>
+			<div class="name" data-lang="66"></div><div class="value"><input type="checkbox" id="use_https" /></div><br/>
+			<div class="name" data-lang="44"></div><div class="value"><label id="url"></label></div>
+		</div>
+	</fieldset>
+	<fieldset>
+        <legend data-lang="45"></legend>
+		<div class="options">
+			<div class="name" data-lang="46"></div><div class="value"><input class="text" type="text" id="utorrent_login" value="" /></div><br/>
+			<div class="name" data-lang="47"></div><div class="value"><input class="text"  type="password" id="utorrent_password" value="" /></div>
+		</div>
+	</fieldset>
+	<fieldset>
+        <legend data-lang="48"></legend>
+		<div class="options">
+			<div class="name" data-lang="49"></div><div class="value"><input type="checkbox" id="note_enable" /></div><br/>
+			<div class="name" data-lang="109"></div><div class="value"><input type="checkbox" id="counter" /></div><br/>
+			<div class="name" data-lang="50_0"></div><div class="value"><input class="text" type="number" id="utorrent_interval" value="" placeholder="60" /><span data-lang="50_1"></span></div><br/>
+			<div class="name" data-lang="51_0"></div><div class="value"><input class="text" type="number" id="utorrent_note_interval" value="" placeholder="6" /><span data-lang="51_1"></span></div>
+		</div>
+	</fieldset>
+	<fieldset>
+        <legend data-lang="52"></legend>
+		<div class="options">
+			<div class="name" data-lang="53_0"></div><div class="value"><input class="text" type="number" id="utorrent_manager_interval" value="" placeholder="2" /><span data-lang="53_1"></span></div><br/>
+			<div class="name" data-lang="54"></div><div class="value"><input type="checkbox" id="hide_finished" /></div><br/>
+			<div class="name" data-lang="55"></div><div class="value"><input type="checkbox" id="hide_seeding" /></div><br/>
+			<div class="name" data-lang="72"></div><div class="value"><input type="checkbox" id="graph_enable" /></div><br/>
+			<div class="name" data-lang="92"></div><div class="value"><input type="checkbox" id="fl_auto_update" /></div><br/>
+			<div class="name" data-lang="56_0"></div><div class="value"><input class="text" id="monitor_height" type="number" placeholder="450" /><span data-lang="56_1"></span></div><br/>
+			<div class="table_colums_name" data-lang="86_0"></div><div class="table_colums">
+
+<ul id="writeTabList" class="sortable">
+</ul>
+<input type="button" class="button" name="default_settings" value="" />
+			</div><br/>
+			<div class="name" data-lang="96"></div><div class="value"><input type="checkbox" id="autosort" /></div>
+		</div>
+	</fieldset>
+	<!--
+	<fieldset>
+        <legend data-lang="95"></legend>
+		<div class="options">
+			<div class="name" data-lang="94_0"></div><div class="value"><input type="checkbox" id="vlc_active" /></div><br/>
+			<div class="name" data-lang="94_1"></div><div class="value"><input type="checkbox" id="vlc_for_mp4" /></div>
+		</div>
+	</fieldset>
+	-->
+	<fieldset>
+        <legend data-lang="97"></legend>
+		<div class="options">
+			<div class="name" data-lang="98"></div><div class="value"><input type="checkbox" id="ctx_link_menu" /></div><br/>
+			<div class="name" data-lang="99"></div><div class="value"><input type="checkbox" id="note_link_enable" /></div><br/>
+			<div class="name" data-lang="105"></div><div class="value"><input type="checkbox" id="go_in_downloads" /></div>
+		</div>
+	</fieldset>
+	<fieldset>
+        <legend data-lang="107_6"></legend>
+		<div class="options">
+			<div style="margin:0;margin-bottom:-10px; margin-top:-10px;color:#d19d01;"><center data-lang="107_7"></center></div><br/>
+			<div class="name"><span data-lang="107_5"></span> <select name="folder_path" id="folder_path" style="width: 120px">
+			</select>
+			<span data-lang="107_4"></span> <input class="text" style="width: 182px" type="text" id="folder_subpath" value="" placeholder="" /><input type="button" name="path_add" id="path_add" value="Add" /></div>
+			<br/>
+			<div class="name"><select name="paths" id="paths" style="width: 495px" multiple="multiple">
+			</select>
+			<input type="button" name="path_remove" id="path_remove" value="Remove selected" />
+			</div>
+		</div>
+	</fieldset>
+	<fieldset>
+        <legend data-lang="108_7"></legend>
+		<div class="options">
+			<div class="name"><a href="#" id="backup_btn" class="inactive" data-lang="108_6"></a>
+			<a href="#" id="restore_btn" class="active" data-lang="108_5"></a></div><br/>
+			<div id="backup" style="display:none;">
+				<textarea rows="10" style="width: 498px" name="backup"></textarea>
+				<input type="button" style="font-size:18px;" name="backup_trigger" value="Update"/>
+			</div>
+			<div id="restore" style="display:block;">
+				<textarea rows="10" style="width: 498px" name="restore"></textarea>
+				<input type="button" style="font-size:18px;float:left;" name="restore_trigger" value="Restore"/>
+				<input type="button" style="display:none;margin-top: 5px;" id="rollback_btn" name="rollback_trigger" value="Rollback"/>
+			</div>
+		</div>
+	</fieldset>
+	<div class="sublitbt">
+		<a name="save"></a>
+		<input type="submit" class="button" name="save" value="Save" /><label class="status"></label>
+	</div>
+	</form>
+	<div class="copy">created by  <a href="mailto:leonardspbox@gmail.com">Anton</a></div>
+</body>
+</html>

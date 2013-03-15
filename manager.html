@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>uTorrent manager</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" type="text/css" href="css/stylesheet.css"> 
+        <link rel="stylesheet" type="text/css" href="js/jquery.contextmenu.css"> 
+        <link rel="stylesheet" type="text/css" href="js/jquery.selectbox.css"> 
+        <link rel="stylesheet" type="text/css" href="css/apprise.min.css">
+        <script src="js/jquery.min.js"></script>
+        <script src="js/apprise-1.5.min.js"></script>
+        <script src="js/jquery.selectbox.js"></script>
+        <script src="js/graph.js"></script>
+        <script src="js/lang.js"></script>
+        <script src="js/jquery.tablesorter.js"></script>
+        <script src="js/jquery.contextmenu.js"></script>
+        <script src="js/manager.js"></script>
+    </head>
+    <body>
+        <ul class="menu">
+            <li><a class="btn refresh" href="#refresh"></a></li>
+            <li class="separate"></li>
+            <li><a class="btn donate" href="donate.html"></a></div>
+            <li><a class="btn wui" target="_blank" href="#wui"></a></div>
+            <li class="separate"></li>
+            <li><a class="btn start_all" href="#start_all"></a></div>
+            <li><a class="btn pause_all" href="#pause_all"></a></div>
+            <li class="separate"></li>
+            <li class="graph"></li>
+            <li class="select"><select></select></li>
+        </ul>
+        <div id="torrent-list">
+            <table class="fixed" border="0" cellspacing="0" cellpadding="0"><thead></thead></table>
+            <table class="main" border="0" cellspacing="0" cellpadding="0" >
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <table class="bottom-panel" width="100%" border="0" cellspacing="0" cellpadding="0" >
+            <tfoot>
+                <tr>
+                    <td class="status"></td>
+                    <td class="speed download"></td>
+                    <td class="speed upload"></td>
+                </tr>
+            </tfoot>
+        </table>
+        <div class="file-list-layer">
+            <div id="file-list">
+                <table class="fixed" border="0" cellspacing="0" cellpadding="0" ></table>
+                <table border="0" cellspacing="0" cellpadding="0" width="100%" >
+                    <thead> 
+                        <tr>
+                            <th class="select"></th>
+                            <th class="name"></th>
+                            <th class="size"></th>
+                            <th class="download"></th>
+                            <th class="progress"></th>
+                            <th class="priority"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="bottom-menu">
+                <input type="text" class="path" readonly="readonly"/>
+                <a class="close"></a>
+                <a class="update"></a>
+                <select id="tree_select" name="tree_select" class="tree_select"></select>
+            </div>
+        </div>
+    </body>
+</html>

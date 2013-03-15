@@ -1,0 +1,116 @@
+body {
+	margin: 0;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	user-select: none;  
+	font-family: Arial, sans-serif;
+	font-size: 12px;
+	cursor: default;
+	min-width: 750px;
+	min-height: 500px;
+	background-color: #eee;
+	overflow-x: hidden; 
+}
+.options { 
+	max-width: 500px;
+	margin: 0 auto;
+	padding: 15px;
+	overflow: auto;
+}
+div.name { 
+	float: left; 
+	min-width: 210px; 
+	margin-top: 3px;
+}
+div.value {
+	height: 30px;
+}
+div.value input[type=text] { min-width: 100px; }
+input:invalid  { color: #c40005; }
+fieldset {
+	border: 1px solid  #c8c8c8;
+	-webkit-box-shadow: 1px 1px #fff, inset 0 -20px 60px -20px #ddd, inset 1px 1px #fff;
+	max-width: 550px;
+	margin: 0 auto;
+	margin-bottom: 15px;
+}
+fieldset legend{
+	font-weight: bold;
+	background: #eee;
+	padding: 0 5px;
+	-webkit-box-shadow: 0 0 20px 10px #eee;
+}
+.button {
+	height: 30px;
+}
+label.status { margin-left: 10px; }
+label.status img { margin-bottom: -10px; }
+h1 { margin: 0; font-family: Calibri; }
+h2 { margin: 0; font-weight:lighter; }
+div.copy {
+	clear: left;
+	padding-top: 10px;
+	text-align: center;
+	color: #a0a0a0;
+	text-decoration: none;
+}
+div.table_colums {
+	height: 450px;
+	overflow: auto;
+	width: 280px;
+	border-radius: 4px;
+}
+div.table_colums > input {
+	float: right;
+}
+div.table_colums_name {
+	height: 360px;
+	float: left;
+	width: 212px;
+}
+.sortable { 
+	list-style-type: none; 
+	margin: 0; 
+	padding: 0; 
+}
+.sortable li {
+	background-color: #dadada;
+	padding: 1px;
+	padding-left: 5px;
+	font-family: Helvetica, Verdana, sans-serif;
+	font-size: 12px;
+}
+.sortable li:hover {
+	background-color: #c7c7c7;
+}
+.sublitbt {
+	max-width: 575px;
+	margin: 0 auto;
+}
+.drageble {
+	float: right;
+}
+#backup_btn,#restore_btn {
+	border-top-left-radius: 4px; 
+	border-top-right-radius: 4px; 
+	padding:5px; 
+	padding-bottom: 2px; 
+	margin-right: 10px; 
+	text-decoration: none;
+	border: 1px solid #c0c0c0;
+	border-bottom: 0px;
+}
+#backup_btn.active,#restore_btn.active {
+	background-color:#dddddd; 
+	color: #2f5be1;	
+}
+#backup_btn.inactive,#restore_btn.inactive {
+	background-color:#f2f2f2; 
+	color: #82838e;
+}
+#restore, #backup {
+	background-color:#dddddd;
+	margin-top: 4px;
+	border: 1px solid #c0c0c0;
+	overflow: hidden;
+}
