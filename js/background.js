@@ -269,13 +269,14 @@ var engine = function() {
                     tmp_vars.get['files'] = obj['files']
                 }
                 status.connection(0, 22);
+                tmp_vars['get_repeat'] = 0;
             },
             error: function(xhr, ajaxOptions, thrownError) {
                 var error_desk = (xhr.status == 0) ? 36 : (xhr.status == 400) ? 38 :
                         lang_arr[71] + xhr.status + ' ' + thrownError;
                 status.connection(1, error_desk);
-                if (xhr.status == 400) {
-                    tmp_vars.get['token'] == null;
+                if (xhr.status == 400 && tmp_vars['get_repeat'] <= 3) {
+                    tmp_vars.get['token'] = null;
                     getToken(function() {
                         tmp_vars['get_repeat'] += 1;
                         get(action, cid);

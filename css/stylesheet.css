@@ -30,6 +30,8 @@ ul.menu li.graph {
 ul.menu li.select {
     width: auto;
     float: right;
+    margin-top: -1px;
+    margin-right: 2px;
 }
 ul.menu li.select > a {
     margin-top: 3px;

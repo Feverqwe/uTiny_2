@@ -911,13 +911,14 @@ var manager = function() {
                 contextActions('speed', 0, type);
             }
         };
+        items["s"] = '-';
         var count = Math.round(settings.window_height / 27);
         if (count > 10)
             count = 10;
         tmp_vars.speed_limit['count'] = count;
         for (var i = 0; i < count; i++)
         {
-            items[i] = {
+            items['s'+i] = {
                 name: '-',
                 callback: function(opt) {
                     var type = $(this).hasClass('download');
