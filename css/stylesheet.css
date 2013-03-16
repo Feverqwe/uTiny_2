@@ -46,6 +46,10 @@ ul.menu a.btn{
     border-radius: 3px;
     border: 1px solid #fff;
 }
+
+ul.menu a.btn:active {
+    opacity: 0.7;
+}
 ul.menu a.refresh{
     background-image: url("/images/refresh.png");
 }
@@ -166,15 +170,18 @@ table td.progress div.progress_b_i div {
 td.controls div.btns {
     height: 18px;
 }
-td.controls div.btns > div {
+td.controls div.btns > a {
     width: 18px;
     height: 18px;
     cursor: pointer;
     display: inline-block;
 }
-td.controls div.btns > .start { background: url('/images/play.png') no-repeat center center; }
-td.controls div.btns > .pause { background: url('/images/pause.png') no-repeat center center; }
-td.controls div.btns > .stop { background: url('/images/stop.png') no-repeat center center; }
+td.controls div.btns > a:active {
+    opacity: 0.7;
+}
+td.controls div.btns > a.start { background: url('/images/play.png') no-repeat center center; }
+td.controls div.btns > a.pause { background: url('/images/pause.png') no-repeat center center; }
+td.controls div.btns > a.stop { background: url('/images/stop.png') no-repeat center center; }
 table.status-panel {
     border-top: 1px #c0c0c0 solid;
     padding-left: 2px;

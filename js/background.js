@@ -284,12 +284,18 @@ var engine = function () {
         var action = "&list=1"+((subaction)?subaction:'');
         get(action);
     }
+    var sendAction = function (action) {
+        get(action);
+    }
     return {
         begin : function () {
             timer.start();
         },
         getTorrentList : function (t) {
             return getTorrentList(t);
+        },
+        sendAction : function (t) {
+            return sendAction(t);
         },
         get_cache_torrent_list : function () {
             if ( 'torrents' in tmp_vars.get ) {

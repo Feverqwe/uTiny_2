@@ -374,7 +374,7 @@ var manager = function () {
                     return '<td class="'+key+'" data-value="'+v[24]+'"><div title="'+str_time+'">'+str_time+'</div></td>';
                     break;
                 case 'controls':
-                    return '<td class="'+key+'"><div class="btns"><div title="'+lang_arr[0]+'" class="start"></div><div class="pause" title="'+lang_arr[1]+'"></div><div class="stop" title="'+lang_arr[2]+'"></div></div></td>';
+                    return '<td class="'+key+'"><div class="btns"><a href="#start" title="'+lang_arr[0]+'" class="start"></a><a href="#pause" class="pause" title="'+lang_arr[1]+'"></a><a href="#stop" class="stop" title="'+lang_arr[2]+'"></a></div></td>';
                     break;
             }
             return '';
@@ -464,6 +464,9 @@ var manager = function () {
             },
             filter : function (a,b) {
                 filter(a,b);
+            },
+            get_table : function () {
+                return cached
             }
         }
     }()
@@ -684,12 +687,51 @@ var manager = function () {
                     var item = tables['label-select'].find('option[value="'+$(this).val()+'"]').text();
                 }
                 tr_table_controller.filter(val,item);
-            } );
+            });
             tables['table-body'].on('scroll',function () {
                 tables['table-fixed'].css('left',-($(this).scrollLeft()));
             });
             
-            
+            tables['menu'].on('click','a.start_all',function (e) {
+                e.preventDefault();
+                var table = tr_table_controller.get_table();
+                var param = '&list=1&action=unpause';
+                $.each(table, function(key, value) {
+                    if (value.api[1]==233 && value.gui.display)
+                        param += '&hash=' + key;
+                });
+                if (param.length)
+                    _engine.sendAction(param);
+            });
+            tables['menu'].on('click','a.pause_all',function (e) {
+                e.preventDefault();
+                var table = tr_table_controller.get_table();
+                var param = '&list=1&action=pause';
+                $.each(table, function(key, value) {
+                    if (value.api[1]==201 && value.gui.display)
+                        param += '&hash=' + key;
+                });
+                if (param.length)
+                    _engine.sendAction(param);
+            });
+            tables['table-body'].on('click','a.start',function (e) {
+                e.preventDefault();
+                var hash = $(this).parents().eq(2).attr('id');
+                var param = '&list=1&action=start'+'&hash='+hash;
+                _engine.sendAction(param);
+            });
+            tables['table-body'].on('click','a.pause',function (e) {
+                e.preventDefault();
+                var hash = $(this).parents().eq(2).attr('id');
+                var param = '&list=1&action=pause'+'&hash='+hash;
+                _engine.sendAction(param);
+            });
+            tables['table-body'].on('click','a.stop',function (e) {
+                e.preventDefault();
+                var hash = $(this).parents().eq(2).attr('id');
+                var param = '&list=1&action=stop'+'&hash='+hash;
+                _engine.sendAction(param);
+            });
             
             if (settings.graph) {
                 $('li.graph').append('<canvas id="graph"></canvas>');
