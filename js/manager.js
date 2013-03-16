@@ -605,8 +605,28 @@ var manager = function() {
     var set_status = function(a, b) {
         tables.status.text(b);
     }
+    var update_labels_context_menu = function (id) {
+        var current_label = null;
+        if (id) {
+            current_label = tr_table_controller.get(id);
+            if (!current_label) return;
+            current_label = current_label[11];
+        }
+        var arr = tmp_vars['label'];
+        var c = arr.length;
+        var code = '<li class="context-menu-item select_label" data-key="del_label"><span>Remove label</span></li>';
+        for (var n = 0; n < c; n++) {
+            if (current_label && current_label == arr[n][0]) {
+                code += '<li class="context-menu-item select_label" data-key="'+arr[n][1]+'"><span><label>&#9679; </label>'+arr[n][0]+'</span></li>'
+            } else {
+                code += '<li class="context-menu-item select_label" data-key="'+arr[n][1]+'"><span>'+arr[n][0]+'</span></li>'
+            }
+        }
+        tmp_vars['torrent_context_menu_labels'].html(code);
+    }
     var set_labels = function(arr) {
         tmp_vars['label'] = arr;
+        tmp_vars['label_obj'] = {};
         var c = arr.length;
         var costum = ['all', 'download', 'seeding', 'complite', 'active', 'inacive', 'no label'];
         var cc = costum.length;
@@ -615,12 +635,14 @@ var manager = function() {
             options += '<option value="' + costum[n] + '"' + ((isNumber(tmp_vars.sel_label.k) == false && tmp_vars.sel_label.k == costum[n]) ? ' selected' : '') + '>' + lang_arr[70][n] + '</option>'
         }
         for (var n = 0; n < c; n++) {
+            tmp_vars['label_obj'][arr[n][1]] = arr[n][0]
             options += '<option value="' + arr[n][1] + '"' + ((isNumber(tmp_vars.sel_label.k) && tmp_vars.sel_label.k == arr[n][1]) ? ' selected' : '') + '>' + arr[n][0] + '</option>'
         }
         tables['label-select'].selectBox('options', options);
+        update_labels_context_menu();
     }
     var contextActions = function(k, v, opt) {
-        if (!v)
+        if ( (k != 'speed' && !v) || (k == 'speed' && v < 0) )
             return;
         switch (k) {
             case ('start'):
@@ -642,12 +664,10 @@ var manager = function() {
                 _engine.sendAction('&list=1&action=recheck&hash=' + v);
                 break;
             case ('set_label'):
-                //var label = opt.items.labels.items[k].name;
-                //_engine.sendAction('&list=1&setprops&s=label&v='+label+'&hash=' + v);
-                //get label from engine, where k = id of label!
+                _engine.sendAction('&list=1&action=setprops&s=label&v='+opt+'&hash=' + v);
                 break;
             case ('del_label'):
-                _engine.sendAction('&list=1&setprops&s=label&v=&hash=' + v);
+                _engine.sendAction('&list=1&action=setprops&s=label&v=&hash=' + v);
                 break;
             case ('remove'):
                 _engine.sendAction('&list=1&action=remove&hash=' + v);
@@ -662,6 +682,14 @@ var manager = function() {
                 _engine.sendAction('&list=1&action=removedatatorrent&hash=' + v);
                 break;
             case ('speed'):
+                if (opt) {
+                    _engine.sendAction('&action=setsetting&s=max_dl_rate&v=' + v);
+                    tmp_vars.speed_limit['download_limit'] = v;
+                } else {
+                    _engine.sendAction('&action=setsetting&s=max_ul_rate&v=' + v);
+                    tmp_vars.speed_limit['upload_limit'] = v;
+                }
+                update_speed_menu(opt);
                 break;
             case ('add_colum'):
                 break;
@@ -809,17 +837,33 @@ var manager = function() {
                 } else
                     tmp_vars["torrent_context_menu"].find('li[data-key='+k+']').css('display',(v)?'block':'none');
             });
+            var current_label = tr_table_controller.get(id);
+            if (!current_label) return;
+            current_label = current_label[11];
+            tmp_vars["torrent_context_menu"].attr('data-id',id).attr('data-lable',(current_label.length)?1:0);
+            if (current_label.length) {
+                $('.context-menu-item.labels').children('span').html(lang_arr[11]+' ('+current_label+')');
+            }
+            $('#'+id).addClass('selected');
+            update_labels_context_menu(id);
     }
-    var on_hide_torrent_context_menu = function () {
+    var on_hide_torrent_context_menu = function (id) {
         tmp_vars["torrent_context_menu"].find('li.first').removeClass('first');
+        $('#'+id+'.selected').removeClass('selected');
+        tmp_vars["torrent_context_menu"].attr('data-id','');
+        if (tmp_vars["torrent_context_menu"].attr('data-lable') == 1) {
+            $('.context-menu-item.labels').children('span').html(lang_arr[11]);
+        }
+        tmp_vars["torrent_context_menu"].attr('data-lable','');
     }
     var make_speed_menu = function () {
             //выстраивает внутренности контекстного меню для ограничения скорости
             var items = {};
             items["unlimited"]={
                 name:lang_arr[69],	
-                callback:function (){
-                    //do...
+                callback:function (opt){
+                    var type = $(this).hasClass('download');
+                    contextActions('speed',0,type);
                 }
             };
             items["s"]='-';
@@ -831,8 +875,10 @@ var manager = function() {
             {
                 items[i]={
                     name: '-', 
-                    callback: function (name){
-                        //do...
+                    callback: function (opt){
+                        var type = $(this).hasClass('download');
+                        var v = tmp_vars['speed_context_menu'].children('li[data-key='+opt+']').attr('data-speed');
+                        contextActions('speed',v,type);
                     }
                 };
             }
@@ -1008,7 +1054,7 @@ var manager = function() {
                 var val = $(this).val();
                 var item = null;
                 if (isNumber(val)) {
-                    var item = tables['label-select'].find('option[value="' + $(this).val() + '"]').text();
+                    var item = tmp_vars['label_obj'][$(this).val()];
                 }
                 tr_table_controller.filter(val, item);
             });
@@ -1066,7 +1112,8 @@ var manager = function() {
                         update_torrent_context_menu(id);
                     },
                     hide: function() {
-                        on_hide_torrent_context_menu();
+                        var id = this[0].id;
+                        on_hide_torrent_context_menu(id);
                     },
                 },
                 items: {
@@ -1084,13 +1131,6 @@ var manager = function() {
                             contextActions(key, id)
                         }
                     },
-                    stop: {
-                        name: lang_arr[2],
-                        callback: function(key, opt) {
-                            var id = this[0].id;
-                            contextActions(key, id)
-                        }
-                    },
                     pause: {
                         name: lang_arr[1],
                         callback: function(key, opt) {
@@ -1100,6 +1140,13 @@ var manager = function() {
                     },
                     unpause: {
                         name: lang_arr[4],
+                        callback: function(key, opt) {
+                            var id = this[0].id;
+                            contextActions(key, id)
+                        }
+                    },
+                    stop: {
+                        name: lang_arr[2],
                         callback: function(key, opt) {
                             var id = this[0].id;
                             contextActions(key, id)
@@ -1155,7 +1202,18 @@ var manager = function() {
                 }
             });
             tmp_vars['torrent_context_menu'] = $(".context-menu-list.context-menu-root.torrent");
-            tmp_vars['torrent_context_menu_labels'] = $(".context-menu-list.context-menu-root.torrent").find('.context-menu-list.labels');
+            tmp_vars['torrent_context_menu_labels'] = $(".context-menu-list.labels");
+            tmp_vars['torrent_context_menu_labels'].on('click','.select_label',function () {
+                var label_id = $(this).attr('data-key');
+                var label = tmp_vars['label_obj'][label_id];
+                var id = tmp_vars["torrent_context_menu"].attr('data-id');
+                if (label_id == 'del_label') {
+                    contextActions('del_label', id)
+                } else {
+                    contextActions('set_label', id, label)
+                }
+                $('#context-menu-layer').trigger('mousedown');
+            })
             $.contextMenu({
                 className: 'speed',
                 selector: 'table.status-panel td.speed',

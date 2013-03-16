@@ -564,16 +564,18 @@
             opt = data.contextMenu,
             root = data.contextMenuRoot;
             
-            root.hovering = true;
+            if (root && 'hovering' in root)
+                root.hovering = true;
             
             // abort if we're re-entering
-            if (root.$layer && root.$layer.is(e.relatedTarget)) {
+            if (root && root.$layer && root.$layer.is(e.relatedTarget)) {
                 e.preventDefault();
                 e.stopImmediatePropagation();
             }
 
             // make sure only one item is selected
-            (data.contextMenu.$menu ? data.contextMenu : data.contextMenuRoot).$menu.children().removeClass('hover');
+            if ( 'contextMenu' in data)
+                (data.contextMenu.$menu ? data.contextMenu : data.contextMenuRoot).$menu.children().removeClass('hover');
 
             if ($this.hasClass('disabled') || $this.hasClass('not-selectable')) {
                 opt.$selected = null;
@@ -581,11 +583,12 @@
             }
             
             // mark item being selected
-            opt.$selected = root.$selected = $this;
+            if (opt)
+                opt.$selected = root.$selected = $this;
             $this.addClass('hover');
 
             // position sub-menu - do after show so dumb $.ui.position can keep up
-            if (opt.$node) {
+            if (opt && opt.$node) {
                 root.positionSubmenu.call(opt.$node, opt.$menu);
             }
         },
@@ -605,7 +608,8 @@
             }
             
             // remove selection only on current list not root
-            opt.$selected = null;
+            if (opt && '$selected' in opt)
+                opt.$selected = null;
             $this.removeClass('hover');
         },
         // contextMenu item click
@@ -618,17 +622,17 @@
             callback;
 
             // abort if the key is unknown or disabled
-            if (!opt.items[key] || $this.hasClass('disabled')) {
+            if (opt && (!opt.items[key] || $this.hasClass('disabled'))) {
                 return;
             }
 
             e.preventDefault();
             e.stopImmediatePropagation();
 
-            if ($.isFunction(root.callbacks[key])) {
+            if (root && $.isFunction(root.callbacks[key])) {
                 // item-specific callback
                 callback = root.callbacks[key];
-            } else if ($.isFunction(root.callback)) {
+            } else if (root && $.isFunction(root.callback)) {
                 // default callback
                 callback = root.callback;                
             } else {

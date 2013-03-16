@@ -128,6 +128,9 @@ table thead {
         color-stop(0.92, rgb(247,247,247))
         );
 }
+.context-menu-item label {
+    margin-left: -10px;
+}
 table.torrent-table-body thead {
     visibility: hidden;
 }
@@ -136,6 +139,10 @@ table tr {
     cursor: default;
 }
 table tbody tr:hover {
+    background-color: #3875d7;
+    color: #fff;
+}
+table tbody tr.selected {
     background-color: #3875d7;
     color: #fff;
 }
