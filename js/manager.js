@@ -114,30 +114,30 @@ var manager = function () {
         _engine.getTorrentList();
     }
     /*
-            ,arr[i][0] /* •ќ
+            ,arr[i][0] /* РҐР­РЁ
             ,arr[i][1] /* STATUS CODE
-            ,arr[i][2] /* €Њџ
-            ,arr[i][3] /* ђЂ‡Њ…ђ
-            ,arr[i][4] /* ЏђЋ–…Ќ’ ‚›ЏЋ‹Ќ…Ќ€џ
-            ,arr[i][5]/*  загружено
-            ,arr[i][6]/*  ђЋ‡„ЂЌЋ
-            ,arr[i][7]/*  ЉЋќ””€–€…Ќ’
-            ,arr[i][8] /* ‘ЉЋђЋ‘’њ ђЂ‡„Ђ—€
-            ,arr[i][9] /* ‘ЉЋђЋ‘’њ ‡Ђѓђ“‡Љ€
+            ,arr[i][2] /* РРњРЇ
+            ,arr[i][3] /* Р РђР—РњР•Р 
+            ,arr[i][4] /* РџР РћР¦Р•РќРў Р’Р«РџРћР›РќР•РќРРЇ
+            ,arr[i][5]/*  Р·Р°РіСЂСѓР¶РµРЅРѕ
+            ,arr[i][6]/*  Р РћР—Р”РђРќРћ
+            ,arr[i][7]/*  РљРћР­Р¤Р¤РР¦РР•РќРў
+            ,arr[i][8] /* РЎРљРћР РћРЎРўР¬ Р РђР—Р”РђР§Р
+            ,arr[i][9] /* РЎРљРћР РћРЎРўР¬ Р—РђР“Р РЈР—РљР
             ,arr[i][10] /*ETA
-            ,arr[i][11] /*Њ…’ЉЂ 
-            ,arr[i][12] /*ЏЋ„Љ‹ћ—…ЌЋ Џ€ђЋ‚
-            ,arr[i][13] /*Џ€ђ› ‚ ђЋ…
-            ,arr[i][14] /*ЏЋ„Љ‹ћ—…ЌЋ ‘€„Ћ‚
-            ,arr[i][15] /*‘€„› ‚ ђЋ… 
-            ,arr[i][16]/* „Ћ‘’“ЏЌЋ‘’њ
-            ,arr[i][17] /*ЏЋђџ„ЋЉ Ћ—…ђ…„€ ’Ћђђ…Ќ’Ћ‚ 
-            ,arr[i][18]/* отдано
+            ,arr[i][11] /*РњР•РўРљРђ 
+            ,arr[i][12] /*РџРћР”РљР›Р®Р§Р•РќРћ РџРР РћР’
+            ,arr[i][13] /*РџРР Р« Р’ Р РћР•
+            ,arr[i][14] /*РџРћР”РљР›Р®Р§Р•РќРћ РЎРР”РћР’
+            ,arr[i][15] /*РЎРР”Р« Р’ Р РћР• 
+            ,arr[i][16]/* Р”РћРЎРўРЈРџРќРћРЎРўР¬
+            ,arr[i][17] /*РџРћР РЇР”РћРљ РћР§Р•Р Р•Р”Р РўРћР Р Р•РќРўРћР’ 
+            ,arr[i][18]/* РѕС‚РґР°РЅРѕ
             ,arr[i][19]/* ?
             ,arr[i][20]/* ? 
-            ,arr[i][21] /*статус тескстом
-            ,arr[i][23]/* времЯ старта
-            ,arr[i][24]/* времЯ завершениЯ
+            ,arr[i][21] /*СЃС‚Р°С‚СѓСЃ С‚РµСЃРєСЃС‚РѕРј
+            ,arr[i][23]/* РІСЂРµРјСЏ СЃС‚Р°СЂС‚Р°
+            ,arr[i][24]/* РІСЂРµРјСЏ Р·Р°РІРµСЂС€РµРЅРёСЏ
             ,arr[i][22]/* sid
             ,arr[i][26]/* path_to_file
      */
@@ -577,7 +577,7 @@ var manager = function () {
         return !isNaN(parseFloat(n)) && isFinite(n);
     }
     var bytesToSize = function (bytes,nan) {
-        //переводит байты в строчки
+        //РїРµСЂРµРІРѕРґРёС‚ Р±Р°Р№С‚С‹ РІ СЃС‚СЂРѕС‡РєРё
         var sizes = lang_arr[59];
         if (nan==null) nan = 'n/a';
         if (bytes == 0) return nan;
@@ -589,12 +589,12 @@ var manager = function () {
     }
     var writePersent = function (i)
     {
-        //выписывает проценты длЯ прогресс баров
+        //РІС‹РїРёСЃС‹РІР°РµС‚ РїСЂРѕС†РµРЅС‚С‹ РґР»СЏ РїСЂРѕРіСЂРµСЃСЃ Р±Р°СЂРѕРІ
         var full = 68;
         return Math.round(full/100*i);
     }
     var bytesToSizeInSec = function (bytes,nan) {
-        //переводит байты в строчки\сек
+        //РїРµСЂРµРІРѕРґРёС‚ Р±Р°Р№С‚С‹ РІ СЃС‚СЂРѕС‡РєРё\СЃРµРє
         var sizes = lang_arr[60];
         if (bytes == 0) return nan;
         var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
@@ -605,7 +605,7 @@ var manager = function () {
     }
     var unixintime = function (i)
     {
-        //выписывает отсчет времени из unixtime
+        //РІС‹РїРёСЃС‹РІР°РµС‚ РѕС‚СЃС‡РµС‚ РІСЂРµРјРµРЅРё РёР· unixtime
         if (i<0) return '&#8734;';
         var day = Math.floor(i/60/60/24);
         var week = Math.floor(day/7);
@@ -628,7 +628,7 @@ var manager = function () {
     }
     var writeTimeFromShtamp = function (shtamp)
     {
-        //преврЯщает TimeShtamp в строчку
+        //РїСЂРµРІСЂСЏС‰Р°РµС‚ TimeShtamp РІ СЃС‚СЂРѕС‡РєСѓ
         var dt = new Date(shtamp * 1000);
         var m = dt.getMonth()+1;
         if (m.toString().length==1)
