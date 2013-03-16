@@ -685,9 +685,12 @@ var manager = function () {
                 }
                 tr_table_controller.filter(val,item);
             } );
-            $('#torrent-list').on('scroll',function () {
+            tables['table-body'].on('scroll',function () {
                 tables['table-fixed'].css('left',-($(this).scrollLeft()));
             });
+            
+            
+            
             if (settings.graph) {
                 $('li.graph').append('<canvas id="graph"></canvas>');
                 graph.init(settings.mgr_update_interval/1000);
