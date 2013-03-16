@@ -68,6 +68,9 @@ ul.menu a.pause_all{
 ul.menu a.btn:hover {
     border: 1px solid #a9acb1;
 }
+.torrent-list-layer td {
+    white-space: nowrap;
+}
 .torrent-list-layer .name {
     text-align: left;
 }
@@ -98,7 +101,6 @@ ul.menu a.btn:hover {
     text-align: center;
 }
 .torrent-list-layer {
-    max-height: 300px;
     overflow: auto;
 }
 .torrent-list-layer {
@@ -125,6 +127,9 @@ table thead {
         color-stop(0.3, rgb(208,208,208)),
         color-stop(0.92, rgb(247,247,247))
         );
+}
+table.torrent-table-body thead {
+    visibility: hidden;
 }
 table tr {
     height: 18px;

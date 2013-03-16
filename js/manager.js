@@ -14,6 +14,9 @@ var manager = function() {
         'sel_label': {'k': 'all', 'v': null},
         'new_tr_count': 0,
         'label': [],
+        'torrent_context_menu' : null,
+        'torrent_context_menu_labels' : null,
+        'speed_limit' : {}
     }
     var write_language = function() {
         function ui_url()
@@ -488,7 +491,7 @@ var manager = function() {
                 add(t);
             },
             get: function(t) {
-                get(t);
+                return get(t);
             },
             del: function(t) {
                 del(t);
@@ -688,6 +691,208 @@ var manager = function() {
         }
         return menu
     }
+    var update_torrent_context_menu = function (id) {
+            //обновляет контекстное меню торрента
+            var readStatus = function (i)
+            {
+                //показывает что можно, а что нельзя в контекстном меню торрента - скрывает
+                var minus_par = {};
+                var sel_en = []
+                var minusSt = function (i)
+                {
+                    //читает код статуса тооррента
+                    if (i>=128)
+                    {
+                        //Loaded
+                        minus_par[128] = true;
+                        sel_en[2] = 0;
+                        sel_en[3] = 0;
+                        return i-128;
+                    } else
+                    if (i>=64)
+                    {
+                        //Queued
+                        minus_par[64] = true;
+                        sel_en[1] = 0;
+                        sel_en[3] = 1;
+                        return i-64;
+                    } else
+                    if (i>=32)
+                    {
+                        //Paused
+                        minus_par[32] = true;
+                        sel_en[1] = 1;
+                        sel_en[5] = 1;
+                        sel_en[6] = 1;
+                        return i-32;
+                    } else
+                    if (i>=16)
+                    {
+                        //Error
+                        minus_par[16] = true;
+                        sel_en[6] = 1;
+                        sel_en[1] = 1;
+                        return i-16;
+                    } else
+                    if (i>=8)
+                    {
+                        //Checked
+                        minus_par[8] = true;
+                        sel_en[6] = 1;
+                        return i-8;
+                    } else
+                    if (i>=4)
+                    {
+                        //Start after check
+                        minus_par[4] = true;
+                        sel_en[4] = 1;
+                        sel_en[1] = 0;
+                        sel_en[2] = 1;
+                        sel_en[3] = 1;
+                        return i-4;
+                    } else
+                    if (i>=2)
+                    {
+                        //Checking
+                        minus_par[2] = true;
+                        sel_en[6] = 0;
+                        sel_en[3] = 1;
+                        if (!minus_par[32])
+                            sel_en[2] = 1;
+                        return i-2;
+                    } else
+                    if (i>=1)
+                    {
+                        //Started
+                        minus_par[1] = true;
+                        if (minus_par[32]==null)
+                        {
+                            sel_en[1] = 0;
+                            sel_en[2] = 1;
+                            sel_en[3] = 1;
+                            sel_en[4] = 1;
+                            sel_en[5] = 0;
+                        }
+                        if (minus_par[8]&&minus_par[1]&&minus_par[64]==null)
+                        {
+                            sel_en[1] = 1;
+                        }
+                        sel_en[6] = 0;
+                        return i-1;
+                    } else
+                        return i;
+                }
+                sel_en[1] = 1; //start
+                sel_en[2] = 1; //pause
+                sel_en[3] = 1; //stop
+                sel_en[4] = 0; //force start
+                sel_en[5] = 0; //unpause
+                sel_en[6] = 1; //forcer re-check
+                var t = i;
+                while (t>0)
+                {
+                    t = minusSt(t);
+                }
+                /*
+                 start,force_start,stop,pause,unpause,recheck
+                 */
+                return {'start':sel_en[1],'force_start':sel_en[2],'stop':sel_en[3],'pause':sel_en[4],'unpause':sel_en[5],'recheck':sel_en[6]}
+            }
+            var status = tr_table_controller.get(id)
+            if (!status) return;
+            var menu_items = readStatus(status[1]);
+            var f = 0
+            $.each(menu_items, function(k,v) {
+                if (v && !menu_items['start'] && !f) {
+                    f++
+                    tmp_vars["torrent_context_menu"].find('li[data-key='+k+']').addClass('first').css('display',(v)?'block':'none');
+                } else
+                    tmp_vars["torrent_context_menu"].find('li[data-key='+k+']').css('display',(v)?'block':'none');
+            });
+    }
+    var on_hide_torrent_context_menu = function () {
+        tmp_vars["torrent_context_menu"].find('li.first').removeClass('first');
+    }
+    var make_speed_menu = function () {
+            //выстраивает внутренности контекстного меню для ограничения скорости
+            var items = {};
+            items["unlimited"]={
+                name:lang_arr[69],	
+                callback:function (){
+                    //do...
+                }
+            };
+            items["s"]='-';
+            
+            var count = Math.round(settings.window_height / 27);
+            if (count>10) count = 10;
+           tmp_vars.speed_limit['count'] = count;
+            for (var i=0;i<count;i++)
+            {
+                items[i]={
+                    name: '-', 
+                    callback: function (name){
+                        //do...
+                    }
+                };
+            }
+            return items;
+    }
+    var set_speed_limit = function (arr) {
+        var c = arr.length;
+        var a = 0;
+        var b = 0;
+        for (var n = 0; n < c; n++) {
+            if ( arr[n][0] == 'max_dl_rate' ) {
+                tmp_vars.speed_limit['download_limit'] = arr[n][2];
+                a++;
+                if (b) {
+                    break;
+                }
+            }
+            if ( arr[n][0] == 'max_ul_rate' ) {
+                tmp_vars.speed_limit['upload_limit'] = arr[n][2];
+                b++;
+                if (a) {
+                    break;
+                }
+            }
+        }
+        if ('last-type' in tmp_vars.speed_limit)
+            update_speed_menu(tmp_vars.speed_limit['last-type']);
+    }
+    var update_speed_menu = function (type) {
+        //обновляет контекстное меню ограничения скорости, в зависимости от скорости
+        tmp_vars.speed_limit['last-type'] = type;
+        download_limit = 0;
+        upload_limit = 0;
+        if ('download_limit' in tmp_vars.speed_limit)
+        {
+            var download_limit = tmp_vars.speed_limit.download_limit;
+            var upload_limit = tmp_vars.speed_limit.upload_limit;
+        } else {
+            _engine.getLimit();
+        }
+        
+        var count = tmp_vars.speed_limit.count;
+        var sp = (type) ? download_limit : upload_limit;
+        var count_p = sp;
+        if (count_p == 0) count_p = 200;
+        if (count_p<Math.round(count/2)) count_p = Math.round(count/2);
+        if (sp == 0)
+            tmp_vars['speed_context_menu'].children('li[data-key=unlimited]').children('span').html('<label>&#9679; </label>'+lang_arr[69]);
+        else
+            tmp_vars['speed_context_menu'].children('li[data-key=unlimited]').children('span').html(lang_arr[69]);
+        var with_a = tmp_vars['speed_context_menu'].children('li[data-key!=unlimited]');
+        for (var i=0;i<=count;i++)
+        {
+            var speed = Math.round((i+1)/Math.round(count/2)*count_p);
+            if (speed == sp)
+                with_a.eq(i).attr('data-speed',speed).children('span').html('<label>&#9679; </label>'+bytesToSizeInSec(speed*1024));	
+            else  
+                with_a.eq(i).attr('data-speed',speed).children('span').html(bytesToSizeInSec(speed*1024));
+        }
+    }
     //==================
     function isNumber(n) {
         return !isNaN(parseFloat(n)) && isFinite(n);
@@ -797,6 +1002,7 @@ var manager = function() {
                 'fl-fixed': $('#file-list').children('table').eq(0),
                 'fl-bottom': $('div.file-list-layer > div.bottom-menu'),
             }
+            tables['table-body'].css('max-height', settings.window_height+'px');
             torrent_list_head();
             tables['label-select'].selectBox().change(function() {
                 var val = $(this).val();
@@ -853,12 +1059,14 @@ var manager = function() {
 
             $.contextMenu({
                 selector: ".torrent-table-body tr",
+                className : "torrent",
                 events: {
                     show: function() {
                         var id = this[0].id;
+                        update_torrent_context_menu(id);
                     },
                     hide: function() {
-                        var id = this[0].id;
+                        on_hide_torrent_context_menu();
                     },
                 },
                 items: {
@@ -941,11 +1149,25 @@ var manager = function() {
                     's2': '--------',
                     labels: {
                         name: lang_arr[11],
+                        className : "labels",
                         items: get_label_context_menu()
                     },
                 }
             });
-
+            tmp_vars['torrent_context_menu'] = $(".context-menu-list.context-menu-root.torrent");
+            tmp_vars['torrent_context_menu_labels'] = $(".context-menu-list.context-menu-root.torrent").find('.context-menu-list.labels');
+            $.contextMenu({
+                className: 'speed',
+                selector: 'table.status-panel td.speed',
+                events: {
+                    show: function (opt){
+                        var type = $(this).hasClass('download');
+                        update_speed_menu(type);
+                    }
+                },
+                items: make_speed_menu()
+            });
+            tmp_vars['speed_context_menu'] = $(".context-menu-list.context-menu-root.speed");
             if (settings.graph) {
                 $('li.graph').append('<canvas id="graph"></canvas>');
                 graph.init(settings.mgr_update_interval / 1000);
@@ -969,7 +1191,10 @@ var manager = function() {
         },
         setLabels: function(a) {
             set_labels(a);
-        }
+        },
+         setSpeedLimit : function (a) {
+            set_speed_limit(a);
+         }
     }
 }();
 $(function() {

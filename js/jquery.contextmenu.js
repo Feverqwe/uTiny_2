@@ -755,7 +755,7 @@
             
             // create contextMenu items
             $.each(opt.items, function(key, item){
-                var $t = $('<li class="context-menu-item ' + (item.className || "") +'"></li>'),
+                var $t = $('<li class="context-menu-item ' + (item.className || "") +'" data-key="'+key+'"></li>'),
                 $label = null, 
                 $input = null;
                 
