@@ -14,10 +14,10 @@ var manager = function() {
         'sel_label': {'k': 'all', 'v': null},
         'new_tr_count': 0,
         'label': [],
-        'torrent_context_menu' : null,
-        'torrent_context_menu_labels' : null,
-        'speed_limit' : {},
-        'auto_order' : true,
+        'torrent_context_menu': null,
+        'torrent_context_menu_labels': null,
+        'speed_limit': {},
+        'auto_order': true,
     }
     var write_language = function() {
         function ui_url()
@@ -201,7 +201,7 @@ var manager = function() {
                         item = $('#' + v[0]);
                     var cell = item.children('td.name');
                     cell.childen('td.name').children('div').attr('title', v[2]).children('span').text(v[2]);
-                    tables['table-main'].trigger('updateCell',[cell[0],tmp_vars.auto_order]);
+                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                     break;
                 case 3:
                     if (!item)
@@ -209,7 +209,7 @@ var manager = function() {
                     var t_s = bytesToSize(v[3]);
                     var cell = item.children('td.size');
                     cell.attr('data-value', v[3]).children('div').attr('title', t_s).html(t_s);
-                    tables['table-main'].trigger('updateCell',[cell[0],tmp_vars.auto_order]);
+                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                     break;
                 case 4:
                 case 1:
@@ -222,7 +222,7 @@ var manager = function() {
                     var progress = v[4] / 10;
                     var cell = item.children('td.progress');
                     var with_c = cell.attr('data-value', v[4]).children('div.progress_b').children('div.progress_b_i');
-                    tables['table-main'].trigger('updateCell',[cell[0],tmp_vars.auto_order]);
+                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                     with_c.css('width', writePersent(progress) + 'px').children('div').html(progress + '%');
                     if (v[1] == 201 && v[4] == 1000)
                     {
@@ -241,21 +241,21 @@ var manager = function() {
                         item = $('#' + v[0]);
                     var cell = item.children('td.status');
                     cell.attr('data-value', v[1]).children('div').attr('title', v[21]).html(v[21]);
-                    tables['table-main'].trigger('updateCell',[cell[0],tmp_vars.auto_order]);
+                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                     break;
                 case 9:
                     if (!item)
                         item = $('#' + v[0]);
                     var cell = item.children('td.down_speed');
                     cell.attr('data-value', v[9]).children('div').html(bytesToSizeInSec(v[9], ''));
-                    tables['table-main'].trigger('updateCell',[cell[0],tmp_vars.auto_order]);
+                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                     break;
                 case 8:
                     if (!item)
                         item = $('#' + v[0]);
                     var cell = item.children('td.uplo_speed');
                     cell.attr('data-value', v[8]).children('div').html(bytesToSizeInSec(v[8], ''));
-                    tables['table-main'].trigger('updateCell',[cell[0],tmp_vars.auto_order]);
+                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                     break;
                 case 14:
                 case 12:
@@ -267,7 +267,7 @@ var manager = function() {
                         item = $('#' + v[0]);
                     var cell = item.children('td.seeds_peers');
                     cell.children('div').html(v[14] + '/' + v[12]);
-                    tables['table-main'].trigger('updateCell',[cell[0],tmp_vars.auto_order]);
+                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                     break;
                 case 9:
                     if (!item)
@@ -277,7 +277,7 @@ var manager = function() {
                         val = '*';
                     var cell = item.children('td.position');
                     cell.children('div').html(val);
-                    tables['table-main'].trigger('updateCell',[cell[0],tmp_vars.auto_order]);
+                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                     break;
                 case 9:
                 case 3:
@@ -292,21 +292,21 @@ var manager = function() {
                         val = 0;
                     var cell = item.children('td.ostalos');
                     cell.attr('data-value', val).children('div').html(bytesToSize(val, 0));
-                    tables['table-main'].trigger('updateCell',[cell[0],tmp_vars.auto_order]);
+                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                     break;
                 case 15:
                     if (!item)
                         item = $('#' + v[0]);
                     var cell = item.children('td.seeds');
                     cell.children('div').html(v[15]);
-                    tables['table-main'].trigger('updateCell',[cell[0],tmp_vars.auto_order]);
+                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                     break;
                 case 13:
                     if (!item)
                         item = $('#' + v[0]);
                     var cell = item.children('td.peers');
                     cell.children('div').html(v[13]);
-                    tables['table-main'].trigger('updateCell',[cell[0],tmp_vars.auto_order]);
+                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                     break;
                 case 10:
                     if (!item)
@@ -314,21 +314,21 @@ var manager = function() {
                     var s_time = unixintime(v[10]);
                     var cell = item.children('td.time');
                     cell.attr('data-value', v[10]).children('div').attr('title', s_time).html(s_time);
-                    tables['table-main'].trigger('updateCell',[cell[0],tmp_vars.auto_order]);
+                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                     break;
                 case 6:
                     if (!item)
                         item = $('#' + v[0]);
                     var cell = item.children('td.otdano');
                     cell.attr('data-value', v[6]).children('div').html(bytesToSize(v[6], 0));
-                    tables['table-main'].trigger('updateCell',[cell[0],tmp_vars.auto_order]);
+                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                     break;
                 case 5:
                     if (!item)
                         item = $('#' + v[0]);
                     var cell = item.children('td.poluchino');
                     cell.attr('data-value', v[5]).children('div').html(bytesToSize(v[5], 0));
-                    tables['table-main'].trigger('updateCell',[cell[0],tmp_vars.auto_order]);
+                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                     break;
                 case 7:
                     if (!item)
@@ -336,7 +336,7 @@ var manager = function() {
                     var val = v[7] / 1000;
                     var cell = item.children('td.koeficient');
                     cell.attr('data-value', v[7]).children('div').html(val);
-                    tables['table-main'].trigger('updateCell',[cell[0],tmp_vars.auto_order]);
+                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                     break;
                 case 16:
                     if (!item)
@@ -344,14 +344,14 @@ var manager = function() {
                     var val = Math.round((v[16] / 65535) * 1000) / 1000;
                     var cell = item.children('td.dostupno');
                     cell.attr('data-value', v[16]).children('div').html(val);
-                    tables['table-main'].trigger('updateCell',[cell[0],tmp_vars.auto_order]);
+                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                     break;
                 case 11:
                     if (!item)
                         item = $('#' + v[0]);
                     var cell = item.children('td.metka');
                     cell.children('div').attr('title', v[11]).html(v[11]);
-                    tables['table-main'].trigger('updateCell',[cell[0],tmp_vars.auto_order]);
+                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                     break;
                 case 23:
                     if (!item)
@@ -359,7 +359,7 @@ var manager = function() {
                     var str_time = writeTimeFromShtamp(v[23]);
                     var cell = item.children('td.time_dobavleno');
                     cell.children('div').attr('title', str_time).html(str_time);
-                    tables['table-main'].trigger('updateCell',[cell[0],tmp_vars.auto_order]);
+                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                     break;
                 case 24:
                     if (!item)
@@ -367,7 +367,7 @@ var manager = function() {
                     var str_time = writeTimeFromShtamp(v[24]);
                     var cell = item.children('td.time_zavircheno');
                     cell.children('div').attr('title', str_time).html(str_time);
-                    tables['table-main'].trigger('updateCell',[cell[0],tmp_vars.auto_order]);
+                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                     break;
             }
         }
@@ -645,11 +645,12 @@ var manager = function() {
     var set_status = function(a, b) {
         tables.status.text(b);
     }
-    var update_labels_context_menu = function (id) {
+    var update_labels_context_menu = function(id) {
         var current_label = null;
         if (id) {
             current_label = tr_table_controller.get(id);
-            if (!current_label) return;
+            if (!current_label)
+                return;
             current_label = current_label[11];
         }
         var arr = tmp_vars['label'];
@@ -657,9 +658,9 @@ var manager = function() {
         var code = '<li class="context-menu-item select_label" data-key="del_label"><span>Remove label</span></li>';
         for (var n = 0; n < c; n++) {
             if (current_label && current_label == arr[n][0]) {
-                code += '<li class="context-menu-item select_label" data-key="'+arr[n][1]+'"><span><label>&#9679; </label>'+arr[n][0]+'</span></li>'
+                code += '<li class="context-menu-item select_label" data-key="' + arr[n][1] + '"><span><label>&#9679; </label>' + arr[n][0] + '</span></li>'
             } else {
-                code += '<li class="context-menu-item select_label" data-key="'+arr[n][1]+'"><span>'+arr[n][0]+'</span></li>'
+                code += '<li class="context-menu-item select_label" data-key="' + arr[n][1] + '"><span>' + arr[n][0] + '</span></li>'
             }
         }
         tmp_vars['torrent_context_menu_labels'].html(code);
@@ -682,7 +683,7 @@ var manager = function() {
         update_labels_context_menu();
     }
     var contextActions = function(k, v, opt) {
-        if ( (k != 'speed' && !v) || (k == 'speed' && v < 0) )
+        if ((k != 'speed' && !v) || (k == 'speed' && v < 0))
             return;
         switch (k) {
             case ('start'):
@@ -704,7 +705,7 @@ var manager = function() {
                 _engine.sendAction('&list=1&action=recheck&hash=' + v);
                 break;
             case ('set_label'):
-                _engine.sendAction('&list=1&action=setprops&s=label&v='+opt+'&hash=' + v);
+                _engine.sendAction('&list=1&action=setprops&s=label&v=' + opt + '&hash=' + v);
                 break;
             case ('del_label'):
                 _engine.sendAction('&list=1&action=setprops&s=label&v=&hash=' + v);
@@ -759,184 +760,187 @@ var manager = function() {
         }
         return menu
     }
-    var update_torrent_context_menu = function (id) {
-            //обновляет контекстное меню торрента
-            tmp_vars.auto_order = false;
-            var readStatus = function (i)
+    var update_torrent_context_menu = function(id) {
+        //обновляет контекстное меню торрента
+        tmp_vars.auto_order = false;
+        var readStatus = function(i)
+        {
+            //показывает что можно, а что нельзя в контекстном меню торрента - скрывает
+            var minus_par = {};
+            var sel_en = []
+            var minusSt = function(i)
             {
-                //показывает что можно, а что нельзя в контекстном меню торрента - скрывает
-                var minus_par = {};
-                var sel_en = []
-                var minusSt = function (i)
+                //читает код статуса тооррента
+                if (i >= 128)
                 {
-                    //читает код статуса тооррента
-                    if (i>=128)
+                    //Loaded
+                    minus_par[128] = true;
+                    sel_en[2] = 0;
+                    sel_en[3] = 0;
+                    return i - 128;
+                } else
+                if (i >= 64)
+                {
+                    //Queued
+                    minus_par[64] = true;
+                    sel_en[1] = 0;
+                    sel_en[3] = 1;
+                    return i - 64;
+                } else
+                if (i >= 32)
+                {
+                    //Paused
+                    minus_par[32] = true;
+                    sel_en[1] = 1;
+                    sel_en[5] = 1;
+                    sel_en[6] = 1;
+                    return i - 32;
+                } else
+                if (i >= 16)
+                {
+                    //Error
+                    minus_par[16] = true;
+                    sel_en[6] = 1;
+                    sel_en[1] = 1;
+                    return i - 16;
+                } else
+                if (i >= 8)
+                {
+                    //Checked
+                    minus_par[8] = true;
+                    sel_en[6] = 1;
+                    return i - 8;
+                } else
+                if (i >= 4)
+                {
+                    //Start after check
+                    minus_par[4] = true;
+                    sel_en[4] = 1;
+                    sel_en[1] = 0;
+                    sel_en[2] = 1;
+                    sel_en[3] = 1;
+                    return i - 4;
+                } else
+                if (i >= 2)
+                {
+                    //Checking
+                    minus_par[2] = true;
+                    sel_en[6] = 0;
+                    sel_en[3] = 1;
+                    if (!minus_par[32])
+                        sel_en[2] = 1;
+                    return i - 2;
+                } else
+                if (i >= 1)
+                {
+                    //Started
+                    minus_par[1] = true;
+                    if (minus_par[32] == null)
                     {
-                        //Loaded
-                        minus_par[128] = true;
-                        sel_en[2] = 0;
-                        sel_en[3] = 0;
-                        return i-128;
-                    } else
-                    if (i>=64)
-                    {
-                        //Queued
-                        minus_par[64] = true;
-                        sel_en[1] = 0;
-                        sel_en[3] = 1;
-                        return i-64;
-                    } else
-                    if (i>=32)
-                    {
-                        //Paused
-                        minus_par[32] = true;
-                        sel_en[1] = 1;
-                        sel_en[5] = 1;
-                        sel_en[6] = 1;
-                        return i-32;
-                    } else
-                    if (i>=16)
-                    {
-                        //Error
-                        minus_par[16] = true;
-                        sel_en[6] = 1;
-                        sel_en[1] = 1;
-                        return i-16;
-                    } else
-                    if (i>=8)
-                    {
-                        //Checked
-                        minus_par[8] = true;
-                        sel_en[6] = 1;
-                        return i-8;
-                    } else
-                    if (i>=4)
-                    {
-                        //Start after check
-                        minus_par[4] = true;
-                        sel_en[4] = 1;
                         sel_en[1] = 0;
                         sel_en[2] = 1;
                         sel_en[3] = 1;
-                        return i-4;
-                    } else
-                    if (i>=2)
+                        sel_en[4] = 1;
+                        sel_en[5] = 0;
+                    }
+                    if (minus_par[8] && minus_par[1] && minus_par[64] == null)
                     {
-                        //Checking
-                        minus_par[2] = true;
-                        sel_en[6] = 0;
-                        sel_en[3] = 1;
-                        if (!minus_par[32])
-                            sel_en[2] = 1;
-                        return i-2;
-                    } else
-                    if (i>=1)
-                    {
-                        //Started
-                        minus_par[1] = true;
-                        if (minus_par[32]==null)
-                        {
-                            sel_en[1] = 0;
-                            sel_en[2] = 1;
-                            sel_en[3] = 1;
-                            sel_en[4] = 1;
-                            sel_en[5] = 0;
-                        }
-                        if (minus_par[8]&&minus_par[1]&&minus_par[64]==null)
-                        {
-                            sel_en[1] = 1;
-                        }
-                        sel_en[6] = 0;
-                        return i-1;
-                    } else
-                        return i;
-                }
-                sel_en[1] = 1; //start
-                sel_en[2] = 1; //pause
-                sel_en[3] = 1; //stop
-                sel_en[4] = 0; //force start
-                sel_en[5] = 0; //unpause
-                sel_en[6] = 1; //forcer re-check
-                var t = i;
-                while (t>0)
-                {
-                    t = minusSt(t);
-                }
-                /*
-                 start,force_start,stop,pause,unpause,recheck
-                 */
-                return {'start':sel_en[1],'force_start':sel_en[2],'stop':sel_en[3],'pause':sel_en[4],'unpause':sel_en[5],'recheck':sel_en[6]}
-            }
-            var status = tr_table_controller.get(id)
-            if (!status) return;
-            var menu_items = readStatus(status[1]);
-            var f = 0
-            $.each(menu_items, function(k,v) {
-                if (v && !menu_items['start'] && !f) {
-                    f++
-                    tmp_vars["torrent_context_menu"].find('li[data-key='+k+']').addClass('first').css('display',(v)?'block':'none');
+                        sel_en[1] = 1;
+                    }
+                    sel_en[6] = 0;
+                    return i - 1;
                 } else
-                    tmp_vars["torrent_context_menu"].find('li[data-key='+k+']').css('display',(v)?'block':'none');
-            });
-            var current_label = tr_table_controller.get(id);
-            if (!current_label) return;
-            current_label = current_label[11];
-            tmp_vars["torrent_context_menu"].attr('data-id',id).attr('data-lable',(current_label.length)?1:0);
-            if (current_label.length) {
-                $('.context-menu-item.labels').children('span').html(lang_arr[11]+' ('+current_label+')');
+                    return i;
             }
-            $('#'+id).addClass('selected');
-            update_labels_context_menu(id);
+            sel_en[1] = 1; //start
+            sel_en[2] = 1; //pause
+            sel_en[3] = 1; //stop
+            sel_en[4] = 0; //force start
+            sel_en[5] = 0; //unpause
+            sel_en[6] = 1; //forcer re-check
+            var t = i;
+            while (t > 0)
+            {
+                t = minusSt(t);
+            }
+            /*
+             start,force_start,stop,pause,unpause,recheck
+             */
+            return {'start': sel_en[1], 'force_start': sel_en[2], 'stop': sel_en[3], 'pause': sel_en[4], 'unpause': sel_en[5], 'recheck': sel_en[6]}
+        }
+        var status = tr_table_controller.get(id)
+        if (!status)
+            return;
+        var menu_items = readStatus(status[1]);
+        var f = 0
+        $.each(menu_items, function(k, v) {
+            if (v && !menu_items['start'] && !f) {
+                f++
+                tmp_vars["torrent_context_menu"].find('li[data-key=' + k + ']').addClass('first').css('display', (v) ? 'block' : 'none');
+            } else
+                tmp_vars["torrent_context_menu"].find('li[data-key=' + k + ']').css('display', (v) ? 'block' : 'none');
+        });
+        var current_label = tr_table_controller.get(id);
+        if (!current_label)
+            return;
+        current_label = current_label[11];
+        tmp_vars["torrent_context_menu"].attr('data-id', id).attr('data-lable', (current_label.length) ? 1 : 0);
+        if (current_label.length) {
+            $('.context-menu-item.labels').children('span').html(lang_arr[11] + ' (' + current_label + ')');
+        }
+        $('#' + id).addClass('selected');
+        update_labels_context_menu(id);
     }
-    var on_hide_torrent_context_menu = function (id) {
+    var on_hide_torrent_context_menu = function(id) {
         tmp_vars.auto_order = true;
         tmp_vars["torrent_context_menu"].find('li.first').removeClass('first');
-        $('#'+id+'.selected').removeClass('selected');
-        tmp_vars["torrent_context_menu"].attr('data-id','');
+        $('#' + id + '.selected').removeClass('selected');
+        tmp_vars["torrent_context_menu"].attr('data-id', '');
         if (tmp_vars["torrent_context_menu"].attr('data-lable') == 1) {
             $('.context-menu-item.labels').children('span').html(lang_arr[11]);
         }
-        tmp_vars["torrent_context_menu"].attr('data-lable','');
+        tmp_vars["torrent_context_menu"].attr('data-lable', '');
     }
-    var make_speed_menu = function () {
-            //выстраивает внутренности контекстного меню для ограничения скорости
-            var items = {};
-            items["unlimited"]={
-                name:lang_arr[69],	
-                callback:function (opt){
-                    var type = $(this).hasClass('download');
-                    contextActions('speed',0,type);
-                }
-            };            
-            var count = Math.round(settings.window_height / 27);
-            if (count>10) count = 10;
-           tmp_vars.speed_limit['count'] = count;
-            for (var i=0;i<count;i++)
-            {
-                items[i]={
-                    name: '-', 
-                    callback: function (opt){
-                        var type = $(this).hasClass('download');
-                        var v = tmp_vars['speed_context_menu'].children('li[data-key='+opt+']').attr('data-speed');
-                        contextActions('speed',v,type);
-                    }
-                };
+    var make_speed_menu = function() {
+        //выстраивает внутренности контекстного меню для ограничения скорости
+        var items = {};
+        items["unlimited"] = {
+            name: lang_arr[69],
+            callback: function(opt) {
+                var type = $(this).hasClass('download');
+                contextActions('speed', 0, type);
             }
-            return items;
+        };
+        var count = Math.round(settings.window_height / 27);
+        if (count > 10)
+            count = 10;
+        tmp_vars.speed_limit['count'] = count;
+        for (var i = 0; i < count; i++)
+        {
+            items[i] = {
+                name: '-',
+                callback: function(opt) {
+                    var type = $(this).hasClass('download');
+                    var v = tmp_vars['speed_context_menu'].children('li[data-key=' + opt + ']').attr('data-speed');
+                    contextActions('speed', v, type);
+                }
+            };
+        }
+        return items;
     }
-    var set_speed_limit = function (arr) {
+    var set_speed_limit = function(arr) {
         var c = arr.length;
         var a = 0;
         var b = 0;
         for (var n = 0; n < c; n++) {
-            if ( arr[n][0] == 'max_dl_rate' ) {
+            if (arr[n][0] == 'max_dl_rate') {
                 tmp_vars.speed_limit['download_limit'] = arr[n][2];
                 a++;
                 if (b) {
                     break;
                 }
             }
-            if ( arr[n][0] == 'max_ul_rate' ) {
+            if (arr[n][0] == 'max_ul_rate') {
                 tmp_vars.speed_limit['upload_limit'] = arr[n][2];
                 b++;
                 if (a) {
@@ -947,7 +951,7 @@ var manager = function() {
         if ('last-type' in tmp_vars.speed_limit)
             update_speed_menu(tmp_vars.speed_limit['last-type']);
     }
-    var update_speed_menu = function (type) {
+    var update_speed_menu = function(type) {
         //обновляет контекстное меню ограничения скорости, в зависимости от скорости
         tmp_vars.speed_limit['last-type'] = type;
         download_limit = 0;
@@ -959,24 +963,26 @@ var manager = function() {
         } else {
             _engine.getLimit();
         }
-        
+
         var count = tmp_vars.speed_limit.count;
         var sp = (type) ? download_limit : upload_limit;
         var count_p = sp;
-        if (count_p == 0) count_p = 200;
-        if (count_p<Math.round(count/2)) count_p = Math.round(count/2);
+        if (count_p == 0)
+            count_p = 200;
+        if (count_p < Math.round(count / 2))
+            count_p = Math.round(count / 2);
         if (sp == 0)
-            tmp_vars['speed_context_menu'].children('li[data-key=unlimited]').children('span').html('<label>&#9679; </label>'+lang_arr[69]);
+            tmp_vars['speed_context_menu'].children('li[data-key=unlimited]').children('span').html('<label>&#9679; </label>' + lang_arr[69]);
         else
             tmp_vars['speed_context_menu'].children('li[data-key=unlimited]').children('span').html(lang_arr[69]);
         var with_a = tmp_vars['speed_context_menu'].children('li[data-key!=unlimited]');
-        for (var i=0;i<=count;i++)
+        for (var i = 0; i <= count; i++)
         {
-            var speed = Math.round((i+1)/Math.round(count/2)*count_p);
+            var speed = Math.round((i + 1) / Math.round(count / 2) * count_p);
             if (speed == sp)
-                with_a.eq(i).attr('data-speed',speed).children('span').html('<label>&#9679; </label>'+bytesToSizeInSec(speed*1024));	
-            else  
-                with_a.eq(i).attr('data-speed',speed).children('span').html(bytesToSizeInSec(speed*1024));
+                with_a.eq(i).attr('data-speed', speed).children('span').html('<label>&#9679; </label>' + bytesToSizeInSec(speed * 1024));
+            else
+                with_a.eq(i).attr('data-speed', speed).children('span').html(bytesToSizeInSec(speed * 1024));
         }
     }
     //==================
@@ -1088,7 +1094,7 @@ var manager = function() {
                 'fl-fixed': $('#file-list').children('table').eq(0),
                 'fl-bottom': $('div.file-list-layer > div.bottom-menu'),
             }
-            tables['table-body'].css('max-height', settings.window_height+'px');
+            tables['table-body'].css('max-height', settings.window_height + 'px');
             torrent_list_head();
             tables['label-select'].selectBox().change(function() {
                 var val = $(this).val();
@@ -1145,7 +1151,7 @@ var manager = function() {
 
             $.contextMenu({
                 selector: ".torrent-table-body tr",
-                className : "torrent",
+                className: "torrent",
                 events: {
                     show: function() {
                         var id = this[0].id;
@@ -1236,14 +1242,14 @@ var manager = function() {
                     's2': '--------',
                     labels: {
                         name: lang_arr[11],
-                        className : "labels",
+                        className: "labels",
                         items: get_label_context_menu()
                     },
                 }
             });
             tmp_vars['torrent_context_menu'] = $(".context-menu-list.context-menu-root.torrent");
             tmp_vars['torrent_context_menu_labels'] = $(".context-menu-list.labels");
-            tmp_vars['torrent_context_menu_labels'].on('click','.select_label',function () {
+            tmp_vars['torrent_context_menu_labels'].on('click', '.select_label', function() {
                 var label_id = $(this).attr('data-key');
                 var label = tmp_vars['label_obj'][label_id];
                 var id = tmp_vars["torrent_context_menu"].attr('data-id');
@@ -1258,7 +1264,7 @@ var manager = function() {
                 className: 'speed',
                 selector: 'table.status-panel td.speed',
                 events: {
-                    show: function (opt){
+                    show: function(opt) {
                         var type = $(this).hasClass('download');
                         update_speed_menu(type);
                     }
@@ -1289,9 +1295,9 @@ var manager = function() {
         setLabels: function(a) {
             set_labels(a);
         },
-         setSpeedLimit : function (a) {
+        setSpeedLimit: function(a) {
             set_speed_limit(a);
-         }
+        }
     }
 }();
 $(function() {
