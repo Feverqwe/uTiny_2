@@ -869,11 +869,7 @@
                 
                 // Disable text selection
                 if (!opt.hasTypes) {
-                    if($.browser.msie) {
-                        $t.bind('selectstart.disableTextSelect', handle.abortevent);
-                    } else if(!$.browser.mozilla) {
                         $t.bind('mousedown.disableTextSelect', handle.abortevent);
-                    }
                 }
             });
             // attach contextMenu to <body> (to bypass any possible overflow:hidden issues on parents of the trigger element)
