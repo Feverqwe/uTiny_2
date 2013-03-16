@@ -13,6 +13,7 @@ var manager = function() {
     tmp_vars = {
         'sel_label': {'k': 'all', 'v': null},
         'new_tr_count': 0,
+        'label': [],
     }
     var write_language = function() {
         function ui_url()
@@ -602,6 +603,7 @@ var manager = function() {
         tables.status.text(b);
     }
     var set_labels = function(arr) {
+        tmp_vars['label'] = arr;
         var c = arr.length;
         var costum = ['all', 'download', 'seeding', 'complite', 'active', 'inacive', 'no label'];
         var cc = costum.length;
@@ -637,6 +639,9 @@ var manager = function() {
                 _engine.sendAction('&list=1&action=recheck&hash=' + v);
                 break;
             case ('set_label'):
+                //var label = opt.items.labels.items[k].name;
+                //_engine.sendAction('&list=1&setprops&s=label&v='+label+'&hash=' + v);
+                //get label from engine, where k = id of label!
                 break;
             case ('del_label'):
                 _engine.sendAction('&list=1&setprops&s=label&v=&hash=' + v);
@@ -660,6 +665,28 @@ var manager = function() {
             case ('del_colum'):
                 break;
         }
+    }
+    var get_label_context_menu = function() {
+        var labels = tmp_vars.label;
+        var c = labels.length;
+        var menu = {}
+        menu['del_label'] = {
+            name: lang_arr[12],
+            callback: function(key, opt) {
+                var id = this[0].id;
+                contextActions(key, id)
+            }
+        }
+        for (var n = 0; n < c; n++) {
+            menu[ labels[n][1] ] = {
+                name: labels[n][0],
+                callback: function(key, opt) {
+                    var id = this[0].id;
+                    contextActions('set_label', id, key)
+                }
+            }
+        }
+        return menu
     }
     //==================
     function isNumber(n) {
@@ -914,22 +941,7 @@ var manager = function() {
                     's2': '--------',
                     labels: {
                         name: lang_arr[11],
-                        items: {
-                            del_label: {
-                                name: lang_arr[12],
-                                callback: function(key, opt) {
-                                    var id = this[0].id;
-                                    contextActions(key, id)
-                                }
-                            },
-                            set_label: {
-                                name: '-',
-                                callback: function(key, opt) {
-                                    var id = this[0].id;
-                                    contextActions(key, id, opt)
-                                }
-                            },
-                        }
+                        items: get_label_context_menu()
                     },
                 }
             });
