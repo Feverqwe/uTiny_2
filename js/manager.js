@@ -21,12 +21,12 @@ var manager = function () {
                     localStorage.login+":"+localStorage.password+"@"+
                     localStorage.ut_ip+":"+localStorage.ut_port+"/"+localStorage.ut_path;
         }
-        $('ul.menu').find('a.refresh').attr('title',lang_arr[24]);
-        $('ul.menu').find('a.donate').attr('title',lang_arr[25]);
-        $('ul.menu').find('a.wui').attr('title',lang_arr[26]);
-        $('ul.menu').find('a.start_all').attr('title',lang_arr[68]);
-        $('ul.menu').find('a.pause_all').attr('title',lang_arr[67]);
-        $('ul.menu').find('a.wui').attr('href',ui_url());
+        tables['menu'].find('a.refresh').attr('title',lang_arr[24]);
+        tables['menu'].find('a.donate').attr('title',lang_arr[25]);
+        tables['menu'].find('a.wui').attr('title',lang_arr[26]);
+        tables['menu'].find('a.start_all').attr('title',lang_arr[68]);
+        tables['menu'].find('a.pause_all').attr('title',lang_arr[67]);
+        tables['menu'].find('a.wui').attr('href',ui_url());
         $('th.select').attr('title',lang_arr[91][0]);
         $('#file-list').find('th.name').attr('title',lang_arr[88][1]).html(lang_arr[88][0]);
         $('#file-list').find('th.size').attr('title',lang_arr[14][1]).html(lang_arr[14][0]);
@@ -39,6 +39,7 @@ var manager = function () {
     }
     var torrent_list_head = function () {
         var colums = _engine.getColums();
+        $('.torrent-style').remove();
         var style = '<style class="torrent-style">';
         var thead = '<tr>';
         var sum_width = 0;
@@ -74,7 +75,7 @@ var manager = function () {
             onsort: function (s) {
                 localStorage.tr_order = JSON.stringify(s);
             },
-            selectorHeaders : '#torrent-list table.fixed thead th'
+            selectorHeaders : '.torrent-table-head thead th'
         });
     }
     var timer = function () {
@@ -113,30 +114,30 @@ var manager = function () {
         _engine.getTorrentList();
     }
     /*
-            ,arr[i][0] /* РҐР­РЁ
+            ,arr[i][0] /* •ќ
             ,arr[i][1] /* STATUS CODE
-            ,arr[i][2] /* РРњРЇ
-            ,arr[i][3] /* Р РђР—РњР•Р 
-            ,arr[i][4] /* РџР РћР¦Р•РќРў Р’Р«РџРћР›РќР•РќРРЇ
-            ,arr[i][5]/*  Р·Р°РіСЂСѓР¶РµРЅРѕ
-            ,arr[i][6]/*  Р РћР—Р”РђРќРћ
-            ,arr[i][7]/*  РљРћР­Р¤Р¤РР¦РР•РќРў
-            ,arr[i][8] /* РЎРљРћР РћРЎРўР¬ Р РђР—Р”РђР§Р
-            ,arr[i][9] /* РЎРљРћР РћРЎРўР¬ Р—РђР“Р РЈР—РљР
+            ,arr[i][2] /* €Њџ
+            ,arr[i][3] /* ђЂ‡Њ…ђ
+            ,arr[i][4] /* ЏђЋ–…Ќ’ ‚›ЏЋ‹Ќ…Ќ€џ
+            ,arr[i][5]/*  загружено
+            ,arr[i][6]/*  ђЋ‡„ЂЌЋ
+            ,arr[i][7]/*  ЉЋќ””€–€…Ќ’
+            ,arr[i][8] /* ‘ЉЋђЋ‘’њ ђЂ‡„Ђ—€
+            ,arr[i][9] /* ‘ЉЋђЋ‘’њ ‡Ђѓђ“‡Љ€
             ,arr[i][10] /*ETA
-            ,arr[i][11] /*РњР•РўРљРђ 
-            ,arr[i][12] /*РџРћР”РљР›Р®Р§Р•РќРћ РџРР РћР’
-            ,arr[i][13] /*РџРР Р« Р’ Р РћР•
-            ,arr[i][14] /*РџРћР”РљР›Р®Р§Р•РќРћ РЎРР”РћР’
-            ,arr[i][15] /*РЎРР”Р« Р’ Р РћР• 
-            ,arr[i][16]/* Р”РћРЎРўРЈРџРќРћРЎРўР¬
-            ,arr[i][17] /*РџРћР РЇР”РћРљ РћР§Р•Р Р•Р”Р РўРћР Р Р•РќРўРћР’ 
-            ,arr[i][18]/* РѕС‚РґР°РЅРѕ
+            ,arr[i][11] /*Њ…’ЉЂ 
+            ,arr[i][12] /*ЏЋ„Љ‹ћ—…ЌЋ Џ€ђЋ‚
+            ,arr[i][13] /*Џ€ђ› ‚ ђЋ…
+            ,arr[i][14] /*ЏЋ„Љ‹ћ—…ЌЋ ‘€„Ћ‚
+            ,arr[i][15] /*‘€„› ‚ ђЋ… 
+            ,arr[i][16]/* „Ћ‘’“ЏЌЋ‘’њ
+            ,arr[i][17] /*ЏЋђџ„ЋЉ Ћ—…ђ…„€ ’Ћђђ…Ќ’Ћ‚ 
+            ,arr[i][18]/* отдано
             ,arr[i][19]/* ?
             ,arr[i][20]/* ? 
-            ,arr[i][21] /*СЃС‚Р°С‚СѓСЃ С‚РµСЃРєСЃС‚РѕРј
-            ,arr[i][23]/* РІСЂРµРјСЏ СЃС‚Р°СЂС‚Р°
-            ,arr[i][24]/* РІСЂРµРјСЏ Р·Р°РІРµСЂС€РµРЅРёСЏ
+            ,arr[i][21] /*статус тескстом
+            ,arr[i][23]/* времЯ старта
+            ,arr[i][24]/* времЯ завершениЯ
             ,arr[i][22]/* sid
             ,arr[i][26]/* path_to_file
      */
@@ -373,7 +374,7 @@ var manager = function () {
                     return '<td class="'+key+'" data-value="'+v[24]+'"><div title="'+str_time+'">'+str_time+'</div></td>';
                     break;
                 case 'controls':
-                    return '<td class="'+key+'"><div class="control-btns" name="form_buttons_page"><div title="'+lang_arr[0]+'" class="start"></div><div class="pause" title="'+lang_arr[1]+'"></div><div class="stop" title="'+lang_arr[2]+'"></div></div></td>';
+                    return '<td class="'+key+'"><div class="btns"><div title="'+lang_arr[0]+'" class="start"></div><div class="pause" title="'+lang_arr[1]+'"></div><div class="stop" title="'+lang_arr[2]+'"></div></div></td>';
                     break;
             }
             return '';
@@ -576,7 +577,7 @@ var manager = function () {
         return !isNaN(parseFloat(n)) && isFinite(n);
     }
     var bytesToSize = function (bytes,nan) {
-        //РїРµСЂРµРІРѕРґРёС‚ Р±Р°Р№С‚С‹ РІ СЃС‚СЂРѕС‡РєРё
+        //переводит байты в строчки
         var sizes = lang_arr[59];
         if (nan==null) nan = 'n/a';
         if (bytes == 0) return nan;
@@ -588,12 +589,12 @@ var manager = function () {
     }
     var writePersent = function (i)
     {
-        //РІС‹РїРёСЃС‹РІР°РµС‚ РїСЂРѕС†РµРЅС‚С‹ РґР»СЏ РїСЂРѕРіСЂРµСЃСЃ Р±Р°СЂРѕРІ
+        //выписывает проценты длЯ прогресс баров
         var full = 68;
         return Math.round(full/100*i);
     }
     var bytesToSizeInSec = function (bytes,nan) {
-        //РїРµСЂРµРІРѕРґРёС‚ Р±Р°Р№С‚С‹ РІ СЃС‚СЂРѕС‡РєРё\СЃРµРє
+        //переводит байты в строчки\сек
         var sizes = lang_arr[60];
         if (bytes == 0) return nan;
         var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
@@ -604,7 +605,7 @@ var manager = function () {
     }
     var unixintime = function (i)
     {
-        //РІС‹РїРёСЃС‹РІР°РµС‚ РѕС‚СЃС‡РµС‚ РІСЂРµРјРµРЅРё РёР· unixtime
+        //выписывает отсчет времени из unixtime
         if (i<0) return '&#8734;';
         var day = Math.floor(i/60/60/24);
         var week = Math.floor(day/7);
@@ -627,7 +628,7 @@ var manager = function () {
     }
     var writeTimeFromShtamp = function (shtamp)
     {
-        //РїСЂРµРІСЂСЏС‰Р°РµС‚ TimeShtamp РІ СЃС‚СЂРѕС‡РєСѓ
+        //преврЯщает TimeShtamp в строчку
         var dt = new Date(shtamp * 1000);
         var m = dt.getMonth()+1;
         if (m.toString().length==1)
@@ -659,17 +660,17 @@ var manager = function () {
             timer = timer();
             tables = {
                 'body' : $('body'),
-                'dl-speed' : $('table.bottom-panel td.speed.download'),
-                'up-speed' : $('table.bottom-panel td.speed.upload'),
-                'status' : $('table.bottom-panel td.status'),
+                'menu' : $('ul.menu'),
+                'dl-speed' : $('.status-panel td.speed.download'),
+                'up-speed' : $('.status-panel td.speed.upload'),
+                'status' : $('.status-panel td.status'),
                 'label-select' : $('ul.menu li.select select'),
-                'table-body' : $('#torrent-list'),
-                'table-main' : $('table.main'),
-                'table-fixed' : $('#torrent-list').children('table.fixed'),
-                'table-main' : $('#torrent-list').children('table.main'),
-                'tr-body' : $('#torrent-list').children('table').eq(1).children('tbody'),
-                'tr-head' : $('#torrent-list').children('table').eq(1).children('thead'),
-                'tr-fixed_head' : $('#torrent-list').children('table').eq(0).children('thead'),
+                'table-body' : $('.torrent-list-layer'),
+                'table-main' : $('.torrent-table-body'),
+                'table-fixed' : $('.torrent-table-head'),
+                'tr-body' : $('.torrent-table-body').children('tbody'),
+                'tr-head' : $('.torrent-table-body').children('thead'),
+                'tr-fixed_head' : $('.torrent-table-head').children('thead'),
                 'fl-body' : $('#file-list').children('table').eq(1).children('tbody'),
                 'fl-head' : $('#file-list').children('table').eq(1).children('thead'),
                 'fl-fixed' : $('#file-list').children('table').eq(0),
@@ -677,8 +678,12 @@ var manager = function () {
             }
             torrent_list_head();
             tables['label-select'].selectBox().change( function() {
-                var item = tables['label-select'].find('option[value="'+$(this).val()+'"]').text();
-                tr_table_controller.filter($(this).val(),item);
+                var val = $(this).val();
+                var item = null;
+                if (isNumber(val)) {
+                    var item = tables['label-select'].find('option[value="'+$(this).val()+'"]').text();
+                }
+                tr_table_controller.filter(val,item);
             } );
             $('#torrent-list').on('scroll',function () {
                 tables['table-fixed'].css('left',-($(this).scrollLeft()));
