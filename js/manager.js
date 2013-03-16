@@ -70,8 +70,8 @@ var manager = function() {
     var torrent_list_order = function() {
         tables['table-main'].tablesorter({
             textExtraction: function(node) {
-                if ($(node).data('value'))
-                    return $(node).data('value');
+                if ($(node).attr('data-value') !== undefined)
+                    return $(node).attr('data-value');
                 return $(node).html();
             },
             sortList: (localStorage.tr_order !== undefined) ? JSON.parse(localStorage.tr_order) : [[1, 1]],
@@ -485,6 +485,7 @@ var manager = function() {
             if (id in cached)
                 delete cached[id]
             $('#' + id).remove();
+            tables['table-main'].trigger('update');
         }
         return {
             add: function(t) {
