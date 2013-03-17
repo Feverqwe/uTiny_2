@@ -1028,7 +1028,18 @@ var manager = function() {
     }
     var torrent_file_list = function(id) {
         var id = ''
-        var vars = {}
+        var file_list_h = 0
+        var fl_layer_h = 0
+        var loading_img = function() {
+            $('<div class="file-list-loading"></div>').css({
+                "top": (fl_layer_h / 2 - 15) + "px",
+                "left": (600 / 2 - 15) + "px"
+            }).appendTo(tables['fl-layer']);
+        }
+        var setFL = function(arr) {
+            tables['fl-layer'].children('div.file-list-loading').remove();
+
+        }
         var add_layer = function() {
             return layer = $('<div class="file-list-layer-temp"></div>')
                     .css({
@@ -1049,15 +1060,25 @@ var manager = function() {
                 id = _id;
                 $('#' + id).addClass('selected');
                 add_layer();
-                var file_list_h = tables.window.height() - 35 - 19;
-                var fl_layer_h = file_list_h - 35;
-                tables['file-list'].css({"display": "block", 
-                        "left": ((tables.window.width() -  tables['file-list'].width()) / 2)+"px",
-                        "height" : file_list_h + "px",
+                var t_file_list_h = tables.window.height() - 35 - 19;
+                var t_fl_layer_h = t_file_list_h - 35;
+                if (file_list_h != t_file_list_h || t_fl_layer_h != fl_layer_h) {
+                    file_list_h = t_file_list_h;
+                    fl_layer_h = t_fl_layer_h;
+                    tables['file-list'].css({"display": "block",
+                        "left": ((tables.window.width() - tables['file-list'].width()) / 2) + "px",
+                        "height": file_list_h + "px",
                     });
-                tables['fl-layer'].css('height',fl_layer_h);
-                tables['fl-bottom'].find('input').val( (tr_table_controller.get(id))[26] );
+                    tables['fl-layer'].css('height', fl_layer_h);
+                } else {
+                    tables['file-list'].css({"display": "block"});
+                }
+                loading_img();
+                tables['fl-bottom'].find('input').val((tr_table_controller.get(id))[26]);
             },
+            setFL: function(a) {
+                setFL(a);
+            }
         }
     }()
     //==================
