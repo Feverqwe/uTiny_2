@@ -1039,11 +1039,13 @@ var manager = function() {
                 $(this).remove();
                 $('#' + id).removeClass('selected');
                 tables['file-list'].css("display", "none");
+                tmp_vars.auto_order = true;
                 id = "";
             }).appendTo(tables['body']);
         }
         return {
             open: function(_id) {
+                tmp_vars.auto_order = false;
                 id = _id;
                 $('#' + id).addClass('selected');
                 add_layer();
