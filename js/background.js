@@ -320,6 +320,9 @@ var engine = function() {
         getColums: function() {
             return colums;
         },
+        setColums: function(a) {
+            colums = a;
+        },
         setWindow: function() {
             return popup.set();
         },

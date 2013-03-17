@@ -43,7 +43,7 @@ var manager = function() {
         tables['fl-head'].clone().appendTo(tables['fl-fixed']);
     }
     var torrent_list_head = function() {
-        var colums = _engine.getColums();
+        var colums = tmp_vars.colums;
         $('.torrent-style').remove();
         var style = '<style class="torrent-style">';
         var thead = '<tr>';
@@ -51,7 +51,7 @@ var manager = function() {
         $.each(colums, function(key, value) {
             if (value.a) {
                 thead += '<th class="' + key + '" title="' + lang_arr[value.lang][1] + '"><div>' + lang_arr[value.lang][0] + '</div></th>';
-                style += 'th.' + key + ', td.' + key + ' {max-width:' + value.size + 'px; min-width:' + value.size + 'px}';
+                style += '.torrent-list-layer th.' + key + ', .torrent-list-layer td.' + key + ' {max-width:' + value.size + 'px; min-width:' + value.size + 'px}';
                 sum_width += value.size;
             }
         });
@@ -61,12 +61,11 @@ var manager = function() {
         tables['tr-fixed_head'].html(thead);
         tables['body'].children('style.torrent-style').remove();
         tables['body'].append(style);
-        if (sum_width < 800) {
+        if (sum_width + 59 < 800) {
             tables.body.css('width', (sum_width + 59) + 'px');
         } else {
             tables.body.css('width', '800px');
         }
-        torrent_list_order();
     }
     var torrent_list_order = function() {
         tables['table-main'].tablesorter({
@@ -78,7 +77,6 @@ var manager = function() {
             sortList: (localStorage.tr_order !== undefined) ? JSON.parse(localStorage.tr_order) : [[1, 1]],
             onsort: function(s) {
                 localStorage.tr_order = JSON.stringify(s);
-                console.log(localStorage.tr_order);
             },
             selectorHeaders: '.torrent-table-head thead th'
         });
@@ -173,6 +171,7 @@ var manager = function() {
         timer.start();
     }
     var update_item = function(modifed_arr, v) {
+        var colums = tmp_vars.colums;
         var c = modifed_arr.length;
         for (var n = 0; n < c; n++)
             switching(modifed_arr[n]);
@@ -197,183 +196,209 @@ var manager = function() {
                     item.attr('data-path', v[26]);
                     break;
                 case 2:
-                    if (!item)
-                        item = $('#' + v[0]);
-                    var cell = item.children('td.name');
-                    cell.childen('td.name').children('div').attr('title', v[2]).children('span').text(v[2]);
-                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
-                    break;
+                    if (colums['name'].a) {
+                        if (!item)
+                            item = $('#' + v[0]);
+                        var cell = item.children('td.name');
+                        cell.childen('td.name').children('div').attr('title', v[2]).children('span').text(v[2]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        break;
+                    }
                 case 3:
-                    if (!item)
-                        item = $('#' + v[0]);
-                    var t_s = bytesToSize(v[3]);
-                    var cell = item.children('td.size');
-                    cell.attr('data-value', v[3]).children('div').attr('title', t_s).html(t_s);
-                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
-                    break;
+                    if (colums['size'].a) {
+                        if (!item)
+                            item = $('#' + v[0]);
+                        var t_s = bytesToSize(v[3]);
+                        var cell = item.children('td.size');
+                        cell.attr('data-value', v[3]).children('div').attr('title', t_s).html(t_s);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        break;
+                    }
                 case 4:
                 case 1:
-                    if ('4.1' in upd_list == false)
+                    if (colums['progress'].a && '4.1' in upd_list == false) {
                         upd_list['2.1'] = 1;
-                    else
+                        if (!item)
+                            item = $('#' + v[0]);
+                        var progress = v[4] / 10;
+                        var cell = item.children('td.progress');
+                        var with_c = cell.attr('data-value', v[4]).children('div.progress_b').children('div.progress_b_i');
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        with_c.css('width', writePersent(progress) + 'px').children('div').html(progress + '%');
+                        if (v[1] == 201 && v[4] == 1000)
+                        {
+                            with_c.css('background-color', '#41B541');
+                        } else {
+                            with_c.css('background-color', '#3687ED');
+                        }
                         break;
-                    if (!item)
-                        item = $('#' + v[0]);
-                    var progress = v[4] / 10;
-                    var cell = item.children('td.progress');
-                    var with_c = cell.attr('data-value', v[4]).children('div.progress_b').children('div.progress_b_i');
-                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
-                    with_c.css('width', writePersent(progress) + 'px').children('div').html(progress + '%');
-                    if (v[1] == 201 && v[4] == 1000)
-                    {
-                        with_c.css('background-color', '#41B541');
-                    } else {
-                        with_c.css('background-color', '#3687ED');
                     }
-                    break;
                 case 21:
                 case 1:
-                    if ('21.1' in upd_list == false)
+                    if (colums['status'].a && '21.1' in upd_list == false) {
                         upd_list['21.1'] = 1;
-                    else
+                        if (!item)
+                            item = $('#' + v[0]);
+                        var cell = item.children('td.status');
+                        cell.attr('data-value', v[1]).children('div').attr('title', v[21]).html(v[21]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                         break;
-                    if (!item)
-                        item = $('#' + v[0]);
-                    var cell = item.children('td.status');
-                    cell.attr('data-value', v[1]).children('div').attr('title', v[21]).html(v[21]);
-                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
-                    break;
+                    }
                 case 9:
-                    if (!item)
-                        item = $('#' + v[0]);
-                    var cell = item.children('td.down_speed');
-                    cell.attr('data-value', v[9]).children('div').html(bytesToSizeInSec(v[9], ''));
-                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
-                    break;
+                    if (colums['down_speed'].a) {
+                        if (!item)
+                            item = $('#' + v[0]);
+                        var cell = item.children('td.down_speed');
+                        cell.attr('data-value', v[9]).children('div').html(bytesToSizeInSec(v[9], ''));
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        break;
+                    }
                 case 8:
-                    if (!item)
-                        item = $('#' + v[0]);
-                    var cell = item.children('td.uplo_speed');
-                    cell.attr('data-value', v[8]).children('div').html(bytesToSizeInSec(v[8], ''));
-                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
-                    break;
+                    if (colums['uplo_speed'].a) {
+                        if (!item)
+                            item = $('#' + v[0]);
+                        var cell = item.children('td.uplo_speed');
+                        cell.attr('data-value', v[8]).children('div').html(bytesToSizeInSec(v[8], ''));
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        break;
+                    }
                 case 14:
                 case 12:
-                    if ('14.12' in upd_list == false)
+                    if (colums['seeds_peers'].a && '14.12' in upd_list == false) {
                         upd_list['14.12'] = 1;
-                    else
+                        if (!item)
+                            item = $('#' + v[0]);
+                        var cell = item.children('td.seeds_peers');
+                        cell.children('div').html(v[14] + '/' + v[12]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                         break;
-                    if (!item)
-                        item = $('#' + v[0]);
-                    var cell = item.children('td.seeds_peers');
-                    cell.children('div').html(v[14] + '/' + v[12]);
-                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
-                    break;
-                case 9:
-                    if (!item)
-                        item = $('#' + v[0]);
-                    var val = v[9];
-                    if (val < 0)
-                        val = '*';
-                    var cell = item.children('td.position');
-                    cell.children('div').html(val);
-                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
-                    break;
+                    }
+                case 17:
+                    if (colums['position'].a) {
+                        if (!item)
+                            item = $('#' + v[0]);
+                        var val = v[17];
+                        if (val < 0)
+                            val = '*';
+                        var cell = item.children('td.position');
+                        cell.children('div').html(val);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        break;
+                    }
                 case 9:
                 case 3:
-                    if ('9.3' in upd_list == false)
+                    if (colums['ostalos'].a && '9.3' in upd_list == false) {
                         upd_list['9.3'] = 1;
-                    else
+                        if (!item)
+                            item = $('#' + v[0]);
+                        var val = v[3] - v[9];
+                        if (val < 0)
+                            val = 0;
+                        var cell = item.children('td.ostalos');
+                        cell.attr('data-value', val).children('div').html(bytesToSize(val, 0));
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
                         break;
-                    if (!item)
-                        item = $('#' + v[0]);
-                    var val = v[3] - v[9];
-                    if (val < 0)
-                        val = 0;
-                    var cell = item.children('td.ostalos');
-                    cell.attr('data-value', val).children('div').html(bytesToSize(val, 0));
-                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
-                    break;
+                    }
                 case 15:
-                    if (!item)
-                        item = $('#' + v[0]);
-                    var cell = item.children('td.seeds');
-                    cell.children('div').html(v[15]);
-                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
-                    break;
+                    if (colums['seeds'].a) {
+                        if (!item)
+                            item = $('#' + v[0]);
+                        var cell = item.children('td.seeds');
+                        cell.children('div').html(v[15]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        break;
+                    }
                 case 13:
-                    if (!item)
-                        item = $('#' + v[0]);
-                    var cell = item.children('td.peers');
-                    cell.children('div').html(v[13]);
-                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
-                    break;
+                    if (colums['peers'].a) {
+                        if (!item)
+                            item = $('#' + v[0]);
+                        var cell = item.children('td.peers');
+                        cell.children('div').html(v[13]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        break;
+                    }
                 case 10:
-                    if (!item)
-                        item = $('#' + v[0]);
-                    var s_time = unixintime(v[10]);
-                    var cell = item.children('td.time');
-                    cell.attr('data-value', v[10]).children('div').attr('title', s_time).html(s_time);
-                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
-                    break;
+                    if (colums['time'].a) {
+                        if (!item)
+                            item = $('#' + v[0]);
+                        var s_time = unixintime(v[10]);
+                        var cell = item.children('td.time');
+                        cell.attr('data-value', v[10]).children('div').attr('title', s_time).html(s_time);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        break;
+                    }
                 case 6:
-                    if (!item)
-                        item = $('#' + v[0]);
-                    var cell = item.children('td.otdano');
-                    cell.attr('data-value', v[6]).children('div').html(bytesToSize(v[6], 0));
-                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
-                    break;
+                    if (colums['otdano'].a) {
+                        if (!item)
+                            item = $('#' + v[0]);
+                        var cell = item.children('td.otdano');
+                        cell.attr('data-value', v[6]).children('div').html(bytesToSize(v[6], 0));
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        break;
+                    }
                 case 5:
-                    if (!item)
-                        item = $('#' + v[0]);
-                    var cell = item.children('td.poluchino');
-                    cell.attr('data-value', v[5]).children('div').html(bytesToSize(v[5], 0));
-                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
-                    break;
+                    if (colums['poluchino'].a) {
+                        if (!item)
+                            item = $('#' + v[0]);
+                        var cell = item.children('td.poluchino');
+                        cell.attr('data-value', v[5]).children('div').html(bytesToSize(v[5], 0));
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        break;
+                    }
                 case 7:
-                    if (!item)
-                        item = $('#' + v[0]);
-                    var val = v[7] / 1000;
-                    var cell = item.children('td.koeficient');
-                    cell.attr('data-value', v[7]).children('div').html(val);
-                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
-                    break;
+                    if (colums['koeficient'].a) {
+                        if (!item)
+                            item = $('#' + v[0]);
+                        var val = v[7] / 1000;
+                        var cell = item.children('td.koeficient');
+                        cell.attr('data-value', v[7]).children('div').html(val);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        break;
+                    }
                 case 16:
-                    if (!item)
-                        item = $('#' + v[0]);
-                    var val = Math.round((v[16] / 65535) * 1000) / 1000;
-                    var cell = item.children('td.dostupno');
-                    cell.attr('data-value', v[16]).children('div').html(val);
-                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
-                    break;
+                    if (colums['dostupno'].a) {
+                        if (!item)
+                            item = $('#' + v[0]);
+                        var val = Math.round((v[16] / 65535) * 1000) / 1000;
+                        var cell = item.children('td.dostupno');
+                        cell.attr('data-value', v[16]).children('div').html(val);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        break;
+                    }
                 case 11:
-                    if (!item)
-                        item = $('#' + v[0]);
-                    var cell = item.children('td.metka');
-                    cell.children('div').attr('title', v[11]).html(v[11]);
-                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
-                    break;
+                    if (colums['metka'].a) {
+                        if (!item)
+                            item = $('#' + v[0]);
+                        var cell = item.children('td.metka');
+                        cell.children('div').attr('title', v[11]).html(v[11]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        break;
+                    }
                 case 23:
-                    if (!item)
-                        item = $('#' + v[0]);
-                    var str_time = writeTimeFromShtamp(v[23]);
-                    var cell = item.children('td.time_dobavleno');
-                    cell.children('div').attr('title', str_time).html(str_time);
-                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
-                    break;
+                    if (colums['time_dobavleno'].a) {
+                        if (!item)
+                            item = $('#' + v[0]);
+                        var str_time = writeTimeFromShtamp(v[23]);
+                        var cell = item.children('td.time_dobavleno');
+                        cell.children('div').attr('title', str_time).html(str_time);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        break;
+                    }
                 case 24:
-                    if (!item)
-                        item = $('#' + v[0]);
-                    var str_time = writeTimeFromShtamp(v[24]);
-                    var cell = item.children('td.time_zavircheno');
-                    cell.children('div').attr('title', str_time).html(str_time);
-                    tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
-                    break;
+                    if (colums['time_zavircheno'].a) {
+                        if (!item)
+                            item = $('#' + v[0]);
+                        var str_time = writeTimeFromShtamp(v[24]);
+                        var cell = item.children('td.time_zavircheno');
+                        cell.children('div').attr('title', str_time).html(str_time);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        break;
+                    }
             }
         }
     }
     var create_item = function(v) {
-        var colums = _engine.getColums();
+        var colums = tmp_vars.colums;
         var item = '<tr id="' + v[0] + '" data-label="' + v[11] + '" data-sid="' + v[22] + '" data-path="' + v[26] + '">';
         $.each(colums, function(key, value) {
             if (value.a) {
@@ -409,7 +434,7 @@ var manager = function() {
                     return '<td class="' + key + '"><div>' + v[14] + '/' + v[12] + '</div></td>';
                     break;
                 case 'position':
-                    var val = v[9];
+                    var val = v[17];
                     if (val < 0)
                         val = '*';
                     return '<td class="' + key + '"><div>' + val + '</div></td>';
@@ -918,7 +943,7 @@ var manager = function() {
         tmp_vars.speed_limit['count'] = count;
         for (var i = 0; i < count; i++)
         {
-            items['s'+i] = {
+            items['s' + i] = {
                 name: '-',
                 callback: function(opt) {
                     var type = $(this).hasClass('download');
@@ -985,6 +1010,21 @@ var manager = function() {
             else
                 with_a.eq(i).attr('data-speed', speed).children('span').html(bytesToSizeInSec(speed * 1024));
         }
+    }
+    var updateColums = function(key) {
+        timer.stop();
+        tables['table-main'].trigger('destroy')
+        var colums = tmp_vars.colums;
+        colums[key].a = (colums[key].a) ? 0 : 1;
+        _engine.setColums(colums);
+        tables['tr-body'].empty();
+        tables['tr-head'].empty();
+        tables['tr-fixed_head'].empty();
+        torrent_list_head();
+        tables['table-main'].trigger('update');
+        _engine.get_cache_torrent_list();
+        torrent_list_order();
+        timer.start();
     }
     //==================
     function isNumber(n) {
@@ -1096,7 +1136,9 @@ var manager = function() {
                 'fl-bottom': $('div.file-list-layer > div.bottom-menu'),
             }
             tables['table-body'].css('max-height', settings.window_height + 'px');
+            tmp_vars['colums'] = _engine.getColums();
             torrent_list_head();
+            torrent_list_order();
             tables['label-select'].selectBox().change(function() {
                 var val = $(this).val();
                 var item = null;
@@ -1149,7 +1191,42 @@ var manager = function() {
                 var param = '&list=1&action=stop' + '&hash=' + hash;
                 _engine.sendAction(param);
             });
-
+            $.contextMenu({
+                className: 'colum_select',
+                selector: 'table.torrent-table-head thead',
+                events: {
+                    show: function() {
+                        var colums = tmp_vars.colums;
+                        $.each(colums, function(key, value) {
+                            var item = tmp_vars['colums_context_menu'].find('li[data-key=' + key + ']');
+                            if (value.a && (tmp_vars.colum_context_menu[key] == 0)) {
+                                item.attr('data-active', 1).children('span').html('<label>&#9679; </label>' + lang_arr[value.lang][1]);
+                                tmp_vars.colum_context_menu[key] = 1;
+                            } else
+                            if (value.a == 0 && (tmp_vars.colum_context_menu[key] == 1)) {
+                                item.attr('data-active', 1).children('span').html(lang_arr[value.lang][1]);
+                                tmp_vars.colum_context_menu[key] = 0;
+                            }
+                        });
+                    }
+                },
+                items: function() {
+                    var colums = tmp_vars.colums;
+                    var items = {}
+                    tmp_vars['colum_context_menu'] = {}
+                    $.each(colums, function(key, value) {
+                        tmp_vars.colum_context_menu[key] = 0;
+                        items[key] = {
+                            name: lang_arr[value.lang][1],
+                            callback: function(key) {
+                                updateColums(key);
+                            }
+                        }
+                    });
+                    return items;
+                }()
+            });
+            tmp_vars['colums_context_menu'] = $(".context-menu-list.context-menu-root.colum_select");
             $.contextMenu({
                 selector: ".torrent-table-body tr",
                 className: "torrent",
