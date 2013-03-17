@@ -32,15 +32,15 @@ var manager = function() {
         tables['menu'].find('a.start_all').attr('title', lang_arr[68]);
         tables['menu'].find('a.pause_all').attr('title', lang_arr[67]);
         tables['menu'].find('a.wui').attr('href', ui_url());
-        $('th.select').attr('title', lang_arr[91][0]);
-        $('#file-list').find('th.name').attr('title', lang_arr[88][1]).html(lang_arr[88][0]);
-        $('#file-list').find('th.size').attr('title', lang_arr[14][1]).html(lang_arr[14][0]);
-        $('#file-list').find('th.download').attr('title', lang_arr[79][1]).html(lang_arr[79][0]);
-        $('#file-list').find('th.progress').attr('title', lang_arr[15][1]).html(lang_arr[15][0]);
-        $('#file-list').find('th.priority').attr('title', lang_arr[89][1]).html(lang_arr[89][0]);
+        tables['fl-head'].find('th.select').attr('title', lang_arr[91][0]);
+        tables['fl-head'].find('th.name').attr('title', lang_arr[88][1]).html(lang_arr[88][0]);
+        tables['fl-head'].find('th.size').attr('title', lang_arr[14][1]).html(lang_arr[14][0]);
+        tables['fl-head'].find('th.download').attr('title', lang_arr[79][1]).html(lang_arr[79][0]);
+        tables['fl-head'].find('th.progress').attr('title', lang_arr[15][1]).html(lang_arr[15][0]);
+        tables['fl-head'].find('th.priority').attr('title', lang_arr[89][1]).html(lang_arr[89][0]);
+        tables['fl-head'].clone().appendTo(tables['fl-table-fixed']);
         tables['fl-bottom'].children('a.update').attr('title', lang_arr[91][1]);
         tables['fl-bottom'].children('a.close').attr('title', lang_arr[91][2]);
-        tables['fl-head'].clone().appendTo(tables['fl-fixed']);
     }
     var torrent_list_head = function() {
         var colums = tmp_vars.colums;
@@ -1026,6 +1026,35 @@ var manager = function() {
         torrent_list_order();
         timer.start();
     }
+    var torrent_file_list = function(id) {
+        var id = ''
+        var vars = {}
+        var add_layer = function() {
+            return layer = $('<div class="file-list layer"></div>')
+                    .css({
+                height: tables.window.height(),
+                width: tables.window.width()
+            })
+                    .on('mousedown', function() {
+                $(this).remove();
+                $('#' + id).removeClass('selected');
+                tables['file-list'].css("display", "none");
+                id = "";
+            }).appendTo(tables['body']);
+        }
+        return {
+            open: function(_id) {
+                id = _id;
+                $('#' + id).addClass('selected');
+                add_layer();
+                tables['file-list'].css({"display": "block", 
+                        "left": ((tables.window.width() -  tables['file-list'].width()) / 2)+"px" });
+
+
+                console.log(id);
+            }
+        }
+    }()
     //==================
     function isNumber(n) {
         return !isNaN(parseFloat(n)) && isFinite(n);
@@ -1118,6 +1147,7 @@ var manager = function() {
             _engine.setWindow();
             timer = timer();
             tables = {
+                'window': $(window),
                 'body': $('body'),
                 'menu': $('ul.menu'),
                 'dl-speed': $('.status-panel td.speed.download'),
@@ -1130,10 +1160,13 @@ var manager = function() {
                 'tr-body': $('.torrent-table-body').children('tbody'),
                 'tr-head': $('.torrent-table-body').children('thead'),
                 'tr-fixed_head': $('.torrent-table-head').children('thead'),
-                'fl-body': $('#file-list').children('table').eq(1).children('tbody'),
-                'fl-head': $('#file-list').children('table').eq(1).children('thead'),
-                'fl-fixed': $('#file-list').children('table').eq(0),
-                'fl-bottom': $('div.file-list-layer > div.bottom-menu'),
+                'file-list': $(".file-list.body"),
+                'fl-table-main': $('.fl-table-body'),
+                'fl-table-fixed': $('.fl-table-head'),
+                'fl-body': $('.fl-table-body').children('tbody'),
+                'fl-head': $('.fl-table-body').children('thead'),
+                'fl-fixed_head': $('.fl-table-head').children('thead'),
+                'fl-bottom': $('.file-list.body > .bottom-menu'),
             }
             tables['table-body'].css('max-height', settings.window_height + 'px');
             tmp_vars['colums'] = _engine.getColums();
@@ -1150,7 +1183,10 @@ var manager = function() {
             tables['table-body'].on('scroll', function() {
                 tables['table-fixed'].css('left', -($(this).scrollLeft()));
             });
-
+            tables['table-body'].on('dblclick', 'tbody tr', function() {
+                var id = $(this).attr('id');
+                torrent_file_list.open(id);
+            });
             tables['menu'].on('click', 'a.start_all', function(e) {
                 e.preventDefault();
                 var table = tr_table_controller.get_table();
