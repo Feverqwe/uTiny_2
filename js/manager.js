@@ -18,6 +18,7 @@ var manager = function() {
         'torrent_context_menu_labels': null,
         'speed_limit': {},
         'auto_order': true,
+        'filelist_param': ''
     }
     var write_language = function() {
         function ui_url()
@@ -115,7 +116,7 @@ var manager = function() {
     };
     var get_torrent_list = function() {
         timer.stop();
-        _engine.getTorrentList();
+        _engine.getTorrentList((tmp_vars.filelist_param) ? tmp_vars.filelist_param : '');
     }
     /*
      ,arr[i][0] /* ХЭШ
@@ -1030,34 +1031,51 @@ var manager = function() {
         var id = ''
         var file_list_h = 0
         var fl_layer_h = 0
+        var display_fl = 0
+        var display_loading = 0
         var loading_img = function() {
             $('<div class="file-list-loading"></div>').css({
                 "top": (fl_layer_h / 2 - 15) + "px",
                 "left": (600 / 2 - 15) + "px"
             }).appendTo(tables['fl-layer']);
+            display_loading = 1;
         }
         var setFL = function(arr) {
-            tables['fl-layer'].children('div.file-list-loading').remove();
-
+            if ( arr[0] != id ) return;
+            if (!display_fl) {
+                tmp_vars.filelist_param = '';
+                return;
+            }
+            if (display_loading) {
+                tables['fl-layer'].children('div.file-list-loading').remove();
+                display_loading = 0;
+            }
+            console.log(arr);
+        }
+        var close = function () {
+            display_fl = 0;
+            $('#' + id).removeClass('selected');
+            tables['file-list'].css("display", "none");
+            $('div.file-list-layer-temp').remove();
+            tmp_vars.auto_order = true;
+            id = "";
         }
         var add_layer = function() {
             return layer = $('<div class="file-list-layer-temp"></div>')
                     .css({
                 height: tables.window.height(),
                 width: tables.window.width()
-            })
-                    .on('mousedown', function() {
+            }).on('mousedown', function () {
                 $(this).remove();
-                $('#' + id).removeClass('selected');
-                tables['file-list'].css("display", "none");
-                tmp_vars.auto_order = true;
-                id = "";
+                close();
             }).appendTo(tables['body']);
         }
         return {
             open: function(_id) {
                 tmp_vars.auto_order = false;
                 id = _id;
+                tmp_vars.filelist_param = "&action=getfiles&hash=" + id
+                _engine.sendAction(tmp_vars.filelist_param);
                 $('#' + id).addClass('selected');
                 add_layer();
                 var t_file_list_h = tables.window.height() - 35 - 19;
@@ -1073,6 +1091,7 @@ var manager = function() {
                 } else {
                     tables['file-list'].css({"display": "block"});
                 }
+                display_fl = 1;
                 loading_img();
                 tables['fl-bottom'].find('input').val((tr_table_controller.get(id))[26]);
             },
@@ -1438,6 +1457,9 @@ var manager = function() {
         },
         setSpeedLimit: function(a) {
             set_speed_limit(a);
+        },
+        setFileList : function (a) {
+            torrent_file_list.setFL(a);
         }
     }
 }();

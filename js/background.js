@@ -267,6 +267,9 @@ var engine = function() {
                 }
                 if ('files' in obj) {
                     tmp_vars.get['files'] = obj['files']
+                    if (popup.chk()) {
+                        tmp_vars.popup.manager.setFileList(tmp_vars.get['files']);
+                    }
                 }
                 status.connection(0, 22);
                 tmp_vars['get_repeat'] = 0;
