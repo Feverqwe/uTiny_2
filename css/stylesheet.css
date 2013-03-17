@@ -70,53 +70,12 @@ ul.menu a.pause_all{
 ul.menu a.btn:hover {
     border: 1px solid #a9acb1;
 }
-.torrent-list-layer td {
-    white-space: nowrap;
-}
-.torrent-list-layer .name {
-    text-align: left;
-}
-.torrent-list-layer td.name div {
-    overflow: hidden;
-    position: relative;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.torrent-list-layer .size {
-    text-align: right;
-}
-.torrent-list-layer td.progress {
-    text-align: center;
-}
-.torrent-list-layer td.status {
-    text-align: center;
-}
-.torrent-list-layer td.status div {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.torrent-list-layer td.seeds_peers {
-    text-align: center;
-}
-.torrent-list-layer td.time {
-    text-align: center;
-}
 .torrent-list-layer {
     overflow: auto;
-}
-.torrent-list-layer {
     border-top: 1px #c0c0c0 solid;
     min-height: 300px;
 }
-.torrent-table-head {
-    position: fixed;
-    z-index: 2;
-}
-table thead th, tbody td {
-    padding-left: 2px;
-    padding-right: 2px;
-}
+
 table thead {
     text-align: center;
     background-image: -webkit-gradient(
@@ -127,11 +86,19 @@ table thead {
         color-stop(0.92, rgb(247,247,247))
         );
 }
-.context-menu-item label {
-    margin-left: -10px;
+table thead th, 
+table tbody td {
+    padding-left: 2px;
+    padding-right: 2px;
 }
-table.torrent-table-body thead {
-    visibility: hidden;
+table thead tr th {
+    border-right: 1px solid #c0c0c0;
+}
+table thead tr th:last-child  {
+    border-right: 0px;
+}
+table thead th {
+    font-weight: normal;
 }
 table tr {
     height: 18px;
@@ -141,18 +108,38 @@ table tbody tr:hover {
     background-color: #3875d7;
     color: #fff;
 }
+td {
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+div.torrent-list-layer table .name {
+    text-align: left;
+}
+div.torrent-list-layer table .name div {
+    overflow: hidden;
+    position: relative;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+div.torrent-list-layer table .size {
+    text-align: right;
+}
+div.torrent-list-layer table .status div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+table.torrent-table-head {
+    position: fixed;
+    z-index: 2;
+}
+table.torrent-table-body thead {
+    visibility: hidden;
+}
 table tbody tr.selected {
     background-color: #3875d7;
     color: #fff;
-}
-table thead tr th {
-    border-right: 1px solid #c0c0c0;
-}
-table thead tr th:last-child  {
-    border-right: 0px;
-}
-table thead tr th div {
-    font-weight: normal;
 }
 table td.progress div.progress_b {
     width: 68px;
@@ -178,21 +165,31 @@ table td.progress div.progress_b_i div {
     width: 68px;
     height: 14px;
 }
-td.controls div.btns {
+/*control btns*/
+div.torrent-list-layer table td.controls div.btns {
     height: 18px;
 }
-td.controls div.btns > a {
+div.torrent-list-layer table td.controls div.btns > a {
     width: 18px;
     height: 18px;
     cursor: pointer;
     display: inline-block;
+    background-repeat: no-repeat;
+    background-position: center center;
 }
-td.controls div.btns > a:active {
+div.torrent-list-layer table td.controls div.btns > a.start { 
+    background-image: url('/images/play.png'); 
+}
+div.torrent-list-layer table td.controls div.btns > a.pause { 
+    background-image: url('/images/pause.png'); 
+}
+div.torrent-list-layer table td.controls div.btns > a.stop { 
+    background-image: url('/images/stop.png'); 
+}
+div.torrent-list-layer table td.controls div.btns > a:active {
     opacity: 0.7;
 }
-td.controls div.btns > a.start { background: url('/images/play.png') no-repeat center center; }
-td.controls div.btns > a.pause { background: url('/images/pause.png') no-repeat center center; }
-td.controls div.btns > a.stop { background: url('/images/stop.png') no-repeat center center; }
+/*-------*/
 table.status-panel {
     border-top: 1px #c0c0c0 solid;
     padding-left: 2px;
@@ -203,17 +200,20 @@ table.status-panel td.status {
 table.status-panel td.speed {
     width: 25%
 }
-.file-list.layer {
+div.context-menu-item label {
+    margin-left: -10px;
+}
+div.file-list-layer {
+    height: 260px;
+    border-bottom: 1px #000 solid;
+}
+div.file-list.layer {
     position: fixed;
     z-index: 3;
     top: 0;
     left: 0;
 }
-.file-list-layer {
-    height: 260px;
-    border-bottom: 1px #000 solid;
-}
-.file-list.body {
+div.file-list.body {
     display: none;
     position: absolute;
     z-index: 4;
@@ -227,35 +227,39 @@ table.status-panel td.speed {
     border-bottom-right-radius: 4px;
     border-bottom-left-radius: 4px;
 }
-.fl-table-body thead {
+table.fl-table-body, 
+table.fl-table-head {
+    width: 100%;
+}
+table.fl-table-body thead {
     visibility: hidden;
 }
-.file-list-layer .select {
+div.file-list-layer table .select {
     width: 19px;
 }
-.file-list-layer .select input { 
+div.file-list-layer table .select input { 
     margin-top: 2.5px; 
     margin-bottom: 2.5px; 
 }
-.file-list-layer .name {
+div.file-list-layer table .name {
     text-align: left; 
     text-overflow: ellipsis; 
     min-width: 270px; 
     max-width: 270px; 
 }
-.file-list-layer .size {
+div.file-list-layer table .size {
     text-align: right;
     width: 60px;
 }
-.file-list-layer .download {
+div.file-list-layer table .download {
     text-align: right; 
     width: 60px;
 }
-.file-list-layer .progress {
+div.file-list-layer table .progress {
     text-align: center; 
     width: 70px;
 }
-.file-list-layer .priority {
+div.file-list-layer table .priority {
     text-align: center;
     width: 74px; 
     text-overflow: ellipsis;
