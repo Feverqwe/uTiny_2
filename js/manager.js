@@ -1030,7 +1030,7 @@ var manager = function() {
         var id = ''
         var vars = {}
         var add_layer = function() {
-            return layer = $('<div class="file-list layer"></div>')
+            return layer = $('<div class="file-list-layer-temp"></div>')
                     .css({
                 height: tables.window.height(),
                 width: tables.window.width()
@@ -1049,12 +1049,15 @@ var manager = function() {
                 id = _id;
                 $('#' + id).addClass('selected');
                 add_layer();
+                var file_list_h = tables.window.height() - 35 - 19;
+                var fl_layer_h = file_list_h - 35;
                 tables['file-list'].css({"display": "block", 
-                        "left": ((tables.window.width() -  tables['file-list'].width()) / 2)+"px" });
-
-
-                console.log(id);
-            }
+                        "left": ((tables.window.width() -  tables['file-list'].width()) / 2)+"px",
+                        "height" : file_list_h + "px",
+                    });
+                tables['fl-layer'].css('height',fl_layer_h);
+                tables['fl-bottom'].find('input').val( (tr_table_controller.get(id))[26] );
+            },
         }
     }()
     //==================
@@ -1162,13 +1165,14 @@ var manager = function() {
                 'tr-body': $('.torrent-table-body').children('tbody'),
                 'tr-head': $('.torrent-table-body').children('thead'),
                 'tr-fixed_head': $('.torrent-table-head').children('thead'),
-                'file-list': $(".file-list.body"),
+                'file-list': $(".file-list"),
+                'fl-layer': $(".file-list").children('.fl-layer'),
                 'fl-table-main': $('.fl-table-body'),
                 'fl-table-fixed': $('.fl-table-head'),
                 'fl-body': $('.fl-table-body').children('tbody'),
                 'fl-head': $('.fl-table-body').children('thead'),
                 'fl-fixed_head': $('.fl-table-head').children('thead'),
-                'fl-bottom': $('.file-list.body > .bottom-menu'),
+                'fl-bottom': $('.file-list ul.bottom-menu'),
             }
             tables['table-body'].css('max-height', settings.window_height + 'px');
             tmp_vars['colums'] = _engine.getColums();
