@@ -3,6 +3,7 @@ body {
     font-family: Arial,sans-serif;
     font-size: 13px;
     min-width: 723px;
+    -webkit-user-select: none;
 }
 ul {
     padding: 0;
