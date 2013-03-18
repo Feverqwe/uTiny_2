@@ -1041,11 +1041,11 @@ var manager = function() {
             display_loading = 1;
         }
         var setFL = function(arr) {
-            if ( arr[0] != id ) return;
             if (!display_fl) {
                 tmp_vars.filelist_param = '';
                 return;
             }
+            if ( arr[0] != id ) return;
             if (display_loading) {
                 tables['fl-layer'].children('div.file-list-loading').remove();
                 display_loading = 0;
