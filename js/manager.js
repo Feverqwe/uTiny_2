@@ -496,20 +496,64 @@ var manager = function() {
             cached = {};
             folders = {};
         }
+        var short_name = function(arr, level) {
+            if (arr == null) {
+                $.each(cached, function(k) {
+                    if (cached[k].gui.mod_name) {
+                        var fl_path_arr = cached[k].api[0].split('/');
+                        if (fl_path_arr[0].length == 0) {
+                            fl_path_arr = fl_path_arr.slice(1);
+                        }
+                        var name = get_folder_link(k, (fl_path_arr.length > 1) ? fl_path_arr.slice(0, -1) : []) + cached[k].gui.name;
+                        $('#' + k).children('td.name').children('div').html(name);
+                        cached[k].gui.mod_name = 0;
+                    }
+                });
+                return;
+            }
+            $.each(arr, function(k) {
+                var fl_path_arr = cached[k].api[0].split('/');
+                if (fl_path_arr[0].length == 0) {
+                    fl_path_arr = fl_path_arr.slice(1);
+                }
+                var parent_path = cached[k].gui.parent_path;
+                //if (fl_path_arr.indexOf(parent_path) == 0) {
+                //    parent_path = '/';
+                //}
+                var name = get_folder_link(k, (fl_path_arr.length > 1) ? fl_path_arr.slice(0, -1) : [], level) + cached[k].gui.name;
+                cached[k].gui.mod_name = 1;
+                $('#' + k).children('td.name').children('div').html(name);
+            });
+        }
         var show_folder = function(path) {
             if (path == '/') {
+                short_name();
                 show_all();
                 return;
             }
             if (path in folders == false)
                 return;
+            short_name(folders[path], path.split('/').length);
             hide_all(folders[path]);
         }
-        var get_folder_link = function(id, path) {
-            if (path.length == 0)
+        var get_folder_link = function(id, path, level) {
+            if (!level) {
+                level = 0;
+            }
+            if (path.length == 0) {
                 return '';
+            }
             var link = '';
-            for (var n = path.length; n > 0; n--) {
+            for (var n = path.length; n >= level; n--) {
+                if (n == level) {
+                    var fn = path.slice(0, n-1).join('/');
+                    if (fn.length == 0) {
+                        fn = '/';
+                    }
+                    if (n != 0)
+                        link = '<a class="folder c'+n+'" href="#&larr;" data-value="' + fn + '">&larr;</a>' + link;
+                    continue;
+                }
                 var fn = path.slice(0, n);
                 var dir_name = fn.slice(-1)[0];
                 fn = fn.join('/');
@@ -519,9 +563,9 @@ var manager = function() {
                 if (id in folders[fn] == false) {
                     folders[fn][id] = null;
                 }
-                link = '<a class="folder" href="#' + fn + '" data-value="' + fn + '">' + dir_name + '</a>' + link;
+                link = '<a class="folder c'+n+'" href="#' + fn + '" data-value="' + fn + '">' + dir_name + '</a>' + link;
             }
-            link = '<a class="folder" href="#/" data-value="/">/</a>'+link
+            //link = '<a class="folder" href="#/" data-value="/">/</a>' + link
             return link;
         }
         var add = function(_id, v) {
@@ -547,13 +591,16 @@ var manager = function() {
                     fl_path_arr = fl_path_arr.slice(1);
                 }
                 var fl_path = (fl_path_arr.length > 1) ? fl_path_arr.slice(0, -1).join('/') : '';
+                var fl_parent_path = (fl_path_arr.length > 2) ? fl_path_arr.slice(0, -2).join('/') : '/';
                 var fl_name = (fl_path_arr.length) ? fl_path_arr.slice(-1)[0] : v[0];
                 cached[id].api = v
                 cached[id].gui = {
                     'name': fl_name,
                     'path': fl_path,
+                    'parent_path': fl_parent_path,
                     'link_path': get_folder_link(id, (fl_path_arr.length > 1) ? fl_path_arr.slice(0, -1) : []) + fl_name,
                     'display': 1,
+                    'mod_name': 0,
                 }
                 create_fl_item(id, cached[id]);
             }
@@ -571,7 +618,8 @@ var manager = function() {
                         show(id);
                     return true;
                 }
-                hide(id);
+                if (cached[id].gui.display == 1)
+                    hide(id);
             });
         }
         var show_all = function(ex) {
@@ -581,7 +629,8 @@ var manager = function() {
                         hide(id);
                     return true;
                 }
-                show(id);
+                if (cached[id].gui.display == 0)
+                    show(id);
             });
         }
         var hide = function(id) {

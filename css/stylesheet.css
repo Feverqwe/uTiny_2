@@ -339,3 +339,24 @@ div.fl-layer a.folder {
     padding-right: 1px;
     text-decoration: none;
 }
+div.fl-layer a.folder.c7 {
+    background-color: #d0d0d0;
+}
+div.fl-layer a.folder.c6 {
+    background-color: #ffa39f;
+}
+div.fl-layer a.folder.c5 {
+    background-color: #e8bdeb;
+}
+div.fl-layer a.folder.c4 {
+    background-color: #f6f79d;
+}
+div.fl-layer a.folder.c3 {
+    background-color: #fad294;
+}
+div.fl-layer a.folder.c2 {
+    background-color: #d1f09d;
+}
+div.fl-layer a.folder.c1 {
+    background-color: #acd1ff;
+}
