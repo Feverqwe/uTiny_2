@@ -140,6 +140,12 @@ div.torrent-list-layer table .position {
 div.torrent-list-layer table .ostalos {
     text-align: right;
 }
+div.torrent-list-layer table .time {
+    text-align: center;
+}
+div.torrent-list-layer table .seeds_peers {
+    text-align: center;
+}
 div.torrent-list-layer table .poluchino {
     text-align: right;
 }
@@ -454,4 +460,7 @@ li.select div[data-image=inacive],
     height: 16px;
     margin-top: -2px;
     background-image: url('/images/c_iact.png');
+}
+.appriseOverlay {
+    z-index: 3;
 }

@@ -76,7 +76,8 @@ var manager = function() {
         var th = tables['tr-fixed_head'].find('th');
         th.removeClass('headerSortDown headerSortUp');
         for (var n = 0; n < s.length; n++) {
-            if (s[n][0] > th.length-1) continue;
+            if (s[n][0] > th.length - 1)
+                continue;
             if (s[n][1]) {
                 th.eq(s[n][0]).addClass('headerSortUp');
             } else {
@@ -89,7 +90,8 @@ var manager = function() {
         var th = tables['fl-fixed_head'].find('th');
         th.removeClass('headerSortDown headerSortUp');
         for (var n = 0; n < s.length; n++) {
-            if (s[n][0] > th.length-1) continue;
+            if (s[n][0] > th.length - 1)
+                continue;
             if (s[n][1]) {
                 th.eq(s[n][0]).addClass('headerSortUp');
             } else {
@@ -1321,7 +1323,7 @@ var manager = function() {
             clear = 1;
         }
         var add_layer = function() {
-             $('<div class="file-list-layer-temp"></div>')
+            $('<div class="file-list-layer-temp"></div>')
                     .css({
                 height: tables.window.height(),
                 width: tables.window.width()
@@ -1366,7 +1368,7 @@ var manager = function() {
             getID: function() {
                 return id;
             },
-            close : function (){
+            close: function() {
                 close();
             }
         }
@@ -1485,10 +1487,10 @@ var manager = function() {
                 'fl-fixed_head': $('.fl-table-head'),
                 'fl-bottom': $('.file-list ul.bottom-menu'),
             }
-            tables['fl-bottom'].on('click','a.update',function () {
+            tables['fl-bottom'].on('click', 'a.update', function() {
                 _engine.sendAction("&action=getfiles&hash=" + torrent_file_list.getID());
             });
-            tables['fl-bottom'].on('click','a.close',function () {
+            tables['fl-bottom'].on('click', 'a.close', function() {
                 torrent_file_list.close();
             });
             tables['table-body'].css('max-height', settings.window_height + 'px');
@@ -1502,7 +1504,7 @@ var manager = function() {
                     var item = tmp_vars['label_obj'][$(this).val()];
                 }
                 tr_table_controller.filter(val, item);
-                tables['menu'].children('li.select').children('a').children('.selectBox-label').prepend('<div data-image="'+val+'"></div>');
+                tables['menu'].children('li.select').children('a').children('.selectBox-label').prepend('<div data-image="' + val + '"></div>');
             });
             tables['fl-body'].on('click', 'input', function(e) {
                 if (tmp_vars['fl_sall_st'] == null) {
@@ -1686,7 +1688,22 @@ var manager = function() {
                         name: lang_arr[6],
                         callback: function(key, opt) {
                             var id = this[0].id;
-                            contextActions(key, id)
+                            apprise(lang_arr[73], {
+                                'verify': true,
+                                'textYes': lang_arr[110][0],
+                                'textNo': lang_arr[110][1]
+                            }, function(r) {
+                                if (r) {
+                                    if (typeof(r) != 'string')
+                                    {
+                                        contextActions(key, id)
+                                    }
+                                }
+                                else
+                                {
+                                    return;
+                                }
+                            });
                         },
                     },
                     remove_with: {
