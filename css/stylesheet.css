@@ -131,10 +131,26 @@ div.torrent-list-layer table .name div {
 div.torrent-list-layer table .size {
     text-align: right;
 }
+div.torrent-list-layer table .otdano {
+    text-align: right;
+}
+div.torrent-list-layer table .position {
+    text-align: center;
+}
+div.torrent-list-layer table .ostalos {
+    text-align: right;
+}
+div.torrent-list-layer table .poluchino {
+    text-align: right;
+}
+div.torrent-list-layer table .koeficient {
+    text-align: center;
+}
 div.torrent-list-layer table .status div {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    text-align: center;
 }
 table.torrent-table-head {
     position: fixed;
