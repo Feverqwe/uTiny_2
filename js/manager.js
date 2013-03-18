@@ -18,7 +18,8 @@ var manager = function() {
         'torrent_context_menu_labels': null,
         'speed_limit': {},
         'auto_order': true,
-        'filelist_param': ''
+        'filelist_param': '',
+        'fl_sall_st': null,
     }
     var write_language = function() {
         function ui_url()
@@ -493,6 +494,11 @@ var manager = function() {
         var folders = {}
         var clear = function() {
             tables['fl-body'].empty();
+            var sel_all = tables['fl-table-fixed'].find('input').eq(0)[0];
+            if (sel_all.checked) {
+                sel_all.checked = false;
+            }
+            tmp_vars['fl_sall_st'] = null;
             cached = {};
             folders = {};
         }
@@ -500,29 +506,17 @@ var manager = function() {
             if (arr == null) {
                 $.each(cached, function(k) {
                     if (cached[k].gui.mod_name) {
-                        var fl_path_arr = cached[k].api[0].split('/');
-                        if (fl_path_arr[0].length == 0) {
-                            fl_path_arr = fl_path_arr.slice(1);
-                        }
-                        var name = get_folder_link(k, (fl_path_arr.length > 1) ? fl_path_arr.slice(0, -1) : []) + cached[k].gui.name;
-                        $('#' + k).children('td.name').children('div').html(name);
+                        var name = get_folder_link(k, (cached[k].gui.path_arr.length > 1) ? cached[k].gui.path_arr.slice(0, -1) : []) + cached[k].gui.name;
+                        $('#' + k).children('td.name').children('div').children('span').html(name);
                         cached[k].gui.mod_name = 0;
                     }
                 });
                 return;
             }
             $.each(arr, function(k) {
-                var fl_path_arr = cached[k].api[0].split('/');
-                if (fl_path_arr[0].length == 0) {
-                    fl_path_arr = fl_path_arr.slice(1);
-                }
-                var parent_path = cached[k].gui.parent_path;
-                //if (fl_path_arr.indexOf(parent_path) == 0) {
-                //    parent_path = '/';
-                //}
-                var name = get_folder_link(k, (fl_path_arr.length > 1) ? fl_path_arr.slice(0, -1) : [], level) + cached[k].gui.name;
+                var name = get_folder_link(k, (cached[k].gui.path_arr.length > 1) ? cached[k].gui.path_arr.slice(0, -1) : [], level) + cached[k].gui.name;
                 cached[k].gui.mod_name = 1;
-                $('#' + k).children('td.name').children('div').html(name);
+                $('#' + k).children('td.name').children('div').children('span').html(name);
             });
         }
         var show_folder = function(path) {
@@ -546,12 +540,12 @@ var manager = function() {
             var link = '';
             for (var n = path.length; n >= level; n--) {
                 if (n == level) {
-                    var fn = path.slice(0, n-1).join('/');
+                    var fn = path.slice(0, n - 1).join('/');
                     if (fn.length == 0) {
                         fn = '/';
                     }
                     if (n != 0)
-                        link = '<a class="folder c'+n+'" href="#&larr;" data-value="' + fn + '">&larr;</a>' + link;
+                        link = '<a class="folder c' + n + '" href="#&larr;" data-value="' + fn + '">&larr;</a>' + link;
                     continue;
                 }
                 var fn = path.slice(0, n);
@@ -563,9 +557,8 @@ var manager = function() {
                 if (id in folders[fn] == false) {
                     folders[fn][id] = null;
                 }
-                link = '<a class="folder c'+n+'" href="#' + fn + '" data-value="' + fn + '">' + dir_name + '</a>' + link;
+                link = '<a class="folder c' + n + '" href="#' + fn + '" data-value="' + fn + '">' + dir_name + '</a>' + link;
             }
-            //link = '<a class="folder" href="#/" data-value="/">/</a>' + link
             return link;
         }
         var add = function(_id, v) {
@@ -590,14 +583,11 @@ var manager = function() {
                 if (fl_path_arr[0].length == 0) {
                     fl_path_arr = fl_path_arr.slice(1);
                 }
-                var fl_path = (fl_path_arr.length > 1) ? fl_path_arr.slice(0, -1).join('/') : '';
-                var fl_parent_path = (fl_path_arr.length > 2) ? fl_path_arr.slice(0, -2).join('/') : '/';
                 var fl_name = (fl_path_arr.length) ? fl_path_arr.slice(-1)[0] : v[0];
                 cached[id].api = v
                 cached[id].gui = {
                     'name': fl_name,
-                    'path': fl_path,
-                    'parent_path': fl_parent_path,
+                    'path_arr': fl_path_arr,
                     'link_path': get_folder_link(id, (fl_path_arr.length > 1) ? fl_path_arr.slice(0, -1) : []) + fl_name,
                     'display': 1,
                     'mod_name': 0,
@@ -670,14 +660,14 @@ var manager = function() {
          */
         var item = '<tr id="' + id + '">';
         item += '<td class="select"><input type="checkbox"/></td>';
-        item += '<td class="name" data-value="' + v.api[0] + '"><div>' + v.gui.link_path + '</div></td>';
+        item += '<td class="name" data-value="' + v.api[0] + '" title="' + v.gui.name + '"><div><span>' + v.gui.link_path + '</span></div></td>';
         item += '<td class="size" data-value="' + v.api[1] + '"><div>' + bytesToSize(v.api[1], '0') + '</div></td>';
         item += '<td class="download" data-value="' + v.api[2] + '"><div>' + bytesToSize(v.api[2], '0') + '</div></td>';
         var progress = Math.round((v.api[2] * 100 / v.api[1]) * 10) / 10;
         var color = (v.api[1] == v.api[2]) ? '#41B541' : '#3687ED';
         item += '<td class="progress" data-value="' + progress + '"><div class="progress_b"><div class="progress_b_i" style="width: ' + writePersent(progress) + 'px; background-color: ' + color + ';"><div>' + progress + '%</div></div></div></td>';
         var priority = lang_arr[87][v.api[3]];
-        item += '<td class="priority" data-value="' + v.api[3] + '"><div>' + priority + '</div></td>';
+        item += '<td class="priority" data-value="' + v.api[3] + '" title="' + priority + '"><div>' + priority + '</div></td>';
         item += '</tr>';
         tables['fl-body'].append(item);
     }
@@ -711,7 +701,7 @@ var manager = function() {
                         item = $('#file_id_' + id);
                     cell = item.children('td.priority');
                     var priority = lang_arr[87][v.api[3]];
-                    cell.attr('data-value', v.api[3]).children('div').text(priority);
+                    cell.attr('data-value', v.api[3]).attr("title", priority).children('div').text(priority);
                     tables['fl-table-main'].trigger('updateCell', [cell[0], 1]);
                     break;
             }
@@ -1472,6 +1462,40 @@ var manager = function() {
                 }
                 tr_table_controller.filter(val, item);
             });
+            tables['fl-body'].on('click', 'input', function(e) {
+                if (tmp_vars['fl_sall_st'] == null) {
+                    var sel_all = tables['fl-table-fixed'].find('input').eq(0)[0];
+                    if (sel_all.checked)
+                        sel_all.checked = false;
+                }
+                var f = 0;
+                if (typeof(tmp_vars['fl_sall_st']) == 'number' && tmp_vars['fl_sall_st']) {
+                    f = 1;
+                }
+                if (this.checked || f) {
+                    if (f) {
+                        this.checked = true;
+                    }
+                    $(this).parents().eq(1).addClass("selected");
+                } else {
+                    $(this).parents().eq(1).removeClass("selected");
+                }
+            })
+            tables['fl-table-fixed'].on('click', 'input', function() {
+                if (this.checked) {
+                    tmp_vars['fl_sall_st'] = 1;
+                    var n = tables['fl-body'].find('input');
+                    var t = n.filter(":visible");
+                    t.trigger('click');
+                    if (n.length != t.length) {
+                        this.checked = false;
+                    }
+                } else {
+                    tmp_vars['fl_sall_st'] = 0;
+                    tables['fl-body'].find('input:checked').trigger('click');
+                }
+                tmp_vars['fl_sall_st'] = null;
+            })
             tables['fl-layer'].on('click', 'a.folder', function(e) {
                 e.preventDefault();
                 fl_table_controller.show_folder($(this).attr('data-value'));
