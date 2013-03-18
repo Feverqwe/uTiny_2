@@ -488,6 +488,186 @@ var manager = function() {
             return '';
         }
     }
+    var fl_table_controller = function() {
+        var cached = {}
+        var folders = {}
+        var clear = function() {
+            tables['fl-body'].empty();
+            cached = {};
+            folders = {};
+        }
+        var show_folder = function(path) {
+            if (path == '/') {
+                show_all();
+                return;
+            }
+            if (path in folders == false)
+                return;
+            hide_all(folders[path]);
+        }
+        var get_folder_link = function(id, path) {
+            if (path.length == 0)
+                return '';
+            var link = '';
+            for (var n = path.length; n > 0; n--) {
+                var fn = path.slice(0, n);
+                var dir_name = fn.slice(-1)[0];
+                fn = fn.join('/');
+                if (fn in folders == false) {
+                    folders[fn] = {}
+                }
+                if (id in folders[fn] == false) {
+                    folders[fn][id] = null;
+                }
+                link = '<a class="folder" href="#' + fn + '" data-value="' + fn + '">' + dir_name + '</a>' + link;
+            }
+            link = '<a class="folder" href="#/" data-value="/">/</a>'+link
+            return link;
+        }
+        var add = function(_id, v) {
+            var id = 'file_id_' + _id;
+            if (id in cached) {
+                var tr = cached[id]['api'];
+                var c = v.length;
+                var modifed_arr = [];
+                for (var n = 0; n < c; n++) {
+                    if (tr[n] != v[n]) {
+                        modifed_arr[modifed_arr.length] = n;
+                        cached[id]['api'][n] = v[n];
+                    }
+                }
+                update_fl_item(id, cached[id], modifed_arr);
+            } else {
+                cached[id] = {
+                    'api': null,
+                    'gui': null
+                }
+                var fl_path_arr = v[0].split('/');
+                if (fl_path_arr[0].length == 0) {
+                    fl_path_arr = fl_path_arr.slice(1);
+                }
+                var fl_path = (fl_path_arr.length > 1) ? fl_path_arr.slice(0, -1).join('/') : '';
+                var fl_name = (fl_path_arr.length) ? fl_path_arr.slice(-1)[0] : v[0];
+                cached[id].api = v
+                cached[id].gui = {
+                    'name': fl_name,
+                    'path': fl_path,
+                    'link_path': get_folder_link(id, (fl_path_arr.length > 1) ? fl_path_arr.slice(0, -1) : []) + fl_name,
+                    'display': 1,
+                }
+                create_fl_item(id, cached[id]);
+            }
+        }
+        var get = function(id) {
+            if (id in cached)
+                return cached[id];
+            else
+                return null;
+        }
+        var hide_all = function(ex) {
+            $.each(cached, function(id) {
+                if (ex && id in ex) {
+                    if (cached[id].gui.display == 0)
+                        show(id);
+                    return true;
+                }
+                hide(id);
+            });
+        }
+        var show_all = function(ex) {
+            $.each(cached, function(id) {
+                if (ex && id in ex) {
+                    if (cached[id].gui.display == 1)
+                        hide(id);
+                    return true;
+                }
+                show(id);
+            });
+        }
+        var hide = function(id) {
+            if (cached[id]['gui']['display']) {
+                cached[id]['gui']['display'] = 0;
+                $('#' + id).css('display', 'none');
+            }
+        }
+        var show = function(id) {
+            if (!cached[id]['gui']['display']) {
+                cached[id]['gui']['display'] = 1;
+                $('#' + id).css('display', 'table-row');
+            }
+        }
+        return {
+            add: function(a, b) {
+                add(a, b);
+            },
+            get: function(t) {
+                return get(t);
+            },
+            clear: function() {
+                clear();
+            },
+            show_folder: function(a) {
+                show_folder(a);
+            }
+        }
+    }()
+    var create_fl_item = function(id, v) {
+        /*
+         * name = 0
+         * size = 1
+         * dwnload = 2
+         * dune = 2
+         * prio = 3
+         */
+        var item = '<tr id="' + id + '">';
+        item += '<td class="select"><input type="checkbox"/></td>';
+        item += '<td class="name" data-value="' + v.api[0] + '"><div>' + v.gui.link_path + '</div></td>';
+        item += '<td class="size" data-value="' + v.api[1] + '"><div>' + bytesToSize(v.api[1], '0') + '</div></td>';
+        item += '<td class="download" data-value="' + v.api[2] + '"><div>' + bytesToSize(v.api[2], '0') + '</div></td>';
+        var progress = Math.round((v.api[2] * 100 / v.api[1]) * 10) / 10;
+        var color = (v.api[1] == v.api[2]) ? '#41B541' : '#3687ED';
+        item += '<td class="progress" data-value="' + progress + '"><div class="progress_b"><div class="progress_b_i" style="width: ' + writePersent(progress) + 'px; background-color: ' + color + ';"><div>' + progress + '%</div></div></div></td>';
+        var priority = lang_arr[87][v.api[3]];
+        item += '<td class="priority" data-value="' + v.api[3] + '"><div>' + priority + '</div></td>';
+        item += '</tr>';
+        tables['fl-body'].append(item);
+    }
+    var update_fl_item = function(id, v, modifed_arr) {
+        var c = modifed_arr.length;
+        for (var n = 0; n < c; n++)
+            switching(modifed_arr[n]);
+        function switching(key)
+        {
+            var item = null;
+            switch (key) {
+                case 1:
+                    if (!item)
+                        item = $('#' + id);
+                    cell = item.children('td.size');
+                    cell.attr('data-value', v.api[1]).children('div').text(bytesToSize(v.api[1], '0'));
+                    tables['fl-table-main'].trigger('updateCell', [cell[0], 1]);
+                    break;
+                case 2:
+                    if (!item)
+                        item = $('#file_id_' + id);
+                    item.children('td.download').attr('data-value', v.api[2]).children('div').text(bytesToSize(v.api[2], '0'));
+                    var progress = Math.round((v.api[2] * 100 / v.api[1]) * 10) / 10;
+                    var cell = item.children('td.progress');
+                    var color = (v.api[1] == v.api[2]) ? '#41B541' : '#3687ED';
+                    cell.attr('data-value', progress).children('div.progress_b').children('div.progress_b_i').css({'width': writePersent(progress) + 'px', 'background-color': color}).children('div').html(progress + '%');
+                    tables['fl-table-main'].trigger('updateCell', [cell[0], 1]);
+                    break;
+                case 3:
+                    if (!item)
+                        item = $('#file_id_' + id);
+                    cell = item.children('td.priority');
+                    var priority = lang_arr[87][v.api[3]];
+                    cell.attr('data-value', v.api[3]).children('div').text(priority);
+                    tables['fl-table-main'].trigger('updateCell', [cell[0], 1]);
+                    break;
+            }
+        }
+    }
     var tr_table_controller = function() {
         var cached = {}
         var clear = function() {
@@ -1029,6 +1209,7 @@ var manager = function() {
     }
     var torrent_file_list = function(id) {
         var id = ''
+        var clear = 0
         var file_list_h = 0
         var fl_layer_h = 0
         var display_fl = 0
@@ -1045,27 +1226,38 @@ var manager = function() {
                 tmp_vars.filelist_param = '';
                 return;
             }
-            if ( arr[0] != id ) return;
+            if (arr[0] != id) {
+                return;
+            }
             if (display_loading) {
                 tables['fl-layer'].children('div.file-list-loading').remove();
                 display_loading = 0;
             }
-            console.log(arr);
+            var files = arr[1];
+            $.each(files, function(k, v) {
+                fl_table_controller.add(k, v);
+            });
+            if (clear == 1) {
+                tables['fl-table-main'].trigger('update');
+                clear = 0;
+            }
         }
-        var close = function () {
+        var close = function() {
             display_fl = 0;
             $('#' + id).removeClass('selected');
             tables['file-list'].css("display", "none");
             $('div.file-list-layer-temp').remove();
             tmp_vars.auto_order = true;
             id = "";
+            fl_table_controller.clear();
+            clear = 1;
         }
         var add_layer = function() {
             return layer = $('<div class="file-list-layer-temp"></div>')
                     .css({
                 height: tables.window.height(),
                 width: tables.window.width()
-            }).on('mousedown', function () {
+            }).on('mousedown', function() {
                 $(this).remove();
                 close();
             }).appendTo(tables['body']);
@@ -1087,13 +1279,18 @@ var manager = function() {
                         "left": ((tables.window.width() - tables['file-list'].width()) / 2) + "px",
                         "height": file_list_h + "px",
                     });
-                    tables['fl-layer'].css('height', fl_layer_h);
+                    tables['fl-layer'].css({
+                        'max-height': fl_layer_h + "px",
+                        'min-height': fl_layer_h + "px",
+                    });
                 } else {
                     tables['file-list'].css({"display": "block"});
                 }
                 display_fl = 1;
                 loading_img();
                 tables['fl-bottom'].find('input').val((tr_table_controller.get(id))[26]);
+                fl_table_controller.clear();
+                clear = 1;
             },
             setFL: function(a) {
                 setFL(a);
@@ -1226,6 +1423,10 @@ var manager = function() {
                 }
                 tr_table_controller.filter(val, item);
             });
+            tables['fl-layer'].on('click', 'a.folder', function(e) {
+                e.preventDefault();
+                fl_table_controller.show_folder($(this).attr('data-value'));
+            })
             tables['table-body'].on('scroll', function() {
                 tables['table-fixed'].css('left', -($(this).scrollLeft()));
             });
@@ -1437,6 +1638,18 @@ var manager = function() {
                 graph.init(settings.mgr_update_interval / 1000);
             }
             write_language();
+            tables['fl-table-main'].tablesorter({
+                textExtraction: function(node) {
+                    if ($(node).attr('data-value') !== undefined)
+                        return $(node).attr('data-value');
+                    return $(node).html();
+                },
+                sortList: (localStorage.fl_order !== undefined) ? JSON.parse(localStorage.fl_order) : [[1, 1]],
+                onsort: function(s) {
+                    localStorage.fl_order = JSON.stringify(s);
+                },
+                selectorHeaders: '.fl-table-head thead th'
+            });
             _engine.getLabels();
             _engine.getStatus();
             _engine.get_cache_torrent_list();
@@ -1458,7 +1671,7 @@ var manager = function() {
         setSpeedLimit: function(a) {
             set_speed_limit(a);
         },
-        setFileList : function (a) {
+        setFileList: function(a) {
             torrent_file_list.setFL(a);
         }
     }
