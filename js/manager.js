@@ -18,8 +18,11 @@ var manager = function() {
         'torrent_context_menu_labels': null,
         'speed_limit': {},
         'auto_order': true,
+        'fl_auto_order': true,
         'filelist_param': '',
         'fl_sall_st': null,
+        'fl_file_selected': null,
+        'fl_select_array': null,
     }
     var write_language = function() {
         function ui_url()
@@ -41,8 +44,8 @@ var manager = function() {
         tables['fl-head'].find('th.progress').attr('title', lang_arr[15][1]).html(lang_arr[15][0]);
         tables['fl-head'].find('th.priority').attr('title', lang_arr[89][1]).html(lang_arr[89][0]);
         tables['fl-head'].clone().appendTo(tables['fl-table-fixed']);
-        tables['fl-bottom'].children('a.update').attr('title', lang_arr[91][1]);
-        tables['fl-bottom'].children('a.close').attr('title', lang_arr[91][2]);
+        tables['fl-bottom'].find('a.update').attr('title', lang_arr[91][1]);
+        tables['fl-bottom'].find('a.close').attr('title', lang_arr[91][2]);
     }
     var torrent_list_head = function() {
         var colums = tmp_vars.colums;
@@ -69,6 +72,32 @@ var manager = function() {
             tables.body.css('width', '800px');
         }
     }
+    var update_tr_order = function(s) {
+        var th = tables['tr-fixed_head'].find('th');
+        th.removeClass('headerSortDown headerSortUp');
+        for (var n = 0; n < s.length; n++) {
+            if (s[n][0] > th.length-1) continue;
+            if (s[n][1]) {
+                th.eq(s[n][0]).addClass('headerSortUp');
+            } else {
+                th.eq(s[n][0]).addClass('headerSortDown');
+            }
+        }
+        return s;
+    }
+    var update_fl_order = function(s) {
+        var th = tables['fl-fixed_head'].find('th');
+        th.removeClass('headerSortDown headerSortUp');
+        for (var n = 0; n < s.length; n++) {
+            if (s[n][0] > th.length-1) continue;
+            if (s[n][1]) {
+                th.eq(s[n][0]).addClass('headerSortUp');
+            } else {
+                th.eq(s[n][0]).addClass('headerSortDown');
+            }
+        }
+        return s;
+    }
     var torrent_list_order = function() {
         tables['table-main'].tablesorter({
             textExtraction: function(node) {
@@ -76,8 +105,9 @@ var manager = function() {
                     return $(node).attr('data-value');
                 return $(node).html();
             },
-            sortList: (localStorage.tr_order !== undefined) ? JSON.parse(localStorage.tr_order) : [[1, 1]],
+            sortList: update_tr_order((localStorage.tr_order !== undefined) ? JSON.parse(localStorage.tr_order) : [[0, 1]]),
             onsort: function(s) {
+                update_tr_order(s);
                 localStorage.tr_order = JSON.stringify(s);
             },
             selectorHeaders: '.torrent-table-head thead th'
@@ -684,25 +714,25 @@ var manager = function() {
                         item = $('#' + id);
                     cell = item.children('td.size');
                     cell.attr('data-value', v.api[1]).children('div').text(bytesToSize(v.api[1], '0'));
-                    tables['fl-table-main'].trigger('updateCell', [cell[0], 1]);
+                    tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
                     break;
                 case 2:
                     if (!item)
-                        item = $('#file_id_' + id);
+                        item = $('#' + id);
                     item.children('td.download').attr('data-value', v.api[2]).children('div').text(bytesToSize(v.api[2], '0'));
                     var progress = Math.round((v.api[2] * 100 / v.api[1]) * 10) / 10;
                     var cell = item.children('td.progress');
                     var color = (v.api[1] == v.api[2]) ? '#41B541' : '#3687ED';
                     cell.attr('data-value', progress).children('div.progress_b').children('div.progress_b_i').css({'width': writePersent(progress) + 'px', 'background-color': color}).children('div').html(progress + '%');
-                    tables['fl-table-main'].trigger('updateCell', [cell[0], 1]);
+                    tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
                     break;
                 case 3:
                     if (!item)
-                        item = $('#file_id_' + id);
+                        item = $('#' + id);
                     cell = item.children('td.priority');
                     var priority = lang_arr[87][v.api[3]];
                     cell.attr('data-value', v.api[3]).attr("title", priority).children('div').text(priority);
-                    tables['fl-table-main'].trigger('updateCell', [cell[0], 1]);
+                    tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
                     break;
             }
         }
@@ -977,9 +1007,8 @@ var manager = function() {
                 }
                 update_speed_menu(opt);
                 break;
-            case ('add_colum'):
-                break;
-            case ('del_colum'):
+            case ('priority'):
+                _engine.sendAction('&action=setprio&p=' + opt + v);
                 break;
         }
     }
@@ -1292,7 +1321,7 @@ var manager = function() {
             clear = 1;
         }
         var add_layer = function() {
-            return layer = $('<div class="file-list-layer-temp"></div>')
+             $('<div class="file-list-layer-temp"></div>')
                     .css({
                 height: tables.window.height(),
                 width: tables.window.width()
@@ -1333,6 +1362,12 @@ var manager = function() {
             },
             setFL: function(a) {
                 setFL(a);
+            },
+            getID: function() {
+                return id;
+            },
+            close : function (){
+                close();
             }
         }
     }()
@@ -1447,9 +1482,15 @@ var manager = function() {
                 'fl-table-fixed': $('.fl-table-head'),
                 'fl-body': $('.fl-table-body').children('tbody'),
                 'fl-head': $('.fl-table-body').children('thead'),
-                'fl-fixed_head': $('.fl-table-head').children('thead'),
+                'fl-fixed_head': $('.fl-table-head'),
                 'fl-bottom': $('.file-list ul.bottom-menu'),
             }
+            tables['fl-bottom'].on('click','a.update',function () {
+                _engine.sendAction("&action=getfiles&hash=" + torrent_file_list.getID());
+            });
+            tables['fl-bottom'].on('click','a.close',function () {
+                torrent_file_list.close();
+            });
             tables['table-body'].css('max-height', settings.window_height + 'px');
             tmp_vars['colums'] = _engine.getColums();
             torrent_list_head();
@@ -1461,6 +1502,7 @@ var manager = function() {
                     var item = tmp_vars['label_obj'][$(this).val()];
                 }
                 tr_table_controller.filter(val, item);
+                tables['menu'].children('li.select').children('a').children('.selectBox-label').prepend('<div data-image="'+val+'"></div>');
             });
             tables['fl-body'].on('click', 'input', function(e) {
                 if (tmp_vars['fl_sall_st'] == null) {
@@ -1492,7 +1534,7 @@ var manager = function() {
                     }
                 } else {
                     tmp_vars['fl_sall_st'] = 0;
-                    tables['fl-body'].find('input:checked').trigger('click');
+                    tables['fl-body'].find('input:checked').filter(":visible").trigger('click');
                 }
                 tmp_vars['fl_sall_st'] = null;
             })
@@ -1717,12 +1759,94 @@ var manager = function() {
                         return $(node).attr('data-value');
                     return $(node).html();
                 },
-                sortList: (localStorage.fl_order !== undefined) ? JSON.parse(localStorage.fl_order) : [[1, 1]],
+                sortList: update_fl_order((localStorage.fl_order !== undefined) ? JSON.parse(localStorage.fl_order) : [[1, 1]]),
                 onsort: function(s) {
+                    update_fl_order(s);
                     localStorage.fl_order = JSON.stringify(s);
                 },
                 selectorHeaders: '.fl-table-head thead th'
             });
+            $.contextMenu({
+                selector: ".fl-table-body tr",
+                className: "filelist",
+                events: {
+                    show: function() {
+                        tmp_vars.fl_auto_order = false;
+                        var id = this[0].id;
+                        if ($(this).hasClass('selected')) {
+                            tmp_vars.fl_file_selected = 1;
+                        } else {
+                            $(this).find('input').trigger('click');
+                            tmp_vars.fl_file_selected = 0;
+                        }
+                        var priority = (fl_table_controller.get(id)).api[3];
+                        tables['fl_context_manu'].find('li.p' + priority).children('span').html('<label>&#9679; </label>' + lang_arr[87][priority]);
+                        var select_array = tables['fl-table-main'].find('tr.selected');
+                        var c = select_array.length;
+                        tmp_vars.fl_select_array = '&hash=' + torrent_file_list.getID();
+                        for (var n = 0; n < c; n++) {
+                            tmp_vars.fl_select_array += select_array.eq(n)[0].id.replace('file_id_', '&f=');
+                        }
+                    },
+                    hide: function() {
+                        tmp_vars.fl_auto_order = true;
+                        if (tmp_vars.fl_file_selected == 0) {
+                            $(this).find('input').trigger('click');
+                        }
+                        tables['fl_context_manu'].find('label').remove();
+                        tmp_vars.fl_select_array = null;
+                    },
+                },
+                items: {
+                    high: {
+                        className: 'p3',
+                        name: lang_arr[87][3],
+                        callback: function(key, opt) {
+                            contextActions('priority', tmp_vars.fl_select_array, 3);
+                            tmp_vars.fl_file_selected = 1;
+                            tables['fl-body'].find('input:checked').trigger('click');
+                        }
+                    },
+                    normal: {
+                        className: 'p2',
+                        name: lang_arr[87][2],
+                        callback: function(key, opt) {
+                            contextActions('priority', tmp_vars.fl_select_array, 2);
+                            tmp_vars.fl_file_selected = 1;
+                            tables['fl-body'].find('input:checked').trigger('click');
+                        }
+                    },
+                    low: {
+                        className: 'p1',
+                        name: lang_arr[87][1],
+                        callback: function(key, opt) {
+                            contextActions('priority', tmp_vars.fl_select_array, 1);
+                            tmp_vars.fl_file_selected = 1;
+                            tables['fl-body'].find('input:checked').trigger('click');
+                        }
+                    },
+                    s: '-',
+                    dntdownload: {
+                        className: 'p0',
+                        name: lang_arr[87][0],
+                        callback: function(key, opt) {
+                            contextActions('priority', tmp_vars.fl_select_array, 0);
+                            tmp_vars.fl_file_selected = 1;
+                            tables['fl-body'].find('input:checked').trigger('click');
+                        }
+                    },
+                    s1: '-',
+                    download: {
+                        name: lang_arr[90],
+                        callback: function(key, opt) {
+                            contextActions('priority', tmp_vars.fl_select_array, key);
+                            tmp_vars.fl_file_selected = 1;
+                            tables['fl-body'].find('input:checked').trigger('click');
+                        }
+                    },
+                }
+            });
+            tables['fl_context_manu'] = $('.context-menu-list.filelist');
             _engine.getLabels();
             _engine.getStatus();
             _engine.get_cache_torrent_list();

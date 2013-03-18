@@ -355,6 +355,7 @@ if(jQuery) (function($) {
                                     a = $('<a />');
                                     li.addClass( $(this).attr('class') );
                                     a.attr('rel', $(this).val()).text( $(this).text() ).attr('title',$(this).text());
+                                    a.prepend('<div data-image="'+$(this).val()+'"></div>');
                                     li.append(a);
                                     if( $(this).attr('disabled') ) li.addClass('selectBox-disabled');
                                     if( $(this).attr('selected') ) li.addClass('selectBox-selected');
@@ -890,7 +891,8 @@ if(jQuery) (function($) {
                         control.append(options);
                         break;
                     case 'dropdown':
-                        control.find('.selectBox-label').text( $(select).find('OPTION:selected').text() || '\u00A0' );
+                        var sel_opt = $(select).find('OPTION:selected');
+                        control.find('.selectBox-label').html( ('<div data-image="'+sel_opt.val()+'"></div>' + sel_opt.text()) || '\u00A0' );
                         $("BODY").append(options);
                         break;
                 }

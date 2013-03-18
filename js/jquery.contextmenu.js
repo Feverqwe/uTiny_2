@@ -825,6 +825,7 @@
                         
                         case 'sub':
                             $('<span></span>').text(item.name).appendTo($t);
+                            $('<label class="context"></label>').appendTo($t);
                             item.appendTo = item.$node;
                             op.create(item, root);
                             $t.data('contextMenu', item);

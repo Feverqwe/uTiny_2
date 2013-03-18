@@ -152,9 +152,10 @@ table td.progress div.progress_b {
     height: 14px;
     float: left;
     display: block;
-    border: 1px solid #c0c0c0;
+    border: 1px solid gray;
     margin-right: 2px;
     background-color: #dbdbdb;
+    border-radius: 2px;
 }
 table td.progress div.progress_b_i {
     height: 14px;
@@ -209,6 +210,9 @@ table.status-panel td.speed {
 li.context-menu-item label {
     margin-left: -10px;
 }
+ul.context-menu-list.filelist label {
+    margin-left: -13px;
+}
 div.file-list-layer-temp {
     position: fixed;
     z-index: 3;
@@ -252,6 +256,9 @@ table.fl-table-body thead {
 div.fl-layer table .select {
     min-width: 19px;
     max-width: 19px;
+}
+div.fl-layer table.fl-table-body td.select {
+    padding-left: 3px;
 }
 div.fl-layer table .select input { 
     margin-top: 2.5px; 
@@ -359,4 +366,76 @@ div.fl-layer a.folder.c2 {
 }
 div.fl-layer a.folder.c1 {
     background-color: #acd1ff;
+}
+table thead .headerSortDown {
+    background-image: url('/images/down.png');
+    background-position: right center;
+    background-repeat: no-repeat;
+    background-origin: content-box;
+    padding-rigth: 3px;
+}
+table thead .headerSortUp {
+    background-image: url('/images/up.png');
+    background-position: right center;
+    background-repeat: no-repeat;
+    background-origin: content-box;
+    padding-rigth: 3px;
+}
+li.context-menu-item label.context {
+    background-image: url('/images/right.png');
+    background-repeat: no-repeat;
+    width: 11px;
+    height: 11px;
+    position: absolute;
+    right: 3px;
+    margin-top: 1px;
+}
+li.select div[data-image],
+.selectBox-dropdown-menu div[data-image] {
+    background-repeat: no-repeat;
+    display: inline-block;
+    margin-right: 2px;
+    background-position-y: 1px;
+}
+li.select div[data-image=all],
+.selectBox-dropdown-menu div[data-image=all] {
+    width: 16px;
+    height: 16px;
+    margin-top: -2px;
+    background-image: url('/images/c_all.png');
+}
+li.select div[data-image=download],
+.selectBox-dropdown-menu div[data-image=download] {
+    width: 16px;
+    height: 16px;
+    margin-top: -2px;
+    background-image: url('/images/c_down.png');
+}
+li.select div[data-image=seeding],
+.selectBox-dropdown-menu div[data-image=seeding] {
+    width: 16px;
+    height: 16px;
+    margin-top: -2px;
+    background-image: url('/images/c_uplo.png');
+}
+li.select div[data-image=complite],
+.selectBox-dropdown-menu div[data-image=complite] {
+    width: 16px;
+    height: 16px;
+    margin-top: -2px;
+    background-image: url('/images/c_comp.png');
+}
+li.select div[data-image=active],
+.selectBox-dropdown-menu div[data-image=active] {
+    width: 16px;
+    height: 16px;
+    margin-top: -2px;
+    background-image: url('/images/c_active.png');
+}
+li.select div[data-image=inacive],
+.selectBox-dropdown-menu div[data-image=inacive] {
+    width: 16px;
+    height: 16px;
+    margin-top: -2px;
+    background-image: url('/images/c_iact.png');
 }
