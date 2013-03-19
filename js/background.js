@@ -341,6 +341,183 @@ var engine = function() {
             }
         });
     }
+    var context_menu_obj = function() {
+        var context_menu = null;
+        var repeat_count = 0;
+        var notification_link = null;
+        var getTorrentsList = function(cacheId) {
+            try {
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", proto_https + "://" + complite_url + "?token=" + token + "&list=1" + (cacheId ? ("&cid=" + cacheId) : ""), false);
+                xhr.setRequestHeader("Authorization", getAuthCookie());
+                xhr.send(null);
+            } catch (e) {
+                return null;
+            }
+
+            // convert response to an object
+            return JSON.parse(xhr.responseText);
+        };
+        var handleResponse = function(responseText) {
+            // check for errors
+            var response = null;
+            try {
+                response = JSON.parse(responseText);
+            } catch (err) {
+                link_note(lang_arr[103], err.toString(), 'error');
+            }
+            if (response.error) {
+                link_note(lang_arr[23], response.error, 'error');
+            } else {
+                // get the name of the last torrent in the list
+                var list = getTorrentsList();
+                var torrents = list.torrentp || list.torrents;
+                if (torrents) {
+                    var torrent = torrents[torrents.length - 1];
+                    link_note(torrent[2], lang_arr[102], null);
+                    if (go_in_downloads == 1) {
+                        localStorage["last_label"] = '*{[down]}*';
+                        if (chkDOM())
+                            windowsDOM.manager.selectLabel('*{[down]}*');
+                    }
+                }
+            }
+        };
+        var downloadFile = function(url, callback, param) {
+            var xhr = new XMLHttpRequest();
+
+            xhr.open("GET", url, true);
+            xhr.overrideMimeType("text/plain; charset=x-user-defined");
+            xhr.responseType = "blob";
+
+            xhr.onload = function() {
+                var blob = xhr.response;
+                callback(blob, param);
+            };
+            xhr.send(null);
+        };
+        var uploadTorrent = function(file, param) {
+            // prepare torrent file
+            var formdata = new FormData();
+            formdata.append("torrent_file", file);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", proto_https + "://" + complite_url + "?token=" + token + "&action=add-file" + param, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    handleResponse(xhr.responseText);
+                }
+            };
+            // upload it
+            xhr.setRequestHeader("Authorization", getAuthCookie());
+            xhr.send(formdata);
+        };
+        var uploadMagnet = function(url) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", proto_https + "://" + complite_url + "?token=" + token + "&action=add-url&s=" + url, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    handleResponse(xhr.responseText);
+                }
+            };
+            // upload it
+            xhr.setRequestHeader("Authorization", getAuthCookie());
+            xhr.send(null);
+        };
+        var link_note = function(a, b, i)
+        {
+            if (note_link_enable == 0) {
+                return;
+            }
+            if (notification_link != null) {
+                notification_link.cancel();
+            }
+            if (!b) {
+                b = '';
+            }
+            var icon = 'images/add.png';
+            if (i == 'error') {
+                icon = 'images/warning.png';
+            }
+            notification_link = webkitNotifications.createNotification(
+                    icon,
+                    a, b
+                    );
+            notification_link.show();
+            $('#link_timer').stopTime('note_timer');
+            $('#link_timer').oneTime(3000, 'note_timer', function() {
+                notification_link.cancel()
+            });
+        }
+        var addTorrent = function(a) {
+            var param = '';
+            if (context_menu[a.menuItemId] !== undefined)
+                param = "&download_dir=" + encodeURIComponent(context_menu[a.menuItemId].key) + "&path=" + encodeURIComponent(context_menu[a.menuItemId].val);
+            chrome.tabs.getSelected(null, function(tab) {
+                // запоминает таб торрента
+                tabId = tab.id;
+
+                // запрашивает токен
+                if (token == '')
+                {
+                    if (repeat_count == 0)
+                        getToken();
+                    $('#link_timer').oneTime(100, 'auth_timer', function() {
+                        if (repeat_count < 10) {
+                            repeat_count++;
+                            addTorrent(a);
+                        } else {
+                            link_note(lang_arr[38], null, 'error');
+                            repeat_count = 0;
+                        }
+                    });
+                } else {
+                    $('#link_timer').stopTime('auth_timer');
+                    repeat_count = 0;
+                }
+                try {
+                    t = a.linkUrl;
+                    if (t.substr(0, 7) == 'magnet:')
+                        uploadMagnet(encodeURIComponent(t) + param);
+                    else
+                        downloadFile(t, uploadTorrent, param);
+                } finally {
+                    //hideMessages();
+                }
+            });
+        }
+        return {
+            'begin': function() {
+                chrome.contextMenus.removeAll();
+                var parentID = chrome.contextMenus.create({
+                    "title": lang_arr[104],
+                    "contexts": ["link"],
+                    "onclick": addTorrent
+                });
+                //выбор каталога из контекстного меню>
+                if (settings.folders_array)
+                {
+                    var arr = settings.folders_array;
+                    var c = arr.length;
+                    var items = [];
+                    for (var i = 0; i < c; i++)
+                    {
+                        var item = chrome.contextMenus.create({
+                            "title": arr[i][1],
+                            "contexts": ["link"],
+                            "onclick": addTorrent,
+                            "parentId": parentID
+                        });
+                        items[item] = {
+                            'key': arr[i][0],
+                            'val': arr[i][1]
+                        };
+                    }
+                    context_menu = items;
+                }
+            }
+        }
+    }
     var getTorrentList = function(subaction) {
         var action = "&list=1" + ((subaction) ? subaction : '');
         get(action);
