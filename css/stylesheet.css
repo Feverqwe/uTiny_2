@@ -107,15 +107,21 @@ table tr {
     height: 18px;
     cursor: default;
 }
+tr:nth-child(even) {
+      background-color:  #f3f6fa;  
+}
 table tbody tr:hover {
-    background-color: #3875d7;
+    background-color: #3875d7 !important;
     color: #fff;
 }
-td div, th div {
+th div {
     overflow: hidden;
     white-space: nowrap;
 }
-
+td div {
+    overflow: hidden;
+    white-space: nowrap;
+}
 div.torrent-list-layer table .name {
     text-align: left;
 }
@@ -161,7 +167,7 @@ table.torrent-table-body thead {
     visibility: hidden;
 }
 table tbody tr.selected {
-    background-color: #3875d7;
+    background-color: #3875d7 !important;
     color: #fff;
 }
 table td.progress div.progress_b {

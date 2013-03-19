@@ -20,6 +20,8 @@ var manager = function() {
         'fl_select_array': null,
         'fl_prio_param': null,
         'lp_path': null,
+        'tr_word_wrap' : false,
+        'fl_word_wrap' : true,
     }
     var chk_settings = function() {
         if (settings == null ||
@@ -444,7 +446,7 @@ var manager = function() {
     }
     var create_item = function(v) {
         var colums = tmp_vars.colums;
-        var item = '<tr id="' + v[0] + '" data-label="' + v[11] + '" data-sid="' + v[22] + '" data-path="' + v[26] + '">';
+        var item = '<tr id="' + v[0] + '" data-label="' + v[11] + '" data-sid="' + v[22] + '" data-path="' + v[26] + '" style="display: table-row;">';
         $.each(colums, function(key, value) {
             if (value.a) {
                 item += switching(key);
@@ -701,11 +703,18 @@ var manager = function() {
          * dune = 2
          * prio = 3
          */
-        var item = '<tr id="' + id + '">';
+        var item = '<tr id="' + id + '" style="display: table-row;">';
         item += '<td class="select"><input type="checkbox"/></td>';
         item += '<td class="name" data-value="' + v.api[0] + '" title="' + v.gui.name + '"><div><span>' + v.gui.link_path + '</span></div></td>';
-        item += '<td class="size" data-value="' + v.api[1] + '"><div>' + bytesToSize(v.api[1], '0') + '</div></td>';
-        item += '<td class="download" data-value="' + v.api[2] + '"><div>' + bytesToSize(v.api[2], '0') + '</div></td>';
+        var s = bytesToSize(v.api[1], '0');
+        var d = 0;
+        if (v.api[1] == v.api[2]) {
+            d = s;
+        } else {
+            d = bytesToSize(v.api[2], '0');
+        }
+        item += '<td class="size" data-value="' + v.api[1] + '"><div>' + s + '</div></td>';
+        item += '<td class="download" data-value="' + v.api[2] + '"><div>' + d + '</div></td>';
         var progress = Math.round((v.api[2] * 100 / v.api[1]) * 10) / 10;
         var color = (v.api[1] == v.api[2] && v.api[3] != 0) ? '#41B541' : '#3687ED';
         item += '<td class="progress" data-value="' + progress + '"><div class="progress_b"><div class="progress_b_i" style="width: ' + writePersent(progress) + 'px; background-color: ' + color + ';"><div>' + progress + '%</div></div></div></td>';
@@ -1582,6 +1591,12 @@ var manager = function() {
                 'fl-head': $('.fl-table-body').children('thead'),
                 'fl-fixed_head': $('.fl-table-head'),
                 'fl-bottom': $('.file-list ul.bottom-menu'),
+            }
+            if (tmp_vars.tr_word_wrap) {
+                tables['body'].append('<style>div.torrent-list-layer td div {white-space: normal;word-wrap: break-word;}</style>')
+            }
+            if (tmp_vars.fl_word_wrap) {
+                tables['body'].append('<style>div.fl-layer td div {white-space: normal;word-wrap: break-word;}</style>')
             }
             tables['fl-bottom'].on('click', 'a.update', function() {
                 _engine.sendAction("&action=getfiles&hash=" + torrent_file_list.getID());
