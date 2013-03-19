@@ -243,7 +243,7 @@ var manager = function() {
                         if (!item)
                             item = $('#' + v[0]);
                         var cell = item.children('td.name');
-                        cell.childen('td.name').children('div').attr('title', v[2]).children('span').text(v[2]);
+                        cell.children('div').attr('title', v[2]).children('span').text(v[2]);
                         tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         break;
                     }

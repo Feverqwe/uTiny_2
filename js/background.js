@@ -82,7 +82,8 @@ var engine = function() {
         'token_reconnect_counter': 0,
         'get': {},
         'last_complite_time': 0,
-        'active_torrent': 0
+        'active_torrent': 0,
+        'get_repeat': 0,
     }
     var status = function() {
         var storage = {}
@@ -120,7 +121,7 @@ var engine = function() {
             }
         }
     }()
-    var getToken = function(callback) {
+    var getToken = function(callback, callbackfail) {
         status.connection(-1);
         $.ajax({
             type: "GET",
@@ -149,6 +150,7 @@ var engine = function() {
                     timer.stop();
                     tmp_vars.token_reconnect_counter = 0;
                 }
+                callbackfail();
             }
         });
     }
@@ -343,18 +345,16 @@ var engine = function() {
     }
     var context_menu_obj = function() {
         var context_menu = null;
-        var repeat_count = 0;
         var notification_link = null;
-        var getTorrentsList = function(cacheId) {
+        var getTorrentsList = function() {
             try {
                 var xhr = new XMLHttpRequest();
-                xhr.open("GET", proto_https + "://" + complite_url + "?token=" + token + "&list=1" + (cacheId ? ("&cid=" + cacheId) : ""), false);
-                xhr.setRequestHeader("Authorization", getAuthCookie());
+                xhr.open("GET", settings.ut_url + "?token=" + tmp_vars.get['token'] + "&list=1" + "&cid=" + tmp_vars.get['torrentc'], false);
+                xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password) + "=");
                 xhr.send(null);
             } catch (e) {
                 return null;
             }
-
             // convert response to an object
             return JSON.parse(xhr.responseText);
         };
@@ -364,10 +364,10 @@ var engine = function() {
             try {
                 response = JSON.parse(responseText);
             } catch (err) {
-                link_note(lang_arr[103], err.toString(), 'error');
+                link_note(lang_arr[103], err.toString(), 1);
             }
             if (response.error) {
-                link_note(lang_arr[23], response.error, 'error');
+                link_note(lang_arr[23], response.error, 1);
             } else {
                 // get the name of the last torrent in the list
                 var list = getTorrentsList();
@@ -375,68 +375,52 @@ var engine = function() {
                 if (torrents) {
                     var torrent = torrents[torrents.length - 1];
                     link_note(torrent[2], lang_arr[102], null);
-                    if (go_in_downloads == 1) {
-                        localStorage["last_label"] = '*{[down]}*';
-                        if (chkDOM())
-                            windowsDOM.manager.selectLabel('*{[down]}*');
-                    }
                 }
             }
         };
-        var downloadFile = function(url, callback, param) {
+        var downloadFile = function(url, callback) {
             var xhr = new XMLHttpRequest();
-
             xhr.open("GET", url, true);
             xhr.overrideMimeType("text/plain; charset=x-user-defined");
             xhr.responseType = "blob";
-
             xhr.onload = function() {
-                var blob = xhr.response;
-                callback(blob, param);
+                callback(xhr.response);
             };
             xhr.send(null);
         };
-        var uploadTorrent = function(file, param) {
-            // prepare torrent file
+        var uploadTorrent = function(file, dir_url) {
             var formdata = new FormData();
             formdata.append("torrent_file", file);
-
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", proto_https + "://" + complite_url + "?token=" + token + "&action=add-file" + param, true);
+            xhr.open("POST", settings.ut_url + "?token=" + tmp_vars.get['token'] + "&action=add-file" + dir_url, true);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
                     handleResponse(xhr.responseText);
                 }
             };
-            // upload it
-            xhr.setRequestHeader("Authorization", getAuthCookie());
             xhr.send(formdata);
         };
-        var uploadMagnet = function(url) {
+        var uploadMagnet = function(url, dir_url) {
             var xhr = new XMLHttpRequest();
-            xhr.open("GET", proto_https + "://" + complite_url + "?token=" + token + "&action=add-url&s=" + url, true);
+            xhr.open("GET", settings.ut_url + "?token=" + tmp_vars.get['token'] + "&action=add-url&s=" + url + dir_url, true);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
                     handleResponse(xhr.responseText);
                 }
             };
-            // upload it
-            xhr.setRequestHeader("Authorization", getAuthCookie());
             xhr.send(null);
         };
-        var link_note = function(a, b, i)
+        var link_note = function(a, b, e)
         {
-            if (note_link_enable == 0) {
-                return;
-            }
-            if (notification_link != null) {
+            if (notification_link) {
                 notification_link.cancel();
+                notification_link = null;
             }
             if (!b) {
                 b = '';
             }
             var icon = 'images/add.png';
-            if (i == 'error') {
+            if (e) {
                 icon = 'images/warning.png';
             }
             notification_link = webkitNotifications.createNotification(
@@ -444,50 +428,36 @@ var engine = function() {
                     a, b
                     );
             notification_link.show();
-            $('#link_timer').stopTime('note_timer');
-            $('#link_timer').oneTime(3000, 'note_timer', function() {
-                notification_link.cancel()
-            });
+            this.setTimeout(function() {
+                if (notification_link) {
+                    notification_link.cancel()
+                }
+            }, settings.notify_interval);
         }
         var addTorrent = function(a) {
-            var param = '';
-            if (context_menu[a.menuItemId] !== undefined)
-                param = "&download_dir=" + encodeURIComponent(context_menu[a.menuItemId].key) + "&path=" + encodeURIComponent(context_menu[a.menuItemId].val);
+            if (!tmp_vars.get['token']) {
+                return getToken(function() {
+                    addTorrent(a);
+                }, function() {
+                    link_note(lang_arr[38], null, 1);
+                });
+            }
+            var dir_url = '';
+            if (context_menu) {
+                var context = context_menu[a.menuItemId];
+                dir_url = "&download_dir=" + encodeURIComponent(context.key) + "&path=" + encodeURIComponent(context.val);
+            }
             chrome.tabs.getSelected(null, function(tab) {
-                // запоминает таб торрента
-                tabId = tab.id;
-
-                // запрашивает токен
-                if (token == '')
-                {
-                    if (repeat_count == 0)
-                        getToken();
-                    $('#link_timer').oneTime(100, 'auth_timer', function() {
-                        if (repeat_count < 10) {
-                            repeat_count++;
-                            addTorrent(a);
-                        } else {
-                            link_note(lang_arr[38], null, 'error');
-                            repeat_count = 0;
-                        }
+                if (a.linkUrl.substr(0, 7) == 'magnet:')
+                    uploadMagnet(encodeURIComponent(a.linkUrl), dir_url);
+                else
+                    downloadFile(a.linkUrl, function(file) {
+                        uploadTorrent(file, dir_url)
                     });
-                } else {
-                    $('#link_timer').stopTime('auth_timer');
-                    repeat_count = 0;
-                }
-                try {
-                    t = a.linkUrl;
-                    if (t.substr(0, 7) == 'magnet:')
-                        uploadMagnet(encodeURIComponent(t) + param);
-                    else
-                        downloadFile(t, uploadTorrent, param);
-                } finally {
-                    //hideMessages();
-                }
             });
         }
         return {
-            'begin': function() {
+            'load': function() {
                 chrome.contextMenus.removeAll();
                 var parentID = chrome.contextMenus.create({
                     "title": lang_arr[104],
@@ -517,17 +487,18 @@ var engine = function() {
                 }
             }
         }
-    }
+    }()
     var getTorrentList = function(subaction) {
         var action = "&list=1" + ((subaction) ? subaction : '');
         get(action);
     }
-    var sendAction = function(action) {
-        get(action);
+    var sendAction = function(action, cid) {
+        get(action, cid);
     }
     return {
         begin: function() {
             timer.start();
+            context_menu_obj.load();
         },
         getTorrentList: function(t) {
             return getTorrentList(t);
