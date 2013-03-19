@@ -10,6 +10,7 @@ var engine = function() {
                 ((localStorage.ut_path !== undefined) ? localStorage.ut_path : 'gui/'),
         icon_dl_count: (localStorage.icon_dl_count !== undefined) ? localStorage.icon_dl_count : 1,
         dl_cmpl_notify: (localStorage.dl_cmpl_notify !== undefined) ? localStorage.dl_cmpl_notify : 1,
+        notify_interval: (localStorage.notify_interval !== undefined) ? localStorage.notify_interval : 5000,
         bg_update_interval: (localStorage.bg_update_interval !== undefined) ? localStorage.bg_update_interval : 60000,
         mgr_update_interval: (localStorage.mgr_update_interval !== undefined) ? localStorage.mgr_update_interval : 2000,
         notify_visbl_interval: (localStorage.notify_visbl_interval !== undefined) ? localStorage.notify_visbl_interval : 30000,
@@ -194,7 +195,7 @@ var engine = function() {
                             notification.show();
                             this.setTimeout(function() {
                                 notification.cancel()
-                            }, 2000);
+                            }, settings.notify_interval);
                         })(nn);
                     }
                 }
