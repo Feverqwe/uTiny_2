@@ -1531,6 +1531,9 @@ var manager = function() {
     }
     var writeTimeFromShtamp = function(shtamp)
     {
+        if (!shtamp) {
+            return '&#8734;';
+        }
         //преврящает TimeShtamp в строчку
         var dt = new Date(shtamp * 1000);
         var m = dt.getMonth() + 1;
