@@ -176,6 +176,7 @@ var engine = function() {
         }
     }()
     var addons_notify = function(olda, newa) {
+        if (!settings.dl_cmpl_notify) return;
         if (!olda)
             return;
         var co = olda.length;
@@ -201,6 +202,7 @@ var engine = function() {
         }
     }
     var addons_active = function(arr) {
+        if (!settings.icon_dl_count) return;
         var c = arr.length;
         var ac = 0;
         for (var n = 0; n < c; n++) {
