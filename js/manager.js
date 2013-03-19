@@ -2,14 +2,6 @@ var manager = function() {
     var _engine = (chrome.extension.getBackgroundPage()).engine;
     var settings = null;
     var tables = null;
-    var chk_settings = function() {
-        if (settings == null ||
-                settings['login'] == null ||
-                settings['password'] == null) {
-            return 0;
-        }
-        return 1;
-    }
     tmp_vars = {
         'sel_label': (localStorage.selected_label !== undefined) ? JSON.parse(localStorage.selected_label) : {'k': 'all', 'v': null},
         'new_tr_count': 0,
@@ -23,20 +15,34 @@ var manager = function() {
         'fl_sall_st': null,
         'fl_file_selected': null,
         'fl_select_array': null,
+        'fl_prio_param': null,
+        'lp_path' : null,
+    }
+    var chk_settings = function() {
+        if (settings == null ||
+                settings['login'] == null ||
+                settings['password'] == null) {
+            return 0;
+        }
+        tmp_vars.lp_path = lp_path();
+        return 1;
+    }
+    var lp_path = function () {
+        return ((localStorage.ssl !== undefined && localStorage.ssl) ? 'https' : 'http') + "://" +
+                localStorage.login + ":" + localStorage.password + "@" +
+                localStorage.ut_ip + ":" + localStorage.ut_port + "/";
     }
     var write_language = function() {
         function ui_url()
         {
-            return ((localStorage.ssl !== undefined && localStorage.ssl) ? 'https' : 'http') + "://" +
-                    localStorage.login + ":" + localStorage.password + "@" +
-                    localStorage.ut_ip + ":" + localStorage.ut_port + "/" + localStorage.ut_path;
+            return localStorage.ut_path;
         }
         tables['menu'].find('a.refresh').attr('title', lang_arr[24]);
         tables['menu'].find('a.donate').attr('title', lang_arr[25]);
         tables['menu'].find('a.wui').attr('title', lang_arr[26]);
         tables['menu'].find('a.start_all').attr('title', lang_arr[68]);
         tables['menu'].find('a.pause_all').attr('title', lang_arr[67]);
-        tables['menu'].find('a.wui').attr('href', ui_url());
+        tables['menu'].find('a.wui').attr('href', tmp_vars.lp_path + ui_url());
         tables['fl-head'].find('th.select').attr('title', lang_arr[91][0]);
         tables['fl-head'].find('th.name').attr('title', lang_arr[88][1]).html(lang_arr[88][0]);
         tables['fl-head'].find('th.size').attr('title', lang_arr[14][1]).html(lang_arr[14][0]);
@@ -1020,6 +1026,9 @@ var manager = function() {
             case ('priority'):
                 _engine.sendAction('&action=setprio&p=' + opt + v);
                 break;
+            case ('torrent_files'):
+                torrent_file_list.open(v);
+                break;
         }
     }
     var get_label_context_menu = function() {
@@ -1176,9 +1185,11 @@ var manager = function() {
         update_labels_context_menu(id);
     }
     var on_hide_torrent_context_menu = function(id) {
-        tmp_vars.auto_order = true;
+        if ((torrent_file_list.getID()).length == 0) {
+            tmp_vars.auto_order = true;
+            $('#' + id + '.selected').removeClass('selected');
+        }
         tmp_vars["torrent_context_menu"].find('li.first').removeClass('first');
-        $('#' + id + '.selected').removeClass('selected');
         tmp_vars["torrent_context_menu"].attr('data-id', '');
         if (tmp_vars["torrent_context_menu"].attr('data-lable') == 1) {
             $('.context-menu-item.labels').children('span').html(lang_arr[11]);
@@ -1322,6 +1333,7 @@ var manager = function() {
         }
         var close = function() {
             display_fl = 0;
+            tmp_vars.filelist_param = '';
             $('#' + id).removeClass('selected');
             tables['file-list'].css("display", "none");
             $('div.file-list-layer-temp').remove();
@@ -1740,6 +1752,13 @@ var manager = function() {
                         },
                     },
                     's2': '--------',
+                    torrent_files: {
+                        name: lang_arr[111],
+                        callback: function(key, opt) {
+                            var id = this[0].id;
+                            contextActions(key, id)
+                        }
+                    },
                     labels: {
                         name: lang_arr[11],
                         className: "labels",
@@ -1807,10 +1826,12 @@ var manager = function() {
                         tables['fl_context_manu'].find('li.p' + priority).children('span').html('<label>&#9679; </label>' + lang_arr[87][priority]);
                         var select_array = tables['fl-table-main'].find('tr.selected');
                         var c = select_array.length;
-                        tmp_vars.fl_select_array = '&hash=' + torrent_file_list.getID();
+                        tmp_vars.fl_prio_param = '&hash=' + torrent_file_list.getID();
+                        tmp_vars.fl_select_array = []
                         for (var n = 0; n < c; n++) {
-                            tmp_vars.fl_select_array += select_array.eq(n)[0].id.replace('file_id_', '&f=');
+                            tmp_vars.fl_select_array[n] = select_array.eq(n)[0].id.replace('file_id_', '');
                         }
+                        tmp_vars.fl_prio_param += "&f=" + tmp_vars.fl_select_array.join('&f=');
                     },
                     hide: function() {
                         tmp_vars.fl_auto_order = true;
@@ -1818,6 +1839,7 @@ var manager = function() {
                             $(this).find('input').trigger('click');
                         }
                         tables['fl_context_manu'].find('label').remove();
+                        tmp_vars.fl_prio_param = null;
                         tmp_vars.fl_select_array = null;
                     },
                 },
@@ -1826,7 +1848,7 @@ var manager = function() {
                         className: 'p3',
                         name: lang_arr[87][3],
                         callback: function(key, opt) {
-                            contextActions('priority', tmp_vars.fl_select_array, 3);
+                            contextActions('priority', tmp_vars.fl_prio_param, 3);
                             tmp_vars.fl_file_selected = 1;
                             tables['fl-body'].find('input:checked').trigger('click');
                         }
@@ -1835,7 +1857,7 @@ var manager = function() {
                         className: 'p2',
                         name: lang_arr[87][2],
                         callback: function(key, opt) {
-                            contextActions('priority', tmp_vars.fl_select_array, 2);
+                            contextActions('priority', tmp_vars.fl_prio_param, 2);
                             tmp_vars.fl_file_selected = 1;
                             tables['fl-body'].find('input:checked').trigger('click');
                         }
@@ -1844,7 +1866,7 @@ var manager = function() {
                         className: 'p1',
                         name: lang_arr[87][1],
                         callback: function(key, opt) {
-                            contextActions('priority', tmp_vars.fl_select_array, 1);
+                            contextActions('priority', tmp_vars.fl_prio_param, 1);
                             tmp_vars.fl_file_selected = 1;
                             tables['fl-body'].find('input:checked').trigger('click');
                         }
@@ -1854,7 +1876,7 @@ var manager = function() {
                         className: 'p0',
                         name: lang_arr[87][0],
                         callback: function(key, opt) {
-                            contextActions('priority', tmp_vars.fl_select_array, 0);
+                            contextActions('priority', tmp_vars.fl_prio_param, 0);
                             tmp_vars.fl_file_selected = 1;
                             tables['fl-body'].find('input:checked').trigger('click');
                         }
@@ -1863,7 +1885,19 @@ var manager = function() {
                     download: {
                         name: lang_arr[90],
                         callback: function(key, opt) {
-                            contextActions('priority', tmp_vars.fl_select_array, key);
+                            function ui_url(file_number)
+                            {
+                                return 'proxy?sid=' +
+                                        (tr_table_controller.get(torrent_file_list.getID()))[22] + '&file=' + file_number +
+                                        '&disposition=ATTACHMENT&service=DOWNLOAD&qos=0';
+                            }
+                            var c = tmp_vars.fl_select_array.length;
+                            for (var n = 0; n < c; n++) {
+                                chrome.tabs.create({
+                                    url:  tmp_vars.lp_path + ui_url(tmp_vars.fl_select_array[n])
+                                });
+                            }
+                            ;
                             tmp_vars.fl_file_selected = 1;
                             tables['fl-body'].find('input:checked').trigger('click');
                         }

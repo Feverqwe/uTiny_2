@@ -109,7 +109,8 @@ var lang_arr_en = {
     107:['Save your settings first!','free','Add','Remove selected','Sub-path','Path','Folders in context menu','Sub-path must exist!'],
     108:['Rollback error!','Restore error!','Rollback','Restore','Update','Restore','Backup','Export settings'],
     109:'Show number of active downloads on the icon',
-    110:['Yes','No']
+    110:['Yes','No'],
+    111:['List of files']
 }
 var lang_arr_ru = {
     0:'Запустить',
@@ -222,7 +223,8 @@ var lang_arr_ru = {
     107:['Сначала сохраните текущие настройки!','свободно','Добавить','Удалить выбранное','Подкаталог','Каталог','Каталоги','Подкаталог должен существовать!'],
     108:['Ошибка отката настроек!','Ошибка восстановления настроек!','Откатить','Восстановить','Обновить код','Восстановление','Бэкап','Экспорт настроек'],
     109:'Отображать кол-во активных загрузок на иконке',
-    110:['Да','Нет']
+    110:['Да','Нет'],
+    111:['Список файлов']
 }
 var lang = (localStorage.lang !== undefined) ? localStorage["lang"] : 'en';
 if (lang == 'ru') { 
