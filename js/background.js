@@ -11,14 +11,14 @@ var engine = function() {
         icon_dl_count: (localStorage.icon_dl_count !== undefined) ? localStorage.icon_dl_count : 1,
         dl_cmpl_notify: (localStorage.dl_cmpl_notify !== undefined) ? localStorage.dl_cmpl_notify : 1,
         bg_update_interval: (localStorage.bg_update_interval !== undefined) ? localStorage.bg_update_interval : 60000,
-        mgr_update_interval: (localStorage.mgr_update_interval !== undefined) ? localStorage.mgr_update_interval : 3000,
+        mgr_update_interval: (localStorage.mgr_update_interval !== undefined) ? localStorage.mgr_update_interval : 2000,
         notify_visbl_interval: (localStorage.notify_visbl_interval !== undefined) ? localStorage.notify_visbl_interval : 30000,
         login: (localStorage.login !== undefined) ? localStorage.login : null,
         password: (localStorage.password !== undefined) ? localStorage.password : null,
         hide_seeding: (localStorage.hide_seeding !== undefined) ? localStorage.hide_seeding : 0,
         hide_finished: (localStorage.hide_finished !== undefined) ? localStorage.hide_finished : 0,
         graph: (localStorage.graph !== undefined) ? localStorage.graph : 1,
-        window_height: (localStorage.graph !== undefined) ? localStorage.window_height : 300,
+        window_height: (localStorage.window_height !== undefined) ? (localStorage.window_height -54) : (300 - 54),
     }
     var colums = {
         'name': {'a': 1, 'size': 200, 'pos': 1, 'lang': 13},
@@ -321,10 +321,10 @@ var engine = function() {
             return settings;
         },
         getColums: function() {
-            return colums;
+            return (localStorage.colums !== undefined) ? JSON.parse(localStorage.colums) : colums;
         },
         setColums: function(a) {
-            colums = a;
+            localStorage.colums = JSON.stringify(a);
         },
         setWindow: function() {
             return popup.set();

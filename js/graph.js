@@ -28,10 +28,13 @@ var graph = function() {
             start_down = 0,
             old_dot_up = 0,
             old_dot_dl = 0,
-            inited = 0;
+            inited = 0,
+            seed_color = '#1db601',
+            peer_color = '#0657ff';
     var graph_init = function(val)
     {
         canvas = document.getElementById("graph");
+        if (!canvas) return;
         canvas.width = b_width;
         canvas.height = b_height;
         context = canvas.getContext("2d");
@@ -54,7 +57,8 @@ var graph = function() {
     };
     this.move_back = function(uplo, down, i)
     {
-        if (!inited) return;
+        if (!inited)
+            return;
         var ts = (new Date()).getTime();
         if (i != null) {
             if (down > coeficent)
@@ -175,7 +179,7 @@ var graph = function() {
         if (left_pos <= b_width)
         {
             contextBuffer_1.lineWidth = 1.1;
-            contextBuffer_1.strokeStyle = '#1db601';
+            contextBuffer_1.strokeStyle = peer_color;
             contextBuffer_1.beginPath();
             contextBuffer_1.moveTo(left_pos, b_height - 1 - dot_up);
             if (old_dot_up != null)
@@ -183,7 +187,7 @@ var graph = function() {
             contextBuffer_1.stroke();
             contextBuffer_1.closePath();
 
-            contextBuffer_1.strokeStyle = '#0657ff';
+            contextBuffer_1.strokeStyle = seed_color;
             contextBuffer_1.beginPath();
             contextBuffer_1.moveTo(left_pos, b_height - 1 - dot_dl);
             if (old_dot_dl != null)
@@ -193,7 +197,7 @@ var graph = function() {
         } else {
             contextBuffer_2.lineWidth = 1.1;
             contextBuffer_2.beginPath();
-            contextBuffer_2.strokeStyle = '#1db601';
+            contextBuffer_2.strokeStyle = peer_color;
             contextBuffer_2.moveTo(left_pos - b_width, b_height - 1 - dot_up);
             if (old_dot_up != null)
                 contextBuffer_2.lineTo(left_pos - b_width - 1, b_height - 1 - old_dot_up);
@@ -201,7 +205,7 @@ var graph = function() {
             contextBuffer_2.closePath();
 
             contextBuffer_2.beginPath();
-            contextBuffer_2.strokeStyle = '#0657ff';
+            contextBuffer_2.strokeStyle = seed_color;
             contextBuffer_2.moveTo(left_pos - b_width, b_height - 1 - dot_dl);
             if (old_dot_dl != null)
                 contextBuffer_2.lineTo(left_pos - b_width - 1, b_height - 1 - old_dot_dl);

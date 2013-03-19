@@ -77,7 +77,6 @@ ul.menu a.btn:hover {
 .torrent-list-layer {
     overflow: auto;
     border-top: 1px #c0c0c0 solid;
-    min-height: 300px;
 }
 
 table thead {
@@ -174,10 +173,10 @@ table td.progress div.progress_b {
     height: 14px;
     float: left;
     display: block;
-    border: 1px solid gray;
+    border: 1px solid #fff;
     margin-right: 2px;
     background-color: #dbdbdb;
-    border-radius: 2px;
+    border-radius: 3px;
 }
 table td.progress div.progress_b_i {
     height: 14px;
@@ -223,11 +222,27 @@ table.status-panel {
     border-top: 1px #c0c0c0 solid;
     padding-left: 2px;
 }
+table.status-panel td {
+    line-height: 16px;
+    padding-top: 2px;
+}
 table.status-panel td.status {
     width: 50%;
 }
+table.status-panel td.status img {
+    margin-bottom: -4px;
+}
 table.status-panel td.speed {
-    width: 25%
+    width: 25%;
+    padding-left: 12px;
+    background-repeat: no-repeat;
+    background-position-y: 3px;
+}
+table.status-panel td.download {
+    background-image: url(/images/icon_downloading.png);
+}
+table.status-panel td.upload {
+    background-image: url(/images/icon_uploading.png);
 }
 li.context-menu-item label {
     margin-left: -10px;

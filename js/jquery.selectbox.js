@@ -575,9 +575,9 @@ if(jQuery) (function($) {
                     li.siblings().removeClass('selectBox-selected');
                     li.addClass('selectBox-selected');
                 }
-				
+                var val_sel = li.find('A').attr('rel');
                 if( control.hasClass('selectBox-dropdown') ) {
-                    control.find('.selectBox-label').text(li.text());
+                    control.find('.selectBox-label').html('<div data-image="' + val_sel + '"></div>'+li.text());
                 }
 				
                 // Update original control's value
@@ -587,7 +587,7 @@ if(jQuery) (function($) {
                         selection[i++] = $(this).attr('rel');
                     });
                 } else {
-                    selection = li.find('A').attr('rel');
+                    selection = val_sel;
                 }
 				
                 // Remember most recently selected item
