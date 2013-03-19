@@ -59,7 +59,7 @@ var manager = function() {
         var sum_width = 0;
         $.each(colums, function(key, value) {
             if (value.a) {
-                thead += '<th class="' + key + '" title="' + lang_arr[value.lang][1] + '"><div>' + lang_arr[value.lang][0] + '</div></th>';
+                thead += '<th class="' + key + ( (value.order)?' s':'' ) + '" title="' + lang_arr[value.lang][1] + '"><div>' + lang_arr[value.lang][0] + '</div></th>';
                 style += '.torrent-list-layer th.' + key + ', .torrent-list-layer td.' + key + ' {max-width:' + value.size + 'px; min-width:' + value.size + 'px}';
                 sum_width += value.size;
             }
@@ -116,7 +116,8 @@ var manager = function() {
                 update_tr_order(s);
                 localStorage.tr_order = JSON.stringify(s);
             },
-            selectorHeaders: '.torrent-table-head thead th'
+            selectorHeaders: '.torrent-table-head thead th',
+            selectorSort: 'th.s'
         });
     }
     var timer = function() {
@@ -1810,7 +1811,8 @@ var manager = function() {
                     update_fl_order(s);
                     localStorage.fl_order = JSON.stringify(s);
                 },
-                selectorHeaders: '.fl-table-head thead th'
+                selectorHeaders: '.fl-table-head thead th',
+                selectorSort: 'th.s'
             });
             $.contextMenu({
                 selector: ".fl-table-body tr",
