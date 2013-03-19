@@ -345,6 +345,7 @@ var engine = function() {
     }
     var context_menu_obj = function() {
         var context_menu = null;
+        var tmr = null;
         var notification_link = null;
         var getTorrentsList = function() {
             try {
@@ -415,9 +416,7 @@ var engine = function() {
             if (notification_link) {
                 notification_link.cancel();
                 notification_link = null;
-            }
-            if (!b) {
-                b = '';
+                clearInterval(tmr);
             }
             var icon = 'images/add.png';
             if (e) {
@@ -425,10 +424,10 @@ var engine = function() {
             }
             notification_link = webkitNotifications.createNotification(
                     icon,
-                    a, b
+                    a, (b) ? b : ''
                     );
             notification_link.show();
-            this.setTimeout(function() {
+            tmr = setTimeout(function() {
                 if (notification_link) {
                     notification_link.cancel()
                 }
