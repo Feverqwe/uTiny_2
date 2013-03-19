@@ -107,9 +107,6 @@ table tr {
     height: 18px;
     cursor: default;
 }
-tr:nth-child(even) {
-      background-color:  #f3f6fa;  
-}
 table tbody tr:hover {
     background-color: #3875d7 !important;
     color: #fff;
@@ -158,6 +155,13 @@ div.torrent-list-layer table .status div {
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: center;
+}
+div.fl-layer tr:nth-child(even) {
+      background-color:  #f3f6fa;  
+}
+div.torrent-list-layer, div.torrent-list-layer table.torrent-table-body {
+    background-position-y: 1px;
+    background-image:-webkit-repeating-linear-gradient(top, #fff 0px, #fff 18px, #f3f6fa 18px, #f3f6fa 36px);
 }
 table.torrent-table-head {
     position: fixed;
@@ -249,7 +253,7 @@ table.status-panel td.upload {
 li.context-menu-item label {
     margin-left: -10px;
 }
-ul.context-menu-list.filelist label {
+ul.context-menu-list label {
     margin-left: -13px;
 }
 div.file-list-layer-temp {
@@ -330,6 +334,9 @@ div.fl-layer table .priority {
     text-align: center;
     min-width: 74px;
     max-width: 74px;
+}
+div.fl-layer table .priority div {
+    white-space: nowrap;
     text-overflow: ellipsis;
 }
 div.file-list ul.bottom-menu {

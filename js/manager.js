@@ -38,12 +38,8 @@ var manager = function() {
                 localStorage.ut_ip + ":" + localStorage.ut_port + "/";
     }
     var write_language = function() {
-        function ui_url()
-        {
-            return localStorage.ut_path;
-        }
         tables['menu'].find('a.refresh').attr('title', lang_arr[24]);
-        tables['menu'].find('a.wui').attr('title', lang_arr[26]).attr('href', tmp_vars.lp_path + ui_url());
+        tables['menu'].find('a.wui').attr('title', lang_arr[26]).attr('href', tmp_vars.lp_path + localStorage.ut_path);
         tables['menu'].find('a.start_all').attr('title', lang_arr[68]);
         tables['menu'].find('a.pause_all').attr('title', lang_arr[67]);
         tables['fl-head'].find('th.select').attr('title', lang_arr[91][0]);
@@ -446,7 +442,7 @@ var manager = function() {
     }
     var create_item = function(v) {
         var colums = tmp_vars.colums;
-        var item = '<tr id="' + v[0] + '" data-label="' + v[11] + '" data-sid="' + v[22] + '" data-path="' + v[26] + '" style="display: table-row;">';
+        var item = '<tr id="' + v[0] + '" data-label="' + v[11] + '" data-sid="' + v[22] + '" data-path="' + v[26] + '">';
         $.each(colums, function(key, value) {
             if (value.a) {
                 item += switching(key);
@@ -703,7 +699,7 @@ var manager = function() {
          * dune = 2
          * prio = 3
          */
-        var item = '<tr id="' + id + '" style="display: table-row;">';
+        var item = '<tr id="' + id + '">';
         item += '<td class="select"><input type="checkbox"/></td>';
         item += '<td class="name" data-value="' + v.api[0] + '" title="' + v.gui.name + '"><div><span>' + v.gui.link_path + '</span></div></td>';
         var s = bytesToSize(v.api[1], '0');
