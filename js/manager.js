@@ -1507,7 +1507,7 @@ var manager = function() {
     var unixintime = function(i)
     {
         //выписывает отсчет времени из unixtime
-        if (i < 0)
+        if (i <= 0)
             return '&#8734;';
         var day = Math.floor(i / 60 / 60 / 24);
         var week = Math.floor(day / 7);
