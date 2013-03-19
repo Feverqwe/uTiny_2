@@ -111,11 +111,9 @@ table tbody tr:hover {
     background-color: #3875d7;
     color: #fff;
 }
-td {
-    white-space: nowrap;
-}
-td div {
+td div, th div {
     overflow: hidden;
+    white-space: nowrap;
 }
 
 div.torrent-list-layer table .name {
@@ -125,7 +123,6 @@ div.torrent-list-layer table .name div {
     overflow: hidden;
     position: relative;
     text-overflow: ellipsis;
-    white-space: nowrap;
 }
 div.torrent-list-layer table .size {
     text-align: right;
@@ -154,7 +151,6 @@ div.torrent-list-layer table .koeficient {
 div.torrent-list-layer table .status div {
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
     text-align: center;
 }
 table.torrent-table-head {

@@ -9,14 +9,17 @@ var manager = function() {
         'torrent_context_menu': null,
         'torrent_context_menu_labels': null,
         'speed_limit': {},
-        'auto_order': true,
-        'fl_auto_order': true,
+        'moveble_enabled_tr': true,
+        'moveble_enabled_fl': false,
+        'auto_order': false,
+        'tr_auto_order': false,
+        'fl_auto_order': false,
         'filelist_param': '',
         'fl_sall_st': null,
         'fl_file_selected': null,
         'fl_select_array': null,
         'fl_prio_param': null,
-        'lp_path' : null,
+        'lp_path': null,
     }
     var chk_settings = function() {
         if (settings == null ||
@@ -27,7 +30,7 @@ var manager = function() {
         tmp_vars.lp_path = lp_path();
         return 1;
     }
-    var lp_path = function () {
+    var lp_path = function() {
         return ((localStorage.ssl !== undefined && localStorage.ssl) ? 'https' : 'http') + "://" +
                 localStorage.login + ":" + localStorage.password + "@" +
                 localStorage.ut_ip + ":" + localStorage.ut_port + "/";
@@ -59,7 +62,7 @@ var manager = function() {
         var sum_width = 0;
         $.each(colums, function(key, value) {
             if (value.a) {
-                thead += '<th class="' + key + ( (value.order)?' s':'' ) + '" title="' + lang_arr[value.lang][1] + '"><div>' + lang_arr[value.lang][0] + '</div></th>';
+                thead += '<th class="' + key + ((value.order) ? ' s' : '') + '" title="' + lang_arr[value.lang][1] + '"><div>' + lang_arr[value.lang][0] + '</div></th>';
                 style += '.torrent-list-layer th.' + key + ', .torrent-list-layer td.' + key + ' {max-width:' + value.size + 'px; min-width:' + value.size + 'px}';
                 sum_width += value.size;
             }
@@ -200,6 +203,9 @@ var manager = function() {
         }
         if (tmp_vars.new_tr_count) {
             tables['table-main'].trigger('update');
+            if (tmp_vars.moveble_enabled_tr) {
+                calculate_moveble(tables['table-main'].find('td.name > div > span'), tmp_vars.colums.name.size);
+            }
             tmp_vars.new_tr_count = 0;
         }
         tr_table_controller.filter();
@@ -240,7 +246,7 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var cell = item.children('td.name');
                         cell.childen('td.name').children('div').attr('title', v[2]).children('span').text(v[2]);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         break;
                     }
                 case 3:
@@ -250,7 +256,7 @@ var manager = function() {
                         var t_s = bytesToSize(v[3]);
                         var cell = item.children('td.size');
                         cell.attr('data-value', v[3]).children('div').attr('title', t_s).html(t_s);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         break;
                     }
                 case 4:
@@ -262,7 +268,7 @@ var manager = function() {
                         var progress = v[4] / 10;
                         var cell = item.children('td.progress');
                         var with_c = cell.attr('data-value', v[4]).children('div.progress_b').children('div.progress_b_i');
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         with_c.css('width', writePersent(progress) + 'px').children('div').html(progress + '%');
                         if (v[1] == 201 && v[4] == 1000)
                         {
@@ -280,7 +286,7 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var cell = item.children('td.status');
                         cell.attr('data-value', v[1]).children('div').attr('title', v[21]).html(v[21]);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         break;
                     }
                 case 9:
@@ -289,7 +295,7 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var cell = item.children('td.down_speed');
                         cell.attr('data-value', v[9]).children('div').html(bytesToSizeInSec(v[9], ''));
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         break;
                     }
                 case 8:
@@ -298,7 +304,7 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var cell = item.children('td.uplo_speed');
                         cell.attr('data-value', v[8]).children('div').html(bytesToSizeInSec(v[8], ''));
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         break;
                     }
                 case 14:
@@ -309,7 +315,7 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var cell = item.children('td.seeds_peers');
                         cell.children('div').html(v[14] + '/' + v[12]);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         break;
                     }
                 case 17:
@@ -321,7 +327,7 @@ var manager = function() {
                             val = '*';
                         var cell = item.children('td.position');
                         cell.children('div').html(val);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         break;
                     }
                 case 9:
@@ -335,7 +341,7 @@ var manager = function() {
                             val = 0;
                         var cell = item.children('td.ostalos');
                         cell.attr('data-value', val).children('div').html(bytesToSize(val, 0));
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         break;
                     }
                 case 15:
@@ -344,7 +350,7 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var cell = item.children('td.seeds');
                         cell.children('div').html(v[15]);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         break;
                     }
                 case 13:
@@ -353,7 +359,7 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var cell = item.children('td.peers');
                         cell.children('div').html(v[13]);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         break;
                     }
                 case 10:
@@ -363,7 +369,7 @@ var manager = function() {
                         var s_time = unixintime(v[10]);
                         var cell = item.children('td.time');
                         cell.attr('data-value', v[10]).children('div').attr('title', s_time).html(s_time);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         break;
                     }
                 case 6:
@@ -372,7 +378,7 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var cell = item.children('td.otdano');
                         cell.attr('data-value', v[6]).children('div').html(bytesToSize(v[6], 0));
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         break;
                     }
                 case 5:
@@ -381,7 +387,7 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var cell = item.children('td.poluchino');
                         cell.attr('data-value', v[5]).children('div').html(bytesToSize(v[5], 0));
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         break;
                     }
                 case 7:
@@ -391,7 +397,7 @@ var manager = function() {
                         var val = v[7] / 1000;
                         var cell = item.children('td.koeficient');
                         cell.attr('data-value', v[7]).children('div').html(val);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         break;
                     }
                 case 16:
@@ -401,7 +407,7 @@ var manager = function() {
                         var val = Math.round((v[16] / 65535) * 1000) / 1000;
                         var cell = item.children('td.dostupno');
                         cell.attr('data-value', v[16]).children('div').html(val);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         break;
                     }
                 case 11:
@@ -410,7 +416,7 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var cell = item.children('td.metka');
                         cell.children('div').attr('title', v[11]).html(v[11]);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         break;
                     }
                 case 23:
@@ -420,7 +426,7 @@ var manager = function() {
                         var str_time = writeTimeFromShtamp(v[23]);
                         var cell = item.children('td.time_dobavleno');
                         cell.children('div').attr('title', str_time).html(str_time);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         break;
                     }
                 case 24:
@@ -430,7 +436,7 @@ var manager = function() {
                         var str_time = writeTimeFromShtamp(v[24]);
                         var cell = item.children('td.time_zavircheno');
                         cell.children('div').attr('title', str_time).html(str_time);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.auto_order]);
+                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         break;
                     }
             }
@@ -1054,7 +1060,9 @@ var manager = function() {
     }
     var update_torrent_context_menu = function(id) {
         //обновляет контекстное меню торрента
-        tmp_vars.auto_order = false;
+        if (tmp_vars.auto_order) {
+            tmp_vars.tr_auto_order = false;
+        }
         var readStatus = function(i)
         {
             //показывает что можно, а что нельзя в контекстном меню торрента - скрывает
@@ -1185,7 +1193,9 @@ var manager = function() {
     }
     var on_hide_torrent_context_menu = function(id) {
         if ((torrent_file_list.getID()).length == 0) {
-            tmp_vars.auto_order = true;
+            if (tmp_vars.auto_order) {
+                tmp_vars.tr_auto_order = true;
+            }
             $('#' + id + '.selected').removeClass('selected');
         }
         tmp_vars["torrent_context_menu"].find('li.first').removeClass('first');
@@ -1291,6 +1301,9 @@ var manager = function() {
         tables['tr-fixed_head'].empty();
         torrent_list_head();
         tables['table-main'].trigger('update');
+        if (tmp_vars.moveble_enabled_tr) {
+            calculate_moveble(tables['table-main'].find('td.name > div > span'), tmp_vars.colums.name.size);
+        }
         _engine.get_cache_torrent_list();
         torrent_list_order();
         timer.start();
@@ -1327,6 +1340,9 @@ var manager = function() {
             });
             if (clear == 1) {
                 tables['fl-table-main'].trigger('update');
+                if (tmp_vars.moveble_enabled_fl) {
+                    calculate_moveble(tables['fl-table-main'].find('td.name > div > span'), 270);
+                }
                 clear = 0;
             }
         }
@@ -1336,7 +1352,9 @@ var manager = function() {
             $('#' + id).removeClass('selected');
             tables['file-list'].css("display", "none");
             $('div.file-list-layer-temp').remove();
-            tmp_vars.auto_order = true;
+            if (tmp_vars.auto_order) {
+                tmp_vars.tr_auto_order = true;
+            }
             id = "";
             fl_table_controller.clear();
             clear = 1;
@@ -1353,7 +1371,9 @@ var manager = function() {
         }
         return {
             open: function(_id) {
-                tmp_vars.auto_order = false;
+                if (tmp_vars.auto_order) {
+                    tmp_vars.tr_auto_order = false;
+                }
                 id = _id;
                 tmp_vars.filelist_param = "&action=getfiles&hash=" + id
                 _engine.sendAction(tmp_vars.filelist_param);
@@ -1377,7 +1397,7 @@ var manager = function() {
                 }
                 display_fl = 1;
                 loading_img();
-                tables['fl-bottom'].find('input').val((tr_table_controller.get(id))[26]);
+                tables['fl-bottom'].find('input').attr('title',(tr_table_controller.get(id))[26]).val((tr_table_controller.get(id))[26]);
                 fl_table_controller.clear();
                 clear = 1;
             },
@@ -1392,6 +1412,59 @@ var manager = function() {
             }
         }
     }()
+    var calculate_moveble = function(selectors, size) {
+        console.log(tables['fl-table-main'].find('td.name div span'));
+        if (size <= 70)
+            return;
+        var titles = selectors;
+        var titles_l = titles.length;
+
+        for (var i = 0; i < titles_l; i++) {
+            var str_w = titles.eq(i).width();
+            if (str_w == 0) {
+                str_w = titles.eq(i).text().length * 7;
+            }
+            if (str_w < size)
+                continue;
+            str_w = Math.ceil(str_w / 10);
+            if (str_w > 10) {
+                if (str_w < 100) {
+                    var t1 = Math.round(str_w / 10);
+                    if (t1 > str_w / 10)
+                        str_w = t1 * 10 * 10;
+                    else
+                        str_w = (t1 * 10 + 5) * 10;
+                } else
+                    str_w = str_w * 10;
+            } else
+                str_w = str_w * 10;
+            var str_s = size;
+            var move_name = 'moveble' + '_' + str_s + '_' + str_w;
+            if ($('body').find('.' + move_name).length == 0) {
+                $('body').append('<style class="' + move_name + '">'
+                        + '@-webkit-keyframes a_' + move_name
+                        + '{'
+                        + '0%{margin-left:2px;}'
+                        + '50%{margin-left:-' + (str_w - str_s) + 'px;}'
+                        + '90%{margin-left:6px;}'
+                        + '100%{margin-left:2px;}'
+                        + '}'
+                        + '@keyframes a_' + move_name
+                        + '{'
+                        + '0%{margin-left:2px;}'
+                        + '50%{margin-left:-' + (str_w - str_s) + 'px;}'
+                        + '90%{margin-left:6px;}'
+                        + '100%{margin-left:2px;}'
+                        + '}'
+                        + 'div.' + move_name + ':hover > span {'
+                        + 'overflow: visible;'
+                        + '-webkit-animation:a_' + move_name + ' 6s 1;'
+                        + '}'
+                        + '</style>');
+            }
+            titles.eq(i).parent().attr('class', 'title ' + move_name);
+        }
+    }
     //==================
     function isNumber(n) {
         return !isNaN(parseFloat(n)) && isFinite(n);
@@ -1482,6 +1555,10 @@ var manager = function() {
                 return 0;
             }
             _engine.setWindow();
+            if (tmp_vars.auto_order) {
+                tmp_vars.tr_auto_order = true;
+                tmp_vars.fl_auto_order = true;
+            }
             timer = timer();
             tables = {
                 'window': $(window),
@@ -1819,7 +1896,9 @@ var manager = function() {
                 className: "filelist",
                 events: {
                     show: function() {
-                        tmp_vars.fl_auto_order = false;
+                        if (tmp_vars.auto_order) {
+                            tmp_vars.fl_auto_order = false;
+                        }
                         var id = this[0].id;
                         if ($(this).hasClass('selected')) {
                             tmp_vars.fl_file_selected = 1;
@@ -1839,7 +1918,9 @@ var manager = function() {
                         tmp_vars.fl_prio_param += "&f=" + tmp_vars.fl_select_array.join('&f=');
                     },
                     hide: function() {
-                        tmp_vars.fl_auto_order = true;
+                        if (tmp_vars.auto_order) {
+                            tmp_vars.fl_auto_order = true;
+                        }
                         if (tmp_vars.fl_file_selected == 0) {
                             $(this).find('input').trigger('click');
                         }
@@ -1899,7 +1980,7 @@ var manager = function() {
                             var c = tmp_vars.fl_select_array.length;
                             for (var n = 0; n < c; n++) {
                                 chrome.tabs.create({
-                                    url:  tmp_vars.lp_path + ui_url(tmp_vars.fl_select_array[n])
+                                    url: tmp_vars.lp_path + ui_url(tmp_vars.fl_select_array[n])
                                 });
                             }
                             ;
