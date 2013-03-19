@@ -18,7 +18,7 @@ var engine = function() {
         hide_seeding: (localStorage.hide_seeding !== undefined) ? localStorage.hide_seeding : 0,
         hide_finished: (localStorage.hide_finished !== undefined) ? localStorage.hide_finished : 0,
         graph: (localStorage.graph !== undefined) ? localStorage.graph : 1,
-        window_height: (localStorage.window_height !== undefined) ? (localStorage.window_height -54) : (300 - 54),
+        window_height: (localStorage.window_height !== undefined) ? (localStorage.window_height - 54) : (300 - 54),
     }
     var colums = {
         'name': {'a': 1, 'size': 200, 'pos': 1, 'lang': 13, 'order': 1},
@@ -80,6 +80,8 @@ var engine = function() {
     var tmp_vars = {
         'token_reconnect_counter': 0,
         'get': {},
+        'last_complite_time': 0,
+        'active_torrent': 0
     }
     var status = function() {
         var storage = {}
@@ -173,6 +175,46 @@ var engine = function() {
             }
         }
     }()
+    var addons_notify = function(olda, newa) {
+        if (!olda)
+            return;
+        var co = olda.length;
+        var cn = newa.length;
+        for (var nn = 0; nn < cn; nn++) {
+            if (newa[nn][4] == 1000 && newa[nn][24] > tmp_vars.last_complite_time) {
+                for (var no = 0; no < co; no++) {
+                    if (olda[no][0] == newa[nn][0] && olda[no][4] != 1000 && olda[no][24] == 0) {
+                        (function notify(nn) {
+                            var notification = webkitNotifications.createNotification(
+                                    '/images/icon.png',
+                                    newa[nn][2],
+                                    lang_arr[57] + newa[nn][21]
+                                    );
+                            notification.show();
+                            this.setTimeout(function() {
+                                notification.cancel()
+                            }, 2000);
+                        })(nn);
+                    }
+                }
+            }
+        }
+    }
+    var addons_active = function(arr) {
+        var c = arr.length;
+        var ac = 0;
+        for (var n = 0; n < c; n++) {
+            if (arr[n][4] != 1000 && arr[n][24] == 0) {
+                ac++;
+            }
+        }
+        if (tmp_vars.active_torrent != ac) {
+            tmp_vars.active_torrent = ac;
+            chrome.browserAction.setBadgeText({
+                "text": (tmp_vars.active_torrent) ? '' + tmp_vars.active_torrent : ''
+            });
+        }
+    }
     var get = function(action, cid)
     {
         if (!tmp_vars.get['token']) {
@@ -221,6 +263,7 @@ var engine = function() {
                 }
                 if ('torrentp' in obj) {
                     //update with CID
+                    addons_notify(tmp_vars.get['torrents'], obj['torrentp']);
                     tmp_vars.get['torrentp'] = obj['torrentp']
                     var cs = tmp_vars.get['torrents'].length;
                     var cp = tmp_vars.get['torrentp'].length;
@@ -240,13 +283,16 @@ var engine = function() {
                     if (popup.chk()) {
                         tmp_vars.popup.manager.updateList(obj['torrentp'], 1);
                     }
+                    addons_active(tmp_vars.get['torrentp']);
                 }
                 if ('torrents' in obj) {
                     //Full torrent list
+                    addons_notify(tmp_vars.get['torrents'], obj['torrents']);
                     tmp_vars.get['torrents'] = obj['torrents']
                     if (popup.chk()) {
                         tmp_vars.popup.manager.updateList(obj['torrents'], 0);
                     }
+                    addons_active(tmp_vars.get['torrents']);
                 }
                 if ('download-dirs' in obj) {
                     tmp_vars.get['download-dirs'] = obj['download-dirs']
@@ -347,6 +393,9 @@ var engine = function() {
 $(document).ready(function() {
     chrome.browserAction.setBadgeBackgroundColor({
         "color": [0, 0, 0, 40]
-    })
+    });
+    chrome.browserAction.setBadgeText({
+        "text": ''
+    });
     engine.begin();
 });

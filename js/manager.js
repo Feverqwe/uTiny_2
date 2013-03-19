@@ -1820,14 +1820,14 @@ var manager = function() {
                     remove_with: {
                         name: lang_arr[7],
                         items: {
-                            remove_files: {
+                            remove_torrent: {
                                 name: lang_arr[8],
                                 callback: function(key, opt) {
                                     var id = this[0].id;
                                     contextActions(key, id)
                                 }
                             },
-                            remove_torrent: {
+                            remove_files: {
                                 name: lang_arr[9],
                                 callback: function(key, opt) {
                                     var id = this[0].id;

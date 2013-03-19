@@ -59,9 +59,6 @@ ul.menu a.btn:active {
 ul.menu a.refresh{
     background-image: url("/images/refresh.png");
 }
-ul.menu a.donate{
-    background-image: url("/images/donate.png");
-}
 ul.menu a.wui{
     background-image: url("/images/wui.png");
 }
@@ -159,9 +156,12 @@ div.torrent-list-layer table .status div {
 div.fl-layer tr:nth-child(even) {
       background-color:  #f3f6fa;  
 }
-div.torrent-list-layer, div.torrent-list-layer table.torrent-table-body {
+/*div.torrent-list-layer, div.torrent-list-layer table.torrent-table-body {
     background-position-y: 1px;
     background-image:-webkit-repeating-linear-gradient(top, #fff 0px, #fff 18px, #f3f6fa 18px, #f3f6fa 36px);
+}*/
+div.torrent-list-layer tr:nth-child(even) {
+      background-color:  #f3f6fa;  
 }
 table.torrent-table-head {
     position: fixed;
@@ -199,7 +199,6 @@ table td.progress div.progress_b_i div {
     width: 68px;
     height: 14px;
 }
-/*control btns*/
 div.torrent-list-layer table td.controls div.btns {
     height: 18px;
 }
@@ -223,7 +222,6 @@ div.torrent-list-layer table td.controls div.btns > a.stop {
 div.torrent-list-layer table td.controls div.btns > a:active {
     opacity: 0.7;
 }
-/*-------*/
 table.status-panel {
     border-top: 1px #c0c0c0 solid;
     padding-left: 2px;
