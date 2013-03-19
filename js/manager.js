@@ -38,11 +38,9 @@ var manager = function() {
             return localStorage.ut_path;
         }
         tables['menu'].find('a.refresh').attr('title', lang_arr[24]);
-        tables['menu'].find('a.donate').attr('title', lang_arr[25]);
-        tables['menu'].find('a.wui').attr('title', lang_arr[26]);
+        tables['menu'].find('a.wui').attr('title', lang_arr[26]).attr('href', tmp_vars.lp_path + ui_url());
         tables['menu'].find('a.start_all').attr('title', lang_arr[68]);
         tables['menu'].find('a.pause_all').attr('title', lang_arr[67]);
-        tables['menu'].find('a.wui').attr('href', tmp_vars.lp_path + ui_url());
         tables['fl-head'].find('th.select').attr('title', lang_arr[91][0]);
         tables['fl-head'].find('th.name').attr('title', lang_arr[88][1]).html(lang_arr[88][0]);
         tables['fl-head'].find('th.size').attr('title', lang_arr[14][1]).html(lang_arr[14][0]);
@@ -1569,6 +1567,11 @@ var manager = function() {
             tables['table-body'].on('dblclick', 'tbody tr', function() {
                 var id = $(this).attr('id');
                 torrent_file_list.open(id);
+            });
+            tables['menu'].on('click', 'a.refresh', function(e) {
+                e.preventDefault();
+                timer.start();
+                get_torrent_list();
             });
             tables['menu'].on('click', 'a.start_all', function(e) {
                 e.preventDefault();
