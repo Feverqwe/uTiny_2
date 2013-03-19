@@ -110,7 +110,8 @@ var lang_arr_en = {
     108:['Rollback error!','Restore error!','Rollback','Restore','Update','Restore','Backup','Export settings'],
     109:'Show number of active downloads on the icon',
     110:['Yes','No'],
-    111:['List of files']
+    111:'List of files',
+    112:'Probably torrent file already exists!'
 }
 var lang_arr_ru = {
     0:'Запустить',
@@ -224,7 +225,8 @@ var lang_arr_ru = {
     108:['Ошибка отката настроек!','Ошибка восстановления настроек!','Откатить','Восстановить','Обновить код','Восстановление','Бэкап','Экспорт настроек'],
     109:'Отображать кол-во активных загрузок на иконке',
     110:['Да','Нет'],
-    111:['Список файлов']
+    111:'Список файлов',
+    112:'Возможно торрент файл уже существует!'
 }
 var lang = (localStorage.lang !== undefined) ? localStorage["lang"] : 'en';
 if (lang == 'ru') { 

@@ -287,7 +287,15 @@ var engine = function() {
                         }
                         if (ex == 0) {
                             tmp_vars.get['torrents'][tmp_vars.get['torrents'].length] = tmp_vars.get['torrentp'][np];
+                            if (tmp_vars.new_file_monitoring) {
+                                tmp_vars.new_file_monitoring(obj['torrentp'][np][2]);
+                                tmp_vars.new_file_monitoring = null;
+                            }
                         }
+                    }
+                    if (tmp_vars.new_file_monitoring) {
+                        tmp_vars.new_file_monitoring(null, 1)
+                        tmp_vars.new_file_monitoring = null;
                     }
                     if (popup.chk()) {
                         tmp_vars.popup.manager.updateList(obj['torrentp'], 1);
@@ -295,6 +303,10 @@ var engine = function() {
                     addons_active(tmp_vars.get['torrentp']);
                 }
                 if ('torrents' in obj) {
+                    if (tmp_vars.new_file_monitoring) {
+                        tmp_vars.new_file_monitoring(obj['torrents'][obj['torrents'].length - 1][2]);
+                        tmp_vars.new_file_monitoring = null;
+                    }
                     //Full torrent list
                     addons_notify(tmp_vars.get['torrents'], obj['torrents']);
                     tmp_vars.get['torrents'] = obj['torrents']
@@ -370,13 +382,14 @@ var engine = function() {
             if (response.error) {
                 link_note(lang_arr[23], response.error, 1);
             } else {
-                // get the name of the last torrent in the list
-                var list = getTorrentsList();
-                var torrents = list.torrentp || list.torrents;
-                if (torrents) {
-                    var torrent = torrents[torrents.length - 1];
-                    link_note(torrent[2], lang_arr[102], null);
-                }
+                tmp_vars.new_file_monitoring = function(name, e) {
+                    if (e) {
+                        link_note(lang_arr[112], null, 1);
+                    } else {
+                        link_note(name, lang_arr[102], null);
+                    }
+                };
+                get("&list=1");
             }
         };
         var downloadFile = function(url, callback) {
