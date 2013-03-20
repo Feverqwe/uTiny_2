@@ -1,26 +1,45 @@
 var engine = function() {
+    var def_settings = {
+        ssl : {"v":0,"t":"checkbox"},
+        ut_ip: {"v":"127.0.0.1","t":"text"},
+        ut_port : {"v":8080,"t":"number"},
+        ut_path: {"v":"gui/","t":"text"},
+        show_active_tr_on_icon: {"v":1,"t":"checkbox"},
+        notify_on_dl_comp: {"v":1,"t":"checkbox"},
+        bg_update_interval: {"v":60000*3,"t":"number"},
+        mgr_update_interval: {"v":2000,"t":"number"},
+        notify_visbl_interval: {"v":5000,"t":"number"},
+        login: {"v":null,"t":"text"},
+        password: {"v":null,"t":"password"},
+        hide_seeding: {"v":0,"t":"checkbox"},
+        hide_finished: {"v":0,"t":"checkbox"},
+        graph: {"v":0,"t":"checkbox"},
+        window_height: {"v":(300 - 54),"t":"number"},
+        change_downloads: {"v":0,"t":"checkbox"},
+        auto_order : {"v":0,"t":"checkbox"},
+        context_menu_trigger : {"v":1,"t":"checkbox"},
+    }
     var settings = {
-        debug: 1,
-        ut_url: ((localStorage.ssl !== undefined && localStorage.ssl) ? 'https' : 'http') +
-                "://" +
-                ((localStorage.ut_ip !== undefined) ? localStorage.ut_ip : '127.0.0.1') +
-                ':' +
-                ((localStorage.ut_port !== undefined) ? localStorage.ut_port : '8080') +
-                '/' +
-                ((localStorage.ut_path !== undefined) ? localStorage.ut_path : 'gui/'),
-        icon_dl_count: (localStorage.icon_dl_count !== undefined) ? localStorage.icon_dl_count : 1,
-        dl_cmpl_notify: (localStorage.dl_cmpl_notify !== undefined) ? localStorage.dl_cmpl_notify : 1,
-        notify_interval: (localStorage.notify_interval !== undefined) ? localStorage.notify_interval : 5000,
-        bg_update_interval: (localStorage.bg_update_interval !== undefined) ? localStorage.bg_update_interval : 60000,
-        mgr_update_interval: (localStorage.mgr_update_interval !== undefined) ? localStorage.mgr_update_interval : 2000,
-        notify_visbl_interval: (localStorage.notify_visbl_interval !== undefined) ? localStorage.notify_visbl_interval : 30000,
-        login: (localStorage.login !== undefined) ? localStorage.login : null,
-        password: (localStorage.password !== undefined) ? localStorage.password : null,
-        hide_seeding: (localStorage.hide_seeding !== undefined) ? localStorage.hide_seeding : 0,
-        hide_finished: (localStorage.hide_finished !== undefined) ? localStorage.hide_finished : 0,
-        graph: (localStorage.graph !== undefined) ? localStorage.graph : 0,
-        window_height: (localStorage.window_height !== undefined) ? (localStorage.window_height - 54) : (300 - 54),
-        change_downloads: (localStorage.change_downloads !== undefined) ? (localStorage.change_downloads) : 0,
+        ut_url : null,
+        ssl : (localStorage.ssl !== undefined) ? localStorage.ssl : def_settings.ssl.v,
+        ut_ip: (localStorage.ut_ip !== undefined) ? localStorage.ut_ip : def_settings.ut_ip.v,
+        ut_port : (localStorage.ut_port !== undefined) ? localStorage.ut_port : def_settings.ut_port.v,
+        ut_path: (localStorage.ut_path !== undefined) ? localStorage.ut_path : def_settings.ut_path.v,
+        show_active_tr_on_icon: (localStorage.show_active_tr_on_icon !== undefined) ? localStorage.show_active_tr_on_icon : def_settings.show_active_tr_on_icon.v,
+        notify_on_dl_comp: (localStorage.notify_on_dl_comp !== undefined) ? localStorage.notify_on_dl_comp : def_settings.notify_on_dl_comp.v,
+        bg_update_interval: (localStorage.bg_update_interval !== undefined && localStorage.bg_update_interval > 5000) ? localStorage.bg_update_interval : def_settings.bg_update_interval.v,
+        mgr_update_interval: (localStorage.mgr_update_interval !== undefined && localStorage.mgr_update_interval > 500) ? localStorage.mgr_update_interval : def_settings.mgr_update_interval.v,
+        notify_visbl_interval: (localStorage.notify_visbl_interval !== undefined) ? localStorage.notify_visbl_interval : def_settings.notify_visbl_interval.v,
+        login: (localStorage.login !== undefined) ? localStorage.login : def_settings.login.v,
+        password: (localStorage.password !== undefined) ? localStorage.password : def_settings.password.v,
+        hide_seeding: (localStorage.hide_seeding !== undefined) ? localStorage.hide_seeding : def_settings.hide_seeding.v,
+        hide_finished: (localStorage.hide_finished !== undefined) ? localStorage.hide_finished : def_settings.hide_finished.v,
+        graph: (localStorage.graph !== undefined) ? localStorage.graph : def_settings.graph.v,
+        window_height: (localStorage.window_height !== undefined) ? (localStorage.window_height - 54) : def_settings.window_height.v,
+        change_downloads: (localStorage.change_downloads !== undefined) ? (localStorage.change_downloads) : def_settings.change_downloads.v,
+        auto_order : (localStorage.auto_order !== undefined) ? (localStorage.auto_order) : def_settings.auto_order.v,
+        context_menu_trigger : (localStorage.context_menu_trigger !== undefined) ? (localStorage.context_menu_trigger) : def_settings.context_menu_trigger.v,
+        folders_array : (localStorage.folders_array !== undefined) ? JSON.parse(localStorage.folders_array) : null,
     };
     var colums = {
         'name': {'a': 1, 'size': 200, 'pos': 1, 'lang': 13, 'order': 1},
@@ -45,12 +64,12 @@ var engine = function() {
         'controls': {'a': 1, 'size': 57, 'pos': 20, 'lang': 21, 'order': 0}
     };
     var fl_colums = {
-        'select' : {'a': 1, 'size': 19, 'pos': 1, 'lang': 113, 'order': 0},
-        'name' : {'a': 1, 'size': 300, 'pos': 2, 'lang': 88, 'order': 1},
-        'size' : {'a': 1, 'size': 60, 'pos': 3, 'lang': 14, 'order': 1},
-        'download' : {'a': 1, 'size': 60, 'pos': 4, 'lang': 79, 'order': 1},
-        'progress' : {'a': 1, 'size': 70, 'pos': 5, 'lang': 15, 'order': 1},
-        'priority' : {'a': 1, 'size': 74, 'pos': 6, 'lang': 89, 'order': 1},
+        'select': {'a': 1, 'size': 19, 'pos': 1, 'lang': 113, 'order': 0},
+        'name': {'a': 1, 'size': 300, 'pos': 2, 'lang': 88, 'order': 1},
+        'size': {'a': 1, 'size': 60, 'pos': 3, 'lang': 14, 'order': 1},
+        'download': {'a': 1, 'size': 60, 'pos': 4, 'lang': 79, 'order': 1},
+        'progress': {'a': 1, 'size': 70, 'pos': 5, 'lang': 15, 'order': 1},
+        'priority': {'a': 1, 'size': 74, 'pos': 6, 'lang': 89, 'order': 1},
     };
     var timer = function() {
         var status = 0;
@@ -59,7 +78,7 @@ var engine = function() {
         var start = function() {
             if (status)
                 return 0;
-            if (settings.icon_dl_count == 0 && settings.dl_cmpl_notify == 0) {
+            if (settings.show_active_tr_on_icon == 0 && settings.notify_on_dl_comp == 0) {
                 return 0;
             }
             status = 1;
@@ -188,7 +207,7 @@ var engine = function() {
         };
     }();
     var addons_notify = function(olda, newa) {
-        if (!settings.dl_cmpl_notify) {
+        if (!settings.notify_on_dl_comp) {
             return;
         }
         if (!olda) {
@@ -207,9 +226,11 @@ var engine = function() {
                                     lang_arr[57] + newa[nn][21]
                                     );
                             notification.show();
-                            this.setTimeout(function() {
-                                notification.cancel();
-                            }, settings.notify_interval);
+                            if (settings.notify_visbl_interval) {
+                                this.setTimeout(function() {
+                                    notification.cancel();
+                                }, settings.notify_visbl_interval);
+                            }
                         })(nn);
                     }
                 }
@@ -217,7 +238,7 @@ var engine = function() {
         }
     };
     var addons_active = function(arr) {
-        if (!settings.icon_dl_count)
+        if (!settings.show_active_tr_on_icon)
             return;
         var c = arr.length;
         var ac = 0;
@@ -460,7 +481,7 @@ var engine = function() {
                 if (notification_link) {
                     notification_link.cancel();
                 }
-            }, settings.notify_interval);
+            }, (settings.notify_visbl_interval)?settings.notify_visbl_interval:2000);
         };
         var addTorrent = function(a) {
             if (!tmp_vars.get['token']) {
@@ -525,8 +546,11 @@ var engine = function() {
     };
     return {
         begin: function() {
+            settings.ut_url = ((settings.ssl)?'https' : 'http') + "://" + settings.ut_ip + ':' + settings.ut_port + '/' + settings.ut_path,
             timer.start();
-            context_menu_obj.load();
+            if (settings.context_menu_trigger) {
+                context_menu_obj.load();
+            }
         },
         getTorrentList: function(t) {
             return getTorrentList(t);
@@ -552,7 +576,7 @@ var engine = function() {
         getColums: function() {
             return (localStorage.colums !== undefined) ? JSON.parse(localStorage.colums) : colums;
         },
-        getFlColums: function () {
+        getFlColums: function() {
             return (localStorage.fl_colums !== undefined) ? JSON.parse(localStorage.fl_colums) : fl_colums;
         },
         setFlColums: function(a) {
@@ -576,6 +600,9 @@ var engine = function() {
         },
         getLimit: function() {
             get('&action=getsettings');
+        },
+        getDefSettings: function () {
+            return def_settings;
         }
     };
 }();

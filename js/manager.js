@@ -34,13 +34,13 @@ var manager = function() {
         return 1;
     };
     var lp_path = function() {
-        return ((localStorage.ssl !== undefined && localStorage.ssl) ? 'https' : 'http') + "://" +
-                localStorage.login + ":" + localStorage.password + "@" +
-                localStorage.ut_ip + ":" + localStorage.ut_port + "/";
+        return ((settings.ssl) ? 'https' : 'http') + "://" +
+                settings.login + ":" + settings.password + "@" +
+                settings.ut_ip + ":" + settings.ut_port + "/";
     };
     var write_language = function() {
         tables['menu'].find('a.refresh').attr('title', lang_arr[24]);
-        tables['menu'].find('a.wui').attr('title', lang_arr[26]).attr('href', tmp_vars.lp_path + localStorage.ut_path);
+        tables['menu'].find('a.wui').attr('title', lang_arr[26]).attr('href', tmp_vars.lp_path + settings.ut_path);
         tables['menu'].find('a.start_all').attr('title', lang_arr[68]);
         tables['menu'].find('a.pause_all').attr('title', lang_arr[67]);
         tables['fl-bottom'].find('a.update').attr('title', lang_arr[91][1]);
@@ -1650,6 +1650,10 @@ var manager = function() {
     return {
         begin: function() {
             settings = _engine.getSettings();
+            if (settings.auto_order) {
+                tmp_vars.auto_order = true;
+                tmp_vars.moveble_enabled_tr = false;
+            }
             if (!chk_settings()) {
                 window.location = "options.html";
                 return 0;
