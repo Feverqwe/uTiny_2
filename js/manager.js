@@ -1384,8 +1384,8 @@ var manager = function() {
                 _engine.sendAction(tmp_vars.filelist_param);
                 $('#' + id).addClass('selected');
                 add_layer();
-                var t_file_list_h = tables.window.height() - 35 - 19;
-                var t_fl_layer_h = t_file_list_h - 35;
+                var t_file_list_h = tables.window.height() - 34 - 19;
+                var t_fl_layer_h = t_file_list_h - 34;
                 if (file_list_h != t_file_list_h || t_fl_layer_h != fl_layer_h) {
                     file_list_h = t_file_list_h;
                     fl_layer_h = t_fl_layer_h;
@@ -1418,7 +1418,6 @@ var manager = function() {
         }
     }()
     var calculate_moveble = function(selectors, size) {
-        console.log(tables['fl-table-main'].find('td.name div span'));
         if (size <= 70)
             return;
         var titles = selectors;
@@ -2022,6 +2021,10 @@ var manager = function() {
         },
         setLabels: function(a) {
             set_labels(a);
+        },
+        setLabel: function(a) {
+            tr_table_controller.filter(a.k, a.v);
+            tables['label-select'].selectBox('value', a.k);
         },
         setSpeedLimit: function(a) {
             set_speed_limit(a);

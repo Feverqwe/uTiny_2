@@ -20,6 +20,7 @@ var engine = function() {
         hide_finished: (localStorage.hide_finished !== undefined) ? localStorage.hide_finished : 0,
         graph: (localStorage.graph !== undefined) ? localStorage.graph : 1,
         window_height: (localStorage.window_height !== undefined) ? (localStorage.window_height - 54) : (300 - 54),
+        change_downloads: (localStorage.change_downloads !== undefined) ? (localStorage.change_downloads) : 0,
     }
     var colums = {
         'name': {'a': 1, 'size': 200, 'pos': 1, 'lang': 13, 'order': 1},
@@ -387,6 +388,13 @@ var engine = function() {
                         link_note(lang_arr[112], null, 1);
                     } else {
                         link_note(name, lang_arr[102], null);
+                        if (settings.change_downloads) {
+                            var label = {k: 'download', v: null};
+                            localStorage.selected_label = JSON.stringify(label);
+                            if (popup.chk()) {
+                                tmp_vars.popup.manager.setLabel(label);
+                            }
+                        }
                     }
                 };
                 get("&list=1");
@@ -436,7 +444,7 @@ var engine = function() {
                 icon = 'images/warning.png';
             }
             notification_link = webkitNotifications.createNotification(
-                    icon,
+                    'images/' + ((e) ? 'warning.png' : 'add.png'),
                     a, (b) ? b : ''
                     );
             notification_link.show();
