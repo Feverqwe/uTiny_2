@@ -576,6 +576,12 @@ var engine = function() {
         getColums: function() {
             return (localStorage.colums !== undefined) ? JSON.parse(localStorage.colums) : colums;
         },
+        getDefColums: function() {
+            return colums;
+        },
+        getDefFlColums: function() {
+            return fl_colums;
+        },
         getFlColums: function() {
             return (localStorage.fl_colums !== undefined) ? JSON.parse(localStorage.fl_colums) : fl_colums;
         },

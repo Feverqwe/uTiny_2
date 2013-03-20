@@ -19,8 +19,8 @@ var options = function() {
                     $('input[name="' + k + '"]').eq(0)[0].checked = (v.v) ? 1 : 0;
                 }
             }
-        })
-    }
+        });
+    };
     var make_bakup_form = function() {
         $('div.backup_form div').children('a.backup_tab').click(function(event) {
             event.preventDefault();
@@ -45,6 +45,39 @@ var options = function() {
             event.preventDefault();
             //view.stngsRestore($(this).parent().children('textarea').val());
         });
+    };
+    var write_sortable_tables = function() {
+        function ap(t, k, v) {
+            t.append('<li class="item ui-state-default" data-key="' + k + '"><div class="info"><div>' + lang_arr[v.lang][1] + '</div>[<div>ширина: <label>' + v.size + '</label>px;</div> <div>показывать:<input type="checkbox"' + ((v.a) ? ' checked' : '') + '/>]</div></div><div class="size" style="width:' + v.size + 'px"></div></li>');
+        }
+        var tr_colums = _engine.getColums();
+        var tr_table = $("ul.tr_colums");
+        $.each(tr_colums, function(k, v) {
+            ap(tr_table, k, v);
+        });
+        var fl_colums = _engine.getFlColums();
+        var fl_table = $("ul.fl_colums");
+        $.each(fl_colums, function(k, v) {
+            ap(fl_table, k, v);
+        });
+        $("ul.sortable").sortable({placeholder: "ui-state-highlight"});
+        $("ul.sortable").disableSelection();
+        $("ul.sortable").find("div.size").resizable({handles: "e", resize: function(event, ui) {
+                $(this).parent().children('div').children("div").eq(1).children('label').html(ui.size.width);
+            }});
+    };
+    var reset_table = function(table, arr) {
+        $.each(arr, function(k, v) {
+            var t = table.find('li[data-key="' + k + '"]');
+            var info =t.children("div.info").children("div");
+            t.children("div.size").css("width",v.size);
+            info.eq(1).children("label").html(v.size);
+            if (v.a) {
+                info.eq(2).children("input")[0].checked = true;
+            } else {
+                info.eq(2).children("input")[0].checked = false;
+            }
+        });
     }
     return {
         begin: function() {
@@ -54,12 +87,19 @@ var options = function() {
                 $(this).addClass('active');
                 $('body').find('div.page.active').removeClass('active');
                 $('body').find('div.' + $(this).data('page')).addClass('active');
+                $("li.default").children('input[name="tr"]').on("click",function(){
+                    reset_table($("ul.tr_colums"),_engine.getDefColums());
+                });
+                $("li.default").children('input[name="fl"]').on("click",function(){
+                    reset_table($("ul.fl_colums"),_engine.getDefFlColums());
+                });
             });
             set_place_holder();
             make_bakup_form();
+            write_sortable_tables();
         }
-    }
+    };
 }();
 $(function() {
     options.begin();
-})
+});

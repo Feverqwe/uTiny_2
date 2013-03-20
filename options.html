@@ -5,6 +5,7 @@
         <link rel="stylesheet" type="text/css" href="css/options.css"> 
         <script src="js/jquery-1.9.1.min.js"></script>
         <script src="js/jquery-ui-1.10.2.custom.min.js"></script>
+        <script src="js/lang.js"></script>
         <script src="js/options.js"></script>
     </head>
     <body>
@@ -71,9 +72,17 @@
             </fieldset>
             <fieldset>
                 <legend>Управление столбцами списка торрентов</legend>
+                <ul class="tr_colums sortable"></ul>
+                <ul>
+                    <li class="default"><input name="tr" type="button" value="Сбросить настройки"/></li>
+                </ul>
             </fieldset>
             <fieldset>
                 <legend>Управление столбцами списка файлов</legend>
+                <ul class="fl_colums sortable"></ul>
+                <ul>
+                    <li class="default"><input name="fl" type="button" value="Сбросить настройки"/></li>
+                </ul>
             </fieldset>
         </div>
         <div class="page context">
@@ -84,12 +93,12 @@
                     <li><ul class="item"><li><input type="checkbox" name="change_downloads"/></li><li>Автоматически переходить в раздел "Загрузки" при успешном добавлении торрент-файла</li></ul></li>
                 </ul>
             </fieldset>
-            <fieldset>
+            <fieldset class="folders">
                 <legend>Управление каталогами</legend>
                 <ul>
                     <li>Каталог <select style="width: 120px"></select></li>
                     <li>Подкаталог <input type="text"> <input type="button" value="Добавить"></li>
-                    <li><select multiple="multiple"></select></li>
+                    <li class="list"><select multiple="multiple"></select></li>
                     <li><input type="button" value="Удалить выбранное"/></li>
                 </ul>
             </fieldset>
