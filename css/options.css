@@ -149,11 +149,15 @@ ul.sortable li {
     padding-left: 5px;
     border: 1px solid #82838e;
     white-space: nowrap;
-    cursor: pointer;
+    cursor: default;
+    background-image: url(/images/draggable.png);
+    background-position: center right 1%;
+    background-repeat: no-repeat;
 }
 ul.sortable li.ui-state-highlight {
     background-color: #f1f2f1;
     border: 1px dotted #82838e;
+    background-image: none;
 }
 ul.sortable li.ui-sortable-helper {
     opacity: 0.8;
