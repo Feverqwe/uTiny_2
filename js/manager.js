@@ -1373,16 +1373,17 @@ var manager = function() {
         var colums = tmp_vars.colums;
         colums[key].a = (colums[key].a) ? 0 : 1;
         _engine.setColums(colums);
+        tmp_vars.colums = colums;
         tables['tr-body'].empty();
         tables['tr-head'].empty();
         tables['tr-fixed_head'].empty();
         torrent_list_head();
         //tables['table-main'].trigger('update');
+        _engine.get_cache_torrent_list();
+        torrent_list_order();
         if (tmp_vars.moveble_enabled_tr) {
             calculate_moveble(tables['table-main'].find('td.name > div > span'), tmp_vars.colums.name.size);
         }
-        _engine.get_cache_torrent_list();
-        torrent_list_order();
         timer.start();
     };
     var updateFlColums = function(key) {
@@ -1391,6 +1392,7 @@ var manager = function() {
         var colums = tmp_vars.fl_colums;
         colums[key].a = (colums[key].a) ? 0 : 1;
         _engine.setFlColums(colums);
+        tmp_vars.fl_colums = colums;
         tables['fl-body'].empty();
         tables['fl-head'].empty();
         tables['fl-fixed_head'].empty();
@@ -1399,6 +1401,9 @@ var manager = function() {
         file_list_order();
         _engine.sendAction("&action=getfiles&hash=" + torrent_file_list.getID());
         file_list_order();
+        if (tmp_vars.moveble_enabled_tr) {
+            calculate_moveble(tables['fl-table-main'].find('td.name > div > span'), tmp_vars.fl_colums.name.size);
+        }
         timer.start();
     };
     var torrent_file_list = function(id) {
