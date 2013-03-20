@@ -284,8 +284,6 @@ div.file-list {
     z-index: 4;
     background: #fff;
     left: 0;
-    width: 600px;
-    height: 300px;
     top: 34px;
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
     border-bottom-right-radius: 4px;
@@ -294,10 +292,6 @@ div.file-list {
 table.fl-table-body thead {
     visibility: hidden;
 }
-div.fl-layer table .select {
-    min-width: 19px;
-    max-width: 19px;
-}
 div.fl-layer table.fl-table-body td.select {
     padding-left: 3px;
 }
@@ -305,33 +299,21 @@ div.fl-layer table .select input {
     margin-top: 2.5px; 
     margin-bottom: 2.5px; 
 }
-div.fl-layer table .name {
-    min-width: 270px; 
-    max-width: 270px; 
-}
 div.fl-layer table .name > div {
     text-align: left; 
     text-overflow: ellipsis;
 }
 div.fl-layer table .size {
     text-align: right;
-    min-width: 60px;
-    max-width: 60px;
 }
 div.fl-layer table .download {
-    text-align: right; 
-    min-width: 60px;
-    max-width: 60px;
+    text-align: right;
 }
 div.fl-layer table .progress {
     text-align: center; 
-    min-width: 70px;
-    max-width: 70px;
 }
 div.fl-layer table .priority {
     text-align: center;
-    min-width: 74px;
-    max-width: 74px;
 }
 div.fl-layer table .priority div {
     white-space: nowrap;

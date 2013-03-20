@@ -18,10 +18,10 @@ var engine = function() {
         password: (localStorage.password !== undefined) ? localStorage.password : null,
         hide_seeding: (localStorage.hide_seeding !== undefined) ? localStorage.hide_seeding : 0,
         hide_finished: (localStorage.hide_finished !== undefined) ? localStorage.hide_finished : 0,
-        graph: (localStorage.graph !== undefined) ? localStorage.graph : 1,
+        graph: (localStorage.graph !== undefined) ? localStorage.graph : 0,
         window_height: (localStorage.window_height !== undefined) ? (localStorage.window_height - 54) : (300 - 54),
         change_downloads: (localStorage.change_downloads !== undefined) ? (localStorage.change_downloads) : 0,
-    }
+    };
     var colums = {
         'name': {'a': 1, 'size': 200, 'pos': 1, 'lang': 13, 'order': 1},
         'position': {'a': 0, 'size': 20, 'pos': 2, 'lang': 74, 'order': 1},
@@ -43,7 +43,15 @@ var engine = function() {
         'time_dobavleno': {'a': 0, 'size': 120, 'pos': 18, 'lang': 83, 'order': 1},
         'time_zavircheno': {'a': 0, 'size': 120, 'pos': 19, 'lang': 84, 'order': 1},
         'controls': {'a': 1, 'size': 57, 'pos': 20, 'lang': 21, 'order': 0}
-    }
+    };
+    var fl_colums = {
+        'select' : {'a': 1, 'size': 19, 'pos': 1, 'lang': 113, 'order': 0},
+        'name' : {'a': 1, 'size': 300, 'pos': 2, 'lang': 88, 'order': 1},
+        'size' : {'a': 1, 'size': 60, 'pos': 3, 'lang': 14, 'order': 1},
+        'download' : {'a': 1, 'size': 60, 'pos': 4, 'lang': 79, 'order': 1},
+        'progress' : {'a': 1, 'size': 70, 'pos': 5, 'lang': 15, 'order': 1},
+        'priority' : {'a': 1, 'size': 74, 'pos': 6, 'lang': 89, 'order': 1},
+    };
     var timer = function() {
         var status = 0;
         var tmr = null;
@@ -59,14 +67,14 @@ var engine = function() {
                 getTorrentList();
             }, interval);
             return 1;
-        }
+        };
         var stop = function() {
             if (status) {
                 clearInterval(tmr);
                 status = 0;
             }
             return 1;
-        }
+        };
         return {
             start: function() {
                 return start();
@@ -77,7 +85,7 @@ var engine = function() {
             status: function() {
                 return status;
             },
-        }
+        };
     }();
     var tmp_vars = {
         'token_reconnect_counter': 0,
@@ -85,9 +93,9 @@ var engine = function() {
         'last_complite_time': 0,
         'active_torrent': 0,
         'get_repeat': 0,
-    }
+    };
     var status = function() {
-        var storage = {}
+        var storage = {};
         var connection = function(s, d) {
             var old_s = -1;
             var old_d = null;
@@ -101,7 +109,7 @@ var engine = function() {
             if ((old_s != s || old_d != d) && popup.chk()) {
                 tmp_vars.popup.manager.setStatus(s, (typeof(d) == 'number') ? lang_arr[d] : d);
             }
-        }
+        };
         var get = function(type) {
             var s = -1;
             var d = null;
@@ -112,7 +120,7 @@ var engine = function() {
             if (popup.chk()) {
                 tmp_vars.popup.manager.setStatus(s, (typeof(d) == 'number') ? lang_arr[d] : d);
             }
-        }
+        };
         return {
             connection: function(s, d) {
                 return connection(s, d);
@@ -120,8 +128,8 @@ var engine = function() {
             get: function(t) {
                 return get(t);
             }
-        }
-    }()
+        };
+    }();
     var getToken = function(callback, callbackfail) {
         status.connection(-1);
         $.ajax({
@@ -132,7 +140,7 @@ var engine = function() {
             },
             success: function(data) {
                 status.connection(0);
-                tmp_vars.get = {}
+                tmp_vars.get = {};
                 tmp_vars.get['token'] = $(data).text();
                 tmp_vars.get['torrentc'] = 0;
                 tmp_vars.token_reconnect_counter = 0;
@@ -154,21 +162,21 @@ var engine = function() {
                 callbackfail();
             }
         });
-    }
+    };
     var popup = function() {
-        var popup = {'window': null}
+        var popup = {'window': null};
         return {
             get: function() {
                 tmp_vars['popup'] = popup;
-                return popup
+                return popup;
             },
             set: function() {
                 var windows = chrome.extension.getViews({type: 'popup'});
-                popup = {'window': null}
+                popup = {'window': null};
                 var t = 0;
                 for (var n = 0; n < windows.length; n++) {
                     if (t < windows[n].create_time) {
-                        popup = windows[n]
+                        popup = windows[n];
                         t = windows[n].create_time;
                     }
                 }
@@ -177,8 +185,8 @@ var engine = function() {
             chk: function() {
                 return (popup.window) ? 1 : 0;
             }
-        }
-    }()
+        };
+    }();
     var addons_notify = function(olda, newa) {
         if (!settings.dl_cmpl_notify) {
             return;
@@ -200,14 +208,14 @@ var engine = function() {
                                     );
                             notification.show();
                             this.setTimeout(function() {
-                                notification.cancel()
+                                notification.cancel();
                             }, settings.notify_interval);
                         })(nn);
                     }
                 }
             }
         }
-    }
+    };
     var addons_active = function(arr) {
         if (!settings.icon_dl_count)
             return;
@@ -224,14 +232,14 @@ var engine = function() {
                 "text": (tmp_vars.active_torrent) ? '' + tmp_vars.active_torrent : ''
             });
         }
-    }
+    };
     var get = function(action, cid)
     {
         if (!tmp_vars.get['token']) {
             getToken(function() {
                 tmp_vars['get_repeat'] += 1;
                 get(action, cid);
-            })
+            });
             return 0;
         }
 
@@ -247,22 +255,22 @@ var engine = function() {
                 if ('build' in obj) {
                     //get build
                     if ('build' in tmp_vars.get && obj['build'] != tmp_vars.get['build']) {
-                        tmp_vars.get['build'] = obj['build']
+                        tmp_vars.get['build'] = obj['build'];
                     }
                 }
                 if ('torrentc' in obj) {
                     //get CID
-                    tmp_vars.get['torrentc'] = obj['torrentc']
+                    tmp_vars.get['torrentc'] = obj['torrentc'];
                 }
                 if ('torrentm' in obj) {
                     //remove torrent
-                    tmp_vars.get['torrentm'] = obj['torrentm']
+                    tmp_vars.get['torrentm'] = obj['torrentm'];
                     var cm = tmp_vars.get['torrentm'].length;
                     for (var nm = 0; nm < cm; nm++) {
                         var cs = tmp_vars.get['torrents'].length;
                         for (var ns = 0; ns < cs; ns++) {
                             if (tmp_vars.get['torrents'][ns][0] == tmp_vars.get['torrentm'][nm]) {
-                                tmp_vars.get['torrents'].splice(ns, 1)
+                                tmp_vars.get['torrents'].splice(ns, 1);
                                 break;
                             }
                         }
@@ -274,7 +282,7 @@ var engine = function() {
                 if ('torrentp' in obj) {
                     //update with CID
                     addons_notify(tmp_vars.get['torrents'], obj['torrentp']);
-                    tmp_vars.get['torrentp'] = obj['torrentp']
+                    tmp_vars.get['torrentp'] = obj['torrentp'];
                     var cs = tmp_vars.get['torrents'].length;
                     var cp = tmp_vars.get['torrentp'].length;
                     for (var np = 0; np < cp; np++) {
@@ -295,7 +303,7 @@ var engine = function() {
                         }
                     }
                     if (tmp_vars.new_file_monitoring) {
-                        tmp_vars.new_file_monitoring(null, 1)
+                        tmp_vars.new_file_monitoring(null, 1);
                         tmp_vars.new_file_monitoring = null;
                     }
                     if (popup.chk()) {
@@ -310,31 +318,31 @@ var engine = function() {
                     }
                     //Full torrent list
                     addons_notify(tmp_vars.get['torrents'], obj['torrents']);
-                    tmp_vars.get['torrents'] = obj['torrents']
+                    tmp_vars.get['torrents'] = obj['torrents'];
                     if (popup.chk()) {
                         tmp_vars.popup.manager.updateList(obj['torrents'], 0);
                     }
                     addons_active(tmp_vars.get['torrents']);
                 }
                 if ('download-dirs' in obj) {
-                    tmp_vars.get['download-dirs'] = obj['download-dirs']
+                    tmp_vars.get['download-dirs'] = obj['download-dirs'];
                 }
                 if ('label' in obj) {
                     if ('label' in tmp_vars.get == false || tmp_vars.get['label'].toString() != obj['label'].toString()) {
-                        tmp_vars.get['label'] = obj['label']
+                        tmp_vars.get['label'] = obj['label'];
                         if (popup.chk()) {
                             tmp_vars.popup.manager.setLabels(tmp_vars.get['label']);
                         }
                     }
                 }
                 if ('settings' in obj) {
-                    tmp_vars.get['settings'] = obj['settings']
+                    tmp_vars.get['settings'] = obj['settings'];
                     if (popup.chk()) {
                         tmp_vars.popup.manager.setSpeedLimit(tmp_vars.get['settings']);
                     }
                 }
                 if ('files' in obj) {
-                    tmp_vars.get['files'] = obj['files']
+                    tmp_vars.get['files'] = obj['files'];
                     if (popup.chk()) {
                         tmp_vars.popup.manager.setFileList(tmp_vars.get['files']);
                     }
@@ -355,7 +363,7 @@ var engine = function() {
                 }
             }
         });
-    }
+    };
     var context_menu_obj = function() {
         var context_menu = null;
         var tmr = null;
@@ -450,10 +458,10 @@ var engine = function() {
             notification_link.show();
             tmr = setTimeout(function() {
                 if (notification_link) {
-                    notification_link.cancel()
+                    notification_link.cancel();
                 }
             }, settings.notify_interval);
-        }
+        };
         var addTorrent = function(a) {
             if (!tmp_vars.get['token']) {
                 return getToken(function() {
@@ -472,10 +480,10 @@ var engine = function() {
                     uploadMagnet(encodeURIComponent(a.linkUrl), dir_url);
                 else
                     downloadFile(a.linkUrl, function(file) {
-                        uploadTorrent(file, dir_url)
+                        uploadTorrent(file, dir_url);
                     });
             });
-        }
+        };
         return {
             'load': function() {
                 chrome.contextMenus.removeAll();
@@ -506,15 +514,15 @@ var engine = function() {
                     context_menu = items;
                 }
             }
-        }
-    }()
+        };
+    }();
     var getTorrentList = function(subaction) {
         var action = "&list=1" + ((subaction) ? subaction : '');
         get(action);
-    }
+    };
     var sendAction = function(action, cid) {
         get(action, cid);
-    }
+    };
     return {
         begin: function() {
             timer.start();
@@ -544,6 +552,12 @@ var engine = function() {
         getColums: function() {
             return (localStorage.colums !== undefined) ? JSON.parse(localStorage.colums) : colums;
         },
+        getFlColums: function () {
+            return (localStorage.fl_colums !== undefined) ? JSON.parse(localStorage.fl_colums) : fl_colums;
+        },
+        setFlColums: function(a) {
+            localStorage.fl_colums = JSON.stringify(a);
+        },
         setColums: function(a) {
             localStorage.colums = JSON.stringify(a);
         },
@@ -563,7 +577,7 @@ var engine = function() {
         getLimit: function() {
             get('&action=getsettings');
         }
-    }
+    };
 }();
 $(document).ready(function() {
     chrome.browserAction.setBadgeBackgroundColor({

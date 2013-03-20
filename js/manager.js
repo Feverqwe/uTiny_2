@@ -15,14 +15,15 @@ var manager = function() {
         'tr_auto_order': false,
         'fl_auto_order': false,
         'filelist_param': '',
-        'fl_sall_st': null,
         'fl_file_selected': null,
         'fl_select_array': null,
         'fl_prio_param': null,
         'lp_path': null,
-        'tr_word_wrap' : false,
-        'fl_word_wrap' : true,
-    }
+        'tr_word_wrap': false,
+        'fl_word_wrap': true,
+        'fl_width': 0,
+        'body_width': 0,
+    };
     var chk_settings = function() {
         if (settings == null ||
                 settings['login'] == null ||
@@ -31,30 +32,22 @@ var manager = function() {
         }
         tmp_vars.lp_path = lp_path();
         return 1;
-    }
+    };
     var lp_path = function() {
         return ((localStorage.ssl !== undefined && localStorage.ssl) ? 'https' : 'http') + "://" +
                 localStorage.login + ":" + localStorage.password + "@" +
                 localStorage.ut_ip + ":" + localStorage.ut_port + "/";
-    }
+    };
     var write_language = function() {
         tables['menu'].find('a.refresh').attr('title', lang_arr[24]);
         tables['menu'].find('a.wui').attr('title', lang_arr[26]).attr('href', tmp_vars.lp_path + localStorage.ut_path);
         tables['menu'].find('a.start_all').attr('title', lang_arr[68]);
         tables['menu'].find('a.pause_all').attr('title', lang_arr[67]);
-        tables['fl-head'].find('th.select').attr('title', lang_arr[91][0]);
-        tables['fl-head'].find('th.name').attr('title', lang_arr[88][1]).html(lang_arr[88][0]);
-        tables['fl-head'].find('th.size').attr('title', lang_arr[14][1]).html(lang_arr[14][0]);
-        tables['fl-head'].find('th.download').attr('title', lang_arr[79][1]).html(lang_arr[79][0]);
-        tables['fl-head'].find('th.progress').attr('title', lang_arr[15][1]).html(lang_arr[15][0]);
-        tables['fl-head'].find('th.priority').attr('title', lang_arr[89][1]).html(lang_arr[89][0]);
-        tables['fl-head'].clone().appendTo(tables['fl-table-fixed']);
         tables['fl-bottom'].find('a.update').attr('title', lang_arr[91][1]);
         tables['fl-bottom'].find('a.close').attr('title', lang_arr[91][2]);
-    }
+    };
     var torrent_list_head = function() {
         var colums = tmp_vars.colums;
-        $('.torrent-style').remove();
         var style = '<style class="torrent-style">';
         var thead = '<tr>';
         var sum_width = 0;
@@ -72,11 +65,48 @@ var manager = function() {
         tables['body'].children('style.torrent-style').remove();
         tables['body'].append(style);
         if (sum_width + 59 < 800) {
-            tables.body.css('width', (sum_width + 59) + 'px');
+            tmp_vars.body_width = sum_width + 50;
+            tables.body.css('width', (tmp_vars.body_width) + 'px');
         } else {
+            tmp_vars.body_width = 800;
             tables.body.css('width', '800px');
         }
-    }
+    };
+    var file_list_head = function() {
+        var colums = tmp_vars.fl_colums;
+        var style = '<style class="filelist-style">';
+        var thead = '<tr>';
+        var sum_width = 0;
+        $.each(colums, function(key, value) {
+            if (value.a) {
+                if (key == 'select') {
+                    thead += '<th class="' + key + ((value.order) ? ' s' : '') + '" title="' + lang_arr[value.lang][1] + '"><div><input type="checkbox"/></div></th>';
+                } else {
+                    thead += '<th class="' + key + ((value.order) ? ' s' : '') + '" title="' + lang_arr[value.lang][1] + '"><div>' + lang_arr[value.lang][0] + '</div></th>';
+                }
+                style += '.fl-layer th.' + key + ', .fl-layer td.' + key + ' {max-width:' + value.size + 'px; min-width:' + value.size + 'px}';
+                sum_width += value.size;
+            }
+        });
+        thead += '</tr>';
+        tmp_vars.fl_width = sum_width + 50;
+        var fl_h = tables.window.height() - 34 - 19;
+        var fl_l_h = tables.window.height() - 34 - 19 - 34;
+        style += 'div.file-list {' +
+                'left: ' + ((tmp_vars.body_width - tmp_vars.fl_width) / 2) + "px; " +
+                'height: ' + fl_h + 'px; ' +
+                'width: ' + tmp_vars.fl_width + 'px;' +
+                '}';
+        style += 'div.fl-layer {' +
+                'max-height: ' + fl_l_h + 'px;' +
+                'min-height: ' + fl_l_h + 'px; }';
+        style += '</style>';
+        tables['fl-head'].html(thead);
+        tables['fl-fixed_head'].html(thead);
+        tables['body'].children('style.filelist-style').remove();
+        tables['body'].append(style);
+
+    };
     var update_tr_order = function(s) {
         var th = tables['tr-fixed_head'].find('th');
         th.removeClass('headerSortDown headerSortUp');
@@ -90,7 +120,7 @@ var manager = function() {
             }
         }
         return s;
-    }
+    };
     var update_fl_order = function(s) {
         var th = tables['fl-fixed_head'].find('th');
         th.removeClass('headerSortDown headerSortUp');
@@ -104,7 +134,7 @@ var manager = function() {
             }
         }
         return s;
-    }
+    };
     var torrent_list_order = function() {
         tables['table-main'].tablesorter({
             textExtraction: function(node) {
@@ -120,7 +150,23 @@ var manager = function() {
             selectorHeaders: '.torrent-table-head thead th',
             selectorSort: 'th.s'
         });
-    }
+    };
+    var file_list_order = function() {
+        tables['fl-table-main'].tablesorter({
+            textExtraction: function(node) {
+                if ($(node).attr('data-value') !== undefined)
+                    return $(node).attr('data-value');
+                return $(node).html();
+            },
+            sortList: update_fl_order((localStorage.fl_order !== undefined) ? JSON.parse(localStorage.fl_order) : [[1, 0]]),
+            onsort: function(s) {
+                update_fl_order(s);
+                localStorage.fl_order = JSON.stringify(s);
+            },
+            selectorHeaders: '.fl-table-head thead th',
+            selectorSort: 'th.s'
+        });
+    };
     var timer = function() {
         var status = 0;
         var tmr = null;
@@ -133,14 +179,14 @@ var manager = function() {
                 get_torrent_list();
             }, interval);
             return 1;
-        }
+        };
         var stop = function() {
             if (status) {
                 clearInterval(tmr);
                 status = 0;
             }
             return 1;
-        }
+        };
         return {
             start: function() {
                 return start();
@@ -151,12 +197,12 @@ var manager = function() {
             status: function() {
                 return status;
             },
-        }
+        };
     };
     var get_torrent_list = function() {
         timer.stop();
         _engine.getTorrentList((tmp_vars.filelist_param) ? tmp_vars.filelist_param : '');
-    }
+    };
     /*
      ,arr[i][0] /* ХЭШ
      ,arr[i][1] /* STATUS CODE
@@ -212,7 +258,7 @@ var manager = function() {
         if (settings.graph)
             graph.move(sum_dl, sum_up, 0);
         timer.start();
-    }
+    };
     var update_item = function(modifed_arr, v) {
         var colums = tmp_vars.colums;
         var c = modifed_arr.length;
@@ -439,7 +485,7 @@ var manager = function() {
                     }
             }
         }
-    }
+    };
     var create_item = function(v) {
         var colums = tmp_vars.colums;
         var item = '<tr id="' + v[0] + '" data-label="' + v[11] + '" data-sid="' + v[22] + '" data-path="' + v[26] + '">';
@@ -531,18 +577,14 @@ var manager = function() {
         }
     }
     var fl_table_controller = function() {
-        var cached = {}
-        var folders = {}
+        var cached = {};
+        var folders = {};
         var clear = function() {
             tables['fl-body'].empty();
-            var sel_all = tables['fl-table-fixed'].find('input').eq(0)[0];
-            if (sel_all.checked) {
-                sel_all.checked = false;
-            }
-            tmp_vars['fl_sall_st'] = null;
+            var sel_all = tables['fl-fixed_head'].find('input').eq(0)[0].checked = false;
             cached = {};
             folders = {};
-        }
+        };
         var short_name = function(arr, level) {
             if (arr == null) {
                 $.each(cached, function(k) {
@@ -559,7 +601,7 @@ var manager = function() {
                 cached[k].gui.mod_name = 1;
                 $('#' + k).children('td.name').children('div').children('span').html(name);
             });
-        }
+        };
         var show_folder = function(path) {
             if (path == '/') {
                 short_name();
@@ -570,7 +612,7 @@ var manager = function() {
                 return;
             short_name(folders[path], path.split('/').length);
             hide_all(folders[path]);
-        }
+        };
         var get_folder_link = function(id, path, level) {
             if (!level) {
                 level = 0;
@@ -601,7 +643,7 @@ var manager = function() {
                 link = '<a class="folder c' + n + '" href="#' + fn + '" data-value="' + fn + '">' + dir_name + '</a>' + link;
             }
             return link;
-        }
+        };
         var add = function(_id, v) {
             var id = 'file_id_' + _id;
             if (id in cached) {
@@ -619,29 +661,29 @@ var manager = function() {
                 cached[id] = {
                     'api': null,
                     'gui': null
-                }
+                };
                 var fl_path_arr = v[0].split('/');
                 if (fl_path_arr[0].length == 0) {
                     fl_path_arr = fl_path_arr.slice(1);
                 }
                 var fl_name = (fl_path_arr.length) ? fl_path_arr.slice(-1)[0] : v[0];
-                cached[id].api = v
+                cached[id].api = v;
                 cached[id].gui = {
                     'name': fl_name,
                     'path_arr': fl_path_arr,
                     'link_path': get_folder_link(id, (fl_path_arr.length > 1) ? fl_path_arr.slice(0, -1) : []) + fl_name,
                     'display': 1,
                     'mod_name': 0,
-                }
+                };
                 create_fl_item(id, cached[id]);
             }
-        }
+        };
         var get = function(id) {
             if (id in cached)
                 return cached[id];
             else
                 return null;
-        }
+        };
         var hide_all = function(ex) {
             $.each(cached, function(id) {
                 if (ex && id in ex) {
@@ -652,7 +694,7 @@ var manager = function() {
                 if (cached[id].gui.display == 1)
                     hide(id);
             });
-        }
+        };
         var show_all = function(ex) {
             $.each(cached, function(id) {
                 if (ex && id in ex) {
@@ -663,19 +705,19 @@ var manager = function() {
                 if (cached[id].gui.display == 0)
                     show(id);
             });
-        }
+        };
         var hide = function(id) {
             if (cached[id]['gui']['display']) {
                 cached[id]['gui']['display'] = 0;
                 $('#' + id).css('display', 'none');
             }
-        }
+        };
         var show = function(id) {
             if (!cached[id]['gui']['display']) {
                 cached[id]['gui']['display'] = 1;
                 $('#' + id).css('display', 'table-row');
             }
-        }
+        };
         return {
             add: function(a, b) {
                 add(a, b);
@@ -689,8 +731,8 @@ var manager = function() {
             show_folder: function(a) {
                 show_folder(a);
             }
-        }
-    }()
+        };
+    }();
     var create_fl_item = function(id, v) {
         /*
          * name = 0
@@ -699,27 +741,45 @@ var manager = function() {
          * dune = 2
          * prio = 3
          */
+        var colums = tmp_vars.fl_colums;
         var item = '<tr id="' + id + '">';
-        item += '<td class="select"><input type="checkbox"/></td>';
-        item += '<td class="name" data-value="' + v.api[0] + '" title="' + v.gui.name + '"><div><span>' + v.gui.link_path + '</span></div></td>';
-        var s = bytesToSize(v.api[1], '0');
-        var d = 0;
-        if (v.api[1] == v.api[2]) {
-            d = s;
-        } else {
-            d = bytesToSize(v.api[2], '0');
-        }
-        item += '<td class="size" data-value="' + v.api[1] + '"><div>' + s + '</div></td>';
-        item += '<td class="download" data-value="' + v.api[2] + '"><div>' + d + '</div></td>';
-        var progress = Math.round((v.api[2] * 100 / v.api[1]) * 10) / 10;
-        var color = (v.api[1] == v.api[2] && v.api[3] != 0) ? '#41B541' : '#3687ED';
-        item += '<td class="progress" data-value="' + progress + '"><div class="progress_b"><div class="progress_b_i" style="width: ' + writePersent(progress) + 'px; background-color: ' + color + ';"><div>' + progress + '%</div></div></div></td>';
-        var priority = lang_arr[87][v.api[3]];
-        item += '<td class="priority" data-value="' + v.api[3] + '" title="' + priority + '"><div>' + priority + '</div></td>';
+        $.each(colums, function(key, value) {
+            if (value.a) {
+                item += switching(key);
+            }
+        });
         item += '</tr>';
         tables['fl-body'].append(item);
-    }
+        function switching(key)
+        {
+            switch (key) {
+                case 'select':
+                    return '<td class="select"><input type="checkbox"/></td>';
+                    break;
+                case 'name':
+                    return  '<td class="name" data-value="' + v.api[0] + '" title="' + v.gui.name + '"><div><span>' + v.gui.link_path + '</span></div></td>';
+                    break;
+                case 'size':
+                    return '<td class="size" data-value="' + v.api[1] + '"><div>' + bytesToSize(v.api[1], '0') + '</div></td>';
+                    break;
+                case 'download':
+                    return '<td class="download" data-value="' + v.api[2] + '"><div>' + bytesToSize(v.api[2], '0') + '</div></td>';
+                    break;
+                case 'progress':
+                    var progress = Math.round((v.api[2] * 100 / v.api[1]) * 10) / 10;
+                    var color = (v.api[1] == v.api[2] && v.api[3] != 0) ? '#41B541' : '#3687ED';
+                    return '<td class="progress" data-value="' + progress + '"><div class="progress_b"><div class="progress_b_i" style="width: ' + writePersent(progress) + 'px; background-color: ' + color + ';"><div>' + progress + '%</div></div></div></td>';
+                    break;
+                case 'priority':
+                    var priority = lang_arr[87][v.api[3]];
+                    return '<td class="priority" data-value="' + v.api[3] + '" title="' + priority + '"><div>' + priority + '</div></td>';
+                    break;
+            }
+            return '';
+        }
+    };
     var update_fl_item = function(id, v, modifed_arr) {
+        var colums = tmp_vars.fl_colums;
         var c = modifed_arr.length;
         for (var n = 0; n < c; n++)
             switching(modifed_arr[n]);
@@ -728,42 +788,54 @@ var manager = function() {
             var item = null;
             switch (key) {
                 case 1:
-                    if (!item)
-                        item = $('#' + id);
-                    cell = item.children('td.size');
-                    cell.attr('data-value', v.api[1]).children('div').text(bytesToSize(v.api[1], '0'));
-                    tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
-                    break;
-                case 2:
-                case 3:
-                    if (!item)
-                        item = $('#' + id);
-                    item.children('td.download').attr('data-value', v.api[2]).children('div').text(bytesToSize(v.api[2], '0'));
-                    var progress = Math.round((v.api[2] * 100 / v.api[1]) * 10) / 10;
-                    var cell = item.children('td.progress');
-                    var color = (v.api[1] == v.api[2] && v.api[3] != 0) ? '#41B541' : '#3687ED';
-                    cell.attr('data-value', progress).children('div.progress_b').children('div.progress_b_i').css({'width': writePersent(progress) + 'px', 'background-color': color}).children('div').html(progress + '%');
-                    tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
-                    if (key != 3) {
+                    if (colums['size'].a) {
+                        if (!item)
+                            item = $('#' + id);
+                        cell = item.children('td.size');
+                        cell.attr('data-value', v.api[1]).children('div').text(bytesToSize(v.api[1], '0'));
+                        tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
                         break;
                     }
+                case 2:
                 case 3:
-                    if (!item)
-                        item = $('#' + id);
-                    cell = item.children('td.priority');
-                    var priority = lang_arr[87][v.api[3]];
-                    cell.attr('data-value', v.api[3]).attr("title", priority).children('div').text(priority);
-                    tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
-                    break;
+                    if (colums['download'].a) {
+                        if (!item)
+                            item = $('#' + id);
+                        var cell = item.children('td.download');
+                        cell.attr('data-value', v.api[2]).children('div').text(bytesToSize(v.api[2], '0'));
+                        var progress = Math.round((v.api[2] * 100 / v.api[1]) * 10) / 10;
+                        tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
+                    }
+                    if (colums['progress'].a) {
+                        if (!item)
+                            item = $('#' + id);
+                        var cell = item.children('td.progress');
+                        var color = (v.api[1] == v.api[2] && v.api[3] != 0) ? '#41B541' : '#3687ED';
+                        cell.attr('data-value', progress).children('div.progress_b').children('div.progress_b_i').css({'width': writePersent(progress) + 'px', 'background-color': color}).children('div').html(progress + '%');
+                        tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
+                        if (key != 3) {
+                            break;
+                        }
+                    }
+                case 3:
+                    if (colums['priority'].a) {
+                        if (!item)
+                            item = $('#' + id);
+                        cell = item.children('td.priority');
+                        var priority = lang_arr[87][v.api[3]];
+                        cell.attr('data-value', v.api[3]).attr("title", priority).children('div').text(priority);
+                        tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
+                        break;
+                    }
             }
         }
-    }
+    };
     var tr_table_controller = function() {
         var cached = {}
         var clear = function() {
             tables['tr-body'].empty();
             cached = {};
-        }
+        };
         var add = function(v) {
             var id = v[0];
             if (id in cached) {
@@ -783,12 +855,12 @@ var manager = function() {
                     'gui': {
                         'display': 1
                     }
-                }
+                };
                 cached[id]['api'] = v
                 create_item(v);
                 tmp_vars.new_tr_count++;
             }
-        }
+        };
         var filter = function(a, b) {
             if (a) {
                 tmp_vars.sel_label = {'k': a, 'v': b};
@@ -798,31 +870,31 @@ var manager = function() {
                 sorting_torrent_list(id, val.gui.display, val.api);
                 settings_filtering(id, val.gui.display, val.api);
             });
-        }
+        };
         var hide = function(id) {
             if (cached[id]['gui']['display']) {
                 cached[id]['gui']['display'] = 0;
                 $('#' + id).css('display', 'none');
             }
-        }
+        };
         var show = function(id) {
             if (!cached[id]['gui']['display']) {
                 cached[id]['gui']['display'] = 1;
                 $('#' + id).css('display', 'table-row');
             }
-        }
+        };
         var get = function(id) {
             if (id in cached)
                 return cached[id]['api'];
             else
                 return null;
-        }
+        };
         var del = function(id) {
             if (id in cached)
                 delete cached[id]
             $('#' + id).remove();
             tables['table-main'].trigger('update');
-        }
+        };
         return {
             add: function(t) {
                 add(t);
@@ -848,15 +920,15 @@ var manager = function() {
             get_table: function() {
                 return cached
             }
-        }
-    }()
+        };
+    }();
     var settings_filtering = function(id, display, v) {
         if ((settings.hide_seeding && v[4] == 1000 && v[1] == 201) ||
                 (settings.hide_finished && v[4] == 1000 && v[1] == 136)) {
             if (display)
                 tr_table_controller.hide(id);
         }
-    }
+    };
     var sorting_torrent_list = function(id, display, param) {
         if (isNumber(tmp_vars.sel_label.k) == false) {
             switch (tmp_vars.sel_label.k) {
@@ -932,20 +1004,20 @@ var manager = function() {
                 }
             }
         }
-    }
+    };
     var delete_from_table = function(arr) {
         var c = arr.length;
         for (var n = 0; n < c; n++) {
             tr_table_controller.del(arr[n]);
         }
-    }
+    };
     var set_status = function(a, b) {
         if (a < 0) {
             tables.status.html('<img src="/images/status_update.gif"/>');
         } else {
             tables.status.html(b);
         }
-    }
+    };
     var update_labels_context_menu = function(id) {
         var current_label = null;
         if (id) {
@@ -959,13 +1031,13 @@ var manager = function() {
         var code = '<li class="context-menu-item select_label" data-key="del_label"><span>Remove label</span></li>';
         for (var n = 0; n < c; n++) {
             if (current_label && current_label == arr[n][0]) {
-                code += '<li class="context-menu-item select_label" data-key="' + arr[n][1] + '"><span><label>&#9679; </label>' + arr[n][0] + '</span></li>'
+                code += '<li class="context-menu-item select_label" data-key="' + arr[n][1] + '"><span><label>&#9679; </label>' + arr[n][0] + '</span></li>';
             } else {
-                code += '<li class="context-menu-item select_label" data-key="' + arr[n][1] + '"><span>' + arr[n][0] + '</span></li>'
+                code += '<li class="context-menu-item select_label" data-key="' + arr[n][1] + '"><span>' + arr[n][0] + '</span></li>';
             }
         }
         tmp_vars['torrent_context_menu_labels'].html(code);
-    }
+    };
     var set_labels = function(arr) {
         tmp_vars['label'] = arr;
         tmp_vars['label_obj'] = {};
@@ -974,11 +1046,11 @@ var manager = function() {
         var cc = costum.length;
         var options = '';
         for (var n = 0; n < cc; n++) {
-            options += '<option value="' + costum[n] + '"' + ((isNumber(tmp_vars.sel_label.k) == false && tmp_vars.sel_label.k == costum[n]) ? ' selected' : '') + '>' + lang_arr[70][n] + '</option>'
+            options += '<option value="' + costum[n] + '"' + ((isNumber(tmp_vars.sel_label.k) == false && tmp_vars.sel_label.k == costum[n]) ? ' selected' : '') + '>' + lang_arr[70][n] + '</option>';
         }
         for (var n = 0; n < c; n++) {
-            tmp_vars['label_obj'][arr[n][1]] = arr[n][0]
-            options += '<option value="' + arr[n][1] + '"' + ((isNumber(tmp_vars.sel_label.k) && tmp_vars.sel_label.k == arr[n][1]) ? ' selected' : '') + '>' + arr[n][0] + '</option>'
+            tmp_vars['label_obj'][arr[n][1]] = arr[n][0];
+            options += '<option value="' + arr[n][1] + '"' + ((isNumber(tmp_vars.sel_label.k) && tmp_vars.sel_label.k == arr[n][1]) ? ' selected' : '') + '>' + arr[n][0] + '</option>';
         }
         tables['label-select'].selectBox('options', options);
         update_labels_context_menu();
@@ -1040,29 +1112,29 @@ var manager = function() {
                 torrent_file_list.open(v);
                 break;
         }
-    }
+    };
     var get_label_context_menu = function() {
         var labels = tmp_vars.label;
         var c = labels.length;
-        var menu = {}
+        var menu = {};
         menu['del_label'] = {
             name: lang_arr[12],
             callback: function(key, opt) {
                 var id = this[0].id;
-                contextActions(key, id)
+                contextActions(key, id);
             }
-        }
+        };
         for (var n = 0; n < c; n++) {
             menu[ labels[n][1] ] = {
                 name: labels[n][0],
                 callback: function(key, opt) {
                     var id = this[0].id;
-                    contextActions('set_label', id, key)
+                    contextActions('set_label', id, key);
                 }
-            }
+            };
         }
-        return menu
-    }
+        return menu;
+    };
     var update_torrent_context_menu = function(id) {
         //обновляет контекстное меню торрента
         if (tmp_vars.auto_order) {
@@ -1072,7 +1144,7 @@ var manager = function() {
         {
             //показывает что можно, а что нельзя в контекстном меню торрента - скрывает
             var minus_par = {};
-            var sel_en = []
+            var sel_en = [];
             var minusSt = function(i)
             {
                 //читает код статуса тооррента
@@ -1156,7 +1228,7 @@ var manager = function() {
                     return i - 1;
                 } else
                     return i;
-            }
+            };
             sel_en[1] = 1; //start
             sel_en[2] = 1; //pause
             sel_en[3] = 1; //stop
@@ -1171,16 +1243,16 @@ var manager = function() {
             /*
              start,force_start,stop,pause,unpause,recheck
              */
-            return {'start': sel_en[1], 'force_start': sel_en[2], 'stop': sel_en[3], 'pause': sel_en[4], 'unpause': sel_en[5], 'recheck': sel_en[6]}
-        }
-        var status = tr_table_controller.get(id)
+            return {'start': sel_en[1], 'force_start': sel_en[2], 'stop': sel_en[3], 'pause': sel_en[4], 'unpause': sel_en[5], 'recheck': sel_en[6]};
+        };
+        var status = tr_table_controller.get(id);
         if (!status)
             return;
         var menu_items = readStatus(status[1]);
-        var f = 0
+        var f = 0;
         $.each(menu_items, function(k, v) {
             if (v && !menu_items['start'] && !f) {
-                f++
+                f++;
                 tmp_vars["torrent_context_menu"].find('li[data-key=' + k + ']').addClass('first').css('display', (v) ? 'block' : 'none');
             } else
                 tmp_vars["torrent_context_menu"].find('li[data-key=' + k + ']').css('display', (v) ? 'block' : 'none');
@@ -1195,7 +1267,7 @@ var manager = function() {
         }
         $('#' + id).addClass('selected');
         update_labels_context_menu(id);
-    }
+    };
     var on_hide_torrent_context_menu = function(id) {
         if ((torrent_file_list.getID()).length == 0) {
             if (tmp_vars.auto_order) {
@@ -1209,7 +1281,7 @@ var manager = function() {
             $('.context-menu-item.labels').children('span').html(lang_arr[11]);
         }
         tmp_vars["torrent_context_menu"].attr('data-lable', '');
-    }
+    };
     var make_speed_menu = function() {
         //выстраивает внутренности контекстного меню для ограничения скорости
         var items = {};
@@ -1237,7 +1309,7 @@ var manager = function() {
             };
         }
         return items;
-    }
+    };
     var set_speed_limit = function(arr) {
         var c = arr.length;
         var a = 0;
@@ -1260,7 +1332,7 @@ var manager = function() {
         }
         if ('last-type' in tmp_vars.speed_limit)
             update_speed_menu(tmp_vars.speed_limit['last-type']);
-    }
+    };
     var update_speed_menu = function(type) {
         //обновляет контекстное меню ограничения скорости, в зависимости от скорости
         tmp_vars.speed_limit['last-type'] = type;
@@ -1294,10 +1366,10 @@ var manager = function() {
             else
                 with_a.eq(i).attr('data-speed', speed).children('span').html(bytesToSizeInSec(speed * 1024));
         }
-    }
+    };
     var updateColums = function(key) {
         timer.stop();
-        tables['table-main'].trigger('destroy')
+        tables['table-main'].trigger('destroy');
         var colums = tmp_vars.colums;
         colums[key].a = (colums[key].a) ? 0 : 1;
         _engine.setColums(colums);
@@ -1305,28 +1377,44 @@ var manager = function() {
         tables['tr-head'].empty();
         tables['tr-fixed_head'].empty();
         torrent_list_head();
-        tables['table-main'].trigger('update');
+        //tables['table-main'].trigger('update');
         if (tmp_vars.moveble_enabled_tr) {
             calculate_moveble(tables['table-main'].find('td.name > div > span'), tmp_vars.colums.name.size);
         }
         _engine.get_cache_torrent_list();
         torrent_list_order();
         timer.start();
-    }
+    };
+    var updateFlColums = function(key) {
+        timer.stop();
+        tables['fl-table-main'].trigger('destroy');
+        var colums = tmp_vars.fl_colums;
+        colums[key].a = (colums[key].a) ? 0 : 1;
+        _engine.setFlColums(colums);
+        tables['fl-body'].empty();
+        tables['fl-head'].empty();
+        tables['fl-fixed_head'].empty();
+        file_list_head();
+        torrent_file_list.clear_list();
+        file_list_order();
+        _engine.sendAction("&action=getfiles&hash=" + torrent_file_list.getID());
+        file_list_order();
+        timer.start();
+    };
     var torrent_file_list = function(id) {
-        var id = ''
-        var clear = 0
-        var file_list_h = 0
-        var fl_layer_h = 0
-        var display_fl = 0
-        var display_loading = 0
+        var id = '';
+        var clear = 0;
+        var file_list_h = 0;
+        var fl_layer_h = 0;
+        var display_fl = 0;
+        var display_loading = 0;
         var loading_img = function() {
             $('<div class="file-list-loading"></div>').css({
                 "top": (fl_layer_h / 2 - 15) + "px",
                 "left": (600 / 2 - 15) + "px"
             }).appendTo(tables['fl-layer']);
             display_loading = 1;
-        }
+        };
         var setFL = function(arr) {
             if (!display_fl) {
                 tmp_vars.filelist_param = '';
@@ -1350,7 +1438,7 @@ var manager = function() {
                 }
                 clear = 0;
             }
-        }
+        };
         var close = function() {
             display_fl = 0;
             tmp_vars.filelist_param = '';
@@ -1363,7 +1451,7 @@ var manager = function() {
             id = "";
             fl_table_controller.clear();
             clear = 1;
-        }
+        };
         var add_layer = function() {
             $('<div class="file-list-layer-temp"></div>')
                     .css({
@@ -1373,36 +1461,22 @@ var manager = function() {
                 $(this).remove();
                 close();
             }).appendTo(tables['body']);
-        }
+        };
         return {
             open: function(_id) {
                 if (tmp_vars.auto_order) {
                     tmp_vars.tr_auto_order = false;
                 }
                 id = _id;
-                tmp_vars.filelist_param = "&action=getfiles&hash=" + id
+                tmp_vars.filelist_param = "&action=getfiles&hash=" + id;
                 _engine.sendAction(tmp_vars.filelist_param);
                 $('#' + id).addClass('selected');
                 add_layer();
-                var t_file_list_h = tables.window.height() - 34 - 19;
-                var t_fl_layer_h = t_file_list_h - 34;
-                if (file_list_h != t_file_list_h || t_fl_layer_h != fl_layer_h) {
-                    file_list_h = t_file_list_h;
-                    fl_layer_h = t_fl_layer_h;
-                    tables['file-list'].css({"display": "block",
-                        "left": ((tables.window.width() - tables['file-list'].width()) / 2) + "px",
-                        "height": file_list_h + "px",
-                    });
-                    tables['fl-layer'].css({
-                        'max-height': fl_layer_h + "px",
-                        'min-height': fl_layer_h + "px",
-                    });
-                } else {
-                    tables['file-list'].css({"display": "block"});
-                }
+                tables['file-list'].css("display", "block");
                 display_fl = 1;
                 loading_img();
-                tables['fl-bottom'].find('input').attr('title',(tr_table_controller.get(id))[26]).val((tr_table_controller.get(id))[26]);
+                var folder = (tr_table_controller.get(id))[26];
+                tables['fl-bottom'].find('input').attr('title', folder).val(folder);
                 fl_table_controller.clear();
                 clear = 1;
             },
@@ -1414,9 +1488,13 @@ var manager = function() {
             },
             close: function() {
                 close();
+            },
+            clear_list: function() {
+                fl_table_controller.clear();
+                clear = 1;
             }
-        }
-    }()
+        };
+    }();
     var calculate_moveble = function(selectors, size) {
         if (size <= 70)
             return;
@@ -1468,7 +1546,17 @@ var manager = function() {
             }
             titles.eq(i).parent().attr('class', 'title ' + move_name);
         }
-    }
+    };
+    var fl_select_all_check = function() {
+        var a = tables['fl-body'].find('input:visible');
+        var bc = a.filter(':checked').length;
+        var sel_all = tables['fl-fixed_head'].find('input').eq(0)[0];
+        if (bc == a.length) {
+            sel_all.checked = true;
+        } else {
+            sel_all.checked = false;
+        }
+    };
     //==================
     function isNumber(n) {
         return !isNaN(parseFloat(n)) && isFinite(n);
@@ -1485,13 +1573,13 @@ var manager = function() {
             return (bytes / Math.pow(1024, i)) + ' ' + sizes[i];
         }
         return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
-    }
+    };
     var writePersent = function(i)
     {
         //выписывает проценты для прогресс баров
         var full = 68;
         return Math.round(full / 100 * i);
-    }
+    };
     var bytesToSizeInSec = function(bytes, nan) {
         //переводит байты в строчки\сек
         var sizes = lang_arr[60];
@@ -1502,7 +1590,7 @@ var manager = function() {
             return (bytes / Math.pow(1024, i)) + ' ' + sizes[i];
         }
         return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
-    }
+    };
     var unixintime = function(i)
     {
         //выписывает отсчет времени из unixtime
@@ -1527,7 +1615,7 @@ var manager = function() {
         if (seconds > 0)
             return seconds + lang_arr[61][4];
         return '&#8734;';
-    }
+    };
     var writeTimeFromShtamp = function(shtamp)
     {
         if (!shtamp) {
@@ -1552,7 +1640,7 @@ var manager = function() {
             sec = '0' + sec.toString();
         var t = dt.getFullYear() + '-' + m + '-' + d + ' ' + h + ':' + mi + ':' + sec;
         return t;
-    }
+    };
     //=================
     return {
         begin: function() {
@@ -1587,7 +1675,7 @@ var manager = function() {
                 'fl-table-fixed': $('.fl-table-head'),
                 'fl-body': $('.fl-table-body').children('tbody'),
                 'fl-head': $('.fl-table-body').children('thead'),
-                'fl-fixed_head': $('.fl-table-head'),
+                'fl-fixed_head': $('.fl-table-head').children('thead'),
                 'fl-bottom': $('.file-list ul.bottom-menu'),
             }
             if (tmp_vars.tr_word_wrap) {
@@ -1604,8 +1692,11 @@ var manager = function() {
             });
             tables['table-body'].css({'max-height': settings.window_height + 'px', 'min-height': settings.window_height + 'px'});
             tmp_vars['colums'] = _engine.getColums();
+            tmp_vars['fl_colums'] = _engine.getFlColums();
             torrent_list_head();
+            file_list_head();
             torrent_list_order();
+            file_list_order();
             tables['label-select'].selectBox().change(function() {
                 var val = $(this).val();
                 var item = null;
@@ -1615,43 +1706,37 @@ var manager = function() {
                 tr_table_controller.filter(val, item);
             });
             tables['fl-body'].on('click', 'input', function(e) {
-                if (tmp_vars['fl_sall_st'] == null) {
-                    var sel_all = tables['fl-table-fixed'].find('input').eq(0)[0];
-                    if (sel_all.checked)
-                        sel_all.checked = false;
-                }
-                var f = 0;
-                if (typeof(tmp_vars['fl_sall_st']) == 'number' && tmp_vars['fl_sall_st']) {
-                    f = 1;
-                }
-                if (this.checked || f) {
-                    if (f) {
-                        this.checked = true;
-                    }
-                    $(this).parents().eq(1).addClass("selected");
-                } else {
-                    $(this).parents().eq(1).removeClass("selected");
-                }
-            })
-            tables['fl-table-fixed'].on('click', 'input', function() {
                 if (this.checked) {
-                    tmp_vars['fl_sall_st'] = 1;
-                    var n = tables['fl-body'].find('input');
-                    var t = n.filter(":visible");
-                    t.trigger('click');
-                    if (n.length != t.length) {
-                        this.checked = false;
+                    $(this).parent().parent().addClass("selected");
+                } else {
+                    $(this).parent().parent().removeClass("selected");
+                }
+                fl_select_all_check();
+            });
+            tables['fl-fixed_head'].on('click', 'input', function() {
+                if (this.checked) {
+                    var t = tables['fl-body'].find('input:visible');
+                    var tc = t.length;
+                    for (var n = 0; n < tc; n++) {
+                        var el = t.eq(n);
+                        el[0].checked = true;
+                        el.parent().parent().addClass("selected");
                     }
                 } else {
-                    tmp_vars['fl_sall_st'] = 0;
-                    tables['fl-body'].find('input:checked').filter(":visible").trigger('click');
+                    var t = tables['fl-body'].find("input:visible");
+                    var tc = t.length;
+                    for (var n = 0; n < tc; n++) {
+                        var el = t.eq(n);
+                        el[0].checked = false;
+                        el.parent().parent().removeClass("selected");
+                    }
                 }
-                tmp_vars['fl_sall_st'] = null;
-            })
+            });
             tables['fl-layer'].on('click', 'a.folder', function(e) {
                 e.preventDefault();
                 fl_table_controller.show_folder($(this).attr('data-value'));
-            })
+                fl_select_all_check();
+            });
             tables['table-body'].on('scroll', function() {
                 tables['table-fixed'].css('left', -($(this).scrollLeft()));
             });
@@ -1725,8 +1810,8 @@ var manager = function() {
                 },
                 items: function() {
                     var colums = tmp_vars.colums;
-                    var items = {}
-                    tmp_vars['colum_context_menu'] = {}
+                    var items = {};
+                    tmp_vars['colum_context_menu'] = {};
                     $.each(colums, function(key, value) {
                         tmp_vars.colum_context_menu[key] = 0;
                         items[key] = {
@@ -1734,7 +1819,7 @@ var manager = function() {
                             callback: function(key) {
                                 updateColums(key);
                             }
-                        }
+                        };
                     });
                     return items;
                 }()
@@ -1758,35 +1843,35 @@ var manager = function() {
                         name: lang_arr[0],
                         callback: function(key, opt) {
                             var id = this[0].id;
-                            contextActions(key, id)
+                            contextActions(key, id);
                         }
                     },
                     force_start: {
                         name: lang_arr[3],
                         callback: function(key, opt) {
                             var id = this[0].id;
-                            contextActions(key, id)
+                            contextActions(key, id);
                         }
                     },
                     pause: {
                         name: lang_arr[1],
                         callback: function(key, opt) {
                             var id = this[0].id;
-                            contextActions(key, id)
+                            contextActions(key, id);
                         }
                     },
                     unpause: {
                         name: lang_arr[4],
                         callback: function(key, opt) {
                             var id = this[0].id;
-                            contextActions(key, id)
+                            contextActions(key, id);
                         }
                     },
                     stop: {
                         name: lang_arr[2],
                         callback: function(key, opt) {
                             var id = this[0].id;
-                            contextActions(key, id)
+                            contextActions(key, id);
                         }
                     },
                     s1: '--------',
@@ -1794,7 +1879,7 @@ var manager = function() {
                         name: lang_arr[5],
                         callback: function(key, opt) {
                             var id = this[0].id;
-                            contextActions(key, id)
+                            contextActions(key, id);
                         }
                     },
                     remove: {
@@ -1809,7 +1894,7 @@ var manager = function() {
                                 if (r) {
                                     if (typeof(r) != 'string')
                                     {
-                                        contextActions(key, id)
+                                        contextActions(key, id);
                                     }
                                 }
                                 else
@@ -1826,21 +1911,21 @@ var manager = function() {
                                 name: lang_arr[8],
                                 callback: function(key, opt) {
                                     var id = this[0].id;
-                                    contextActions(key, id)
+                                    contextActions(key, id);
                                 }
                             },
                             remove_files: {
                                 name: lang_arr[9],
                                 callback: function(key, opt) {
                                     var id = this[0].id;
-                                    contextActions(key, id)
+                                    contextActions(key, id);
                                 }
                             },
                             remove_torrent_files: {
                                 name: lang_arr[10],
                                 callback: function(key, opt) {
                                     var id = this[0].id;
-                                    contextActions(key, id)
+                                    contextActions(key, id);
                                 }
                             },
                         },
@@ -1850,7 +1935,7 @@ var manager = function() {
                         name: lang_arr[111],
                         callback: function(key, opt) {
                             var id = this[0].id;
-                            contextActions(key, id)
+                            contextActions(key, id);
                         }
                     },
                     labels: {
@@ -1867,12 +1952,12 @@ var manager = function() {
                 var label = tmp_vars['label_obj'][label_id];
                 var id = tmp_vars["torrent_context_menu"].attr('data-id');
                 if (label_id == 'del_label') {
-                    contextActions('del_label', id)
+                    contextActions('del_label', id);
                 } else {
-                    contextActions('set_label', id, label)
+                    contextActions('set_label', id, label);
                 }
                 $('#context-menu-layer').trigger('mousedown');
-            })
+            });
             $.contextMenu({
                 className: 'speed',
                 selector: 'table.status-panel td.speed',
@@ -1890,20 +1975,6 @@ var manager = function() {
                 graph.init(settings.mgr_update_interval / 1000);
             }
             write_language();
-            tables['fl-table-main'].tablesorter({
-                textExtraction: function(node) {
-                    if ($(node).attr('data-value') !== undefined)
-                        return $(node).attr('data-value');
-                    return $(node).html();
-                },
-                sortList: update_fl_order((localStorage.fl_order !== undefined) ? JSON.parse(localStorage.fl_order) : [[1, 0]]),
-                onsort: function(s) {
-                    update_fl_order(s);
-                    localStorage.fl_order = JSON.stringify(s);
-                },
-                selectorHeaders: '.fl-table-head thead th',
-                selectorSort: 'th.s'
-            });
             $.contextMenu({
                 selector: ".fl-table-body tr",
                 className: "filelist",
@@ -1924,7 +1995,7 @@ var manager = function() {
                         var select_array = tables['fl-table-main'].find('tr.selected');
                         var c = select_array.length;
                         tmp_vars.fl_prio_param = '&hash=' + torrent_file_list.getID();
-                        tmp_vars.fl_select_array = []
+                        tmp_vars.fl_select_array = [];
                         for (var n = 0; n < c; n++) {
                             tmp_vars.fl_select_array[n] = select_array.eq(n)[0].id.replace('file_id_', '');
                         }
@@ -2003,6 +2074,42 @@ var manager = function() {
                     },
                 }
             });
+            $.contextMenu({
+                className: 'fl_colum_select',
+                selector: 'table.fl-table-head thead',
+                events: {
+                    show: function() {
+                        var colums = tmp_vars.fl_colums;
+                        $.each(colums, function(key, value) {
+                            var item = tmp_vars['fl_colums_context_menu'].find('li[data-key=' + key + ']');
+                            if (value.a && (tmp_vars.fl_colum_context_menu[key] == 0)) {
+                                item.attr('data-active', 1).children('span').html('<label>&#9679; </label>' + lang_arr[value.lang][1]);
+                                tmp_vars.fl_colum_context_menu[key] = 1;
+                            } else
+                            if (value.a == 0 && (tmp_vars.fl_colum_context_menu[key] == 1)) {
+                                item.attr('data-active', 1).children('span').html(lang_arr[value.lang][1]);
+                                tmp_vars.fl_colum_context_menu[key] = 0;
+                            }
+                        });
+                    }
+                },
+                items: function() {
+                    var colums = tmp_vars.fl_colums;
+                    var items = {};
+                    tmp_vars['fl_colum_context_menu'] = {};
+                    $.each(colums, function(key, value) {
+                        tmp_vars.fl_colum_context_menu[key] = 0;
+                        items[key] = {
+                            name: lang_arr[value.lang][1],
+                            callback: function(key) {
+                                updateFlColums(key);
+                            }
+                        };
+                    });
+                    return items;
+                }()
+            });
+            tmp_vars['fl_colums_context_menu'] = $(".context-menu-list.context-menu-root.fl_colum_select");
             tables['fl_context_manu'] = $('.context-menu-list.filelist');
             _engine.getLabels();
             _engine.getStatus();
@@ -2032,7 +2139,7 @@ var manager = function() {
         setFileList: function(a) {
             torrent_file_list.setFL(a);
         }
-    }
+    };
 }();
 $(function() {
     if (!manager.begin())
