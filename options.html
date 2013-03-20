@@ -12,11 +12,11 @@
             <h1>uTorrent easy client</h1>
         </div>
         <ul class="menu">
-            <li data-page="setup" class="active">uTorrent</li>
-            <li data-page="notify">Уведомления</li>
-            <li data-page="ui">Интерфейс</li>
-            <li data-page="context">Контекстное меню</li>
-            <li data-page="backup">Экспорт наcтроек</li>
+            <li><a class="active" href="#utorrent" data-page="setup">uTorrent</a></li>
+            <li><a href="#utorrent" data-page="notify">Уведомления</a></li>
+            <li><a href="#utorrent" data-page="ui">Интерфейс</a></li>
+            <li><a href="#utorrent" data-page="context">Контекстное меню</a></li>
+            <li><a href="#utorrent" data-page="backup">Экспорт наcтроек</a></li>
         </ul>
         <div class="page setup active">
             <fieldset>
@@ -24,14 +24,14 @@
                 <ul>
                     <li><ul class="item"><li>Имя пользователя</li><li><input type="text" name="login"></li></ul></li>
                     <li><ul class="item"><li>Пароль</li><li><input type="password" name="password"></li></ul></li>
-                    <li><ul class="item"><li>Адрес:</li><li><input type="text" name="ut_ip" placeholder="127.0.0.1"/></li></ul></li>
-                    <li><ul class="item"><li>Порт:</li><li><input  type="number" name="ut_port" placeholder="8080"/></li></ul></li>
+                    <li><ul class="item"><li>Адрес</li><li><input type="text" name="ut_ip" placeholder="127.0.0.1"/></li></ul></li>
+                    <li><ul class="item"><li>Порт</li><li><input  type="number" name="ut_port" placeholder="8080"/></li></ul></li>
                 </ul>
             </fieldset>
             <fieldset>
                 <legend>Дополнительные настройки</legend>
                 <ul>
-                    <li><ul class="item"><li>Путь:</li><li><input type="text" name="ut_path" placeholder="gui/"/></li></ul></li>
+                    <li><ul class="item"><li>Путь</li><li><input type="text" name="ut_path" placeholder="gui/"/></li></ul></li>
                     <li><ul class="item"><li>SSL</li><li><input type="checkbox" name="ssl"></li></ul></li>
                 </ul>
             </fieldset>
@@ -40,9 +40,9 @@
             <fieldset>
                 <legend>Уведомления</legend>
                 <ul>
-                    <li><ul class="item"><li>Выводить уведомление при добавлении торрент-файла из контекстного меню</li><li><input type="checkbox" name=""/></li></ul></li>
-                    <li><ul class="item"><li>Выводить уведомление при завершении загрузки торрент-файла</li><li><input type="checkbox" name=""/></li></ul></li>
-                    <li><ul class="item"><li>Показывать колическтво активных торрентов на иконке приложения</li><li><input type="checkbox" name=""/></li></ul></li>
+                    <li><ul class="item"><li><input type="checkbox" name=""/></li><li>Выводить уведомление при добавлении торрент-файла из контекстного меню</li></ul></li>
+                    <li><ul class="item"><li><input type="checkbox" name=""/></li><li>Выводить уведомление при завершении загрузки торрент-файла</li></ul></li>
+                    <li><ul class="item"><li><input type="checkbox" name=""/></li><li>Показывать колическтво активных торрентов на иконке приложения</li></ul></li>
                 </ul>
             </fieldset>
             <fieldset>
@@ -57,10 +57,10 @@
             <fieldset>
                 <legend>Интерфейс всплывающего окна</legend>
                 <ul>
-                    <li><ul class="item"><li>Скрывать все торренты, которые загружены, но не раздаются</li><li><input type="checkbox" name=""/></li></ul></li>
-                    <li><ul class="item"><li>Скрывать все торренты, которые раздаются</li><li><input type="checkbox" name=""/></li></ul></li>
-                    <li><ul class="item"><li>Показывать график скорости</li><li><input type="checkbox" name=""/></li></ul></li>
-                    <li><ul class="item"><li>Выполнять сортировку списка после обновления</li><li><input type="checkbox" name=""/></li></ul></li>
+                    <li><ul class="item"><li><input type="checkbox" name=""/></li><li>Скрывать все торренты, которые загружены, но не раздаются</li></ul></li>
+                    <li><ul class="item"><li><input type="checkbox" name=""/></li><li>Скрывать все торренты, которые раздаются</li></ul></li>
+                    <li><ul class="item"><li><input type="checkbox" name=""/></li><li>Показывать график скорости</li></ul></li>
+                    <li><ul class="item"><li><input type="checkbox" name=""/></li><li>Выполнять сортировку списка после обновления</li></ul></li>
                     <li><ul class="item"><li>Высота окна</li><li><input type="number" name=""/>px</li></ul></li>
                 </ul>
             </fieldset>
@@ -81,8 +81,8 @@
             <fieldset>
                 <legend>Управление контекстным меню</legend>
                 <ul>
-                    <li><ul class="item"><li>Включить контекстное меню</li><li><input type="checkbox" name=""/></li></ul></li>
-                    <li><ul class="item"><li>Автоматически переходить в раздел "Загрузки" при успешном добавлении торрент-файла</li><li><input type="checkbox" name=""/></li></ul></li>
+                    <li><ul class="item"><li><input type="checkbox" name=""/></li><li>Включить контекстное меню</li></ul></li>
+                    <li><ul class="item"><li><input type="checkbox" name=""/></li><li>Автоматически переходить в раздел "Загрузки" при успешном добавлении торрент-файла</li></ul></li>
                 </ul>
             </fieldset>
             <fieldset>
