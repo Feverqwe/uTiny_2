@@ -60,7 +60,7 @@ input {
     font-size: 1em;
 }
 select {
-    font-size: 2em;
+    font-size: 1em;
 }
 select.folders {
     font-size: 1em;
@@ -81,7 +81,7 @@ input[name="ut_port"] {
     width: 70px;
 }
 input[type="button"] {
-    font-size: 2em;
+    font-size: 1em;
 }
 fieldset {
     margin-top: 15px;
