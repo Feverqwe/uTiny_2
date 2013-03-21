@@ -6,10 +6,18 @@ var options = function() {
         $.each(def, function(k, v) {
             if (v.t == "text" || v.t == "number" || v.t == "password") {
                 if (k in set && set[k] != v.v) {
-                    $('input[name="' + k + '"]').attr("value", set[k]);
+                    if (k == "bg_update_interval" || k == "notify_visbl_interval" || k == "mgr_update_interval") {
+                        $('input[name="' + k + '"]').attr("value", set[k] / 1000);
+                    } else {
+                        $('input[name="' + k + '"]').attr("value", set[k]);
+                    }
                 }
                 if (v.v != null) {
-                    $('input[name="' + k + '"]').attr("placeholder", v.v);
+                    if (k == "bg_update_interval" || k == "notify_visbl_interval" || k == "mgr_update_interval") {
+                        $('input[name="' + k + '"]').attr("placeholder", v.v / 1000);
+                    } else {
+                        $('input[name="' + k + '"]').attr("placeholder", v.v);
+                    }
                 }
             }
             if (v.t == "checkbox") {
@@ -54,6 +62,9 @@ var options = function() {
                 if (val.length <= 0) {
                     val = $('input[name="' + key + '"]').attr('placeholder');
                 }
+                if (key == "bg_update_interval" || key == "notify_visbl_interval" || key == "mgr_update_interval") {
+                    val = val * 1000;
+                }
                 localStorage[key] = val;
             }
         });
@@ -67,28 +78,34 @@ var options = function() {
 
         var tr_colums = _engine.getColums();
         var table = $('ul.tr_colums');
-        $.each(tr_colums, function(key, value) {
-            var item = table.children('li[data-key="' + key + '"]');
+        var new_obj = {}
+        var items = table.children('li');
+        var c = items.length;
+        for (var n = 0; n <  c; n++) {
+            var item = items.eq(n);
+            var key = item.data('key');
             var active = (item.children('div.info').children('div').eq(2).children('input').eq(0)[0].checked) ? 1 : 0;
             var size = parseInt(item.children('div.info').children('div').eq(1).children('label').text());
-            var pos = item.index() + 1;
-            tr_colums[key].pos = pos;
-            tr_colums[key].size = size;
-            tr_colums[key].a = active;
-        });
-        localStorage['colums'] = JSON.stringify(tr_colums);
+            new_obj[key] = tr_colums[key];
+            new_obj[key].size = size;
+            new_obj[key].a = active;
+        }
+        localStorage['colums'] = JSON.stringify(new_obj);
         var fl_colums = _engine.getFlColums();
         var table = $('ul.fl_colums');
-        $.each(fl_colums, function(key, value) {
-            var item = table.children('li[data-key="' + key + '"]');
+        var new_obj = {}
+        var items = table.children('li');
+        var c = items.length;
+        for (var n = 0; n <  c; n++) {
+            var item = items.eq(n);
+            var key = item.data('key');
             var active = (item.children('div.info').children('div').eq(2).children('input').eq(0)[0].checked) ? 1 : 0;
             var size = parseInt(item.children('div.info').children('div').eq(1).children('label').text());
-            var pos = item.index() + 1;
-            fl_colums[key].pos = pos;
-            fl_colums[key].size = size;
-            fl_colums[key].a = active;
-        });
-        localStorage['fl_colums'] = JSON.stringify(fl_colums);
+            new_obj[key] = fl_colums[key];
+            new_obj[key].size = size;
+            new_obj[key].a = active;
+        }
+        localStorage['fl_colums'] = JSON.stringify(new_obj);
     };
     var getBackup = function() {
         $('textarea[name="backup"]').val(JSON.stringify(localStorage));
@@ -218,10 +235,10 @@ var options = function() {
     return {
         begin: function() {
             write_language();
-             $('.lang').on('change','select',function () {
-                 localStorage.lang = $(this).val();
-                 window.location.reload();
-             })
+            $('.lang').on('change', 'select', function() {
+                localStorage.lang = $(this).val();
+                window.location.reload();
+            })
             $('ul.menu').on('click', 'a', function(e) {
                 e.preventDefault();
                 $('ul.menu').find('a.active').removeClass('active');
