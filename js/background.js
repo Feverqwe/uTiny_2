@@ -1,46 +1,51 @@
 var engine = function() {
     var def_settings = {
-        ssl : {"v":0,"t":"checkbox"},
-        ut_ip: {"v":"127.0.0.1","t":"text"},
-        ut_port : {"v":8080,"t":"number"},
-        ut_path: {"v":"gui/","t":"text"},
-        show_active_tr_on_icon: {"v":1,"t":"checkbox"},
-        notify_on_dl_comp: {"v":1,"t":"checkbox"},
-        bg_update_interval: {"v":60000*3,"t":"number"},
-        mgr_update_interval: {"v":2000,"t":"number"},
-        notify_visbl_interval: {"v":5000,"t":"number"},
-        login: {"v":null,"t":"text"},
-        password: {"v":null,"t":"password"},
-        hide_seeding: {"v":0,"t":"checkbox"},
-        hide_finished: {"v":0,"t":"checkbox"},
-        graph: {"v":0,"t":"checkbox"},
-        window_height: {"v":(300 - 54),"t":"number"},
-        change_downloads: {"v":0,"t":"checkbox"},
-        auto_order : {"v":0,"t":"checkbox"},
-        context_menu_trigger : {"v":1,"t":"checkbox"},
+        ssl: {"v": 0, "t": "checkbox"},
+        ut_ip: {"v": "127.0.0.1", "t": "text"},
+        ut_port: {"v": 8080, "t": "number"},
+        ut_path: {"v": "gui/", "t": "text"},
+        show_active_tr_on_icon: {"v": 1, "t": "checkbox"},
+        notify_on_dl_comp: {"v": 1, "t": "checkbox"},
+        bg_update_interval: {"v": 60000 * 3, "t": "number"},
+        mgr_update_interval: {"v": 2000, "t": "number"},
+        notify_visbl_interval: {"v": 5000, "t": "number"},
+        login: {"v": null, "t": "text"},
+        password: {"v": null, "t": "password"},
+        hide_seeding: {"v": 0, "t": "checkbox"},
+        hide_finished: {"v": 0, "t": "checkbox"},
+        graph: {"v": 0, "t": "checkbox"},
+        window_height: {"v": (300 - 54), "t": "number"},
+        change_downloads: {"v": 0, "t": "checkbox"},
+        auto_order: {"v": 0, "t": "checkbox"},
+        context_menu_trigger: {"v": 1, "t": "checkbox"},
+        folders_array: {"v":null, "t":"array"}
     }
-    var settings = {
-        ut_url : null,
-        ssl : (localStorage.ssl !== undefined) ? localStorage.ssl : def_settings.ssl.v,
-        ut_ip: (localStorage.ut_ip !== undefined) ? localStorage.ut_ip : def_settings.ut_ip.v,
-        ut_port : (localStorage.ut_port !== undefined) ? localStorage.ut_port : def_settings.ut_port.v,
-        ut_path: (localStorage.ut_path !== undefined) ? localStorage.ut_path : def_settings.ut_path.v,
-        show_active_tr_on_icon: (localStorage.show_active_tr_on_icon !== undefined) ? localStorage.show_active_tr_on_icon : def_settings.show_active_tr_on_icon.v,
-        notify_on_dl_comp: (localStorage.notify_on_dl_comp !== undefined) ? localStorage.notify_on_dl_comp : def_settings.notify_on_dl_comp.v,
-        bg_update_interval: (localStorage.bg_update_interval !== undefined && localStorage.bg_update_interval > 5000) ? localStorage.bg_update_interval : def_settings.bg_update_interval.v,
-        mgr_update_interval: (localStorage.mgr_update_interval !== undefined && localStorage.mgr_update_interval > 500) ? localStorage.mgr_update_interval : def_settings.mgr_update_interval.v,
-        notify_visbl_interval: (localStorage.notify_visbl_interval !== undefined) ? localStorage.notify_visbl_interval : def_settings.notify_visbl_interval.v,
-        login: (localStorage.login !== undefined) ? localStorage.login : def_settings.login.v,
-        password: (localStorage.password !== undefined) ? localStorage.password : def_settings.password.v,
-        hide_seeding: (localStorage.hide_seeding !== undefined) ? localStorage.hide_seeding : def_settings.hide_seeding.v,
-        hide_finished: (localStorage.hide_finished !== undefined) ? localStorage.hide_finished : def_settings.hide_finished.v,
-        graph: (localStorage.graph !== undefined) ? localStorage.graph : def_settings.graph.v,
-        window_height: (localStorage.window_height !== undefined) ? (localStorage.window_height - 54) : def_settings.window_height.v,
-        change_downloads: (localStorage.change_downloads !== undefined) ? (localStorage.change_downloads) : def_settings.change_downloads.v,
-        auto_order : (localStorage.auto_order !== undefined) ? (localStorage.auto_order) : def_settings.auto_order.v,
-        context_menu_trigger : (localStorage.context_menu_trigger !== undefined) ? (localStorage.context_menu_trigger) : def_settings.context_menu_trigger.v,
-        folders_array : (localStorage.folders_array !== undefined) ? JSON.parse(localStorage.folders_array) : null,
+    var settings = null;
+    var settings_load = function() {
+        settings = {
+            ut_url: null,
+            ssl: (localStorage.ssl !== undefined) ? localStorage.ssl : def_settings.ssl.v,
+            ut_ip: (localStorage.ut_ip !== undefined) ? localStorage.ut_ip : def_settings.ut_ip.v,
+            ut_port: (localStorage.ut_port !== undefined) ? localStorage.ut_port : def_settings.ut_port.v,
+            ut_path: (localStorage.ut_path !== undefined) ? localStorage.ut_path : def_settings.ut_path.v,
+            show_active_tr_on_icon: (localStorage.show_active_tr_on_icon !== undefined) ? localStorage.show_active_tr_on_icon : def_settings.show_active_tr_on_icon.v,
+            notify_on_dl_comp: (localStorage.notify_on_dl_comp !== undefined) ? localStorage.notify_on_dl_comp : def_settings.notify_on_dl_comp.v,
+            bg_update_interval: (localStorage.bg_update_interval !== undefined && localStorage.bg_update_interval > 5000) ? localStorage.bg_update_interval : def_settings.bg_update_interval.v,
+            mgr_update_interval: (localStorage.mgr_update_interval !== undefined && localStorage.mgr_update_interval > 500) ? localStorage.mgr_update_interval : def_settings.mgr_update_interval.v,
+            notify_visbl_interval: (localStorage.notify_visbl_interval !== undefined) ? localStorage.notify_visbl_interval : def_settings.notify_visbl_interval.v,
+            login: (localStorage.login !== undefined) ? localStorage.login : def_settings.login.v,
+            password: (localStorage.password !== undefined) ? localStorage.password : def_settings.password.v,
+            hide_seeding: (localStorage.hide_seeding !== undefined) ? localStorage.hide_seeding : def_settings.hide_seeding.v,
+            hide_finished: (localStorage.hide_finished !== undefined) ? localStorage.hide_finished : def_settings.hide_finished.v,
+            graph: (localStorage.graph !== undefined) ? localStorage.graph : def_settings.graph.v,
+            window_height: (localStorage.window_height !== undefined) ? (localStorage.window_height - 54) : def_settings.window_height.v,
+            change_downloads: (localStorage.change_downloads !== undefined) ? (localStorage.change_downloads) : def_settings.change_downloads.v,
+            auto_order: (localStorage.auto_order !== undefined) ? (localStorage.auto_order) : def_settings.auto_order.v,
+            context_menu_trigger: (localStorage.context_menu_trigger !== undefined) ? (localStorage.context_menu_trigger) : def_settings.context_menu_trigger.v,
+            folders_array: (localStorage.folders_array !== undefined) ? JSON.parse(localStorage.folders_array) : def_settings.folders_array.v,
+        };
     };
+    settings_load();
     var colums = {
         'name': {'a': 1, 'size': 200, 'pos': 1, 'lang': 13, 'order': 1},
         'position': {'a': 0, 'size': 20, 'pos': 2, 'lang': 74, 'order': 1},
@@ -254,16 +259,15 @@ var engine = function() {
             });
         }
     };
-    var get = function(action, cid)
+    var get = function(action, cid, callback)
     {
         if (!tmp_vars.get['token']) {
             getToken(function() {
                 tmp_vars['get_repeat'] += 1;
-                get(action, cid);
+                get(action, cid, callback);
             });
             return 0;
         }
-
         $.ajax({
             type: "GET",
             cache: 0,
@@ -273,6 +277,9 @@ var engine = function() {
             },
             success: function(data) {
                 var obj = $.parseJSON(data);
+                if (callback) {
+                    callback(obj);
+                }
                 if ('build' in obj) {
                     //get build
                     if ('build' in tmp_vars.get && obj['build'] != tmp_vars.get['build']) {
@@ -379,7 +386,7 @@ var engine = function() {
                     tmp_vars.get['token'] = null;
                     getToken(function() {
                         tmp_vars['get_repeat'] += 1;
-                        get(action, cid);
+                        get(action, cid, callback);
                     });
                 }
             }
@@ -481,7 +488,7 @@ var engine = function() {
                 if (notification_link) {
                     notification_link.cancel();
                 }
-            }, (settings.notify_visbl_interval)?settings.notify_visbl_interval:2000);
+            }, (settings.notify_visbl_interval) ? settings.notify_visbl_interval : 2000);
         };
         var addTorrent = function(a) {
             if (!tmp_vars.get['token']) {
@@ -541,13 +548,13 @@ var engine = function() {
         var action = "&list=1" + ((subaction) ? subaction : '');
         get(action);
     };
-    var sendAction = function(action, cid) {
-        get(action, cid);
+    var sendAction = function(action, cid, callback) {
+        get(action, cid, callback);
     };
     return {
         begin: function() {
-            settings.ut_url = ((settings.ssl)?'https' : 'http') + "://" + settings.ut_ip + ':' + settings.ut_port + '/' + settings.ut_path,
-            timer.start();
+            settings.ut_url = ((settings.ssl) ? 'https' : 'http') + "://" + settings.ut_ip + ':' + settings.ut_port + '/' + settings.ut_path,
+                    timer.start();
             if (settings.context_menu_trigger) {
                 context_menu_obj.load();
             }
@@ -555,8 +562,8 @@ var engine = function() {
         getTorrentList: function(t) {
             return getTorrentList(t);
         },
-        sendAction: function(t) {
-            return sendAction(t);
+        sendAction: function(t, a, b) {
+            return sendAction(t, a, b);
         },
         get_cache_torrent_list: function() {
             if ('torrents' in tmp_vars.get) {
@@ -607,7 +614,7 @@ var engine = function() {
         getLimit: function() {
             get('&action=getsettings');
         },
-        getDefSettings: function () {
+        getDefSettings: function() {
             return def_settings;
         }
     };

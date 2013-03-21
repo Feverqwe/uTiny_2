@@ -58,6 +58,13 @@ input {
 select {
     font-size: 2em;
 }
+select.folders {
+    font-size: 1em;
+    height: 110px;
+}
+select.folder_arr {
+    width: 250px;
+}
 textarea {
     font-size: 1em;
 }

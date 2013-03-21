@@ -19,6 +19,16 @@ var options = function() {
                     $('input[name="' + k + '"]').eq(0)[0].checked = (v.v) ? 1 : 0;
                 }
             }
+            if (v.t == "array") {
+                if (k in set) {
+                    if (k == "folders_array" && set[k] != null) {
+                        var arr = set[k];
+                        for (var n = 0; n < arr.length; n++) {
+                            $('select.folders').append(new Option(arr[n].v, JSON.stringify(arr[n])));
+                        }
+                    }
+                }
+            }
         });
     };
     var make_bakup_form = function() {
@@ -69,8 +79,8 @@ var options = function() {
     var reset_table = function(table, arr) {
         $.each(arr, function(k, v) {
             var t = table.find('li[data-key="' + k + '"]');
-            var info =t.children("div.info").children("div");
-            t.children("div.size").css("width",v.size);
+            var info = t.children("div.info").children("div");
+            t.children("div.size").css("width", v.size);
             info.eq(1).children("label").html(v.size);
             if (v.a) {
                 info.eq(2).children("input")[0].checked = true;
@@ -79,6 +89,31 @@ var options = function() {
             }
         });
     }
+    var get_dir_list = function() {
+        _engine.sendAction("&action=list-dirs", 1, function(arr) {
+            if ('download-dirs' in arr == false)
+                return;
+            $('input.add_folder')[0].disabled = false;
+            $('select.folder_arr').empty();
+            $(this).unbind('click');
+            $.each(arr['download-dirs'], function(key, value) {
+                $('select.folder_arr').append(new Option('[' + bytesToSize(value['available'] * 1024 * 1024) + ' ' + lang_arr[107][1] + '] ' + value['path'], key));
+            });
+        });
+    }
+    var bytesToSize = function(bytes, nan) {
+        //переводит байты в строчки
+        var sizes = lang_arr[59];
+        if (nan == null)
+            nan = 'n/a';
+        if (bytes == 0)
+            return nan;
+        var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+        if (i == 0) {
+            return (bytes / Math.pow(1024, i)) + ' ' + sizes[i];
+        }
+        return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
+    };
     return {
         begin: function() {
             $('ul.menu').on('click', 'a', function(e) {
@@ -87,12 +122,23 @@ var options = function() {
                 $(this).addClass('active');
                 $('body').find('div.page.active').removeClass('active');
                 $('body').find('div.' + $(this).data('page')).addClass('active');
-                $("li.default").children('input[name="tr"]').on("click",function(){
-                    reset_table($("ul.tr_colums"),_engine.getDefColums());
-                });
-                $("li.default").children('input[name="fl"]').on("click",function(){
-                    reset_table($("ul.fl_colums"),_engine.getDefFlColums());
-                });
+            });
+            $("li.default").children('input[name="tr"]').on("click", function() {
+                reset_table($("ul.tr_colums"), _engine.getDefColums());
+            });
+            $("li.default").children('input[name="fl"]').on("click", function() {
+                reset_table($("ul.fl_colums"), _engine.getDefFlColums());
+            });
+            $('select.folder_arr').on('click', get_dir_list);
+            $('input.add_folder')[0].disabled = true;
+            $('input.add_folder').on('click', function() {
+                var obj = {k: $('select.folder_arr').val(), v: $(this).parent().children('input[type=text]').val()};
+                if (obj.v.length < 1) return;
+                $('select.folders').append(new Option(obj.v, JSON.stringify(obj)));
+                $(this).parent().children('input[type=text]').val("");
+            });
+            $('input.rm_folder').on('click', function() {
+                $('select.folders :selected').remove();
             });
             set_place_holder();
             make_bakup_form();
