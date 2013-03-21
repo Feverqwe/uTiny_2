@@ -22,8 +22,8 @@ var manager = function() {
         'tr_word_wrap': false,
         'fl_word_wrap': true,
         'fl_width': 0,
-        'body_width': 0,
-    };
+        'body_width': 0
+    }
     var chk_settings = function() {
         if (settings == null ||
                 settings['login'] == null ||
@@ -196,8 +196,8 @@ var manager = function() {
             },
             status: function() {
                 return status;
-            },
-        };
+            }
+        }
     };
     var get_torrent_list = function() {
         timer.stop();
@@ -673,8 +673,8 @@ var manager = function() {
                     'path_arr': fl_path_arr,
                     'link_path': get_folder_link(id, (fl_path_arr.length > 1) ? fl_path_arr.slice(0, -1) : []) + fl_name,
                     'display': 1,
-                    'mod_name': 0,
-                };
+                    'mod_name': 0
+                }
                 create_fl_item(id, cached[id]);
             }
         };
@@ -1685,8 +1685,8 @@ var manager = function() {
                 'fl-body': $('.fl-table-body').children('tbody'),
                 'fl-head': $('.fl-table-body').children('thead'),
                 'fl-fixed_head': $('.fl-table-head').children('thead'),
-                'fl-bottom': $('.file-list ul.bottom-menu'),
-            }
+                'fl-bottom': $('.file-list ul.bottom-menu')
+            };
             if (tmp_vars.tr_word_wrap) {
                 tables['body'].append('<style>div.torrent-list-layer td div {white-space: normal;word-wrap: break-word;}</style>')
             }
@@ -1845,7 +1845,7 @@ var manager = function() {
                     hide: function() {
                         var id = this[0].id;
                         on_hide_torrent_context_menu(id);
-                    },
+                    }
                 },
                 items: {
                     start: {
@@ -1911,7 +1911,7 @@ var manager = function() {
                                     return;
                                 }
                             });
-                        },
+                        }
                     },
                     remove_with: {
                         name: lang_arr[7],
@@ -1936,8 +1936,8 @@ var manager = function() {
                                     var id = this[0].id;
                                     contextActions(key, id);
                                 }
-                            },
-                        },
+                            }
+                        }
                     },
                     's2': '--------',
                     torrent_files: {
@@ -1951,7 +1951,7 @@ var manager = function() {
                         name: lang_arr[11],
                         className: "labels",
                         items: get_label_context_menu()
-                    },
+                    }
                 }
             });
             tmp_vars['torrent_context_menu'] = $(".context-menu-list.context-menu-root.torrent");
@@ -2020,7 +2020,7 @@ var manager = function() {
                         tables['fl_context_manu'].find('label').remove();
                         tmp_vars.fl_prio_param = null;
                         tmp_vars.fl_select_array = null;
-                    },
+                    }
                 },
                 items: {
                     high: {
@@ -2080,7 +2080,7 @@ var manager = function() {
                             tmp_vars.fl_file_selected = 1;
                             tables['fl-body'].find('input:checked').trigger('click');
                         }
-                    },
+                    }
                 }
             });
             $.contextMenu({

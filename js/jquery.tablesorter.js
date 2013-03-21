@@ -1,4 +1,4 @@
-/*!
+/**
  * TableSorter 2.7.12 - Client-side table sorting with ease!
  * @requires jQuery v1.2.6+
  *
@@ -16,7 +16,7 @@
  */
 /*jshint browser:true, jquery:true, unused:false, expr: true */
 /*global console:false, alert:false */
-!(function($) {
+(function($) {
     "use strict";
     $.extend({
         /*jshint supernew:true */

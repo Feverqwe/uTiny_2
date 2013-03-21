@@ -42,8 +42,8 @@ var engine = function() {
             change_downloads: (localStorage.change_downloads !== undefined) ? parseInt(localStorage.change_downloads) : def_settings.change_downloads.v,
             auto_order: (localStorage.auto_order !== undefined) ? parseInt(localStorage.auto_order) : def_settings.auto_order.v,
             context_menu_trigger: (localStorage.context_menu_trigger !== undefined) ? parseInt(localStorage.context_menu_trigger) : def_settings.context_menu_trigger.v,
-            folders_array: (localStorage.folders_array !== undefined) ? JSON.parse(localStorage.folders_array) : def_settings.folders_array.v,
-        };
+            folders_array: (localStorage.folders_array !== undefined) ? JSON.parse(localStorage.folders_array) : def_settings.folders_array.v
+        }
         settings.ut_url = ((settings.ssl) ? 'https' : 'http') + "://" + settings.ut_ip + ':' + settings.ut_port + '/' + settings.ut_path;
     };
     settings_load();
@@ -75,8 +75,8 @@ var engine = function() {
         'size': {'a': 1, 'size': 60, 'pos': 3, 'lang': 14, 'order': 1},
         'download': {'a': 1, 'size': 60, 'pos': 4, 'lang': 79, 'order': 1},
         'progress': {'a': 1, 'size': 70, 'pos': 5, 'lang': 15, 'order': 1},
-        'priority': {'a': 1, 'size': 74, 'pos': 6, 'lang': 89, 'order': 1},
-    };
+        'priority': {'a': 1, 'size': 74, 'pos': 6, 'lang': 89, 'order': 1}
+    }
     var timer = function() {
         var status = 0;
         var tmr = null;
@@ -109,16 +109,16 @@ var engine = function() {
             },
             status: function() {
                 return status;
-            },
-        };
+            }
+        }
     }();
     var tmp_vars = {
         'token_reconnect_counter': 0,
         'get': {},
         'last_complite_time': 0,
         'active_torrent': 0,
-        'get_repeat': 0,
-    };
+        'get_repeat': 0
+    }
     var status = function() {
         var storage = {};
         var connection = function(s, d) {
