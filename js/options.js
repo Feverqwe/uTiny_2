@@ -21,19 +21,94 @@ var options = function() {
             }
             if (v.t == "array") {
                 if (k in set) {
-                    if (k == "folders_array" && set[k] != null) {
+                    if (k == "folders_array") {
                         var arr = set[k];
                         for (var n = 0; n < arr.length; n++) {
-                            $('select.folders').append(new Option(arr[n].v, JSON.stringify(arr[n])));
+                            $('select.folders').append(new Option(arr[n][1], JSON.stringify(arr[n])));
                         }
                     }
                 }
             }
         });
     };
-    var getBackup = function () {
+    var saveAll = function () {
+        var def = _engine.getDefSettings();
+        $.each(def, function (key,value) {
+            if (value.t == "text") {
+                var val = $('input[name="' + key + '"]').val();
+                if (val.length <= 0) {
+                    val = $('input[name="' + key + '"]').attr('placeholder');
+                }
+                localStorage[key] = val;
+            } else
+            if (value.t == "password") {
+                var val = $('input[name="' + key + '"]').val();
+                localStorage[key] = val;
+            } else
+            if (value.t == "checkbox") {
+                var val = ($('input[name="' + key + '"]').eq(0)[0].checked)?1:0;
+                localStorage[key] = val;
+            } else
+            if (value.t == "number") {
+                var val = $('input[name="' + key + '"]').val();
+                if (val.length <= 0) {
+                    val = $('input[name="' + key + '"]').attr('placeholder');
+                }
+                localStorage[key] = val;
+            }
+        });
+        var folders_arr = [];
+        var f_sel = $('select.folders').children('option');
+        var c = f_sel.length;
+        for (var n = 0; n < c; n++) {
+            folders_arr[folders_arr.length] = JSON.parse(f_sel.eq(n).val());
+        }
+        localStorage['folders_array'] = JSON.stringify(folders_arr);
+        
+        var tr_colums = _engine.getColums();
+        var table = $('ul.tr_colums');
+        $.each(tr_colums, function (key,value) {
+            var item = table.children('li[data-key="'+key+'"]');
+            var active = (item.children('div.info').children('div').eq(2).children('input').eq(0)[0].checked)?1:0;
+            var size = parseInt(item.children('div.info').children('div').eq(1).children('label').text());
+            var pos = item.index()+1;
+            tr_colums[key].pos = pos;
+            tr_colums[key].size = size;
+            tr_colums[key].a = active;
+        });
+        localStorage['colums'] = JSON.stringify(tr_colums);
+        var fl_colums = _engine.getFlColums();
+        var table = $('ul.fl_colums');
+        $.each(fl_colums, function (key,value) {
+            var item = table.children('li[data-key="'+key+'"]');
+            var active = (item.children('div.info').children('div').eq(2).children('input').eq(0)[0].checked)?1:0;
+            var size = parseInt(item.children('div.info').children('div').eq(1).children('label').text());
+            var pos = item.index()+1;
+            fl_colums[key].pos = pos;
+            fl_colums[key].size = size;
+            fl_colums[key].a = active;
+        });
+        localStorage['fl_colums'] = JSON.stringify(fl_colums);
+    };
+    var getBackup = function() {
         $('textarea[name="backup"]').val(JSON.stringify(localStorage));
-    } 
+    }
+    var stngsRestore = function (text) {
+        try {
+            var rst = JSON.parse(text);
+            localStorage.clear();
+            for (var key in rst)
+            {
+                var value = rst[key];
+                if (value == undefined || key == 'length')
+                    continue;
+                localStorage[key] = value;
+            }
+            top.location.reload();
+        } catch(err) {
+            alert("Не могу восстановить настройки!"+"\n"+err);
+        }
+    }
     var make_bakup_form = function() {
         $('div.backup_form div').children('a.backup_tab').click(function(e) {
             e.preventDefault();
@@ -56,7 +131,7 @@ var options = function() {
         });
         $('div.restore').find('input').click(function(e) {
             e.preventDefault();
-            //view.stngsRestore($(this).parent().children('textarea').val());
+            stngsRestore($(this).parent().children('textarea').val());
         });
     };
     var write_sortable_tables = function() {
@@ -85,11 +160,7 @@ var options = function() {
             var info = t.children("div.info").children("div");
             t.children("div.size").css("width", v.size);
             info.eq(1).children("label").html(v.size);
-            if (v.a) {
-                info.eq(2).children("input")[0].checked = true;
-            } else {
-                info.eq(2).children("input")[0].checked = false;
-            }
+            info.eq(2).children("input")[0].checked = (v.a)?true:false;
         });
     }
     var get_dir_list = function() {
@@ -103,7 +174,7 @@ var options = function() {
                 $('select.folder_arr').append(new Option('[' + bytesToSize(value['available'] * 1024 * 1024) + ' ' + lang_arr[107][1] + '] ' + value['path'], key));
             });
         });
-    }
+    };
     var bytesToSize = function(bytes, nan) {
         //переводит байты в строчки
         var sizes = lang_arr[59];
@@ -135,13 +206,25 @@ var options = function() {
             $('select.folder_arr').on('click', get_dir_list);
             $('input.add_folder')[0].disabled = true;
             $('input.add_folder').on('click', function() {
-                var obj = {k: $('select.folder_arr').val(), v: $(this).parent().children('input[type=text]').val()};
-                if (obj.v.length < 1) return;
-                $('select.folders').append(new Option(obj.v, JSON.stringify(obj)));
+                var arr = [$('select.folder_arr').val(), $(this).parent().children('input[type=text]').val()];
+                if (arr[1].length < 1)
+                    return;
+                $('select.folders').append(new Option(arr[1], JSON.stringify(arr)));
                 $(this).parent().children('input[type=text]').val("");
             });
             $('input.rm_folder').on('click', function() {
                 $('select.folders :selected').remove();
+            });
+            $('input[name="save"]').on('click',function () {
+                saveAll();
+                $('div.page.save > div.status').css('background','url(/images/loading.gif) center center no-repeat').text('');
+                _engine.updateSettings();
+                _engine.getToken(function (){
+                    $('input[name="save"]').val('Сохранено!');
+                    $('div.page.save > div.status').css('background','none').text('Сохранено!');
+                },function(){
+                    $('div.page.save > div.status').css('background','none').text('Ошибка соединения! '+_engine.getStatus());
+                })
             });
             set_place_holder();
             make_bakup_form();

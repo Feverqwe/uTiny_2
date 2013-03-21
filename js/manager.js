@@ -1293,7 +1293,7 @@ var manager = function() {
             }
         };
         items["s"] = '-';
-        var count = Math.round(settings.window_height / 27);
+        var count = Math.round((settings.window_height - 54) / 27);
         if (count > 10)
             count = 10;
         tmp_vars.speed_limit['count'] = count;
@@ -1699,7 +1699,7 @@ var manager = function() {
             tables['fl-bottom'].on('click', 'a.close', function() {
                 torrent_file_list.close();
             });
-            tables['table-body'].css({'max-height': settings.window_height + 'px', 'min-height': settings.window_height + 'px'});
+            tables['table-body'].css({'max-height': (settings.window_height - 54) + 'px', 'min-height': (settings.window_height - 54) + 'px'});
             tmp_vars['colums'] = _engine.getColums();
             tmp_vars['fl_colums'] = _engine.getFlColums();
             torrent_list_head();

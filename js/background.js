@@ -14,36 +14,37 @@ var engine = function() {
         hide_seeding: {"v": 0, "t": "checkbox"},
         hide_finished: {"v": 0, "t": "checkbox"},
         graph: {"v": 0, "t": "checkbox"},
-        window_height: {"v": (300 - 54), "t": "number"},
+        window_height: {"v": (300), "t": "number"},
         change_downloads: {"v": 0, "t": "checkbox"},
         auto_order: {"v": 0, "t": "checkbox"},
         context_menu_trigger: {"v": 1, "t": "checkbox"},
-        folders_array: {"v":null, "t":"array"}
+        folders_array: {"v": [], "t": "array"}
     }
     var settings = null;
     var settings_load = function() {
         settings = {
             ut_url: null,
-            ssl: (localStorage.ssl !== undefined) ? localStorage.ssl : def_settings.ssl.v,
+            ssl: (localStorage.ssl !== undefined) ? parseInt(localStorage.ssl) : def_settings.ssl.v,
             ut_ip: (localStorage.ut_ip !== undefined) ? localStorage.ut_ip : def_settings.ut_ip.v,
-            ut_port: (localStorage.ut_port !== undefined) ? localStorage.ut_port : def_settings.ut_port.v,
+            ut_port: (localStorage.ut_port !== undefined && localStorage.ut_port > 0) ? parseInt(localStorage.ut_port) : def_settings.ut_port.v,
             ut_path: (localStorage.ut_path !== undefined) ? localStorage.ut_path : def_settings.ut_path.v,
-            show_active_tr_on_icon: (localStorage.show_active_tr_on_icon !== undefined) ? localStorage.show_active_tr_on_icon : def_settings.show_active_tr_on_icon.v,
-            notify_on_dl_comp: (localStorage.notify_on_dl_comp !== undefined) ? localStorage.notify_on_dl_comp : def_settings.notify_on_dl_comp.v,
-            bg_update_interval: (localStorage.bg_update_interval !== undefined && localStorage.bg_update_interval > 5000) ? localStorage.bg_update_interval : def_settings.bg_update_interval.v,
-            mgr_update_interval: (localStorage.mgr_update_interval !== undefined && localStorage.mgr_update_interval > 500) ? localStorage.mgr_update_interval : def_settings.mgr_update_interval.v,
-            notify_visbl_interval: (localStorage.notify_visbl_interval !== undefined) ? localStorage.notify_visbl_interval : def_settings.notify_visbl_interval.v,
+            show_active_tr_on_icon: (localStorage.show_active_tr_on_icon !== undefined) ? parseInt(localStorage.show_active_tr_on_icon) : def_settings.show_active_tr_on_icon.v,
+            notify_on_dl_comp: (localStorage.notify_on_dl_comp !== undefined) ? parseInt(localStorage.notify_on_dl_comp) : def_settings.notify_on_dl_comp.v,
+            bg_update_interval: (localStorage.bg_update_interval !== undefined && parseInt(localStorage.bg_update_interval) > 5000) ? parseInt(localStorage.bg_update_interval) : def_settings.bg_update_interval.v,
+            mgr_update_interval: (localStorage.mgr_update_interval !== undefined && parseInt(localStorage.mgr_update_interval > 500)) ? parseInt(localStorage.mgr_update_interval) : def_settings.mgr_update_interval.v,
+            notify_visbl_interval: (localStorage.notify_visbl_interval !== undefined) ? parseInt(localStorage.notify_visbl_interval) : def_settings.notify_visbl_interval.v,
             login: (localStorage.login !== undefined) ? localStorage.login : def_settings.login.v,
             password: (localStorage.password !== undefined) ? localStorage.password : def_settings.password.v,
-            hide_seeding: (localStorage.hide_seeding !== undefined) ? localStorage.hide_seeding : def_settings.hide_seeding.v,
-            hide_finished: (localStorage.hide_finished !== undefined) ? localStorage.hide_finished : def_settings.hide_finished.v,
-            graph: (localStorage.graph !== undefined) ? localStorage.graph : def_settings.graph.v,
-            window_height: (localStorage.window_height !== undefined) ? (localStorage.window_height - 54) : def_settings.window_height.v,
-            change_downloads: (localStorage.change_downloads !== undefined) ? (localStorage.change_downloads) : def_settings.change_downloads.v,
-            auto_order: (localStorage.auto_order !== undefined) ? (localStorage.auto_order) : def_settings.auto_order.v,
-            context_menu_trigger: (localStorage.context_menu_trigger !== undefined) ? (localStorage.context_menu_trigger) : def_settings.context_menu_trigger.v,
+            hide_seeding: (localStorage.hide_seeding !== undefined) ? parseInt(localStorage.hide_seeding) : def_settings.hide_seeding.v,
+            hide_finished: (localStorage.hide_finished !== undefined) ? parseInt(localStorage.hide_finished) : def_settings.hide_finished.v,
+            graph: (localStorage.graph !== undefined) ? parseInt(localStorage.graph) : def_settings.graph.v,
+            window_height: (localStorage.window_height !== undefined && parseInt(localStorage.window_height) > 100) ? parseInt(localStorage.window_height) : def_settings.window_height.v,
+            change_downloads: (localStorage.change_downloads !== undefined) ? parseInt(localStorage.change_downloads) : def_settings.change_downloads.v,
+            auto_order: (localStorage.auto_order !== undefined) ? parseInt(localStorage.auto_order) : def_settings.auto_order.v,
+            context_menu_trigger: (localStorage.context_menu_trigger !== undefined) ? parseInt(localStorage.context_menu_trigger) : def_settings.context_menu_trigger.v,
             folders_array: (localStorage.folders_array !== undefined) ? JSON.parse(localStorage.folders_array) : def_settings.folders_array.v,
         };
+        settings.ut_url = ((settings.ssl) ? 'https' : 'http') + "://" + settings.ut_ip + ':' + settings.ut_port + '/' + settings.ut_path;
     };
     settings_load();
     var colums = {
@@ -144,6 +145,7 @@ var engine = function() {
             if (popup.chk()) {
                 tmp_vars.popup.manager.setStatus(s, (typeof(d) == 'number') ? lang_arr[d] : d);
             }
+            return (typeof(d) == 'number') ? lang_arr[d] : d;
         };
         return {
             connection: function(s, d) {
@@ -183,7 +185,9 @@ var engine = function() {
                     timer.stop();
                     tmp_vars.token_reconnect_counter = 0;
                 }
-                callbackfail();
+                if (callbackfail) {
+                    callbackfail();
+                }
             }
         });
     };
@@ -416,8 +420,12 @@ var engine = function() {
             } catch (err) {
                 link_note(lang_arr[103], err.toString(), 1);
             }
+            if (!response) {
+                link_note(lang_arr[103], null, 1);
+                return;
+            };
             if (response.error) {
-                link_note(lang_arr[23], response.error, 1);
+                link_note(lang_arr[23], (response.error)?response.error:'', 1);
             } else {
                 tmp_vars.new_file_monitoring = function(name, e) {
                     if (e) {
@@ -451,6 +459,7 @@ var engine = function() {
             formdata.append("torrent_file", file);
             var xhr = new XMLHttpRequest();
             xhr.open("POST", settings.ut_url + "?token=" + tmp_vars.get['token'] + "&action=add-file" + dir_url, true);
+            xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password) + "=");
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
                     handleResponse(xhr.responseText);
@@ -461,6 +470,7 @@ var engine = function() {
         var uploadMagnet = function(url, dir_url) {
             var xhr = new XMLHttpRequest();
             xhr.open("GET", settings.ut_url + "?token=" + tmp_vars.get['token'] + "&action=add-url&s=" + url + dir_url, true);
+            xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password) + "=");
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
                     handleResponse(xhr.responseText);
@@ -515,13 +525,14 @@ var engine = function() {
         return {
             'load': function() {
                 chrome.contextMenus.removeAll();
+                if (!settings.context_menu_trigger) return;
                 var parentID = chrome.contextMenus.create({
                     "title": lang_arr[104],
                     "contexts": ["link"],
                     "onclick": addTorrent
                 });
                 //выбор каталога из контекстного меню>
-                if (settings.folders_array)
+                if (settings.folders_array && settings.folders_array.length)
                 {
                     var arr = settings.folders_array;
                     var c = arr.length;
@@ -553,11 +564,8 @@ var engine = function() {
     };
     return {
         begin: function() {
-            settings.ut_url = ((settings.ssl) ? 'https' : 'http') + "://" + settings.ut_ip + ':' + settings.ut_port + '/' + settings.ut_path,
-                    timer.start();
-            if (settings.context_menu_trigger) {
-                context_menu_obj.load();
-            }
+            timer.start();
+            context_menu_obj.load();
         },
         getTorrentList: function(t) {
             return getTorrentList(t);
@@ -574,23 +582,23 @@ var engine = function() {
             }
             return 0;
         },
-        getToken: function() {
-            return getToken();
+        getToken: function(a,b) {
+            return getToken(a,b);
         },
         getSettings: function() {
-            return settings;
+            return JSON.parse(JSON.stringify(settings));
         },
         getColums: function() {
-            return (localStorage.colums !== undefined) ? JSON.parse(localStorage.colums) : colums;
+            return (localStorage.colums !== undefined) ? JSON.parse(localStorage.colums) : JSON.parse(JSON.stringify(colums));
         },
         getDefColums: function() {
-            return colums;
+            return JSON.parse(JSON.stringify(colums));
         },
         getDefFlColums: function() {
-            return fl_colums;
+            return JSON.parse(JSON.stringify(fl_colums));
         },
         getFlColums: function() {
-            return (localStorage.fl_colums !== undefined) ? JSON.parse(localStorage.fl_colums) : fl_colums;
+            return (localStorage.fl_colums !== undefined) ? JSON.parse(localStorage.fl_colums) : JSON.parse(JSON.stringify(fl_colums));
         },
         setFlColums: function(a) {
             localStorage.fl_colums = JSON.stringify(a);
@@ -615,7 +623,15 @@ var engine = function() {
             get('&action=getsettings');
         },
         getDefSettings: function() {
-            return def_settings;
+            return JSON.parse(JSON.stringify(def_settings));
+        },
+        updateSettings: function() {
+            settings_load();
+            tmp_vars.active_torrent = 0;
+            tmp_vars.get_repeat = 0;
+            tmp_vars.token_reconnect_counter = 0;
+            context_menu_obj.load();
+            tmp_vars.get = {};
         }
     };
 }();

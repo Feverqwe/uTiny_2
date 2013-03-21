@@ -44,6 +44,10 @@ div.page.save {
     margin-top: 10px;
     text-align: center;
 }
+div.page.save > div.status {
+    height: 30px;
+    margin-bottom: -12px;
+}
 div.page.active {
     display: block;
 }
@@ -105,11 +109,12 @@ div.backup_form > div.restore, div.backup_form > div.backup {
     border: 1px solid #c0c0c0;
     overflow: hidden;
     padding-bottom: 2px;
+    text-align: center;
 }
 div.backup_form > textarea, div.backup_form textarea {
-    width: 98%;
-    margin-left: 2px;
+    width: 99.2%;
     height: 400px;
+    margin-top: 2px;
 }
 div.backup_form a.backup_tab, div.backup_form a.restore_tab {
     border-top-left-radius: 4px; 
@@ -127,11 +132,8 @@ div.backup_form a.backup_tab.active, div.backup_form a.restore_tab.active {
     background-color:#dddddd; 
     color: #2f5be1;	
 }
-div.backup_form input[name=backup_btn], div.backup_form input[name=restore_btn] {
-    font-size:2em;
-}
-div.backup_form input[name=restore_btn] {
-    float:left;
+div.backup_form div.backup input, div.backup_form div.restore input {
+    margin: 5px;
 }
 li.default {
     text-align: center;

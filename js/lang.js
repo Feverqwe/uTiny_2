@@ -124,7 +124,7 @@ var lang_arr_ru = {
     6:'Удалить',
     7:'Удалить и',
     8:'только .torrent',
-    9:'Стереть загруженные файлы',
+    9:'стереть файлы',
     10:'.torrent и файлы',
     11:'Метка',
     12:'Удалить метку',
@@ -228,9 +228,9 @@ var lang_arr_ru = {
     110:['Да','Нет'],
     111:'Список файлов',
     112:'Возможно торрент файл уже существует!',
-    113:['','Select all'],
+    113:['','Выбрать все'],
 }
-var lang = (localStorage.lang !== undefined) ? localStorage["lang"] : 'en';
+var lang = (localStorage.lang !== undefined) ? localStorage["lang"] : 'ru';
 if (lang == 'ru') { 
     var lang_arr = lang_arr_ru;
         delete lang_arr_en;
