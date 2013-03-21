@@ -29,7 +29,7 @@
     border-radius: 3px;
     background:0;
     color:#232d3d;
-    font-size:12px;
+    font-size:1em;
     font-weight:700;
     text-shadow:0 1px 0 #fff;
     cursor:pointer;
@@ -50,7 +50,7 @@
     border-bottom-right-radius: 4px;
     box-shadow:0 1px 0 #fff;
     width:180px;
-    font-size:12px;
+    font-size:1em;
     font-weight:700;
     padding:5px 10px;
 }

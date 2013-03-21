@@ -31,28 +31,31 @@ var options = function() {
             }
         });
     };
+    var getBackup = function () {
+        $('textarea[name="backup"]').val(JSON.stringify(localStorage));
+    } 
     var make_bakup_form = function() {
-        $('div.backup_form div').children('a.backup_tab').click(function(event) {
-            event.preventDefault();
+        $('div.backup_form div').children('a.backup_tab').click(function(e) {
+            e.preventDefault();
             $(this).parents().eq(1).children('div.restore').slideUp('fast');
             $(this).parent().children('a.restore_tab').removeClass('active');
             $(this).parents().eq(1).children('div.backup').slideDown('fast');
             $(this).parent().children('a.backup_tab').addClass('active');
-            //view.getBackup();
+            getBackup();
         });
-        $('div.backup_form div').children('a.restore_tab').click(function(event) {
-            event.preventDefault();
+        $('div.backup_form div').children('a.restore_tab').click(function(e) {
+            e.preventDefault();
             $(this).parents().eq(1).children('div.backup').slideUp('fast');
             $(this).parent().children('a.backup_tab').removeClass('active');
             $(this).parents().eq(1).children('div.restore').slideDown('fast');
             $(this).parent().children('a.restore_tab').addClass('active');
         });
-        $('div.backup_form').find('input[name=backup_btn]').click(function(event) {
-            event.preventDefault();
-            //view.getBackup();
+        $('div.backup').find('input').click(function(e) {
+            e.preventDefault();
+            getBackup();
         });
-        $('div.backup_form').find('input[name=restore_btn]').click(function(event) {
-            event.preventDefault();
+        $('div.restore').find('input').click(function(e) {
+            e.preventDefault();
             //view.stngsRestore($(this).parent().children('textarea').val());
         });
     };

@@ -109,6 +109,7 @@ div.backup_form > div.restore, div.backup_form > div.backup {
 div.backup_form > textarea, div.backup_form textarea {
     width: 98%;
     margin-left: 2px;
+    height: 400px;
 }
 div.backup_form a.backup_tab, div.backup_form a.restore_tab {
     border-top-left-radius: 4px; 
@@ -127,7 +128,7 @@ div.backup_form a.backup_tab.active, div.backup_form a.restore_tab.active {
     color: #2f5be1;	
 }
 div.backup_form input[name=backup_btn], div.backup_form input[name=restore_btn] {
-    font-size:18px;
+    font-size:2em;
 }
 div.backup_form input[name=restore_btn] {
     float:left;

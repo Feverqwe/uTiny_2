@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: Arial,sans-serif;
-    font-size: 13px;
+    font-size: 0.84em;
     min-width: 723px;
     -webkit-user-select: none;
 }
@@ -356,7 +356,7 @@ div.file-list ul.bottom-menu li.path {
     width: 85%;
 }
 div.file-list ul.bottom-menu li.path input {
-    font-size: 12px;
+    font-size: 1em;
     width: 100%;
     margin-top: 5px;
     padding-left: 6px;
