@@ -168,7 +168,7 @@ var lang_arr_en = {
         52:"Saved!",
         53:"Connection error!",
         54:"Language"
-    },
+    }
 }
 var lang_arr_ru = {
     0: 'Запустить',
@@ -340,7 +340,7 @@ var lang_arr_ru = {
         52:"Сохранено!",
         53:"Ошибка соединения!",
         54:"Язык"
-    },
+    }
 }
 var lang = (localStorage.lang !== undefined) ? localStorage["lang"] : 'en';
 if (lang == 'ru') {

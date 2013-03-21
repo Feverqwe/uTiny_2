@@ -14,6 +14,7 @@ java -jar compiler.jar --js ./js/options.js --js_output_file ./build/js/options.
 java -jar compiler.jar --js ./js/background.js --js_output_file ./build/js/background.js
 java -jar compiler.jar --js ./js/manager.js --js_output_file ./build/js/manager.js
 java -jar compiler.jar --js ./js/graph.js --js_output_file ./build/js/graph.js
+java -jar compiler.jar --js ./js/lang.js --js_output_file ./build/js/lang.js
 java -jar compiler.jar --js ./js/jquery.contextmenu.js --js_output_file ./build/js/jquery.contextmenu.js
 java -jar compiler.jar --js ./js/jquery.tablesorter.js --js_output_file ./build/js/jquery.tablesorter.js
 java -jar compiler.jar --js ./js/jquery.selectbox.js --js_output_file ./build/js/jquery.selectbox.js
