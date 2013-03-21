@@ -64,8 +64,8 @@ var manager = function() {
         tables['tr-fixed_head'].html(thead);
         tables['body'].children('style.torrent-style').remove();
         tables['body'].append(style);
-        if (sum_width + 59 < 800) {
-            tmp_vars.body_width = sum_width + 50;
+        if (sum_width + 61 < 800) {
+            tmp_vars.body_width = sum_width + 61;
             tables.body.css('width', (tmp_vars.body_width) + 'px');
         } else {
             tmp_vars.body_width = 800;
