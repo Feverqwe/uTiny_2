@@ -6,8 +6,8 @@
         "default_title": "uTorrent"
     },
     "background": {
-        "page": "background.html"
-    }, 
+        "scripts": ["js/jquery-1.9.1.min.js","js/lang.js","js/background.js"]
+    },
     "icons": {
         "128": "images/icon_128.png"
     },
