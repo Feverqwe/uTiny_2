@@ -31,9 +31,9 @@ var options = function() {
             }
         });
     };
-    var saveAll = function () {
+    var saveAll = function() {
         var def = _engine.getDefSettings();
-        $.each(def, function (key,value) {
+        $.each(def, function(key, value) {
             if (value.t == "text") {
                 var val = $('input[name="' + key + '"]').val();
                 if (val.length <= 0) {
@@ -46,7 +46,7 @@ var options = function() {
                 localStorage[key] = val;
             } else
             if (value.t == "checkbox") {
-                var val = ($('input[name="' + key + '"]').eq(0)[0].checked)?1:0;
+                var val = ($('input[name="' + key + '"]').eq(0)[0].checked) ? 1 : 0;
                 localStorage[key] = val;
             } else
             if (value.t == "number") {
@@ -64,14 +64,14 @@ var options = function() {
             folders_arr[folders_arr.length] = JSON.parse(f_sel.eq(n).val());
         }
         localStorage['folders_array'] = JSON.stringify(folders_arr);
-        
+
         var tr_colums = _engine.getColums();
         var table = $('ul.tr_colums');
-        $.each(tr_colums, function (key,value) {
-            var item = table.children('li[data-key="'+key+'"]');
-            var active = (item.children('div.info').children('div').eq(2).children('input').eq(0)[0].checked)?1:0;
+        $.each(tr_colums, function(key, value) {
+            var item = table.children('li[data-key="' + key + '"]');
+            var active = (item.children('div.info').children('div').eq(2).children('input').eq(0)[0].checked) ? 1 : 0;
             var size = parseInt(item.children('div.info').children('div').eq(1).children('label').text());
-            var pos = item.index()+1;
+            var pos = item.index() + 1;
             tr_colums[key].pos = pos;
             tr_colums[key].size = size;
             tr_colums[key].a = active;
@@ -79,11 +79,11 @@ var options = function() {
         localStorage['colums'] = JSON.stringify(tr_colums);
         var fl_colums = _engine.getFlColums();
         var table = $('ul.fl_colums');
-        $.each(fl_colums, function (key,value) {
-            var item = table.children('li[data-key="'+key+'"]');
-            var active = (item.children('div.info').children('div').eq(2).children('input').eq(0)[0].checked)?1:0;
+        $.each(fl_colums, function(key, value) {
+            var item = table.children('li[data-key="' + key + '"]');
+            var active = (item.children('div.info').children('div').eq(2).children('input').eq(0)[0].checked) ? 1 : 0;
             var size = parseInt(item.children('div.info').children('div').eq(1).children('label').text());
-            var pos = item.index()+1;
+            var pos = item.index() + 1;
             fl_colums[key].pos = pos;
             fl_colums[key].size = size;
             fl_colums[key].a = active;
@@ -93,7 +93,7 @@ var options = function() {
     var getBackup = function() {
         $('textarea[name="backup"]').val(JSON.stringify(localStorage));
     }
-    var stngsRestore = function (text) {
+    var stngsRestore = function(text) {
         try {
             var rst = JSON.parse(text);
             localStorage.clear();
@@ -105,8 +105,8 @@ var options = function() {
                 localStorage[key] = value;
             }
             top.location.reload();
-        } catch(err) {
-            alert("Не могу восстановить настройки!"+"\n"+err);
+        } catch (err) {
+            alert(lang_arr.settings[51] + "\n" + err);
         }
     }
     var make_bakup_form = function() {
@@ -136,7 +136,7 @@ var options = function() {
     };
     var write_sortable_tables = function() {
         function ap(t, k, v) {
-            t.append('<li class="item ui-state-default" data-key="' + k + '"><div class="info"><div>' + lang_arr[v.lang][1] + '</div>[<div>ширина: <label>' + v.size + '</label>px;</div> <div>показывать:<input type="checkbox"' + ((v.a) ? ' checked' : '') + '/>]</div></div><div class="size" style="width:' + v.size + 'px"></div></li>');
+            t.append('<li class="item ui-state-default" data-key="' + k + '"><div class="info"><div>' + lang_arr[v.lang][1] + '</div>[<div>' + lang_arr.settings[50] + ': <label>' + v.size + '</label>px;</div> <div>' + lang_arr.settings[49] + ':<input type="checkbox"' + ((v.a) ? ' checked' : '') + '/>]</div></div><div class="size" style="width:' + v.size + 'px"></div></li>');
         }
         var tr_colums = _engine.getColums();
         var tr_table = $("ul.tr_colums");
@@ -160,7 +160,7 @@ var options = function() {
             var info = t.children("div.info").children("div");
             t.children("div.size").css("width", v.size);
             info.eq(1).children("label").html(v.size);
-            info.eq(2).children("input")[0].checked = (v.a)?true:false;
+            info.eq(2).children("input")[0].checked = (v.a) ? true : false;
         });
     }
     var get_dir_list = function() {
@@ -188,8 +188,40 @@ var options = function() {
         }
         return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
     };
+    var write_language = function() {
+        var lang = lang_arr.settings;
+        var language = (localStorage.lang !== undefined) ? localStorage["lang"] : 'en';
+        $('.lang').find('select').val(language);
+        $.each(lang, function(k, v) {
+            var el = $('[data-lang=' + k + ']');
+            if (el.length == 0)
+                return true;
+            var t = el.prop("tagName");
+            if (t == "A" || t == "LEGEND" || t == "SPAN" || t == "LI") {
+                el.text(v);
+            } else
+            if (t == "INPUT") {
+                el.val(v);
+            } else
+                console.log(t);
+        });
+    }
+    var popup = function() {
+        var isPopup = false;
+        var windows = chrome.extension.getViews({type: 'popup'});
+        for (var n = 0; n < windows.length; n++) {
+            if ("options" in windows[n])
+                isPopup = true;
+        }
+        return isPopup;
+    }
     return {
         begin: function() {
+            write_language();
+             $('.lang').on('change','select',function () {
+                 localStorage.lang = $(this).val();
+                 window.location.reload();
+             })
             $('ul.menu').on('click', 'a', function(e) {
                 e.preventDefault();
                 $('ul.menu').find('a.active').removeClass('active');
@@ -215,15 +247,18 @@ var options = function() {
             $('input.rm_folder').on('click', function() {
                 $('select.folders :selected').remove();
             });
-            $('input[name="save"]').on('click',function () {
+            $('input[name="save"]').on('click', function() {
                 saveAll();
-                $('div.page.save > div.status').css('background','url(/images/loading.gif) center center no-repeat').text('');
+                $('div.page.save > div.status').css('background', 'url(/images/loading.gif) center center no-repeat').text('');
                 _engine.updateSettings();
-                _engine.getToken(function (){
+                _engine.getToken(function() {
                     $('input[name="save"]').val('Сохранено!');
-                    $('div.page.save > div.status').css('background','none').text('Сохранено!');
-                },function(){
-                    $('div.page.save > div.status').css('background','none').text('Ошибка соединения! '+_engine.getStatus());
+                    $('div.page.save > div.status').css('background', 'none').text(lang_arr.settings[52]);
+                    if (popup()) {
+                        window.location = "manager.html";
+                    }
+                }, function() {
+                    $('div.page.save > div.status').css('background', 'none').text(lang_arr.settings[53] + ' ' + _engine.getStatus());
                 })
             });
             set_place_holder();

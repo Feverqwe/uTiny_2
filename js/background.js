@@ -6,7 +6,7 @@ var engine = function() {
         ut_path: {"v": "gui/", "t": "text"},
         show_active_tr_on_icon: {"v": 1, "t": "checkbox"},
         notify_on_dl_comp: {"v": 1, "t": "checkbox"},
-        bg_update_interval: {"v": 60000 * 3, "t": "number"},
+        bg_update_interval: {"v": 60000 * 2, "t": "number"},
         mgr_update_interval: {"v": 2000, "t": "number"},
         notify_visbl_interval: {"v": 5000, "t": "number"},
         login: {"v": null, "t": "text"},

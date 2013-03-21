@@ -199,3 +199,16 @@ div.ui-resizable-handle {
 fieldset.folders li.list select {
     width: 100%;
 }
+div.author a {
+    color: #333333;
+}
+div.author {
+    width: 720px;
+    margin: 0 auto;
+    text-align: right;
+    color: #82838e;
+    font-size: 0.8em;
+}
+.lang div {
+    text-align: center;
+}

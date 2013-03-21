@@ -13,118 +13,125 @@
             <h1>uTorrent easy client</h1>
         </div>
         <ul class="menu">
-            <li><a class="active" href="#utorrent" data-page="setup">uTorrent</a></li>
-            <li><a href="#utorrent" data-page="notify">Уведомления</a></li>
-            <li><a href="#utorrent" data-page="ui">Интерфейс</a></li>
-            <li><a href="#utorrent" data-page="context">Контекстное меню</a></li>
-            <li><a href="#utorrent" data-page="backup">Восст. наcтроек</a></li>
+            <li><a class="active" href="#utorrent" data-page="setup" data-lang="1">uTorrent</a></li>
+            <li><a href="#utorrent" data-page="notify" data-lang="2">Уведомления</a></li>
+            <li><a href="#utorrent" data-page="ui" data-lang="3">Интерфейс</a></li>
+            <li><a href="#utorrent" data-page="context" data-lang="4">Контекстное меню</a></li>
+            <li><a href="#utorrent" data-page="backup" data-lang="5">Восст. наcтроек</a></li>
         </ul>
         <div class="page setup active">
+            <fieldset class="lang">
+                <legend data-lang="54">Язык</legend>
+                <div>
+                    <select><option value="en">English</option><option value="ru">Русский</option></select>
+                </div>
+            </fieldset>
             <fieldset>
-                <legend>Веб-интерфейс</legend>
+                <legend data-lang="6">Веб-интерфейс</legend>
                 <ul>
-                    <li><ul class="item"><li>Имя пользователя</li><li><input type="text" name="login"></li></ul></li>
-                    <li><ul class="item"><li>Пароль</li><li><input type="password" name="password"></li></ul></li>
-                    <li><ul class="item"><li>Адрес</li><li><input type="text" name="ut_ip"/></li></ul></li>
-                    <li><ul class="item"><li>Порт</li><li><input  type="number" name="ut_port"/></li></ul></li>
+                    <li><ul class="item"><li data-lang="46">Имя пользователя</li><li><input type="text" name="login"></li></ul></li>
+                    <li><ul class="item"><li data-lang="45">Пароль</li><li><input type="password" name="password"></li></ul></li>
+                    <li><ul class="item"><li data-lang="44">Адрес</li><li><input type="text" name="ut_ip"/></li></ul></li>
+                    <li><ul class="item"><li data-lang="43">Порт</li><li><input  type="number" name="ut_port"/></li></ul></li>
                 </ul>
             </fieldset>
             <fieldset>
-                <legend>Дополнительные настройки</legend>
+                <legend data-lang="7">Дополнительные настройки</legend>
                 <ul>
-                    <li><ul class="item"><li>Путь</li><li><input type="text" name="ut_path"/></li></ul></li>
-                    <li><ul class="item"><li>SSL</li><li><input type="checkbox" name="ssl"></li></ul></li>
+                    <li><ul class="item"><li data-lang="42">Путь</li><li><input type="text" name="ut_path"/></li></ul></li>
+                    <li><ul class="item"><li data-lang="41">SSL</li><li><input type="checkbox" name="ssl"></li></ul></li>
                 </ul>
             </fieldset>
         </div>
         <div class="page notify">
             <fieldset>
-                <legend>Уведомления</legend>
+                <legend data-lang="8">Уведомления</legend>
                 <ul>
-                    <li><ul class="item"><li><input type="checkbox" name="notify_on_dl_comp"/></li><li>Выводить уведомление при завершении загрузки торрент-файла</li></ul></li>
-                    <li><ul class="item"><li><input type="checkbox" name="show_active_tr_on_icon"/></li><li>Показывать колическтво активных торрентов на иконке приложения</li></ul></li>
+                    <li><ul class="item"><li><input type="checkbox" name="notify_on_dl_comp"/></li><li data-lang="40">Выводить уведомление при завершении загрузки торрент-файла</li></ul></li>
+                    <li><ul class="item"><li><input type="checkbox" name="show_active_tr_on_icon"/></li><li data-lang="39">Показывать колическтво активных торрентов на иконке приложения</li></ul></li>
                 </ul>
             </fieldset>
             <fieldset>
-                <legend>Прочие</legend>
+                <legend data-lang="9">Прочие</legend>
                 <ul>
-                    <li><ul class="item"><li>Обновлять список торрентов в фоне каждые</li><li><input type="number" name="bg_update_interval"/>секунд</li></ul></li>
-                    <li><ul class="item"><li>Автоматически скрывать уведомление через</li><li><input type="number" name="notify_visbl_interval"/>секунд, 0 - не скрывать</li></ul></li>
+                    <li><ul class="item"><li data-lang="36">Обновлять список торрентов в фоне каждые</li><li><input type="number" name="bg_update_interval"/><span data-lang="37">секунд</span></li></ul></li>
+                    <li><ul class="item"><li data-lang="35">Автоматически скрывать уведомление через</li><li><input type="number" name="notify_visbl_interval"/><span data-lang="38">секунд, 0 - не скрывать</span></li></ul></li>
                 </ul>
             </fieldset>
         </div>
         <div class="page ui">
             <fieldset>
-                <legend>Интерфейс всплывающего окна</legend>
+                <legend data-lang="10">Интерфейс всплывающего окна</legend>
                 <ul>
-                    <li><ul class="item"><li><input type="checkbox" name="hide_finished"/></li><li>Скрывать все торренты, которые загружены, но не раздаются</li></ul></li>
-                    <li><ul class="item"><li><input type="checkbox" name="hide_seeding"/></li><li>Скрывать все торренты, которые раздаются</li></ul></li>
-                    <li><ul class="item"><li><input type="checkbox" name="graph"/></li><li>Показывать график скорости</li></ul></li>
-                    <li><ul class="item"><li><input type="checkbox" name="auto_order"/></li><li>Выполнять сортировку списка после обновления</li></ul></li>
-                    <li><ul class="item"><li>Высота окна</li><li><input type="number" name="window_height"/>px</li></ul></li>
+                    <li><ul class="item"><li><input type="checkbox" name="hide_finished"/></li><li data-lang="34">Скрывать все торренты, которые загружены, но не раздаются</li></ul></li>
+                    <li><ul class="item"><li><input type="checkbox" name="hide_seeding"/></li><li data-lang="33">Скрывать все торренты, которые раздаются</li></ul></li>
+                    <li><ul class="item"><li><input type="checkbox" name="graph"/></li><li data-lang="32">Показывать график скорости</li></ul></li>
+                    <li><ul class="item"><li><input type="checkbox" name="auto_order"/></li><li data-lang="31">Выполнять сортировку списка после обновления</li></ul></li>
+                    <li><ul class="item"><li data-lang="30">Высота окна</li><li><input type="number" name="window_height"/>px</li></ul></li>
                 </ul>
             </fieldset>
             <fieldset>
-                <legend>Интервал обновления списка торрентов</legend>
+                <legend data-lang="11">Интервал обновления списка торрентов</legend>
                 <ul>
-                    <li><ul class="item"><li>Обновлять список торрентов каждые</li><li><input type="number" name="mgr_update_interval"/>секунд</li></ul></li>
+                    <li><ul class="item"><li data-lang="29">Обновлять список торрентов каждые</li><li><input type="number" name="mgr_update_interval"/><span data-lang="47">секунд</span></li></ul></li>
                 </ul>
             </fieldset>
             <fieldset>
-                <legend>Управление столбцами списка торрентов</legend>
+                <legend data-lang="12">Управление столбцами списка торрентов</legend>
                 <ul class="tr_colums sortable"></ul>
                 <ul>
-                    <li class="default"><input name="tr" type="button" value="Сбросить настройки"/></li>
+                    <li class="default"><input data-lang="28" name="tr" type="button" value="Сбросить настройки"/></li>
                 </ul>
             </fieldset>
             <fieldset>
-                <legend>Управление столбцами списка файлов</legend>
+                <legend data-lang="13">Управление столбцами списка файлов</legend>
                 <ul class="fl_colums sortable"></ul>
                 <ul>
-                    <li class="default"><input name="fl" type="button" value="Сбросить настройки"/></li>
+                    <li class="default"><input data-lang="27" name="fl" type="button" value="Сбросить настройки"/></li>
                 </ul>
             </fieldset>
         </div>
         <div class="page context">
             <fieldset>
-                <legend>Управление контекстным меню</legend>
+                <legend data-lang="14">Управление контекстным меню</legend>
                 <ul>
-                    <li><ul class="item"><li><input type="checkbox" name="context_menu_trigger"/></li><li>Включить контекстное меню</li></ul></li>
-                    <li><ul class="item"><li><input type="checkbox" name="change_downloads"/></li><li>Автоматически переходить в раздел "Загрузки" при успешном добавлении торрент-файла</li></ul></li>
+                    <li><ul class="item"><li><input type="checkbox" name="context_menu_trigger"/></li><li data-lang="26">Включить контекстное меню</li></ul></li>
+                    <li><ul class="item"><li><input type="checkbox" name="change_downloads"/></li><li data-lang="25">Автоматически переходить в раздел "Загрузки" при успешном добавлении торрент-файла</li></ul></li>
                 </ul>
             </fieldset>
             <fieldset class="folders">
-                <legend>Управление каталогами</legend>
+                <legend data-lang="15">Управление каталогами</legend>
                 <ul>
-                    <li>Каталог <select class="folder_arr"></select></li>
-                    <li>Подкаталог <input type="text"> <input class="add_folder" type="button" value="Добавить"></li>
+                    <li><span data-lang="24">Каталог</span> <select class="folder_arr"></select></li>
+                    <li><span data-lang="23">Подкаталог</span> <input type="text"> <input data-lang="48" class="add_folder" type="button" value="Добавить"></li>
                     <li class="list"><select class="folders" multiple="multiple"></select></li>
-                    <li><input class="rm_folder" type="button" value="Удалить выбранное"/></li>
+                    <li><input data-lang="22" class="rm_folder" type="button" value="Удалить выбранное"/></li>
                 </ul>
             </fieldset>
         </div>
         <div class="page backup">
             <fieldset>
-                <legend>Разервное копирование и восстановление настроек</legend>
+                <legend data-lang="16">Разервное копирование и восстановление настроек</legend>
                 <div class="backup_form">
                     <div>
-                        <a href="#" class="backup_tab" data-lang="29">Бэкап</a>
-                        <a href="#" class="restore_tab active" data-lang="30">Восстановление</a>
+                        <a data-lang="21" href="#" class="backup_tab">Бэкап</a>
+                        <a data-lang="20" href="#" class="restore_tab active">Восстановление</a>
                     </div>
                     <div class="backup" style="display:none;">
                         <textarea rows="10" name="backup"></textarea>
-                        <input type="button" value="Обновить">
+                        <input data-lang="19" type="button" value="Обновить">
                     </div>
                     <div class="restore" style="display:block;">
                         <textarea rows="10" name="restore"></textarea>
-                        <input type="button" value="Восстановить">
+                        <input data-lang="18" type="button" value="Восстановить">
                     </div>
                 </div>
             </fieldset>
         </div>
         <div class="page save">
-            <input type="button" value="Сохранить все!" name="save">
+            <input data-lang="17" type="button" value="Сохранить все!" name="save">
             <div class="status"></div>
         </div>
+        <div class="author"><a href="mailto:leonardspbox@gmail.com">Anton</a>, 2013</div>
     </body>
 </html>
