@@ -202,12 +202,18 @@ fieldset.folders li.list select {
 div.author a {
     color: #333333;
 }
-div.author {
+div.bottom {
     width: 720px;
     margin: 0 auto;
+    font-size: 0.8em;
+}
+div.bottom div {
+    display: inline-block;
+}
+div.author {
+    float: right;
     text-align: right;
     color: #82838e;
-    font-size: 0.8em;
 }
 .lang div {
     text-align: center;

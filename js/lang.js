@@ -167,7 +167,8 @@ var lang_arr_en = {
         51:"I can not restore the settings!",
         52:"Saved!",
         53:"Connection error!",
-        54:"Language"
+        54:"Language",
+        55:"Yandex.Money"
     }
 }
 var lang_arr_ru = {
@@ -339,7 +340,8 @@ var lang_arr_ru = {
         51:"Не могу восстановить настройки!",
         52:"Сохранено!",
         53:"Ошибка соединения!",
-        54:"Язык"
+        54:"Язык",
+        55:"Яндекс.Деньги"
     }
 }
 var lang = (localStorage.lang !== undefined) ? localStorage["lang"] : 'en';
