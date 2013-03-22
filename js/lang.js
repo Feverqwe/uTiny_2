@@ -168,7 +168,10 @@ var lang_arr_en = {
         52:"Saved!",
         53:"Connection error!",
         54:"Language",
-        55:"Yandex.Money"
+        55:"Yandex.Money",
+        56:"If possible please",
+        57:" make a donation through",
+        58:"or"
     }
 }
 var lang_arr_ru = {
@@ -341,7 +344,10 @@ var lang_arr_ru = {
         52:"Сохранено!",
         53:"Ошибка соединения!",
         54:"Язык",
-        55:"Яндекс.Деньги"
+        55:"Яндекс.Деньги",
+        56:"Если возможно, пожалуйста",
+        57:", сделайте пожертвование через",
+        58:"или"
     }
 }
 var lang = (localStorage.lang !== undefined) ? localStorage["lang"] : 'en';

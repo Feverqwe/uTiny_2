@@ -214,6 +214,10 @@ div.author {
     float: right;
     text-align: right;
     color: #82838e;
+    margin-top: 2px;
+}
+div.donate img {
+    margin-bottom: -7px;
 }
 .lang div {
     text-align: center;
