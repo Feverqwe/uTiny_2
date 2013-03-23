@@ -315,7 +315,7 @@ var manager = function() {
                         var cell = item.children('td.progress');
                         var with_c = cell.attr('data-value', v[4]).children('div.progress_b').children('div.progress_b_i');
                         tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
-                        with_c.css('width', writePersent(progress) + 'px').children('div').html(progress + '%');
+                        with_c.css('width', writePersent(progress) + '%').parent().children('div.val').html(progress + '%');
                         if (v[1] == 201 && v[4] == 1000)
                         {
                             with_c.css('background-color', '#41B541');
@@ -510,7 +510,7 @@ var manager = function() {
                 case 'progress':
                     var progress = v[4] / 10;
                     var color = (v[1] == 201 && v[4] == 1000) ? '#41B541' : '#3687ED';
-                    return '<td class="' + key + '" data-value="' + v[4] + '"><div class="progress_b"><div class="progress_b_i" style="width: ' + writePersent(progress) + 'px; background-color: ' + color + ';"><div>' + progress + '%</div></div></div></td>';
+                    return '<td class="' + key + '" data-value="' + v[4] + '"><div class="progress_b"><div class="val">' + progress + '%</div><div class="progress_b_i" style="width: ' + writePersent(progress) + '%; background-color: ' + color + ';"></div></div></td>';
                     break;
                 case 'status':
                     return '<td class="' + key + '" data-value="' + v[1] + '"><div title="' + v[21] + '">' + v[21] + '</div></td>';
@@ -770,7 +770,7 @@ var manager = function() {
                 case 'progress':
                     var progress = Math.round((v.api[2] * 100 / v.api[1]) * 10) / 10;
                     var color = (v.api[1] == v.api[2] && v.api[3] != 0) ? '#41B541' : '#3687ED';
-                    return '<td class="progress" data-value="' + progress + '"><div class="progress_b"><div class="progress_b_i" style="width: ' + writePersent(progress) + 'px; background-color: ' + color + ';"><div>' + progress + '%</div></div></div></td>';
+                    return '<td class="progress" data-value="' + progress + '"><div class="progress_b"><div class="val">' + progress + '%</div><div class="progress_b_i" style="width: ' + writePersent(progress) + '%; background-color: ' + color + ';"></div></div></td>';
                     break;
                 case 'priority':
                     var priority = lang_arr[87][v.api[3]];
@@ -805,15 +805,15 @@ var manager = function() {
                             item = $('#' + id);
                         var cell = item.children('td.download');
                         cell.attr('data-value', v.api[2]).children('div').text(bytesToSize(v.api[2], '0'));
-                        var progress = Math.round((v.api[2] * 100 / v.api[1]) * 10) / 10;
                         tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
                     }
                     if (colums['progress'].a) {
+                        var progress = Math.round((v.api[2] * 100 / v.api[1]) * 10) / 10;
                         if (!item)
                             item = $('#' + id);
                         var cell = item.children('td.progress');
                         var color = (v.api[1] == v.api[2] && v.api[3] != 0) ? '#41B541' : '#3687ED';
-                        cell.attr('data-value', progress).children('div.progress_b').children('div.progress_b_i').css({'width': writePersent(progress) + 'px', 'background-color': color}).children('div').html(progress + '%');
+                        cell.attr('data-value', progress).children('div.progress_b').children('div.progress_b_i').css({'width': writePersent(progress) + '%', 'background-color': color}).parent().children('div.val').html(progress + '%');
                         tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
                         if (key != 3) {
                             break;
@@ -1584,8 +1584,7 @@ var manager = function() {
     var writePersent = function(i)
     {
         //выписывает проценты для прогресс баров
-        var full = 68;
-        return Math.round(full / 100 * i);
+        return Math.round(i);
     };
     var bytesToSizeInSec = function(bytes, nan) {
         //переводит байты в строчки\сек
