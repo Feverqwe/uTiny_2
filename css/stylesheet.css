@@ -293,7 +293,7 @@ table.fl-table-body thead {
     visibility: hidden;
 }
 div.fl-layer table.fl-table-body td.select {
-    padding-left: 3px;
+    text-align: center;
 }
 div.fl-layer table .select input { 
     margin-top: 2.5px; 

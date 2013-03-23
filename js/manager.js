@@ -22,6 +22,7 @@ var manager = function() {
         'tr_word_wrap': false,
         'fl_word_wrap': true,
         'fl_width': 0,
+        'fl_height': 0,
         'body_width': 0
     }
     var chk_settings = function() {
@@ -92,6 +93,7 @@ var manager = function() {
         tmp_vars.fl_width = sum_width + 50;
         var fl_h = tables.window.height() - 34 - 19;
         var fl_l_h = tables.window.height() - 34 - 19 - 34;
+        tmp_vars.fl_height = fl_l_h;
         style += 'div.file-list {' +
                 'left: ' + ((tmp_vars.body_width - tmp_vars.fl_width) / 2) + "px; " +
                 'height: ' + fl_h + 'px; ' +
@@ -1409,14 +1411,12 @@ var manager = function() {
     var torrent_file_list = function(id) {
         var id = '';
         var clear = 0;
-        var file_list_h = 0;
-        var fl_layer_h = 0;
         var display_fl = 0;
         var display_loading = 0;
         var loading_img = function() {
             $('<div class="file-list-loading"></div>').css({
-                "top": (fl_layer_h / 2 - 15) + "px",
-                "left": (600 / 2 - 15) + "px"
+                "top": (tmp_vars.fl_height / 2 - 15) + "px",
+                "left": (tmp_vars.fl_width / 2 - 15) + "px"
             }).appendTo(tables['fl-layer']);
             display_loading = 1;
         };
@@ -1428,14 +1428,16 @@ var manager = function() {
             if (arr[0] != id) {
                 return;
             }
-            if (display_loading) {
+            var files = arr[1];
+            var c = 0;
+            $.each(files, function(k, v) {
+                fl_table_controller.add(k, v);
+                c++;
+            });
+            if (display_loading && c > 0) {
                 tables['fl-layer'].children('div.file-list-loading').remove();
                 display_loading = 0;
             }
-            var files = arr[1];
-            $.each(files, function(k, v) {
-                fl_table_controller.add(k, v);
-            });
             if (clear == 1) {
                 tables['fl-table-main'].trigger('update');
                 if (tmp_vars.moveble_enabled_fl) {
