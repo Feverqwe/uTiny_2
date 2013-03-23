@@ -238,6 +238,7 @@ var options = function() {
             } else
                 console.log(t);
         });
+        write_sortable_tables();
     };
     var popup = function() {
         var isPopup = false;
