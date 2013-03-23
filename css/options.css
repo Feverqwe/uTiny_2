@@ -63,11 +63,11 @@ input {
 select {
     font-size: 1em;
 }
-select.folders {
+select[name="folders"] {
     font-size: 1em;
     height: 110px;
 }
-select.folder_arr {
+select[name="folder_arr"] {
     width: 250px;
 }
 textarea {

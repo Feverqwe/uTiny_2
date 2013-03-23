@@ -11,10 +11,10 @@
     "icons": {
         "128": "images/icon_128.png"
     },
-    "permissions": [ "http://*/*", "https://*/*", "notifications", "tabs", "contextMenus" ],
+    "permissions": [ "http://*/*", "https://*/*", "storage", "notifications", "tabs", "contextMenus" ],
     "name": "uTorrent easy client",
     "description": "__MSG_appDesc__",
     "default_locale": "en",
     "options_page": "options.html",
-    "version": "2.0.12"
+    "version": "2.0.14"
 }

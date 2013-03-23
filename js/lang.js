@@ -169,7 +169,9 @@ var get_lang = function(lang) {
             55: "Yandex.Money",
             56: "If possible please",
             57: " make a donation through",
-            58: "or"
+            58: "or",
+            59: "Save the settings to the cloud",
+            60: "Get the settings from the cloud"
         }
     }
     var lang_arr_ru = {
@@ -342,7 +344,9 @@ var get_lang = function(lang) {
             55: "Яндекс.Деньги",
             56: "Если возможно, пожалуйста",
             57: ", сделайте пожертвование через",
-            58: "или"
+            58: "или",
+            59: "Сохранить настройки в облако",
+            60: "Получить из облака"
         }
     }
     if (!lang) {

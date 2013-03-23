@@ -32,20 +32,20 @@ var options = function() {
                 if (k in set) {
                     if (k == "folders_array") {
                         var arr = set[k];
-                        $('select.folders').empty();
+                        $('select[name="folders"]').empty();
                         for (var n = 0; n < arr.length; n++) {
-                            $('select.folders').append(new Option(arr[n][1], JSON.stringify(arr[n])));
+                            $('select[name="folders"]').append(new Option(arr[n][1], JSON.stringify(arr[n])));
                         }
                     }
                 }
             }
         });
         write_sortable_tables();
-        $('select.folder_arr').empty().on('click', get_dir_list);
-        $('input.add_folder')[0].disabled = true;
+        $('select[name="folder_arr"]').empty().on('click', get_dir_list);
+        $('input[name="add_folder"]')[0].disabled = true;
     };
     var saveAll = function() {
-        localStorage['lang'] = $('.lang').find('select').eq(0).val();
+        localStorage['lang'] = $('select[name="language"]').val();
         var def = _engine.getDefSettings();
         $.each(def, function(key, value) {
             if (value.t == "text") {
@@ -75,7 +75,7 @@ var options = function() {
             }
         });
         var folders_arr = [];
-        var f_sel = $('select.folders').children('option');
+        var f_sel = $('select[name="folders"]').children('option');
         var c = f_sel.length;
         for (var n = 0; n < c; n++) {
             folders_arr[folders_arr.length] = JSON.parse(f_sel.eq(n).val());
@@ -152,11 +152,11 @@ var options = function() {
             $(this).parents().eq(1).children('div.restore').slideDown('fast');
             $(this).parent().children('a.restore_tab').addClass('active');
         });
-        $('div.backup').find('input').click(function(e) {
+        $('div.backup').find('input[name=backup]').click(function(e) {
             e.preventDefault();
             getBackup();
         });
-        $('div.restore').find('input').click(function(e) {
+        $('div.restore').find('input[name=restore]').click(function(e) {
             e.preventDefault();
             stngsRestore($(this).parent().children('textarea').val());
             $('textarea[name="backup"]').empty();
@@ -197,11 +197,11 @@ var options = function() {
         _engine.sendAction("&action=list-dirs", 1, function(arr) {
             if ('download-dirs' in arr == false)
                 return;
-            $('input.add_folder')[0].disabled = false;
-            $('select.folder_arr').empty();
+            $('input[name="add_folder"]')[0].disabled = false;
+            $('select[name="folder_arr"]').empty();
             $(this).unbind('click');
             $.each(arr['download-dirs'], function(key, value) {
-                $('select.folder_arr').append(new Option('[' + bytesToSize(value['available'] * 1024 * 1024) + ' ' + lang_arr[107][1] + '] ' + value['path'], key));
+                $('select[name="folder_arr"]').append(new Option('[' + bytesToSize(value['available'] * 1024 * 1024) + ' ' + lang_arr[107][1] + '] ' + value['path'], key));
             });
         });
     };
@@ -224,7 +224,7 @@ var options = function() {
         }
         lang_arr = get_lang(language);
         var lang = lang_arr.settings;
-        $('.lang').find('select').val(language);
+        $('select[name="language"]').val(language);
         $.each(lang, function(k, v) {
             var el = $('[data-lang=' + k + ']');
             if (el.length == 0)
@@ -251,7 +251,7 @@ var options = function() {
     };
     var chk_settings = function() {
         _engine.getToken(function() {
-            $('div.page.save > div.status').css({'background': 'none', 'color':'#009900'}).text(lang_arr.settings[52]).animate({opacity: 0}, 3000, function() {
+            $('div.page.save > div.status').css({'background': 'none', 'color': '#009900'}).text(lang_arr.settings[52]).animate({opacity: 0}, 3000, function() {
                 $(this).empty().css("opacity", "1");
             });
             if (popup()) {
@@ -264,7 +264,7 @@ var options = function() {
     return {
         begin: function() {
             write_language();
-            $('.lang').on('change', 'select', function() {
+            $('select[name="language"]').on('change', function() {
                 write_language($(this).val());
             });
             $('ul.menu').on('click', 'a', function(e) {
@@ -274,21 +274,21 @@ var options = function() {
                 $('body').find('div.page.active').removeClass('active');
                 $('body').find('div.' + $(this).data('page')).addClass('active');
             });
-            $("li.default").children('input[name="tr"]').on("click", function() {
+            $('input[name="tr_reset"]').on("click", function() {
                 reset_table($("ul.tr_colums"), _engine.getDefColums());
             });
-            $("li.default").children('input[name="fl"]').on("click", function() {
+            $('input[name="fl_reset"]').on("click", function() {
                 reset_table($("ul.fl_colums"), _engine.getDefFlColums());
             });
-            $('input.add_folder').on('click', function() {
-                var arr = [$('select.folder_arr').val(), $(this).parent().children('input[type=text]').val()];
+            $('input[name="add_folder"]').on('click', function() {
+                var arr = [$('select[name="folder_arr"]').val(), $(this).parent().children('input[type=text]').val()];
                 if (arr[1].length < 1)
                     return;
-                $('select.folders').append(new Option(arr[1], JSON.stringify(arr)));
+                $('select[name="folders"]').append(new Option(arr[1], JSON.stringify(arr)));
                 $(this).parent().children('input[type=text]').val("");
             });
-            $('input.rm_folder').on('click', function() {
-                $('select.folders :selected').remove();
+            $('input[name="rm_folder"]').on('click', function() {
+                $('select[name="folders"] :selected').remove();
             });
             $('input[name="save"]').on('click', function() {
                 saveAll();
@@ -296,6 +296,37 @@ var options = function() {
                 _engine.updateSettings(lang_arr);
                 chk_settings();
             });
+            if (chrome.storage) {
+                $('input[name="save_in_cloud"]').on('click', function() {
+                    var obj = {}
+                    obj['backup'] = JSON.stringify(localStorage);
+                    chrome.storage.sync.set(obj);
+                    $(this).val(lang_arr.settings[52]);
+                    window.setTimeout(function() {
+                        $('input[name="save_in_cloud"]').val(lang_arr.settings[59]);
+                    }, 3000);
+                    $('input[name="get_from_cloud"]')[0].disabled = false;
+                });
+                $('input[name="get_from_cloud"]').on('click', function() {
+                    chrome.storage.sync.get("backup", function(val) {
+                        if ("backup" in val == false)
+                            return;
+                        this.disabled = true;
+                        $('textarea[name="restore"]').val(val.backup);
+                    }
+                    );
+                });
+                chrome.storage.sync.get("backup",
+                        function(val) {
+                            if ("backup" in val == false) {
+                                $('input[name="get_from_cloud"]').eq(0)[0].disabled = true;
+                            }
+                        }
+                );
+            } else {
+                $('input[name="get_from_cloud"]').css('display', 'none');
+                $('input[name="save_in_cloud"]').css('display', 'none');
+            }
             set_place_holder();
             make_bakup_form();
         }

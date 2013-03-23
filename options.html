@@ -23,7 +23,7 @@
             <fieldset class="lang">
                 <legend data-lang="54">Язык</legend>
                 <div>
-                    <select><option value="en">English</option><option value="ru">Русский</option></select>
+                    <select name="language"><option value="en">English</option><option value="ru">Русский</option></select>
                 </div>
             </fieldset>
             <fieldset>
@@ -80,14 +80,14 @@
                 <legend data-lang="12">Управление столбцами списка торрентов</legend>
                 <ul class="tr_colums sortable"></ul>
                 <ul>
-                    <li class="default"><input data-lang="28" name="tr" type="button" value="Сбросить настройки"/></li>
+                    <li class="default"><input data-lang="28" name="tr_reset" type="button" value="Сбросить настройки"/></li>
                 </ul>
             </fieldset>
             <fieldset>
                 <legend data-lang="13">Управление столбцами списка файлов</legend>
                 <ul class="fl_colums sortable"></ul>
                 <ul>
-                    <li class="default"><input data-lang="27" name="fl" type="button" value="Сбросить настройки"/></li>
+                    <li class="default"><input data-lang="27" name="fl_reset" type="button" value="Сбросить настройки"/></li>
                 </ul>
             </fieldset>
         </div>
@@ -102,10 +102,10 @@
             <fieldset class="folders">
                 <legend data-lang="15">Управление каталогами</legend>
                 <ul>
-                    <li><span data-lang="24">Каталог</span> <select class="folder_arr"></select></li>
-                    <li><span data-lang="23">Подкаталог</span> <input type="text"> <input data-lang="48" class="add_folder" type="button" value="Добавить"></li>
-                    <li class="list"><select class="folders" multiple="multiple"></select></li>
-                    <li><input data-lang="22" class="rm_folder" type="button" value="Удалить выбранное"/></li>
+                    <li><span data-lang="24">Каталог</span> <select name="folder_arr"></select></li>
+                    <li><span data-lang="23">Подкаталог</span> <input type="text"> <input data-lang="48" name="add_folder" type="button" value="Добавить"></li>
+                    <li class="list"><select name="folders" multiple="multiple"></select></li>
+                    <li><input data-lang="22" name="rm_folder" type="button" value="Удалить выбранное"/></li>
                 </ul>
             </fieldset>
         </div>
@@ -119,11 +119,13 @@
                     </div>
                     <div class="backup" style="display:none;">
                         <textarea rows="10" name="backup"></textarea>
-                        <input data-lang="19" type="button" value="Обновить">
+                        <input data-lang="19" type="button" value="Обновить" name="backup">
+                        <input data-lang="59" type="button" value="Сохранить в облаке" name="save_in_cloud"/>
                     </div>
                     <div class="restore" style="display:block;">
                         <textarea rows="10" name="restore"></textarea>
-                        <input data-lang="18" type="button" value="Восстановить">
+                        <input data-lang="18" type="button" value="Восстановить" name="restore"/>
+                        <input data-lang="60" type="button" value="Получить из облака" name="get_from_cloud"/>
                     </div>
                 </div>
             </fieldset>
