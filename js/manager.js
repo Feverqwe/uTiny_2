@@ -808,9 +808,9 @@ var manager = function() {
                         tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
                     }
                     if (colums['progress'].a) {
-                        var progress = Math.round((v.api[2] * 100 / v.api[1]) * 10) / 10;
                         if (!item)
                             item = $('#' + id);
+                        var progress = Math.round((v.api[2] * 100 / v.api[1]) * 10) / 10;
                         var cell = item.children('td.progress');
                         var color = (v.api[1] == v.api[2] && v.api[3] != 0) ? '#41B541' : '#3687ED';
                         cell.attr('data-value', progress).children('div.progress_b').children('div.progress_b_i').css({'width': writePersent(progress) + '%', 'background-color': color}).parent().children('div.val').html(progress + '%');
@@ -1429,12 +1429,13 @@ var manager = function() {
                 return;
             }
             var files = arr[1];
-            var c = 0;
+            if (files.length == 0) {
+                return;
+            }
             $.each(files, function(k, v) {
                 fl_table_controller.add(k, v);
-                c++;
             });
-            if (display_loading && c > 0) {
+            if (display_loading) {
                 tables['fl-layer'].children('div.file-list-loading').remove();
                 display_loading = 0;
             }

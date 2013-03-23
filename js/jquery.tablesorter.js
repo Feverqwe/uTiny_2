@@ -745,23 +745,28 @@
                         buildCache($t0);
                         checkResort($this, resort, callback);
                     }).bind("updateCell.tablesorter", function(e, cell, resort, callback) {
-                        $this.find(c.selectorRemove).remove();
-                        // get position from the dom
-                        var l, row, icell,
-                                $tb = $this.find('tbody'),
-                                // update cache - format: function(s, table, cell, cellIndex)
-                                // no closest in jQuery v1.2.6 - tbdy = $tb.index( $(cell).closest('tbody') ),$row = $(cell).closest('tr');
-                                tbdy = $tb.index($(cell).parents('tbody').filter(':last')),
-                                $row = $(cell).parents('tr').filter(':last');
-                        cell = $(cell)[0]; // in case cell is a jQuery object
-                        // tbody may not exist if update is initialized while tbody is removed for processing
-                        if ($tb.length && tbdy >= 0) {
-                            row = $tb.eq(tbdy).find('tr').index($row);
-                            icell = cell.cellIndex;
-                            l = c.cache[tbdy].normalized[row].length - 1;
-                            c.cache[tbdy].row[$t0.config.cache[tbdy].normalized[row][l]] = $row;
-                            c.cache[tbdy].normalized[row][icell] = c.parsers[icell].format(getElementText($t0, cell, icell), $t0, cell, icell);
-                            checkResort($this, resort, callback);
+                        try {
+                            $this.find(c.selectorRemove).remove();
+                            // get position from the dom
+                            var l, row, icell,
+                                    $tb = $this.find('tbody'),
+                                    // update cache - format: function(s, table, cell, cellIndex)
+                                    // no closest in jQuery v1.2.6 - tbdy = $tb.index( $(cell).closest('tbody') ),$row = $(cell).closest('tr');
+                                    tbdy = $tb.index($(cell).parents('tbody').filter(':last')),
+                                    $row = $(cell).parents('tr').filter(':last');
+                            cell = $(cell)[0]; // in case cell is a jQuery object
+                            // tbody may not exist if update is initialized while tbody is removed for processing
+                            if ($tb.length && tbdy >= 0) {
+                                row = $tb.eq(tbdy).find('tr').index($row);
+                                icell = cell.cellIndex;
+                                l = c.cache[tbdy].normalized[row].length - 1;
+                                c.cache[tbdy].row[$t0.config.cache[tbdy].normalized[row][l]] = $row;
+                                c.cache[tbdy].normalized[row][icell] = c.parsers[icell].format(getElementText($t0, cell, icell), $t0, cell, icell);
+                                checkResort($this, resort, callback);
+                            }
+                        }
+                        catch (e)
+                        {
                         }
                     }).bind("addRows.tablesorter", function(e, $row, resort, callback) {
                         var i, rows = $row.filter('tr').length,
