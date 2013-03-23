@@ -43,6 +43,7 @@ div.page.save {
     display: block;
     margin-top: 10px;
     text-align: center;
+    margin-bottom: 20px;
 }
 div.page.save > div.status {
     height: 30px;

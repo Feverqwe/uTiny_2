@@ -32,6 +32,7 @@ var options = function() {
                 if (k in set) {
                     if (k == "folders_array") {
                         var arr = set[k];
+                        $('select.folders').empty();
                         for (var n = 0; n < arr.length; n++) {
                             $('select.folders').append(new Option(arr[n][1], JSON.stringify(arr[n])));
                         }
@@ -40,6 +41,8 @@ var options = function() {
             }
         });
         write_sortable_tables();
+        $('select.folder_arr').empty().on('click', get_dir_list);
+        $('input.add_folder')[0].disabled = true;
     };
     var saveAll = function() {
         localStorage['lang'] = $('.lang').find('select').eq(0).val();
@@ -128,6 +131,7 @@ var options = function() {
             _engine.updateSettings(lang_arr);
             set_place_holder();
             $('a[data-page="setup"]').trigger('click');
+            chk_settings();
         } catch (err) {
             alert(lang_arr.settings[51] + "\n" + err);
         }
@@ -244,6 +248,18 @@ var options = function() {
         }
         return isPopup;
     };
+    var chk_settings = function() {
+        _engine.getToken(function() {
+            $('div.page.save > div.status').css({'background': 'none', 'color':'#009900'}).text(lang_arr.settings[52]).animate({opacity: 0}, 3000, function() {
+                $(this).empty().css("opacity", "1");
+            });
+            if (popup()) {
+                window.location = "manager.html";
+            }
+        }, function() {
+            $('div.page.save > div.status').css({'background': 'none', 'color': '#c40005'}).text(lang_arr.settings[53] + ' ' + _engine.getStatus());
+        })
+    }
     return {
         begin: function() {
             write_language();
@@ -263,8 +279,6 @@ var options = function() {
             $("li.default").children('input[name="fl"]').on("click", function() {
                 reset_table($("ul.fl_colums"), _engine.getDefFlColums());
             });
-            $('select.folder_arr').on('click', get_dir_list);
-            $('input.add_folder')[0].disabled = true;
             $('input.add_folder').on('click', function() {
                 var arr = [$('select.folder_arr').val(), $(this).parent().children('input[type=text]').val()];
                 if (arr[1].length < 1)
@@ -279,17 +293,7 @@ var options = function() {
                 saveAll();
                 $('div.page.save > div.status').css('background', 'url(/images/loading.gif) center center no-repeat').text('');
                 _engine.updateSettings(lang_arr);
-                _engine.getToken(function() {
-                    $('div.page.save > div.status').animate({opacity: 0}, 1000, function () {
-                        $(this).empty().css("opacity","1");
-                    });
-                    $('div.page.save > div.status').css('background', 'none').text(lang_arr.settings[52]);
-                    if (popup()) {
-                        window.location = "manager.html";
-                    }
-                }, function() {
-                    $('div.page.save > div.status').css('background', 'none').text(lang_arr.settings[53] + ' ' + _engine.getStatus());
-                })
+                chk_settings();
             });
             set_place_holder();
             make_bakup_form();
