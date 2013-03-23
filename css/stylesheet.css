@@ -199,9 +199,9 @@ table td.progress div.progress_b_i {
 }
 table td.progress div.val {
     position: absolute;
-    height: 14px;
     text-align: center;
     z-index: 1;
+    line-height: 15px;
     width: 100%;
 }
 div.torrent-list-layer table td.controls div.btns {
