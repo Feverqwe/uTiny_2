@@ -12,7 +12,9 @@ var manager = function() {
         'moveble_enabled_tr': true,
         'moveble_enabled_fl': false,
         'auto_order': false,
+        'tr_auto_order_cell' : false,
         'tr_auto_order': false,
+        'fl_auto_order_cell': false,
         'fl_auto_order': false,
         'filelist_param': '',
         'fl_file_selected': null,
@@ -292,7 +294,9 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var cell = item.children('td.name');
                         cell.children('div').attr('title', v[2]).children('span').text(v[2]);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        if (tmp_vars.tr_auto_order_cell) {
+                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        }
                         break;
                     }
                 case 3:
@@ -302,7 +306,9 @@ var manager = function() {
                         var t_s = bytesToSize(v[3]);
                         var cell = item.children('td.size');
                         cell.attr('data-value', v[3]).children('div').attr('title', t_s).html(t_s);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        if (tmp_vars.tr_auto_order_cell) {
+                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        }
                         break;
                     }
                 case 4:
@@ -314,7 +320,9 @@ var manager = function() {
                         var progress = v[4] / 10;
                         var cell = item.children('td.progress');
                         var with_c = cell.attr('data-value', v[4]).children('div.progress_b').children('div.progress_b_i');
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        if (tmp_vars.tr_auto_order_cell) {
+                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        }
                         with_c.css('width', writePersent(progress) + '%').parent().children('div.val').html(progress + '%');
                         if (v[1] == 201 && v[4] == 1000)
                         {
@@ -332,7 +340,9 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var cell = item.children('td.status');
                         cell.attr('data-value', v[1]).children('div').attr('title', v[21]).html(v[21]);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        if (tmp_vars.tr_auto_order_cell) {
+                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        }
                         break;
                     }
                 case 9:
@@ -341,7 +351,9 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var cell = item.children('td.down_speed');
                         cell.attr('data-value', v[9]).children('div').html(bytesToSizeInSec(v[9], ''));
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        if (tmp_vars.tr_auto_order_cell) {
+                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        }
                         break;
                     }
                 case 8:
@@ -350,7 +362,9 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var cell = item.children('td.uplo_speed');
                         cell.attr('data-value', v[8]).children('div').html(bytesToSizeInSec(v[8], ''));
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        if (tmp_vars.tr_auto_order_cell) {
+                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        }
                         break;
                     }
                 case 14:
@@ -361,7 +375,9 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var cell = item.children('td.seeds_peers');
                         cell.children('div').html(v[14] + '/' + v[12]);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        if (tmp_vars.tr_auto_order_cell) {
+                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        }
                         break;
                     }
                 case 17:
@@ -373,7 +389,9 @@ var manager = function() {
                             val = '*';
                         var cell = item.children('td.position');
                         cell.children('div').html(val);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        if (tmp_vars.tr_auto_order_cell) {
+                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        }
                         break;
                     }
                 case 9:
@@ -387,7 +405,9 @@ var manager = function() {
                             val = 0;
                         var cell = item.children('td.ostalos');
                         cell.attr('data-value', val).children('div').html(bytesToSize(val, 0));
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        if (tmp_vars.tr_auto_order_cell) {
+                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        }
                         break;
                     }
                 case 15:
@@ -396,7 +416,9 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var cell = item.children('td.seeds');
                         cell.children('div').html(v[15]);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        if (tmp_vars.tr_auto_order_cell) {
+                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        }
                         break;
                     }
                 case 13:
@@ -405,7 +427,9 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var cell = item.children('td.peers');
                         cell.children('div').html(v[13]);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        if (tmp_vars.tr_auto_order_cell) {
+                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        }
                         break;
                     }
                 case 10:
@@ -415,7 +439,9 @@ var manager = function() {
                         var s_time = unixintime(v[10]);
                         var cell = item.children('td.time');
                         cell.attr('data-value', v[10]).children('div').attr('title', s_time).html(s_time);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        if (tmp_vars.tr_auto_order_cell) {
+                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        }
                         break;
                     }
                 case 6:
@@ -424,7 +450,9 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var cell = item.children('td.otdano');
                         cell.attr('data-value', v[6]).children('div').html(bytesToSize(v[6], 0));
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        if (tmp_vars.tr_auto_order_cell) {
+                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        }
                         break;
                     }
                 case 5:
@@ -433,7 +461,9 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var cell = item.children('td.poluchino');
                         cell.attr('data-value', v[5]).children('div').html(bytesToSize(v[5], 0));
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        if (tmp_vars.tr_auto_order_cell) {
+                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        }
                         break;
                     }
                 case 7:
@@ -443,7 +473,9 @@ var manager = function() {
                         var val = v[7] / 1000;
                         var cell = item.children('td.koeficient');
                         cell.attr('data-value', v[7]).children('div').html(val);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        if (tmp_vars.tr_auto_order_cell) {
+                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        }
                         break;
                     }
                 case 16:
@@ -453,7 +485,9 @@ var manager = function() {
                         var val = Math.round((v[16] / 65535) * 1000) / 1000;
                         var cell = item.children('td.dostupno');
                         cell.attr('data-value', v[16]).children('div').html(val);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        if (tmp_vars.tr_auto_order_cell) {
+                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        }
                         break;
                     }
                 case 11:
@@ -462,7 +496,9 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var cell = item.children('td.metka');
                         cell.children('div').attr('title', v[11]).html(v[11]);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        if (tmp_vars.tr_auto_order_cell) {
+                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        }
                         break;
                     }
                 case 23:
@@ -472,7 +508,9 @@ var manager = function() {
                         var str_time = writeTimeFromShtamp(v[23]);
                         var cell = item.children('td.time_dobavleno');
                         cell.children('div').attr('title', str_time).html(str_time);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        if (tmp_vars.tr_auto_order_cell) {
+                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        }
                         break;
                     }
                 case 24:
@@ -482,7 +520,9 @@ var manager = function() {
                         var str_time = writeTimeFromShtamp(v[24]);
                         var cell = item.children('td.time_zavircheno');
                         cell.children('div').attr('title', str_time).html(str_time);
-                        tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        if (tmp_vars.tr_auto_order_cell) {
+                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+                        }
                         break;
                     }
             }
@@ -795,7 +835,9 @@ var manager = function() {
                             item = $('#' + id);
                         cell = item.children('td.size');
                         cell.attr('data-value', v.api[1]).children('div').text(bytesToSize(v.api[1], '0'));
-                        tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
+                        if (tmp_vars.fl_auto_order_cell) {
+                            tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
+                        }
                         break;
                     }
                 case 2:
@@ -805,7 +847,9 @@ var manager = function() {
                             item = $('#' + id);
                         var cell = item.children('td.download');
                         cell.attr('data-value', v.api[2]).children('div').text(bytesToSize(v.api[2], '0'));
-                        tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
+                        if (tmp_vars.fl_auto_order_cell) {
+                            tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
+                        }
                     }
                     if (colums['progress'].a) {
                         if (!item)
@@ -814,7 +858,9 @@ var manager = function() {
                         var cell = item.children('td.progress');
                         var color = (v.api[1] == v.api[2] && v.api[3] != 0) ? '#41B541' : '#3687ED';
                         cell.attr('data-value', progress).children('div.progress_b').children('div.progress_b_i').css({'width': writePersent(progress) + '%', 'background-color': color}).parent().children('div.val').html(progress + '%');
-                        tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
+                        if (tmp_vars.fl_auto_order_cell) {
+                            tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
+                        }
                         if (key != 3) {
                             break;
                         }
@@ -826,7 +872,9 @@ var manager = function() {
                         cell = item.children('td.priority');
                         var priority = lang_arr[87][v.api[3]];
                         cell.attr('data-value', v.api[3]).attr("title", priority).children('div').text(priority);
-                        tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
+                        if (tmp_vars.fl_auto_order_cell) {
+                            tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
+                        }
                         break;
                     }
             }
@@ -1662,7 +1710,9 @@ var manager = function() {
             }
             _engine.setWindow();
             if (tmp_vars.auto_order) {
+                tmp_vars.tr_auto_order_cell = true;
                 tmp_vars.tr_auto_order = true;
+                tmp_vars.fl_auto_order_cell = true;
                 tmp_vars.fl_auto_order = true;
             }
             timer = timer();
