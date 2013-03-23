@@ -12,7 +12,7 @@ var manager = function() {
         'moveble_enabled_tr': true,
         'moveble_enabled_fl': false,
         'auto_order': false,
-        'tr_auto_order_cell' : false,
+        'tr_auto_order_cell': false,
         'tr_auto_order': false,
         'fl_auto_order_cell': false,
         'fl_auto_order': false,
