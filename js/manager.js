@@ -497,7 +497,7 @@ var manager = function() {
             }
         });
         item += '</tr>';
-        tables['tr-body'].append(item);
+        tables['tr-body'].prepend(item);
         function switching(key)
         {
             switch (key) {

@@ -5,6 +5,7 @@ var options = function() {
         var set = _engine.getSettings();
         $.each(def, function(k, v) {
             if (v.t == "text" || v.t == "number" || v.t == "password") {
+                $('input[name="' + k + '"]').removeAttr("value");
                 if (k in set && set[k] != v.v) {
                     if (k == "bg_update_interval" || k == "notify_visbl_interval" || k == "mgr_update_interval") {
                         $('input[name="' + k + '"]').attr("value", set[k] / 1000);
@@ -38,8 +39,10 @@ var options = function() {
                 }
             }
         });
+        write_sortable_tables();
     };
     var saveAll = function() {
+        localStorage['lang'] = $('.lang').find('select').eq(0).val();
         var def = _engine.getDefSettings();
         $.each(def, function(key, value) {
             if (value.t == "text") {
@@ -78,10 +81,10 @@ var options = function() {
 
         var tr_colums = _engine.getColums();
         var table = $('ul.tr_colums');
-        var new_obj = {}
+        var new_obj = {};
         var items = table.children('li');
         var c = items.length;
-        for (var n = 0; n <  c; n++) {
+        for (var n = 0; n < c; n++) {
             var item = items.eq(n);
             var key = item.data('key');
             var active = (item.children('div.info').children('div').eq(2).children('input').eq(0)[0].checked) ? 1 : 0;
@@ -93,10 +96,10 @@ var options = function() {
         localStorage['colums'] = JSON.stringify(new_obj);
         var fl_colums = _engine.getFlColums();
         var table = $('ul.fl_colums');
-        var new_obj = {}
+        var new_obj = {};
         var items = table.children('li');
         var c = items.length;
-        for (var n = 0; n <  c; n++) {
+        for (var n = 0; n < c; n++) {
             var item = items.eq(n);
             var key = item.data('key');
             var active = (item.children('div.info').children('div').eq(2).children('input').eq(0)[0].checked) ? 1 : 0;
@@ -121,11 +124,14 @@ var options = function() {
                     continue;
                 localStorage[key] = value;
             }
-            top.location.reload();
+            write_language();
+            _engine.updateSettings(lang_arr);
+            set_place_holder();
+            $('a[data-page="setup"]').trigger('click');
         } catch (err) {
             alert(lang_arr.settings[51] + "\n" + err);
         }
-    }
+    };
     var make_bakup_form = function() {
         $('div.backup_form div').children('a.backup_tab').click(function(e) {
             e.preventDefault();
@@ -149,6 +155,7 @@ var options = function() {
         $('div.restore').find('input').click(function(e) {
             e.preventDefault();
             stngsRestore($(this).parent().children('textarea').val());
+            $('textarea[name="backup"]').empty();
         });
     };
     var write_sortable_tables = function() {
@@ -157,11 +164,13 @@ var options = function() {
         }
         var tr_colums = _engine.getColums();
         var tr_table = $("ul.tr_colums");
+        tr_table.empty();
         $.each(tr_colums, function(k, v) {
             ap(tr_table, k, v);
         });
         var fl_colums = _engine.getFlColums();
         var fl_table = $("ul.fl_colums");
+        fl_table.empty();
         $.each(fl_colums, function(k, v) {
             ap(fl_table, k, v);
         });
@@ -179,7 +188,7 @@ var options = function() {
             info.eq(1).children("label").html(v.size);
             info.eq(2).children("input")[0].checked = (v.a) ? true : false;
         });
-    }
+    };
     var get_dir_list = function() {
         _engine.sendAction("&action=list-dirs", 1, function(arr) {
             if ('download-dirs' in arr == false)
@@ -205,9 +214,12 @@ var options = function() {
         }
         return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
     };
-    var write_language = function() {
+    var write_language = function(language) {
+        if (!language) {
+            language = (localStorage.lang !== undefined) ? localStorage["lang"] : 'en';
+        }
+        lang_arr = get_lang(language);
         var lang = lang_arr.settings;
-        var language = (localStorage.lang !== undefined) ? localStorage["lang"] : 'en';
         $('.lang').find('select').val(language);
         $.each(lang, function(k, v) {
             var el = $('[data-lang=' + k + ']');
@@ -222,7 +234,7 @@ var options = function() {
             } else
                 console.log(t);
         });
-    }
+    };
     var popup = function() {
         var isPopup = false;
         var windows = chrome.extension.getViews({type: 'popup'});
@@ -231,14 +243,13 @@ var options = function() {
                 isPopup = true;
         }
         return isPopup;
-    }
+    };
     return {
         begin: function() {
             write_language();
             $('.lang').on('change', 'select', function() {
-                localStorage.lang = $(this).val();
-                window.location.reload();
-            })
+                write_language($(this).val());
+            });
             $('ul.menu').on('click', 'a', function(e) {
                 e.preventDefault();
                 $('ul.menu').find('a.active').removeClass('active');
@@ -267,9 +278,11 @@ var options = function() {
             $('input[name="save"]').on('click', function() {
                 saveAll();
                 $('div.page.save > div.status').css('background', 'url(/images/loading.gif) center center no-repeat').text('');
-                _engine.updateSettings();
+                _engine.updateSettings(lang_arr);
                 _engine.getToken(function() {
-                    $('input[name="save"]').val('Сохранено!');
+                    $('div.page.save > div.status').animate({opacity: 0}, 1000, function () {
+                        $(this).empty().css("opacity","1");
+                    });
                     $('div.page.save > div.status').css('background', 'none').text(lang_arr.settings[52]);
                     if (popup()) {
                         window.location = "manager.html";
@@ -280,7 +293,6 @@ var options = function() {
             });
             set_place_holder();
             make_bakup_form();
-            write_sortable_tables();
         }
     };
 }();

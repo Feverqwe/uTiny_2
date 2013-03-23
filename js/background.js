@@ -626,7 +626,10 @@ var engine = function() {
         getDefSettings: function() {
             return JSON.parse(JSON.stringify(def_settings));
         },
-        updateSettings: function() {
+        updateSettings: function(lang) {
+            if (lang) {
+                lang_arr = lang;
+            }
             settings_load();
             tmp_vars.active_torrent = 0;
             tmp_vars.get_repeat = 0;
