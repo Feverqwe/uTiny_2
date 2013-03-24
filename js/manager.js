@@ -74,6 +74,7 @@ var manager = function() {
             tmp_vars.body_width = 800;
             tables.body.css('width', '800px');
         }
+        tmp_vars.body_width = tables.body.width();
     };
     var file_list_head = function() {
         var colums = tmp_vars.fl_colums;
@@ -96,6 +97,7 @@ var manager = function() {
         var fl_h = tables.window.height() - 34 - 19;
         var fl_l_h = tables.window.height() - 34 - 19 - 34;
         tmp_vars.fl_height = fl_l_h;
+        console.log(tmp_vars.body_width, tmp_vars.fl_width);
         style += 'div.file-list {' +
                 'left: ' + ((tmp_vars.body_width - tmp_vars.fl_width) / 2) + "px; " +
                 'height: ' + fl_h + 'px; ' +
