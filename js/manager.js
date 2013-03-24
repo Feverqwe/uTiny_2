@@ -96,8 +96,12 @@ var manager = function() {
         tmp_vars.fl_width = sum_width + 50;
         var fl_h = tables.window.height() - 34 - 19;
         var fl_l_h = tables.window.height() - 34 - 19 - 34;
+        var width_limit = '';
+        if (tmp_vars.fl_width > tmp_vars.body_width) {
+            tmp_vars.fl_width = tmp_vars.body_width;
+            width_limit = 'div.file-list {max-width:' + tmp_vars.body_width + 'px; border-radius: 0;}';
+        }
         tmp_vars.fl_height = fl_l_h;
-        console.log(tmp_vars.body_width, tmp_vars.fl_width);
         style += 'div.file-list {' +
                 'left: ' + ((tmp_vars.body_width - tmp_vars.fl_width) / 2) + "px; " +
                 'height: ' + fl_h + 'px; ' +
@@ -106,12 +110,11 @@ var manager = function() {
         style += 'div.fl-layer {' +
                 'max-height: ' + fl_l_h + 'px;' +
                 'min-height: ' + fl_l_h + 'px; }';
-        style += '</style>';
+        style += width_limit + '</style>';
         tables['fl-head'].html(thead);
         tables['fl-fixed_head'].html(thead);
         tables['body'].children('style.filelist-style').remove();
         tables['body'].append(style);
-
     };
     var update_tr_order = function(s) {
         var th = tables['tr-fixed_head'].find('th');
@@ -1799,6 +1802,14 @@ var manager = function() {
                 e.preventDefault();
                 fl_table_controller.show_folder($(this).attr('data-value'));
                 fl_select_all_check();
+            });
+            tables['fl-layer'].on('scroll', function() {
+                var l = $(this).scrollLeft();
+                if (l) {
+                    tables['fl-table-fixed'].css('left', -($(this).scrollLeft()));
+                } else {
+                    tables['fl-table-fixed'].css('left', 'auto');
+                }
             });
             tables['table-body'].on('scroll', function() {
                 tables['table-fixed'].css('left', -($(this).scrollLeft()));
