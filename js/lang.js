@@ -111,6 +111,9 @@ var get_lang = function(lang) {
         111: 'List of files',
         112: 'Probably torrent file already exists!',
         113: ['', 'Select all'],
+        114: 'Create label',
+        115: 'Enter new label name:',
+        116: ['Save','Cancel'],
         "settings": {
             1: "uTorrent",
             2: "Notifications",
@@ -294,6 +297,9 @@ var get_lang = function(lang) {
         111: 'Список файлов',
         112: 'Возможно торрент файл уже существует!',
         113: ['', 'Выбрать все'],
+        114: 'Создать метку',
+        115: 'Введите имя метки:',
+        116: ['Сохранить','Отменить'],
         "settings": {
             1: "uTorrent",
             2: "Уведомления",

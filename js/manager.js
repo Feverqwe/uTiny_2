@@ -1083,7 +1083,10 @@ var manager = function() {
         }
         var arr = tmp_vars['label'];
         var c = arr.length;
-        var code = '<li class="context-menu-item select_label" data-key="del_label"><span>Remove label</span></li>';
+        var code = '<li class="context-menu-item select_label" data-key="add_label"><span>' + lang_arr[114] + '</span></li>';
+        if (current_label && current_label.length) {
+            code = '<li class="context-menu-item select_label" data-key="del_label"><span>' + lang_arr[12] + '</span></li>';
+        }
         for (var n = 0; n < c; n++) {
             if (current_label && current_label == arr[n][0]) {
                 code += '<li class="context-menu-item select_label" data-key="' + arr[n][1] + '"><span><label>&#9679; </label>' + arr[n][0] + '</span></li>';
@@ -1173,19 +1176,11 @@ var manager = function() {
         var c = labels.length;
         var menu = {};
         menu['del_label'] = {
-            name: lang_arr[12],
-            callback: function(key, opt) {
-                var id = this[0].id;
-                contextActions(key, id);
-            }
+            name: lang_arr[12]
         };
         for (var n = 0; n < c; n++) {
             menu[ labels[n][1] ] = {
-                name: labels[n][0],
-                callback: function(key, opt) {
-                    var id = this[0].id;
-                    contextActions('set_label', id, key);
-                }
+                name: labels[n][0]
             };
         }
         return menu;
@@ -2027,6 +2022,17 @@ var manager = function() {
                 var id = tmp_vars["torrent_context_menu"].attr('data-id');
                 if (label_id == 'del_label') {
                     contextActions('del_label', id);
+                } else
+                if (label_id == 'add_label') {
+                    var new_name = apprise(lang_arr[115], {
+                        'input': 1,
+                        'textOk': lang_arr[116][0],
+                        'textCancel': lang_arr[116][1]
+                    }, function(name) {
+                        if (name) {
+                            contextActions('set_label', id, name);
+                        }
+                    });
                 } else {
                     contextActions('set_label', id, label);
                 }
