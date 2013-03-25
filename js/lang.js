@@ -155,9 +155,9 @@ var get_lang = function(lang) {
             41: "SSL",
             42: "Path",
             43: "Port",
-            44: "Address",
+            44: "IP-address",
             45: "Password",
-            46: "User name",
+            46: "Username",
             47: "seconds",
             48: "Add",
             49: "show",
@@ -171,7 +171,15 @@ var get_lang = function(lang) {
             57: " make a donation through",
             58: "or",
             59: "Save the settings to the cloud",
-            60: "Get the settings from the cloud"
+            60: "Get the settings from the cloud",
+            61: "Help",
+            62: 'Open uTorrent application',
+            63: 'Go in "Options" > "Preferences"',
+            64: 'Open the section "Advanced" > "Web UI"',
+            65: 'Place a check "Enable Web UI", enter "Username" and "Password"',
+            66: 'Place a check "Alternative listening port", enter the port number 8080',
+            67: 'Now enter "Username". "Password", "IP-adress" and "Port". If you do not know your "IP-adress" try enter 127.0.0.1',
+            68: 'Click "Save all"'
         }
     }
     var lang_arr_ru = {
@@ -303,7 +311,7 @@ var get_lang = function(lang) {
             14: "Управление контекстным меню",
             15: "Управление каталогами",
             16: "Резервное копирование и восстановление настроек",
-            17: "Сохранить все!",
+            17: "Сохранить всё!",
             18: "Восстановить",
             19: "Обновить",
             20: "Восстановление",
@@ -330,9 +338,9 @@ var get_lang = function(lang) {
             41: "SSL",
             42: "Путь",
             43: "Порт",
-            44: "Адрес",
+            44: "IP-адрес",
             45: "Пароль",
-            46: "Имя пользователя",
+            46: "Имя",
             47: "секунд",
             48: "Добавить",
             49: "показывать",
@@ -346,7 +354,15 @@ var get_lang = function(lang) {
             57: ", сделайте пожертвование через",
             58: "или",
             59: "Сохранить настройки в облако",
-            60: "Получить из облака"
+            60: "Получить из облака",
+            61: "Справка",
+            62: 'Откройте приложение uTorrent',
+            63: 'Войдите в "Настройки" > "Настройки приложения"',
+            64: 'Откройте раздел "Дополнительно" > "Веб-интерфейс"',
+            65: 'Поставьте галочку "Использовать Веб-интерфейс", введите "Имя" и "Пароль"',
+            66: 'Поставьте галочку "Альтернативный порт", введите номер порта 8080',
+            67: 'Теперь введите "Имя" и "Пароль", "IP-адрес" и "Порт". Если вы не знаете ваш "IP-адрес" попробуйте ввести 127.0.0.1',
+            68: 'Нажмите "Сохранить всё"'
         }
     }
     if (!lang) {

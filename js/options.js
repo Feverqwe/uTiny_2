@@ -267,6 +267,10 @@ var options = function() {
             $('select[name="language"]').on('change', function() {
                 write_language($(this).val());
             });
+            $('a.help').on('click',function (e) {
+                e.preventDefault();
+                $(this).parent().parent().children('div').toggle('fast');
+            })
             $('ul.menu').on('click', 'a', function(e) {
                 e.preventDefault();
                 $('ul.menu').find('a.active').removeClass('active');

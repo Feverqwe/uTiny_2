@@ -223,3 +223,20 @@ div.donate img {
 .lang div {
     text-align: center;
 }
+div.help {
+    display: none;
+}
+div.help div.img {
+    text-align: center;
+}
+div.help div.img img {
+    border: 1px solid #82838e;
+}
+div.help ul {
+    margin: 14px;
+    padding-left: 19px;
+    list-style-type: decimal;
+}
+div.help ul li {
+    margin-bottom: 8px;
+}
