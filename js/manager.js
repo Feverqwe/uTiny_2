@@ -271,18 +271,14 @@ var manager = function() {
     var update_item = function(modifed_arr, v) {
         var colums = tmp_vars.colums;
         var c = modifed_arr.length;
-        for (var n = 0; n < c; n++)
+        for (var n = 0; n < c; n++) {
             switching(modifed_arr[n]);
+        }
         function switching(key)
         {
             var item = null;
             var upd_list = {};
             switch (key) {
-                case 11:
-                    if (!item)
-                        item = $('#' + v[0]);
-                    item.attr('data-label', v[11]);
-                    break;
                 case 22:
                     if (!item)
                         item = $('#' + v[0]);
@@ -496,9 +492,10 @@ var manager = function() {
                         break;
                     }
                 case 11:
+                    if (!item)
+                        item = $('#' + v[0]);
+                    item.attr('data-label', v[11]);
                     if (colums['metka'].a) {
-                        if (!item)
-                            item = $('#' + v[0]);
                         var cell = item.children('td.metka');
                         cell.children('div').attr('title', v[11]).html(v[11]);
                         if (tmp_vars.tr_auto_order_cell) {
@@ -1103,15 +1100,21 @@ var manager = function() {
         var costum = ['all', 'download', 'seeding', 'complite', 'active', 'inacive', 'no label'];
         var cc = costum.length;
         var options = '';
+        var num = 0;
         for (var n = 0; n < cc; n++) {
+            num++;
             options += '<option value="' + costum[n] + '"' + ((isNumber(tmp_vars.sel_label.k) == false && tmp_vars.sel_label.k == costum[n]) ? ' selected' : '') + '>' + lang_arr[70][n] + '</option>';
         }
         for (var n = 0; n < c; n++) {
+            num++;
+            arr[n][2] = arr[n][1];
+            arr[n][1] = num;
             tmp_vars['label_obj'][arr[n][1]] = arr[n][0];
             options += '<option value="' + arr[n][1] + '"' + ((isNumber(tmp_vars.sel_label.k) && tmp_vars.sel_label.k == arr[n][1]) ? ' selected' : '') + '>' + arr[n][0] + '</option>';
         }
         tables['label-select'].selectBox('options', options);
         update_labels_context_menu();
+        tmp_vars['label'] = arr;
     }
     var contextActions = function(k, v, opt) {
         if ((k != 'speed' && !v) || (k == 'speed' && v < 0))
@@ -1943,7 +1946,7 @@ var manager = function() {
                             contextActions(key, id);
                         }
                     },
-                    s1: '--------',
+                    s1: '-',
                     recheck: {
                         name: lang_arr[5],
                         callback: function(key, opt) {
@@ -1999,7 +2002,7 @@ var manager = function() {
                             }
                         }
                     },
-                    's2': '--------',
+                    's2': '-',
                     torrent_files: {
                         name: lang_arr[111],
                         callback: function(key, opt) {
