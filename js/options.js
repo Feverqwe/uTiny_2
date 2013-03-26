@@ -162,10 +162,10 @@ var options = function() {
             $('textarea[name="backup"]').empty();
         });
     };
+    var ap = function(t, k, v) {
+        t.append('<li class="item ui-state-default" data-key="' + k + '"><div class="info"><div>' + lang_arr[v.lang][1] + '</div>[<div>' + lang_arr.settings[50] + ': <label>' + v.size + '</label>px;</div> <div>' + lang_arr.settings[49] + ':<input type="checkbox"' + ((v.a) ? ' checked' : '') + '/>]</div></div><div class="size" style="width:' + v.size + 'px"></div></li>');
+    };
     var write_sortable_tables = function() {
-        function ap(t, k, v) {
-            t.append('<li class="item ui-state-default" data-key="' + k + '"><div class="info"><div>' + lang_arr[v.lang][1] + '</div>[<div>' + lang_arr.settings[50] + ': <label>' + v.size + '</label>px;</div> <div>' + lang_arr.settings[49] + ':<input type="checkbox"' + ((v.a) ? ' checked' : '') + '/>]</div></div><div class="size" style="width:' + v.size + 'px"></div></li>');
-        }
         var tr_colums = _engine.getColums();
         var tr_table = $("ul.tr_colums");
         tr_table.empty();
@@ -182,16 +182,18 @@ var options = function() {
         $("ul.sortable").disableSelection();
         $("ul.sortable").find("div.size").resizable({handles: "e", resize: function(event, ui) {
                 $(this).parent().children('div').children("div").eq(1).children('label').html(ui.size.width);
-            }});
+         }});
     };
     var reset_table = function(table, arr) {
+        table.empty();
         $.each(arr, function(k, v) {
-            var t = table.find('li[data-key="' + k + '"]');
-            var info = t.children("div.info").children("div");
-            t.children("div.size").css("width", v.size);
-            info.eq(1).children("label").html(v.size);
-            info.eq(2).children("input")[0].checked = (v.a) ? true : false;
+            ap(table,k,v);
         });
+        $("ul.sortable").sortable({placeholder: "ui-state-highlight"});
+        $("ul.sortable").disableSelection();
+        $("ul.sortable").find("div.size").resizable({handles: "e", resize: function(event, ui) {
+                $(this).parent().children('div').children("div").eq(1).children('label').html(ui.size.width);
+         }});
     };
     var get_dir_list = function() {
         _engine.sendAction("&action=list-dirs", 1, function(arr) {
@@ -267,7 +269,7 @@ var options = function() {
             $('select[name="language"]').on('change', function() {
                 write_language($(this).val());
             });
-            $('a.help').on('click',function (e) {
+            $('a.help').on('click', function(e) {
                 e.preventDefault();
                 $(this).parent().parent().children('div').toggle('fast');
             })
