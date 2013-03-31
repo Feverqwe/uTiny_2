@@ -342,7 +342,7 @@ var engine = function() {
                     if (popup.chk()) {
                         tmp_vars.popup.manager.updateList(obj['torrentp'], 1);
                     }
-                    addons_active(tmp_vars.get['torrentp']);
+                    addons_active(tmp_vars.get['torrents']);
                 }
                 if ('torrents' in obj) {
                     if (tmp_vars.new_file_monitoring) {
