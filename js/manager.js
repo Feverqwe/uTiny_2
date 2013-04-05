@@ -298,6 +298,9 @@ var manager = function() {
                         if (tmp_vars.tr_auto_order_cell) {
                             tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         }
+                        if (tmp_vars.moveble_enabled_tr) {
+                            calculate_moveble(tables['table-main'].find('td.name > div > span'), tmp_vars.colums.name.size);
+                        }
                         break;
                     }
                 case 3:
