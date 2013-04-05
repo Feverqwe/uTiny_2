@@ -667,6 +667,9 @@ var manager = function() {
             if (path.length == 0) {
                 return '';
             }
+            if (cached[id].gui.name_level[level] != null) {
+                return cached[id].gui.name_level[level];
+            }
             var link = '';
             for (var n = path.length; n >= level; n--) {
                 if (n == level) {
@@ -689,6 +692,7 @@ var manager = function() {
                 }
                 link = '<a class="folder c' + n + '" href="#' + fn + '" data-value="' + fn + '">' + dir_name + '</a>' + link;
             }
+            cached[id].gui.name_level[level] = link;
             return link;
         };
         var add = function(_id, v) {
@@ -718,10 +722,12 @@ var manager = function() {
                 cached[id].gui = {
                     'name': fl_name,
                     'path_arr': fl_path_arr,
-                    'link_path': get_folder_link(id, (fl_path_arr.length > 1) ? fl_path_arr.slice(0, -1) : []) + fl_name,
+                    'link_path': '',
                     'display': 1,
-                    'mod_name': 0
+                    'mod_name': 0,
+                    'name_level' : []
                 }
+                cached[id].gui.link_path = get_folder_link(id, (fl_path_arr.length > 1) ? fl_path_arr.slice(0, -1) : []) + fl_name;
                 create_fl_item(id, cached[id]);
             }
         };
