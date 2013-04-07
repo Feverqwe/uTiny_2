@@ -105,9 +105,23 @@ table tr {
     height: 18px;
     cursor: default;
 }
+table tbody tr {
+    height: 20px;
+}
+table tbody td {
+    border-top: 1px solid #fefefe;
+    border-bottom: 1px solid #ededed;
+}
+table tbody tr {
+    background-color: #fafafa;
+}
 table tbody tr:hover {
     background-color: #3875d7 !important;
     color: #fff;
+}
+table tbody tr:hover td {
+    border-top-color: #3875d7 !important;
+    border-bottom-color: #3875d7 !important;
 }
 th div {
     overflow: hidden;
@@ -155,14 +169,20 @@ div.torrent-list-layer table .status div {
     text-align: center;
 }
 div.fl-layer tr:nth-child(even) {
-      background-color:  #f3f6fa;  
+      background-color: #f1f4f7;
+}
+div.fl-layer tr:nth-child(even) td {
+      border-top-color: #f7f9fc;
 }
 /*div.torrent-list-layer, div.torrent-list-layer table.torrent-table-body {
     background-position-y: 1px;
     background-image:-webkit-repeating-linear-gradient(top, #fff 0px, #fff 18px, #f3f6fa 18px, #f3f6fa 36px);
 }*/
 div.torrent-list-layer tr:nth-child(even) {
-      background-color:  #f3f6fa;  
+      background-color: #f1f4f7;
+}
+div.torrent-list-layer tr:nth-child(even) td {
+      border-top-color: #f7f9fc;
 }
 table.torrent-table-head {
     position: fixed;
@@ -174,6 +194,10 @@ table.torrent-table-body thead {
 table tbody tr.selected {
     background-color: #3875d7 !important;
     color: #fff;
+}
+table tbody tr.selected td {
+    border-top-color: #3875d7 !important;
+    border-bottom-color: #3875d7 !important;
 }
 table td.progress, table th.progress {
     padding: 0;
