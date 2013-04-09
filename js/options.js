@@ -22,7 +22,7 @@ var options = function() {
                 }
             }
             if (v.t == "checkbox") {
-                if (k in set && set[k] != v.v) {
+                if (k in set) {
                     $('input[name="' + k + '"]').eq(0)[0].checked = (set[k]) ? 1 : 0;
                 } else {
                     $('input[name="' + k + '"]').eq(0)[0].checked = (v.v) ? 1 : 0;
@@ -298,7 +298,7 @@ var options = function() {
             });
             $('input[name="save"]').on('click', function() {
                 saveAll();
-                $('div.page.save > div.status').css('background', 'url(/images/loading.gif) center center no-repeat').text('');
+                $('div.page.save > div.status').css('background', 'url(images/loading.gif) center center no-repeat').text('');
                 _engine.updateSettings(lang_arr);
                 chk_settings();
             });
