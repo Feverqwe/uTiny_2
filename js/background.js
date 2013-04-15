@@ -563,6 +563,16 @@ var engine = function() {
     var sendAction = function(action, cid, callback) {
         get(action, cid, callback);
     };
+    var clone_obj = function (obj) {
+        if (null == obj || "object" != typeof obj)
+            return obj;
+        var copy = obj.constructor();
+        for (var attr in obj) {
+            if (obj.hasOwnProperty(attr))
+                copy[attr] = obj[attr];
+        }
+        return copy;
+    }
     return {
         begin: function() {
             timer.start();
@@ -587,19 +597,19 @@ var engine = function() {
             return getToken(a,b);
         },
         getSettings: function() {
-            return JSON.parse(JSON.stringify(settings));
+            return clone_obj(settings);
         },
         getColums: function() {
-            return (localStorage.colums !== undefined) ? JSON.parse(localStorage.colums) : JSON.parse(JSON.stringify(colums));
+            return (localStorage.colums !== undefined) ? JSON.parse(localStorage.colums) : clone_obj(colums);
         },
         getDefColums: function() {
-            return JSON.parse(JSON.stringify(colums));
+            return clone_obj(colums);
         },
         getDefFlColums: function() {
-            return JSON.parse(JSON.stringify(fl_colums));
+            return clone_obj(fl_colums);
         },
         getFlColums: function() {
-            return (localStorage.fl_colums !== undefined) ? JSON.parse(localStorage.fl_colums) : JSON.parse(JSON.stringify(fl_colums));
+            return (localStorage.fl_colums !== undefined) ? JSON.parse(localStorage.fl_colums) : clone_obj(fl_colums);
         },
         setFlColums: function(a) {
             localStorage.fl_colums = JSON.stringify(a);
@@ -624,7 +634,7 @@ var engine = function() {
             get('&action=getsettings');
         },
         getDefSettings: function() {
-            return JSON.parse(JSON.stringify(def_settings));
+            return clone_obj(def_settings);
         },
         updateSettings: function(lang) {
             if (lang) {
