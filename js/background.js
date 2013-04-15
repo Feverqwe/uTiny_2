@@ -364,7 +364,7 @@ var engine = function() {
                     if ('label' in tmp_vars.get == false || tmp_vars.get['label'].toString() != obj['label'].toString()) {
                         tmp_vars.get['label'] = obj['label'];
                         if (popup.chk()) {
-                            tmp_vars.popup.manager.setLabels( JSON.parse(JSON.stringify(tmp_vars.get['label'])) );
+                            tmp_vars.popup.manager.setLabels( clone_obj(tmp_vars.get['label']) );
                         }
                     }
                 }

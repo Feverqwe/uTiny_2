@@ -137,7 +137,7 @@ var options = function() {
         }
     };
     var make_bakup_form = function() {
-        $('div.backup_form div').children('a.backup_tab').click(function(e) {
+        $('div.backup_form div').children('a.backup_tab').on('click',function(e) {
             e.preventDefault();
             $(this).parents().eq(1).children('div.restore').slideUp('fast');
             $(this).parent().children('a.restore_tab').removeClass('active');
@@ -145,18 +145,18 @@ var options = function() {
             $(this).parent().children('a.backup_tab').addClass('active');
             getBackup();
         });
-        $('div.backup_form div').children('a.restore_tab').click(function(e) {
+        $('div.backup_form div').children('a.restore_tab').on('click',function(e) {
             e.preventDefault();
             $(this).parents().eq(1).children('div.backup').slideUp('fast');
             $(this).parent().children('a.backup_tab').removeClass('active');
             $(this).parents().eq(1).children('div.restore').slideDown('fast');
             $(this).parent().children('a.restore_tab').addClass('active');
         });
-        $('div.backup').find('input[name=backup]').click(function(e) {
+        $('div.backup').find('input[name=backup]').on('click',function(e) {
             e.preventDefault();
             getBackup();
         });
-        $('div.restore').find('input[name=restore]').click(function(e) {
+        $('div.restore').find('input[name=restore]').on('click',function(e) {
             e.preventDefault();
             stngsRestore($(this).parent().children('textarea').val());
             $('textarea[name="backup"]').empty();

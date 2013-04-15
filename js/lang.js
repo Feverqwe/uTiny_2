@@ -381,8 +381,8 @@ var get_lang = function(lang) {
     }
 };
 var lang_arr = get_lang();
-$(function () {
+window.onload = function() {
     if ("options" in window == false) {
         get_lang = null;
-    }        
-});
+    }
+}

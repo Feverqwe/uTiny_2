@@ -1194,7 +1194,7 @@
                         name: $node.text(), 
                         callback: (function(){
                             return function(){
-                                $node.click();
+                                $node.trigger('click');
                             };                    
                         })()
                     };
@@ -1210,7 +1210,7 @@
                                 disabled: node.disabled, 
                                 callback: (function(){
                                     return function(){
-                                        node.click();
+                                        node.trigger('click');
                                     };                        
                                 })()
                             };
