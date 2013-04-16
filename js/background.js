@@ -566,12 +566,13 @@ var engine = function() {
     var clone_obj = function (obj) {
         if (null == obj || "object" != typeof obj)
             return obj;
-        var copy = obj.constructor();
-        for (var attr in obj) {
-            if (obj.hasOwnProperty(attr))
-                copy[attr] = obj[attr];
+        var new_obj = {}
+        for (var i in obj) {
+             if (obj.hasOwnProperty(i)) {
+                new_obj[i] = obj[i]
+             }
         }
-        return copy;
+        return new_obj;
     }
     return {
         begin: function() {
