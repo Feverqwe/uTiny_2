@@ -564,15 +564,7 @@ var engine = function() {
         get(action, cid, callback);
     };
     var clone_obj = function (obj) {
-        if (null == obj || "object" != typeof obj)
-            return obj;
-        var new_obj = {}
-        for (var i in obj) {
-             if (obj.hasOwnProperty(i)) {
-                new_obj[i] = obj[i]
-             }
-        }
-        return new_obj;
+        return JSON.parse(JSON.stringify(obj));
     }
     return {
         begin: function() {
