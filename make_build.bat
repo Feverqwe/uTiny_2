@@ -1,4 +1,5 @@
 del .\build.zip
+del .\build.nex
 rd /S /Q .\build
 mkdir .\build
 
@@ -41,6 +42,7 @@ java -jar yuicompressor-2.4.7.jar .\build\css\stylesheet.css -o .\build\css\styl
 java -jar yuicompressor-2.4.7.jar .\css\options.css -o .\build\css\options.css
 
 java -jar htmlcompressor-1.5.3.jar -t html .\build\manager.html -o .\build\manager.html
-::java -jar htmlcompressor-1.5.3.jar -t html .\build\options.html -o .\build\options.html
+java -jar htmlcompressor-1.5.3.jar -t html .\build\options.html -o .\build\options.html
 
 7za a -tzip .\build.zip .\build\*
+copy .\build.zip .\build.nex
