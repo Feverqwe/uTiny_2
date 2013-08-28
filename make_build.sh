@@ -1,6 +1,7 @@
 #!/bin/sh
 find . -name ".DS_Store" -exec rm {} \;
 rm ./build.zip
+rm ./build.nex
 rm -r ./build
 mkdir ./build
 cp -r ./_locales ./build/.
@@ -93,3 +94,5 @@ rm ./build/css/new_stylesheet.css
 
 cd ./build/.
 zip -r ../build.zip ./
+cd ..
+cp build.zip build.nex
