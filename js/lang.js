@@ -181,7 +181,7 @@ var get_lang = function(lang) {
             64: 'Open "Advanced" section > "Web UI"',
             65: 'Check the box "Enable Web UI", enter "Username" and "Password"',
             66: 'Check the box "Alternative listening port", enter port number 8080',
-            67: 'Now enter "Username". "Password", "IP-adress" and "Port". If you do not know your "IP-adress" try enter 127.0.0.1',
+            67: 'Now enter "Username". "Password", "IP-address" and "Port". If you do not know your "IP-address" try enter 127.0.0.1',
             68: 'Press the button "Save all"'
         }
     };
