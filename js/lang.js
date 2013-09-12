@@ -116,6 +116,7 @@ var get_lang = function(lang) {
         116: ['Save', 'Cancel'],
         117: 'Select directory',
         118: 'Add torrent file',
+        119: ['Ok','Cancel'],
         "settings": {
             1: "uTorrent",
             2: "Notifications",
@@ -304,6 +305,7 @@ var get_lang = function(lang) {
         116: ['Enregistrer', 'Fermer'],
         117: 'Sélectionnez le répertoire',
         118: 'Ajouter de fichier torrent',
+        119: ['Ok','Fermer'],
         "settings": {
             1: "uTorrent",
             2: "Notifications",
@@ -492,6 +494,7 @@ var get_lang = function(lang) {
         116: ['Сохранить', 'Отменить'],
         117: 'Выберите каталог',
         118: 'Добавить торрент файл',
+        119: ['Ок','Отменить'],
         "settings": {
             1: "uTorrent",
             2: "Уведомления",

@@ -1852,8 +1852,8 @@ var manager = function() {
                 if (settings.folders_array.length > 0) {
                     apprise(lang_arr[117], {
                         'select': settings.folders_array,
-                        'textYes': lang_arr[110][0],
-                        'textNo': lang_arr[110][1]
+                        'textOk': lang_arr[119][0],
+                        'textCancel': lang_arr[119][1]
                     }, function(r) {
                         if (r !== false) {
                             var inp = tables.file_select.get(0);
