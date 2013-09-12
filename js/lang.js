@@ -115,6 +115,7 @@ var get_lang = function(lang) {
         115: 'Enter new label name:',
         116: ['Save', 'Cancel'],
         117: 'Select torrent file',
+        118: 'Add torrent file',
         "settings": {
             1: "uTorrent",
             2: "Notifications",
@@ -302,6 +303,7 @@ var get_lang = function(lang) {
         115: 'Entrer le nom de l\'étiquette :',
         116: ['Enregistrer', 'Fermer'],
         117: 'Sélectionnez le fichier torrent',
+        118: 'Ajouter de fichier torrent',
         "settings": {
             1: "uTorrent",
             2: "Notifications",
@@ -489,6 +491,7 @@ var get_lang = function(lang) {
         115: 'Введите имя метки:',
         116: ['Сохранить', 'Отменить'],
         117: 'Выберите торрент файл',
+        118: 'Добавить торрент файл',
         "settings": {
             1: "uTorrent",
             2: "Уведомления",
