@@ -725,7 +725,7 @@ var manager = function() {
                     'link_path': '',
                     'display': 1,
                     'mod_name': 0,
-                    'name_level' : []
+                    'name_level': []
                 }
                 cached[id].gui.link_path = get_folder_link(id, (fl_path_arr.length > 1) ? fl_path_arr.slice(0, -1) : []) + fl_name;
                 create_fl_item(id, cached[id]);
@@ -1749,7 +1749,8 @@ var manager = function() {
                 'fl-body': $('.fl-table-body').children('tbody'),
                 'fl-head': $('.fl-table-body').children('thead'),
                 'fl-fixed_head': $('.fl-table-head').children('thead'),
-                'fl-bottom': $('.file-list ul.bottom-menu')
+                'fl-bottom': $('.file-list ul.bottom-menu'),
+                'file_select': $('input[name="torrent_file"]')
             };
             if (tmp_vars.tr_word_wrap) {
                 tables['body'].append('<style>div.torrent-list-layer td div {white-space: normal;word-wrap: break-word;}</style>')
@@ -1840,6 +1841,43 @@ var manager = function() {
                 });
                 if (param.length)
                     _engine.sendAction(param);
+            });
+            tables['menu'].on('click', 'a.add_file', function(e) {
+                e.preventDefault();
+                tables.file_select.trigger('click');
+            });
+            tables.file_select.on('change', function(e) {
+                e.preventDefault();
+                if (settings.folders_array.length > 0) {
+                    apprise(lang_arr[117], {
+                        'select': settings.folders_array,
+                        'textYes': lang_arr[110][0],
+                        'textNo': lang_arr[110][1]
+                    }, function(r) {
+                        if (r !== false) {
+                            var inp = tables.file_select.get(0);
+                            r = parseFloat(r);
+                            if (isNaN(r)) {
+                                return;
+                            }
+                            var folder = "&download_dir=" + encodeURIComponent(settings.folders_array[r][0]) + "&path=" + encodeURIComponent(settings.folders_array[r][1]);
+                            for (var i = 0; i < inp.files.length; i++) {
+                                _engine.upload_file(inp.files[i], folder);
+                            }
+                            tables.file_select.get(0).value = '';
+                        }
+                        else
+                        {
+                            tables.file_select.get(0).value = '';
+                            return;
+                        }
+                    });
+                } else {
+                    for (var i = 0; i < this.files.length; i++) {
+                        _engine.upload_file(this.files[i]);
+                    }
+                    tables.file_select.get(0).value = '';
+                }
             });
             tables['menu'].on('click', 'a.pause_all', function(e) {
                 e.preventDefault();

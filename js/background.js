@@ -456,6 +456,9 @@ var engine = function() {
             xhr.send(null);
         };
         var uploadTorrent = function(file, dir_url) {
+            if (dir_url === undefined) {
+                dir_url = '';
+            }
             var formdata = new FormData();
             formdata.append("torrent_file", file);
             var xhr = new XMLHttpRequest();
@@ -553,7 +556,8 @@ var engine = function() {
                     }
                     context_menu = items;
                 }
-            }
+            },
+            'uploadTorrent': uploadTorrent
         };
     }();
     var getTorrentList = function(subaction) {
@@ -639,7 +643,8 @@ var engine = function() {
             tmp_vars.token_reconnect_counter = 0;
             context_menu_obj.load();
             tmp_vars.get = {};
-        }
+        },
+        upload_file: context_menu_obj.uploadTorrent
     };
 }();
 $(document).ready(function() {

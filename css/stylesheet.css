@@ -69,6 +69,9 @@ ul.menu a.start_all{
 ul.menu a.pause_all{
     background-image: url("/images/pause_all.png");
 }
+ul.menu a.add_file{
+    background-image: url("/images/add.png");
+}
 ul.menu a.btn:hover {
     border: 1px solid #a9acb1;
 }
@@ -468,4 +471,7 @@ li.select div[data-image=inacive],
 }
 .appriseOverlay {
     z-index: 3;
+}
+input[name="torrent_file"] {
+    display: none;
 }
