@@ -26,7 +26,7 @@ var manager = function() {
         'fl_width': 0,
         'fl_height': 0,
         'body_width': 0
-    }
+    };
     var chk_settings = function() {
         if (settings == null ||
                 settings['login'] == null ||
@@ -207,7 +207,7 @@ var manager = function() {
             status: function() {
                 return status;
             }
-        }
+        };
     };
     var get_torrent_list = function() {
         timer.stop();
@@ -401,7 +401,7 @@ var manager = function() {
                     }
                 case 9:
                 case 3:
-                    if (colums['ostalos'].a && '9.3' in upd_list == false) {
+                    if (colums['ostalos'].a && '9.3' in upd_list === false) {
                         upd_list['9.3'] = 1;
                         if (!item)
                             item = $('#' + v[0]);
@@ -590,7 +590,7 @@ var manager = function() {
                     break;
                 case 'time':
                     var s_time = unixintime(v[10]);
-                    return '<td class="' + key + '" data-value="' + v[10] + '"><div title="' + s_time + '">' + s_time + '</div></td>'
+                    return '<td class="' + key + '" data-value="' + v[10] + '"><div title="' + s_time + '">' + s_time + '</div></td>';
                     break;
                 case 'otdano':
                     return '<td class="' + key + '" data-value="' + v[6] + '"><div>' + (bytesToSize(v[6], 0)) + '</div></td>';
@@ -623,7 +623,7 @@ var manager = function() {
             }
             return '';
         }
-    }
+    };
     var fl_table_controller = function() {
         var cached = {};
         var folders = {};
@@ -656,7 +656,7 @@ var manager = function() {
                 show_all();
                 return;
             }
-            if (path in folders == false)
+            if (path in folders === false)
                 return;
             short_name(folders[path], path.split('/').length);
             hide_all(folders[path]);
@@ -665,7 +665,7 @@ var manager = function() {
             if (!level) {
                 level = 0;
             }
-            if (path.length == 0) {
+            if (path.length === 0) {
                 return '';
             }
             if (cached[id].gui.name_level[level] != null) {
@@ -685,10 +685,10 @@ var manager = function() {
                 var fn = path.slice(0, n);
                 var dir_name = fn.slice(-1)[0];
                 fn = fn.join('/');
-                if (fn in folders == false) {
+                if (fn in folders === false) {
                     folders[fn] = {}
                 }
-                if (id in folders[fn] == false) {
+                if (id in folders[fn] === false) {
                     folders[fn][id] = null;
                 }
                 link = '<a class="folder c' + n + '" href="#' + fn + '" data-value="' + fn + '">' + dir_name + '</a>' + link;
@@ -715,7 +715,7 @@ var manager = function() {
                     'gui': null
                 };
                 var fl_path_arr = v[0].split('/');
-                if (fl_path_arr[0].length == 0) {
+                if (fl_path_arr[0].length === 0) {
                     fl_path_arr = fl_path_arr.slice(1);
                 }
                 var fl_name = (fl_path_arr.length) ? fl_path_arr.slice(-1)[0] : v[0];
@@ -727,7 +727,7 @@ var manager = function() {
                     'display': 1,
                     'mod_name': 0,
                     'name_level': []
-                }
+                };
                 cached[id].gui.link_path = get_folder_link(id, (fl_path_arr.length > 1) ? fl_path_arr.slice(0, -1) : []) + fl_name;
                 create_fl_item(id, cached[id]);
             }
@@ -893,7 +893,7 @@ var manager = function() {
         }
     };
     var tr_table_controller = function() {
-        var cached = {}
+        var cached = {};
         var clear = function() {
             tables['tr-body'].empty();
             cached = {};
@@ -918,7 +918,7 @@ var manager = function() {
                         'display': 1
                     }
                 };
-                cached[id]['api'] = v
+                cached[id]['api'] = v;
                 create_item(v);
                 tmp_vars.new_tr_count++;
             }
@@ -953,7 +953,7 @@ var manager = function() {
         };
         var del = function(id) {
             if (id in cached)
-                delete cached[id]
+                delete cached[id];
             $('#' + id).remove();
             tables['table-main'].trigger('update');
         };
@@ -980,7 +980,7 @@ var manager = function() {
                 filter(a, b);
             },
             get_table: function() {
-                return cached
+                return cached;
             }
         };
     }();
@@ -1125,7 +1125,7 @@ var manager = function() {
         tables['label-select'].selectBox('options', options);
         update_labels_context_menu();
         tmp_vars['label'] = arr;
-    }
+    };
     var contextActions = function(k, v, opt) {
         if ((k != 'speed' && !v) || (k == 'speed' && v < 0))
             return;
@@ -1332,7 +1332,7 @@ var manager = function() {
         update_labels_context_menu(id);
     };
     var on_hide_torrent_context_menu = function(id) {
-        if ((torrent_file_list.getID()).length == 0) {
+        if ((torrent_file_list.getID()).length === 0) {
             if (tmp_vars.auto_order) {
                 tmp_vars.tr_auto_order = true;
             }
@@ -1572,7 +1572,7 @@ var manager = function() {
 
         for (var i = 0; i < titles_l; i++) {
             var str_w = titles.eq(i).width();
-            if (str_w == 0) {
+            if (str_w === 0) {
                 str_w = titles.eq(i).text().length * 7;
             }
             if (str_w < size)
@@ -1590,8 +1590,9 @@ var manager = function() {
             } else
                 str_w = str_w * 10;
             var str_s = size;
+            var time_calc = Math.round(parseInt(str_w) / parseInt(str_s) * 3.5);
             var move_name = 'moveble' + '_' + str_s + '_' + str_w;
-            if ($('body').find('.' + move_name).length == 0) {
+            if ($('body').find('.' + move_name).length === 0) {
                 $('body').append('<style class="' + move_name + '">'
                         + '@-webkit-keyframes a_' + move_name
                         + '{'
@@ -1609,7 +1610,7 @@ var manager = function() {
                         + '}'
                         + 'div.' + move_name + ':hover > span {'
                         + 'overflow: visible;'
-                        + '-webkit-animation:a_' + move_name + ' 6s 1;'
+                        + '-webkit-animation:a_' + move_name + ' ' + time_calc + 's;'
                         + '}'
                         + '</style>');
             }
@@ -1620,7 +1621,7 @@ var manager = function() {
         var a = tables['fl-body'].find('input:visible');
         var bc = a.filter(':checked').length;
         var sel_all = tables['fl-fixed_head'].find('input').eq(0)[0];
-        if (bc == a.length) {
+        if (bc === a.length) {
             sel_all.checked = true;
         } else {
             sel_all.checked = false;
@@ -1692,19 +1693,19 @@ var manager = function() {
         //преврящает TimeShtamp в строчку
         var dt = new Date(shtamp * 1000);
         var m = dt.getMonth() + 1;
-        if (m.toString().length == 1)
+        if (m.toString().length === 1)
             m = '0' + m.toString();
         var d = dt.getDate();
-        if (d.toString().length == 1)
+        if (d.toString().length === 1)
             d = '0' + d.toString();
         var h = dt.getHours();
-        if (h.toString().length == 1)
+        if (h.toString().length === 1)
             h = '0' + h.toString();
         var mi = dt.getMinutes();
-        if (mi.toString().length == 1)
+        if (mi.toString().length === 1)
             mi = '0' + mi.toString();
         var sec = dt.getSeconds();
-        if (sec.toString().length == 1)
+        if (sec.toString().length === 1)
             sec = '0' + sec.toString();
         var t = dt.getFullYear() + '-' + m + '-' + d + ' ' + h + ':' + mi + ':' + sec;
         return t;
@@ -1754,10 +1755,10 @@ var manager = function() {
                 'file_select': $('input[name="torrent_file"]')
             };
             if (tmp_vars.tr_word_wrap) {
-                tables['body'].append('<style>div.torrent-list-layer td div {white-space: normal;word-wrap: break-word;}</style>')
+                tables['body'].append('<style>div.torrent-list-layer td div {white-space: normal;word-wrap: break-word;}</style>');
             }
             if (tmp_vars.fl_word_wrap) {
-                tables['body'].append('<style>div.fl-layer td div {white-space: normal;word-wrap: break-word;}</style>')
+                tables['body'].append('<style>div.fl-layer td div {white-space: normal;word-wrap: break-word;}</style>');
             }
             tables['fl-bottom'].on('click', 'a.update', function() {
                 _engine.sendAction("&action=getfiles&hash=" + torrent_file_list.getID());
