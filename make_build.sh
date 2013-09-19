@@ -76,8 +76,8 @@ java -jar compiler.jar --js ./build/js/new_options.js --js_output_file ./build/j
 java -jar compiler.jar --js ./build/js/new_background.js --js_output_file ./build/js/background.js
 java -jar compiler.jar --js ./build/js/new_manager.js --js_output_file ./build/js/manager.js
 
-java -jar yuicompressor-2.4.7.jar ./build/css/new_stylesheet.css -o ./build/css/stylesheet.css
-java -jar yuicompressor-2.4.7.jar ./css/options.css -o ./build/css/options.css
+java -jar yuicompressor-2.4.8.jar ./build/css/new_stylesheet.css -o ./build/css/stylesheet.css
+java -jar yuicompressor-2.4.8.jar ./css/options.css -o ./build/css/options.css
 
 java -jar htmlcompressor-1.5.3.jar -t html ./build/manager.html -o ./build/manager.html
 java -jar htmlcompressor-1.5.3.jar -t html ./build/options.html -o ./build/options.html
