@@ -128,7 +128,7 @@ var engine = function() {
                 old_s = storage.connection.status;
                 old_d = storage.connection.name;
             }
-            if (s !== null && s !== undefined) {
+            if (s != null) {
                 storage['connection'] = {'status': s, 'name': d};
             }
             if ((old_s !== s || old_d !== d) && popup.chk()) {
@@ -361,7 +361,7 @@ var engine = function() {
                     tmp_vars.get['download-dirs'] = obj['download-dirs'];
                 }
                 if ('label' in obj) {
-                    if ('label' in tmp_vars.get === false || tmp_vars.get['label'].toString() !== obj['label'].toString()) {
+                    if ('label' in tmp_vars.get === false || String(tmp_vars.get['label']) !== String(obj['label'])) {
                         tmp_vars.get['label'] = obj['label'];
                         if (popup.chk()) {
                             tmp_vars.popup.manager.setLabels( clone_obj(tmp_vars.get['label']) );
@@ -518,7 +518,7 @@ var engine = function() {
                 dir_url = "&download_dir=" + encodeURIComponent(context.key) + "&path=" + encodeURIComponent(context.val);
             }
             chrome.tabs.getSelected(null, function(tab) {
-                if (a.linkUrl.substr(0, 7) === 'magnet:')
+                if (a.linkUrl.substr(0, 7).toLowerCase() === 'magnet:')
                     uploadMagnet(encodeURIComponent(a.linkUrl), dir_url);
                 else
                     downloadFile(a.linkUrl, function(file) {
