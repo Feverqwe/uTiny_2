@@ -318,7 +318,7 @@ var manager = function() {
                     }
                 case 4:
                 case 1:
-                    if (colums['progress'].a && '4.1' in upd_list == false) {
+                    if (colums['progress'].a && '4.1' in upd_list === false) {
                         upd_list['2.1'] = 1;
                         if (!item)
                             item = $('#' + v[0]);
@@ -339,7 +339,7 @@ var manager = function() {
                     }
                 case 21:
                 case 1:
-                    if (colums['status'].a && '21.1' in upd_list == false) {
+                    if (colums['status'].a && '21.1' in upd_list === false) {
                         upd_list['21.1'] = 1;
                         if (!item)
                             item = $('#' + v[0]);
@@ -374,7 +374,7 @@ var manager = function() {
                     }
                 case 14:
                 case 12:
-                    if (colums['seeds_peers'].a && '14.12' in upd_list == false) {
+                    if (colums['seeds_peers'].a && '14.12' in upd_list === false) {
                         upd_list['14.12'] = 1;
                         if (!item)
                             item = $('#' + v[0]);
@@ -401,7 +401,7 @@ var manager = function() {
                     }
                 case 9:
                 case 3:
-                    if (colums['ostalos'].a && '9.3' in upd_list == false) {
+                    if (colums['ostalos'].a && '9.3' in upd_list === false) {
                         upd_list['9.3'] = 1;
                         if (!item)
                             item = $('#' + v[0]);
