@@ -401,7 +401,7 @@ var manager = function() {
                     }
                 case 9:
                 case 3:
-                    if (colums['ostalos'].a && '9.3' in upd_list === false) {
+                    if (colums['ostalos'].a && '9.3' in upd_list == false) {
                         upd_list['9.3'] = 1;
                         if (!item)
                             item = $('#' + v[0]);
