@@ -24,26 +24,26 @@ var engine = function() {
     var settings_load = function() {
         settings = {
             ut_url: null,
-            ssl: (localStorage.ssl !== undefined) ? parseInt(localStorage.ssl) : def_settings.ssl.v,
-            ut_ip: (localStorage.ut_ip !== undefined) ? localStorage.ut_ip : def_settings.ut_ip.v,
-            ut_port: (localStorage.ut_port !== undefined && localStorage.ut_port > 0) ? parseInt(localStorage.ut_port) : def_settings.ut_port.v,
-            ut_path: (localStorage.ut_path !== undefined) ? localStorage.ut_path : def_settings.ut_path.v,
-            show_active_tr_on_icon: (localStorage.show_active_tr_on_icon !== undefined) ? parseInt(localStorage.show_active_tr_on_icon) : def_settings.show_active_tr_on_icon.v,
-            notify_on_dl_comp: (localStorage.notify_on_dl_comp !== undefined) ? parseInt(localStorage.notify_on_dl_comp) : def_settings.notify_on_dl_comp.v,
+            ssl: parseInt(localStorage.ssl || def_settings.ssl.v),
+            ut_ip: localStorage.ut_ip || def_settings.ut_ip.v,
+            ut_port: (localStorage.ut_port > 0) ? parseInt(localStorage.ut_port) : def_settings.ut_port.v,
+            ut_path: localStorage.ut_path || def_settings.ut_path.v,
+            show_active_tr_on_icon: parseInt(localStorage.show_active_tr_on_icon || def_settings.show_active_tr_on_icon.v),
+            notify_on_dl_comp: parseInt(localStorage.notify_on_dl_comp || def_settings.notify_on_dl_comp.v),
             bg_update_interval: (localStorage.bg_update_interval !== undefined && parseInt(localStorage.bg_update_interval) > 5000) ? parseInt(localStorage.bg_update_interval) : def_settings.bg_update_interval.v,
             mgr_update_interval: (localStorage.mgr_update_interval !== undefined && parseInt(localStorage.mgr_update_interval > 500)) ? parseInt(localStorage.mgr_update_interval) : def_settings.mgr_update_interval.v,
-            notify_visbl_interval: (localStorage.notify_visbl_interval !== undefined) ? parseInt(localStorage.notify_visbl_interval) : def_settings.notify_visbl_interval.v,
-            login: (localStorage.login !== undefined) ? localStorage.login : def_settings.login.v,
-            password: (localStorage.password !== undefined) ? localStorage.password : def_settings.password.v,
-            hide_seeding: (localStorage.hide_seeding !== undefined) ? parseInt(localStorage.hide_seeding) : def_settings.hide_seeding.v,
-            hide_finished: (localStorage.hide_finished !== undefined) ? parseInt(localStorage.hide_finished) : def_settings.hide_finished.v,
-            graph: (localStorage.graph !== undefined) ? parseInt(localStorage.graph) : def_settings.graph.v,
+            notify_visbl_interval: parseInt(localStorage.notify_visbl_interval || def_settings.notify_visbl_interval.v),
+            login: localStorage.login || def_settings.login.v,
+            password: localStorage.password || def_settings.password.v,
+            hide_seeding: parseInt(localStorage.hide_seeding || def_settings.hide_seeding.v),
+            hide_finished: parseInt(localStorage.hide_finished || def_settings.hide_finished.v),
+            graph: parseInt(localStorage.graph || def_settings.graph.v),
             window_height: (localStorage.window_height !== undefined && parseInt(localStorage.window_height) > 100) ? parseInt(localStorage.window_height) : def_settings.window_height.v,
-            change_downloads: (localStorage.change_downloads !== undefined) ? parseInt(localStorage.change_downloads) : def_settings.change_downloads.v,
-            auto_order: (localStorage.auto_order !== undefined) ? parseInt(localStorage.auto_order) : def_settings.auto_order.v,
-            context_menu_trigger: (localStorage.context_menu_trigger !== undefined) ? parseInt(localStorage.context_menu_trigger) : def_settings.context_menu_trigger.v,
+            change_downloads: parseInt(localStorage.change_downloads || def_settings.change_downloads.v),
+            auto_order: parseInt(localStorage.auto_order || def_settings.auto_order.v),
+            context_menu_trigger: parseInt(localStorage.context_menu_trigger || def_settings.context_menu_trigger.v),
             folders_array: (localStorage.folders_array !== undefined) ? JSON.parse(localStorage.folders_array) : def_settings.folders_array.v
-        }
+        };
         settings.ut_url = ((settings.ssl) ? 'https' : 'http') + "://" + settings.ut_ip + ':' + settings.ut_port + '/' + settings.ut_path;
     };
     settings_load();
@@ -84,7 +84,7 @@ var engine = function() {
         var start = function() {
             if (status)
                 return 0;
-            if (settings.show_active_tr_on_icon == 0 && settings.notify_on_dl_comp == 0) {
+            if (settings.show_active_tr_on_icon === 0 && settings.notify_on_dl_comp === 0) {
                 return 0;
             }
             status = 1;
@@ -110,7 +110,7 @@ var engine = function() {
             status: function() {
                 return status;
             }
-        }
+        };
     }();
     var tmp_vars = {
         'token_reconnect_counter': 0,
@@ -118,7 +118,7 @@ var engine = function() {
         'last_complite_time': 0,
         'active_torrent': 0,
         'get_repeat': 0
-    }
+    };
     var status = function() {
         var storage = {};
         var connection = function(s, d) {
@@ -128,11 +128,11 @@ var engine = function() {
                 old_s = storage.connection.status;
                 old_d = storage.connection.name;
             }
-            if (s != null) {
+            if (s !== null && s !== undefined) {
                 storage['connection'] = {'status': s, 'name': d};
             }
-            if ((old_s != s || old_d != d) && popup.chk()) {
-                tmp_vars.popup.manager.setStatus(s, (typeof(d) == 'number') ? lang_arr[d] : d);
+            if ((old_s !== s || old_d !== d) && popup.chk()) {
+                tmp_vars.popup.manager.setStatus(s, (typeof(d) === 'number') ? lang_arr[d] : d);
             }
         };
         var get = function(type) {
@@ -143,9 +143,9 @@ var engine = function() {
                 d = storage[type]['name'];
             }
             if (popup.chk()) {
-                tmp_vars.popup.manager.setStatus(s, (typeof(d) == 'number') ? lang_arr[d] : d);
+                tmp_vars.popup.manager.setStatus(s, (typeof(d) === 'number') ? lang_arr[d] : d);
             }
-            return (typeof(d) == 'number') ? lang_arr[d] : d;
+            return (typeof(d) === 'number') ? lang_arr[d] : d;
         };
         return {
             connection: function(s, d) {
@@ -175,8 +175,8 @@ var engine = function() {
                 }
             },
             error: function(xhr, ajaxOptions, thrownError) {
-                var error_desk = (xhr.status == 0) ? 36 : (xhr.status == 404) ? 35 :
-                        (xhr.status == 401) ? 34 : (xhr.status == 400) ? 38 :
+                var error_desk = (xhr.status === 0) ? 36 : (xhr.status === 404) ? 35 :
+                        (xhr.status === 401) ? 34 : (xhr.status === 400) ? 38 :
                         lang_arr[71] + xhr.status + ' ' + thrownError;
                 status.connection(1, error_desk);
                 tmp_vars.token_reconnect_counter += 1;
@@ -227,7 +227,7 @@ var engine = function() {
         for (var nn = 0; nn < cn; nn++) {
             if (newa[nn][4] == 1000 && newa[nn][24] > tmp_vars.last_complite_time) {
                 for (var no = 0; no < co; no++) {
-                    if (olda[no][0] == newa[nn][0] && olda[no][4] != 1000 && olda[no][24] == 0) {
+                    if (olda[no][0] === newa[nn][0] && olda[no][4] != 1000 && olda[no][24] == 0) {
                         (function notify(nn) {
                             var icon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyRpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoTWFjaW50b3NoKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpEQTQ1REQ3OThBQkQxMUUyOTJCM0I2NjE1NkRFQUVCMiIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpEQTQ1REQ3QThBQkQxMUUyOTJCM0I2NjE1NkRFQUVCMiI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkRBNDVERDc3OEFCRDExRTI5MkIzQjY2MTU2REVBRUIyIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkRBNDVERDc4OEFCRDExRTI5MkIzQjY2MTU2REVBRUIyIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Th2iWwAAAnRJREFUeNrMV79Lw0AUbo7uZhEdhEbQvc4OtuAfUHeHZnLUbm61m5s6OpnB3f4BhaSgOEkjuDg1grtZBMXFd+Fd+Dxqc/mh9MEjuZB737vv3b33zqoZytrxtkOPDukOaZPU0X6JSEPSMenw9fQuMrFrGQC36NEnbdXySUA6IEeCQg4QsE2PK141SsjGX/i9xow02Mmm9v+Q1CVHYmMHCFwa8Ult/iQnX5B6WdRyqLqkh9r8Ns0NMx0gA11euZJzpjLOwz8zKEN3BJ8lE96vDvDKJ+B1T5+QV2YsaAuZsDSPp0Db1izKCjqhL2xdMSrgvysAd6sCl8K2XB7ayIgFR81XMacJvarA90cHyam43r0MCecM9oTclEGdB32gZ1Ah8I1KWDSO4rd3N3yYdpkFiRlYfGymPE/u9pOKwPEYK4nvb5+9z48vxcK60BKN94fgSfw3NlcfYdwRnNuTDGeavwuCJ7K8shRBBt0RkDqDvwbnPRYCVlNAVXvRDaodXBG4lB6dhhiwnLpWZGbuXnrsyWNUEtwlGx5i6YlIia/Vevnuz2KjIPgPQQck5a3fdq/uREnw1E6dOxmH6/m89KucaANTRVfeUF2UANBWhgOpE2Vph+4qFNzDJbQEoycbisY8JwqDc+ZVIRgLbpmUdHmiWyIlzFt5jbultF1T1dBnWtJaTbHWG4nS4FrPERBOW52CAdDb5/KZl4mslauqayMmdkQ3UJjS3s2QiUxwrTWT94Y9PQ+4HAIpZ9xGmTBhAt4E8BjtCWibktYZQjFhr+c5YbryCXxqY4edqy2ncDgQpiGBR5W25QtxMVmIq9lCXE7/63r+LcAAh4RNY9EpknQAAAAASUVORK5CYII=";
                             var notification = webkitNotifications.createNotification(
@@ -257,7 +257,7 @@ var engine = function() {
                 ac++;
             }
         }
-        if (tmp_vars.active_torrent != ac) {
+        if (tmp_vars.active_torrent !== ac) {
             tmp_vars.active_torrent = ac;
             chrome.browserAction.setBadgeText({
                 "text": (tmp_vars.active_torrent) ? '' + tmp_vars.active_torrent : ''
@@ -327,7 +327,7 @@ var engine = function() {
                                 break;
                             }
                         }
-                        if (ex == 0) {
+                        if (ex === 0) {
                             tmp_vars.get['torrents'][tmp_vars.get['torrents'].length] = tmp_vars.get['torrentp'][np];
                             if (tmp_vars.new_file_monitoring) {
                                 tmp_vars.new_file_monitoring(obj['torrentp'][np][2]);
@@ -361,7 +361,7 @@ var engine = function() {
                     tmp_vars.get['download-dirs'] = obj['download-dirs'];
                 }
                 if ('label' in obj) {
-                    if ('label' in tmp_vars.get == false || tmp_vars.get['label'].toString() != obj['label'].toString()) {
+                    if ('label' in tmp_vars.get === false || tmp_vars.get['label'].toString() !== obj['label'].toString()) {
                         tmp_vars.get['label'] = obj['label'];
                         if (popup.chk()) {
                             tmp_vars.popup.manager.setLabels( clone_obj(tmp_vars.get['label']) );
@@ -384,10 +384,10 @@ var engine = function() {
                 tmp_vars['get_repeat'] = 0;
             },
             error: function(xhr, ajaxOptions, thrownError) {
-                var error_desk = (xhr.status == 0) ? 36 : (xhr.status == 400) ? 38 :
+                var error_desk = (xhr.status === 0) ? 36 : (xhr.status === 400) ? 38 :
                         lang_arr[71] + xhr.status + ' ' + thrownError;
                 status.connection(1, error_desk);
-                if (xhr.status == 400 && tmp_vars['get_repeat'] <= 3) {
+                if (xhr.status === 400 && tmp_vars['get_repeat'] <= 3) {
                     tmp_vars.get['token'] = null;
                     getToken(function() {
                         tmp_vars['get_repeat'] += 1;
@@ -518,7 +518,7 @@ var engine = function() {
                 dir_url = "&download_dir=" + encodeURIComponent(context.key) + "&path=" + encodeURIComponent(context.val);
             }
             chrome.tabs.getSelected(null, function(tab) {
-                if (a.linkUrl.substr(0, 7) == 'magnet:')
+                if (a.linkUrl.substr(0, 7) === 'magnet:')
                     uploadMagnet(encodeURIComponent(a.linkUrl), dir_url);
                 else
                     downloadFile(a.linkUrl, function(file) {
@@ -569,7 +569,7 @@ var engine = function() {
     };
     var clone_obj = function (obj) {
         return JSON.parse(JSON.stringify(obj));
-    }
+    };
     return {
         begin: function() {
             timer.start();

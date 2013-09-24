@@ -115,7 +115,7 @@ var options = function() {
     };
     var getBackup = function() {
         $('textarea[name="backup"]').val(JSON.stringify(localStorage));
-    }
+    };
     var stngsRestore = function(text) {
         try {
             var rst = JSON.parse(text);
@@ -123,7 +123,7 @@ var options = function() {
             for (var key in rst)
             {
                 var value = rst[key];
-                if (value == undefined || key == 'length')
+                if (value === undefined || key === 'length')
                     continue;
                 localStorage[key] = value;
             }
@@ -197,7 +197,7 @@ var options = function() {
     };
     var get_dir_list = function() {
         _engine.sendAction("&action=list-dirs", 1, function(arr) {
-            if ('download-dirs' in arr == false)
+            if ('download-dirs' in arr === false)
                 return;
             $('input[name="add_folder"]')[0].disabled = false;
             $('select[name="folder_arr"]').empty();
@@ -210,12 +210,12 @@ var options = function() {
     var bytesToSize = function(bytes, nan) {
         //переводит байты в строчки
         var sizes = lang_arr[59];
-        if (nan == null)
+        if (nan === undefined)
             nan = 'n/a';
         if (bytes == 0)
             return nan;
         var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-        if (i == 0) {
+        if (i === 0) {
             return (bytes / Math.pow(1024, i)) + ' ' + sizes[i];
         }
         return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
@@ -229,13 +229,13 @@ var options = function() {
         $('select[name="language"]').val(language);
         $.each(lang, function(k, v) {
             var el = $('[data-lang=' + k + ']');
-            if (el.length == 0)
+            if (el.length === 0)
                 return true;
             var t = el.prop("tagName");
-            if (t == "A" || t == "LEGEND" || t == "SPAN" || t == "LI") {
+            if (t === "A" || t === "LEGEND" || t === "SPAN" || t === "LI") {
                 el.text(v);
             } else
-            if (t == "INPUT") {
+            if (t === "INPUT") {
                 el.val(v);
             } else
                 console.log(t);
@@ -261,8 +261,8 @@ var options = function() {
             }
         }, function() {
             $('div.page.save > div.status').css({'background': 'none', 'color': '#c40005'}).text(lang_arr.settings[53] + ' ' + _engine.getStatus());
-        })
-    }
+        });
+    };
     return {
         begin: function() {
             write_language();
@@ -272,7 +272,7 @@ var options = function() {
             $('a.help').on('click', function(e) {
                 e.preventDefault();
                 $(this).parent().parent().children('div').toggle('fast');
-            })
+            });
             $('ul.menu').on('click', 'a', function(e) {
                 e.preventDefault();
                 $('ul.menu').find('a.active').removeClass('active');
@@ -304,7 +304,7 @@ var options = function() {
             });
             if (chrome.storage) {
                 $('input[name="save_in_cloud"]').on('click', function() {
-                    var obj = {}
+                    var obj = {};
                     obj['backup'] = JSON.stringify(localStorage);
                     chrome.storage.sync.set(obj);
                     $(this).val(lang_arr.settings[52]);
@@ -315,7 +315,7 @@ var options = function() {
                 });
                 $('input[name="get_from_cloud"]').on('click', function() {
                     chrome.storage.sync.get("backup", function(val) {
-                        if ("backup" in val == false)
+                        if ("backup" in val === false)
                             return;
                         this.disabled = true;
                         $('textarea[name="restore"]').val(val.backup);
@@ -324,7 +324,7 @@ var options = function() {
                 });
                 chrome.storage.sync.get("backup",
                         function(val) {
-                            if ("backup" in val == false) {
+                            if ("backup" in val === false) {
                                 $('input[name="get_from_cloud"]').eq(0)[0].disabled = true;
                             }
                         }

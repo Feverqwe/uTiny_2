@@ -28,7 +28,7 @@ var manager = function() {
         'body_width': 0
     };
     var chk_settings = function() {
-        if (settings == null ||
+        if (settings === null ||
                 settings['login'] == null ||
                 settings['password'] == null) {
             return 0;
@@ -84,7 +84,7 @@ var manager = function() {
         var sum_width = 0;
         $.each(colums, function(key, value) {
             if (value.a) {
-                if (key == 'select') {
+                if (key === 'select') {
                     thead += '<th class="' + key + ((value.order) ? ' s' : '') + '" title="' + lang_arr[value.lang][1] + '"><div><input type="checkbox"/></div></th>';
                 } else {
                     thead += '<th class="' + key + ((value.order) ? ' s' : '') + '" title="' + lang_arr[value.lang][1] + '"><div>' + lang_arr[value.lang][0] + '</div></th>';
@@ -673,12 +673,12 @@ var manager = function() {
             }
             var link = '';
             for (var n = path.length; n >= level; n--) {
-                if (n == level) {
+                if (n === level) {
                     var fn = path.slice(0, n - 1).join('/');
-                    if (fn.length == 0) {
+                    if (fn.length === 0) {
                         fn = '/';
                     }
-                    if (n != 0)
+                    if (n !== 0)
                         link = '<a class="folder c' + n + '" href="#&larr;" data-value="' + fn + '">&larr;</a>' + link;
                     continue;
                 }
@@ -686,7 +686,7 @@ var manager = function() {
                 var dir_name = fn.slice(-1)[0];
                 fn = fn.join('/');
                 if (fn in folders === false) {
-                    folders[fn] = {}
+                    folders[fn] = {};
                 }
                 if (id in folders[fn] === false) {
                     folders[fn][id] = null;
@@ -741,22 +741,22 @@ var manager = function() {
         var hide_all = function(ex) {
             $.each(cached, function(id) {
                 if (ex && id in ex) {
-                    if (cached[id].gui.display == 0)
+                    if (cached[id].gui.display === 0)
                         show(id);
                     return true;
                 }
-                if (cached[id].gui.display == 1)
+                if (cached[id].gui.display === 1)
                     hide(id);
             });
         };
         var show_all = function(ex) {
             $.each(cached, function(id) {
                 if (ex && id in ex) {
-                    if (cached[id].gui.display == 1)
+                    if (cached[id].gui.display === 1)
                         hide(id);
                     return true;
                 }
-                if (cached[id].gui.display == 0)
+                if (cached[id].gui.display === 0)
                     show(id);
             });
         };
@@ -992,7 +992,7 @@ var manager = function() {
         }
     };
     var sorting_torrent_list = function(id, display, param) {
-        if (isNumber(tmp_vars.sel_label.k) == false) {
+        if (isNumber(tmp_vars.sel_label.k) === false) {
             switch (tmp_vars.sel_label.k) {
                 case ('all'):
                     if (!display) {
@@ -1040,7 +1040,7 @@ var manager = function() {
                     }
                     break;
                 case ('no label'):
-                    if (param[11].length == 0) {
+                    if (param[11].length === 0) {
                         if (!display) {
                             tr_table_controller.show(id);
                         }
@@ -1113,7 +1113,7 @@ var manager = function() {
         var num = 0;
         for (var n = 0; n < cc; n++) {
             num++;
-            options += '<option value="' + costum[n] + '"' + ((isNumber(tmp_vars.sel_label.k) == false && tmp_vars.sel_label.k == costum[n]) ? ' selected' : '') + '>' + lang_arr[70][n] + '</option>';
+            options += '<option value="' + costum[n] + '"' + ((isNumber(tmp_vars.sel_label.k) === false && tmp_vars.sel_label.k == costum[n]) ? ' selected' : '') + '>' + lang_arr[70][n] + '</option>';
         }
         for (var n = 0; n < c; n++) {
             num++;
@@ -1378,14 +1378,14 @@ var manager = function() {
         var a = 0;
         var b = 0;
         for (var n = 0; n < c; n++) {
-            if (arr[n][0] == 'max_dl_rate') {
+            if (arr[n][0] === 'max_dl_rate') {
                 tmp_vars.speed_limit['download_limit'] = arr[n][2];
                 a++;
                 if (b) {
                     break;
                 }
             }
-            if (arr[n][0] == 'max_ul_rate') {
+            if (arr[n][0] === 'max_ul_rate') {
                 tmp_vars.speed_limit['upload_limit'] = arr[n][2];
                 b++;
                 if (a) {
@@ -1490,7 +1490,7 @@ var manager = function() {
                 return;
             }
             var files = arr[1];
-            if (files.length == 0) {
+            if (files.length === 0) {
                 return;
             }
             $.each(files, function(k, v) {
@@ -1634,12 +1634,12 @@ var manager = function() {
     var bytesToSize = function(bytes, nan) {
         //переводит байты в строчки
         var sizes = lang_arr[59];
-        if (nan == null)
+        if (nan === undefined)
             nan = 'n/a';
         if (bytes == 0)
             return nan;
         var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-        if (i == 0) {
+        if (i === 0) {
             return (bytes / Math.pow(1024, i)) + ' ' + sizes[i];
         }
         return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
@@ -1655,7 +1655,7 @@ var manager = function() {
         if (bytes == 0)
             return nan;
         var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-        if (i == 0) {
+        if (i === 0) {
             return (bytes / Math.pow(1024, i)) + ' ' + sizes[i];
         }
         return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
@@ -2013,7 +2013,7 @@ var manager = function() {
                                 'textNo': lang_arr[110][1]
                             }, function(r) {
                                 if (r) {
-                                    if (typeof(r) != 'string')
+                                    if (typeof(r) !== 'string')
                                     {
                                         contextActions(key, id);
                                     }
@@ -2072,10 +2072,10 @@ var manager = function() {
                 var label_id = $(this).attr('data-key');
                 var label = tmp_vars['label_obj'][label_id];
                 var id = tmp_vars["torrent_context_menu"].attr('data-id');
-                if (label_id == 'del_label') {
+                if (label_id === 'del_label') {
                     contextActions('del_label', id);
                 } else
-                if (label_id == 'add_label') {
+                if (label_id === 'add_label') {
                     var new_name = apprise(lang_arr[115], {
                         'input': 1,
                         'textOk': lang_arr[116][0],

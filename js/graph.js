@@ -65,7 +65,7 @@ var graph = function() {
                 coeficent = down;
             if (uplo > coeficent)
                 coeficent = uplo;
-            if (first_run == false)
+            if (first_run === false)
             {
                 if (uplo == 0 && down == 0)
                     return;
@@ -222,5 +222,5 @@ var graph = function() {
         move: function(a, b, c) {
             move_back(a, b, c);
         }
-    }
+    };
 }();

@@ -567,12 +567,12 @@ var get_lang = function(lang) {
         }
     };
     if (!lang) {
-        lang = (localStorage.lang !== undefined) ? localStorage["lang"] : 'en';
+        lang = localStorage["lang"] || 'en';
     }
-    if (lang == 'ru') {
+    if (lang === 'ru') {
         return lang_arr_ru;
     } else
-    if (lang == 'fr') {
+    if (lang === 'fr') {
         return lang_arr_fr;
     } else
     {
