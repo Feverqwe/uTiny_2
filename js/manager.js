@@ -1016,7 +1016,7 @@ var manager = function() {
                     }
                     break;
                 case ('inacive'):
-                    if (param[9] == 0 || param[8] == 0) {
+                    if (param[9] == 0 && param[8] == 0) {
                         tr_table_controller.show(id);
                     } else
                     if (display) {
