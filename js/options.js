@@ -221,8 +221,17 @@ var options = function() {
         return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
     };
     var write_language = function(language) {
-        if (!language) {
-            language = (localStorage.lang !== undefined) ? localStorage["lang"] : 'en';
+        if (language === undefined) {
+            language = localStorage["lang"];
+        }
+        if (language === undefined) {
+            language = 'en';
+            if ("chrome" in window && chrome.i18n && chrome.i18n.getMessage("lang") === 'ru') {
+                language = 'ru';
+            } else
+            if ("chrome" in window && chrome.i18n && chrome.i18n.getMessage("lang") === 'fr') {
+                language = 'fr';
+            }
         }
         lang_arr = get_lang(language);
         var lang = lang_arr.settings;

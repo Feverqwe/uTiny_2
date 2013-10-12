@@ -364,7 +364,7 @@ var engine = function() {
                     if ('label' in tmp_vars.get === false || String(tmp_vars.get['label']) !== String(obj['label'])) {
                         tmp_vars.get['label'] = obj['label'];
                         if (popup.chk()) {
-                            tmp_vars.popup.manager.setLabels( clone_obj(tmp_vars.get['label']) );
+                            tmp_vars.popup.manager.setLabels(clone_obj(tmp_vars.get['label']));
                         }
                     }
                 }
@@ -424,9 +424,10 @@ var engine = function() {
             if (!response) {
                 link_note(lang_arr[103], null, 1);
                 return;
-            };
+            }
+            ;
             if (response.error) {
-                link_note(lang_arr[23], (response.error)?response.error:'', 1);
+                link_note(lang_arr[23], (response.error) ? response.error : '', 1);
             } else {
                 tmp_vars.new_file_monitoring = function(name, e) {
                     if (e) {
@@ -519,17 +520,22 @@ var engine = function() {
             }
             chrome.tabs.getSelected(null, function(tab) {
                 if (a.linkUrl.substr(0, 7).toLowerCase() === 'magnet:')
-                    uploadMagnet(encodeURIComponent(a.linkUrl), dir_url);
+                    get('&list=1', null, function() {
+                        uploadMagnet(encodeURIComponent(a.linkUrl), dir_url);
+                    });
                 else
                     downloadFile(a.linkUrl, function(file) {
-                        uploadTorrent(file, dir_url);
+                        get('&list=1', null, function() {
+                            uploadTorrent(file, dir_url);
+                        });
                     });
             });
         };
         return {
             'load': function() {
                 chrome.contextMenus.removeAll();
-                if (!settings.context_menu_trigger) return;
+                if (!settings.context_menu_trigger)
+                    return;
                 var parentID = chrome.contextMenus.create({
                     "title": lang_arr[104],
                     "contexts": ["link"],
@@ -567,7 +573,7 @@ var engine = function() {
     var sendAction = function(action, cid, callback) {
         get(action, cid, callback);
     };
-    var clone_obj = function (obj) {
+    var clone_obj = function(obj) {
         return JSON.parse(JSON.stringify(obj));
     };
     return {
@@ -590,8 +596,8 @@ var engine = function() {
             }
             return 0;
         },
-        getToken: function(a,b) {
-            return getToken(a,b);
+        getToken: function(a, b) {
+            return getToken(a, b);
         },
         getSettings: function() {
             return clone_obj(settings);
