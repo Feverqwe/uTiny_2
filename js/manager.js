@@ -1864,7 +1864,11 @@ var manager = function() {
                             }
                             var folder = "&download_dir=" + encodeURIComponent(settings.folders_array[r][0]) + "&path=" + encodeURIComponent(settings.folders_array[r][1]);
                             for (var i = 0; i < inp.files.length; i++) {
-                                _engine.upload_file(inp.files[i], folder);
+                                if ( settings.context_labels ) {
+                                    _engine.upload_file(inp.files[i], undefined, settings.folders_array[r][1]);
+                                } else {
+                                    _engine.upload_file(inp.files[i], folder);
+                                }
                             }
                             tables.file_select.get(0).value = '';
                         }

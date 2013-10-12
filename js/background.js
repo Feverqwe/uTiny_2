@@ -439,6 +439,7 @@ var engine = function() {
                         link_note(item[2], lang_arr[102], null);
                         if (settings.context_labels && label.length > 0 && item[11].length === 0) {
                             get('&action=setprops&s=label&v=' + label + '&hash=' + item[0]);
+                            label = '';
                         }
                         if (settings.change_downloads) {
                             var ch_label = {k: 'download', v: null};
@@ -462,7 +463,10 @@ var engine = function() {
             };
             xhr.send(null);
         };
-        var uploadTorrent = function(file, dir_url) {
+        var uploadTorrent = function(file, dir_url, clabel) {
+            if (clabel !== undefined) {
+                label = clabel;
+            }
             if (dir_url === undefined) {
                 dir_url = '';
             }
