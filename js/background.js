@@ -18,8 +18,9 @@ var engine = function() {
         change_downloads: {"v": 0, "t": "checkbox"},
         auto_order: {"v": 0, "t": "checkbox"},
         context_menu_trigger: {"v": 1, "t": "checkbox"},
-        folders_array: {"v": [], "t": "array"}
-    }
+        folders_array: {"v": [], "t": "array"},
+        context_labels: {"v": 0, "t": "checkbox"}
+    };
     var settings = null;
     var settings_load = function() {
         settings = {
@@ -42,7 +43,8 @@ var engine = function() {
             change_downloads: parseInt(localStorage.change_downloads || def_settings.change_downloads.v),
             auto_order: parseInt(localStorage.auto_order || def_settings.auto_order.v),
             context_menu_trigger: parseInt(localStorage.context_menu_trigger || def_settings.context_menu_trigger.v),
-            folders_array: (localStorage.folders_array !== undefined) ? JSON.parse(localStorage.folders_array) : def_settings.folders_array.v
+            folders_array: (localStorage.folders_array !== undefined) ? JSON.parse(localStorage.folders_array) : def_settings.folders_array.v,
+            context_labels: parseInt(localStorage.context_labels || def_settings.context_labels.v)
         };
         settings.ut_url = ((settings.ssl) ? 'https' : 'http') + "://" + settings.ut_ip + ':' + settings.ut_port + '/' + settings.ut_path;
     };
@@ -330,7 +332,7 @@ var engine = function() {
                         if (ex === 0) {
                             tmp_vars.get['torrents'][tmp_vars.get['torrents'].length] = tmp_vars.get['torrentp'][np];
                             if (tmp_vars.new_file_monitoring) {
-                                tmp_vars.new_file_monitoring(obj['torrentp'][np][2]);
+                                tmp_vars.new_file_monitoring(obj['torrentp'][np]);
                                 tmp_vars.new_file_monitoring = null;
                             }
                         }
@@ -346,7 +348,7 @@ var engine = function() {
                 }
                 if ('torrents' in obj) {
                     if (tmp_vars.new_file_monitoring) {
-                        tmp_vars.new_file_monitoring(obj['torrents'][obj['torrents'].length - 1][2]);
+                        tmp_vars.new_file_monitoring(obj['torrents'][obj['torrents'].length - 1]);
                         tmp_vars.new_file_monitoring = null;
                     }
                     //Full torrent list
@@ -400,6 +402,7 @@ var engine = function() {
     var context_menu_obj = function() {
         var context_menu = null;
         var tmr = null;
+        var label = '';
         var notification_link = null;
         var getTorrentsList = function() {
             try {
@@ -429,16 +432,19 @@ var engine = function() {
             if (response.error) {
                 link_note(lang_arr[23], (response.error) ? response.error : '', 1);
             } else {
-                tmp_vars.new_file_monitoring = function(name, e) {
+                tmp_vars.new_file_monitoring = function(item, e) {
                     if (e) {
                         link_note(lang_arr[112], null, 1);
                     } else {
-                        link_note(name, lang_arr[102], null);
+                        link_note(item[2], lang_arr[102], null);
+                        if (settings.context_labels && label.length > 0 && item[11].length === 0) {
+                            get('&action=setprops&s=label&v=' + label + '&hash=' + item[0]);
+                        }
                         if (settings.change_downloads) {
-                            var label = {k: 'download', v: null};
-                            localStorage.selected_label = JSON.stringify(label);
+                            var ch_label = {k: 'download', v: null};
+                            localStorage.selected_label = JSON.stringify(ch_label);
                             if (popup.chk()) {
-                                tmp_vars.popup.manager.setLabel(label);
+                                tmp_vars.popup.manager.setLabel(ch_label);
                             }
                         }
                     }
@@ -514,9 +520,14 @@ var engine = function() {
                 });
             }
             var dir_url = '';
+            label = '';
             if (context_menu) {
                 var context = context_menu[a.menuItemId];
-                dir_url = "&download_dir=" + encodeURIComponent(context.key) + "&path=" + encodeURIComponent(context.val);
+                if (settings.context_labels) {
+                    label = context.val;
+                } else {
+                    dir_url = "&download_dir=" + encodeURIComponent(context.key) + "&path=" + encodeURIComponent(context.val);
+                }
             }
             chrome.tabs.getSelected(null, function(tab) {
                 if (a.linkUrl.substr(0, 7).toLowerCase() === 'magnet:')

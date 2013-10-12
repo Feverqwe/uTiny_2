@@ -186,7 +186,8 @@ var get_lang = function(lang) {
             65: 'Check the box "Enable Web UI", enter "Username" and "Password"',
             66: 'Check the box "Alternative listening port", enter port number 8080',
             67: 'Now enter "Username". "Password", "IP-address" and "Port". If you do not know your "IP-address" try enter 127.0.0.1',
-            68: 'Press the button "Save all"'
+            68: 'Press the button "Save all"',
+            69: 'Replace the directories on the label (with the addition of the label will be assigned)'
         }
     };
     var lang_arr_fr = {
@@ -376,7 +377,8 @@ var get_lang = function(lang) {
             65: 'Cliquez sur "Activer le plugin WebUI", entrez le "Nom" et "Mot de passe"',
             66: 'Cliquez sur le "Port d\'écoute alternatif", entez le port 8080',
             67: 'Maintenant entrez le "Nom", "Mot de passe", "l\'adresse IP" et le "Port". Si vous ne connaissez pas votre "adresse IP", essayez 127.0.0.1',
-            68: 'Cliquez sur "OK"'
+            68: 'Cliquez sur "OK"',
+            69: 'Remplacez les répertoires sur l\'étiquette (avec l\'ajout de l\'étiquette va être affecté)'
         }
     };
     var lang_arr_ru = {
@@ -566,7 +568,8 @@ var get_lang = function(lang) {
             65: 'Поставьте галочку "Использовать Веб-интерфейс", введите "Имя" и "Пароль"',
             66: 'Поставьте галочку "Альтернативный порт", введите номер порта 8080',
             67: 'Теперь введите "Имя" и "Пароль", "IP-адрес" и "Порт". Если вы не знаете ваш "IP-адрес" попробуйте ввести 127.0.0.1',
-            68: 'Нажмите "Сохранить всё"'
+            68: 'Нажмите "Сохранить всё"',
+            69: 'Заменить каталоги на метки (при добавлении будет присваиваться метка)'
         }
     };
     if (lang === undefined) {
