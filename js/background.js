@@ -301,6 +301,9 @@ var engine = function() {
                     //remove torrent
                     tmp_vars.get['torrentm'] = obj['torrentm'];
                     var cm = tmp_vars.get['torrentm'].length;
+                    if (tmp_vars.get['torrents'] === undefined) {
+                        tmp_vars.get['torrents'] = [];
+                    }
                     for (var nm = 0; nm < cm; nm++) {
                         var cs = tmp_vars.get['torrents'].length;
                         for (var ns = 0; ns < cs; ns++) {
@@ -318,6 +321,9 @@ var engine = function() {
                     //update with CID
                     addons_notify(tmp_vars.get['torrents'], obj['torrentp']);
                     tmp_vars.get['torrentp'] = obj['torrentp'];
+                    if (tmp_vars.get['torrents'] === undefined) {
+                        tmp_vars.get['torrents'] = [];
+                    }
                     var cs = tmp_vars.get['torrents'].length;
                     var cp = tmp_vars.get['torrentp'].length;
                     for (var np = 0; np < cp; np++) {
