@@ -460,7 +460,6 @@ var engine = function() {
         var downloadFile = function(url, callback) {
             var xhr = new XMLHttpRequest();
             xhr.open("GET", url, true);
-            xhr.overrideMimeType("text/plain; charset=x-user-defined");
             xhr.responseType = "blob";
             xhr.onload = function() {
                 callback(xhr.response);
