@@ -626,7 +626,10 @@ var manager = function() {
         var folders = {};
         var clear = function() {
             tables['fl-body'].empty();
-            var sel_all = tables['fl-fixed_head'].find('input').eq(0)[0].checked = false;
+            var sel_all = tables['fl-fixed_head'].find('input').eq(0)[0];
+            if (sel_all !== undefined) {
+                sel_all.checked = false;
+            }
             cached = {};
             folders = {};
         };
