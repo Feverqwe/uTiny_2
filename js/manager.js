@@ -53,19 +53,20 @@ var manager = function() {
     var torrent_list_head = function() {
         var colums = tmp_vars.colums;
         var style = '<style class="torrent-style">';
-        var thead = '<tr>';
+        var thead = $('<tr>');
         var sum_width = 0;
         $.each(colums, function(key, value) {
             if (value.a) {
-                thead += '<th class="' + key + ((value.order) ? ' s' : '') + '" title="' + lang_arr[value.lang][1] + '"><div>' + lang_arr[value.lang][0] + '</div></th>';
+                thead.append($('<th>', {'class': (key + ((value.order) ? ' s' : '')), title: lang_arr[value.lang][1]}).append($('<div>', {text: lang_arr[value.lang][0]})));
+                //thead += '<th class="' + key + ((value.order) ? ' s' : '') + '" title="' + lang_arr[value.lang][1] + '"><div>' + lang_arr[value.lang][0] + '</div></th>';
                 style += '.torrent-list-layer th.' + key + ', .torrent-list-layer td.' + key + ' {max-width:' + value.size + 'px; min-width:' + value.size + 'px}';
                 sum_width += value.size;
             }
         });
-        thead += '</tr>';
+        //thead += '</tr>';
         style += '</style>';
-        tables['tr-head'].html(thead);
-        tables['tr-fixed_head'].html(thead);
+        tables['tr-head'].empty().append(thead);
+        tables['tr-fixed_head'].empty().append(thead.clone());
         tables['body'].children('style.torrent-style').remove();
         tables['body'].append(style);
         if (sum_width + 61 < 800) {
@@ -80,20 +81,21 @@ var manager = function() {
     var file_list_head = function() {
         var colums = tmp_vars.fl_colums;
         var style = '<style class="filelist-style">';
-        var thead = '<tr>';
+        var thead = $('<tr>');
         var sum_width = 0;
         $.each(colums, function(key, value) {
             if (value.a) {
                 if (key === 'select') {
-                    thead += '<th class="' + key + ((value.order) ? ' s' : '') + '" title="' + lang_arr[value.lang][1] + '"><div><input type="checkbox"/></div></th>';
+                    thead.append($('<th>', {'class': (key + ((value.order) ? ' s' : '')), title: lang_arr[value.lang][1]}).append($('<div>').append($('<input>', {type: 'checkbox'}))));
+                    //thead += '<th class="' + key + ((value.order) ? ' s' : '') + '" title="' + lang_arr[value.lang][1] + '"><div><input type="checkbox"/></div></th>';
                 } else {
-                    thead += '<th class="' + key + ((value.order) ? ' s' : '') + '" title="' + lang_arr[value.lang][1] + '"><div>' + lang_arr[value.lang][0] + '</div></th>';
+                    thead.append($('<th>', {'class': (key + ((value.order) ? ' s' : '')), title: lang_arr[value.lang][1]}).append($('<div>', {text: lang_arr[value.lang][0]})));
+                    //thead += '<th class="' + key + ((value.order) ? ' s' : '') + '" title="' + lang_arr[value.lang][1] + '"><div>' + lang_arr[value.lang][0] + '</div></th>';
                 }
                 style += '.fl-layer th.' + key + ', .fl-layer td.' + key + ' {max-width:' + value.size + 'px; min-width:' + value.size + 'px}';
                 sum_width += value.size;
             }
         });
-        thead += '</tr>';
         tmp_vars.fl_width = sum_width + 50;
         var fl_h = tables.window.height() - 34 - 19;
         var fl_l_h = tables.window.height() - 34 - 19 - 34;
@@ -112,8 +114,8 @@ var manager = function() {
                 'max-height: ' + fl_l_h + 'px;' +
                 'min-height: ' + fl_l_h + 'px; }';
         style += width_limit + '</style>';
-        tables['fl-head'].html(thead);
-        tables['fl-fixed_head'].html(thead);
+        tables['fl-head'].empty().append(thead);
+        tables['fl-fixed_head'].empty().append(thead.clone());
         tables['body'].children('style.filelist-style').remove();
         tables['body'].append(style);
     };
@@ -310,7 +312,7 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var t_s = bytesToSize(v[3]);
                         var cell = item.children('td.size');
-                        cell.attr('data-value', v[3]).children('div').attr('title', t_s).html(t_s);
+                        cell.attr('data-value', v[3]).children('div').attr('title', t_s).text(t_s);
                         if (tmp_vars.tr_auto_order_cell) {
                             tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         }
@@ -328,7 +330,7 @@ var manager = function() {
                         if (tmp_vars.tr_auto_order_cell) {
                             tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         }
-                        with_c.css('width', writePersent(progress) + '%').parent().children('div.val').html(progress + '%');
+                        with_c.css('width', writePersent(progress) + '%').parent().children('div.val').text(progress + '%');
                         if (v[1] == 201 && v[4] == 1000)
                         {
                             with_c.css('background-color', '#41B541');
@@ -344,7 +346,7 @@ var manager = function() {
                         if (!item)
                             item = $('#' + v[0]);
                         var cell = item.children('td.status');
-                        cell.attr('data-value', v[1]).children('div').attr('title', v[21]).html(v[21]);
+                        cell.attr('data-value', v[1]).children('div').attr('title', v[21]).text(v[21]);
                         if (tmp_vars.tr_auto_order_cell) {
                             tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         }
@@ -355,7 +357,7 @@ var manager = function() {
                         if (!item)
                             item = $('#' + v[0]);
                         var cell = item.children('td.down_speed');
-                        cell.attr('data-value', v[9]).children('div').html(bytesToSizeInSec(v[9], ''));
+                        cell.attr('data-value', v[9]).children('div').text(bytesToSizeInSec(v[9], ''));
                         if (tmp_vars.tr_auto_order_cell) {
                             tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         }
@@ -366,7 +368,7 @@ var manager = function() {
                         if (!item)
                             item = $('#' + v[0]);
                         var cell = item.children('td.uplo_speed');
-                        cell.attr('data-value', v[8]).children('div').html(bytesToSizeInSec(v[8], ''));
+                        cell.attr('data-value', v[8]).children('div').text(bytesToSizeInSec(v[8], ''));
                         if (tmp_vars.tr_auto_order_cell) {
                             tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         }
@@ -379,7 +381,7 @@ var manager = function() {
                         if (!item)
                             item = $('#' + v[0]);
                         var cell = item.children('td.seeds_peers');
-                        cell.children('div').html(v[14] + '/' + v[12]);
+                        cell.children('div').text(v[14] + '/' + v[12]);
                         if (tmp_vars.tr_auto_order_cell) {
                             tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         }
@@ -393,7 +395,7 @@ var manager = function() {
                         if (val < 0)
                             val = '*';
                         var cell = item.children('td.position');
-                        cell.children('div').html(val);
+                        cell.children('div').text(val);
                         if (tmp_vars.tr_auto_order_cell) {
                             tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         }
@@ -409,7 +411,7 @@ var manager = function() {
                         if (val < 0)
                             val = 0;
                         var cell = item.children('td.ostalos');
-                        cell.attr('data-value', val).children('div').html(bytesToSize(val, 0));
+                        cell.attr('data-value', val).children('div').text(bytesToSize(val, 0));
                         if (tmp_vars.tr_auto_order_cell) {
                             tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         }
@@ -420,7 +422,7 @@ var manager = function() {
                         if (!item)
                             item = $('#' + v[0]);
                         var cell = item.children('td.seeds');
-                        cell.children('div').html(v[15]);
+                        cell.children('div').text(v[15]);
                         if (tmp_vars.tr_auto_order_cell) {
                             tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         }
@@ -431,7 +433,7 @@ var manager = function() {
                         if (!item)
                             item = $('#' + v[0]);
                         var cell = item.children('td.peers');
-                        cell.children('div').html(v[13]);
+                        cell.children('div').text(v[13]);
                         if (tmp_vars.tr_auto_order_cell) {
                             tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         }
@@ -443,7 +445,7 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var s_time = unixintime(v[10]);
                         var cell = item.children('td.time');
-                        cell.attr('data-value', v[10]).children('div').attr('title', s_time).html(s_time);
+                        cell.attr('data-value', v[10]).children('div').attr('title', s_time).text(s_time);
                         if (tmp_vars.tr_auto_order_cell) {
                             tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         }
@@ -454,7 +456,7 @@ var manager = function() {
                         if (!item)
                             item = $('#' + v[0]);
                         var cell = item.children('td.otdano');
-                        cell.attr('data-value', v[6]).children('div').html(bytesToSize(v[6], 0));
+                        cell.attr('data-value', v[6]).children('div').text(bytesToSize(v[6], 0));
                         if (tmp_vars.tr_auto_order_cell) {
                             tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         }
@@ -465,7 +467,7 @@ var manager = function() {
                         if (!item)
                             item = $('#' + v[0]);
                         var cell = item.children('td.poluchino');
-                        cell.attr('data-value', v[5]).children('div').html(bytesToSize(v[5], 0));
+                        cell.attr('data-value', v[5]).children('div').text(bytesToSize(v[5], 0));
                         if (tmp_vars.tr_auto_order_cell) {
                             tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         }
@@ -477,7 +479,7 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var val = v[7] / 1000;
                         var cell = item.children('td.koeficient');
-                        cell.attr('data-value', v[7]).children('div').html(val);
+                        cell.attr('data-value', v[7]).children('div').text(val);
                         if (tmp_vars.tr_auto_order_cell) {
                             tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         }
@@ -489,7 +491,7 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var val = Math.round((v[16] / 65535) * 1000) / 1000;
                         var cell = item.children('td.dostupno');
-                        cell.attr('data-value', v[16]).children('div').html(val);
+                        cell.attr('data-value', v[16]).children('div').text(val);
                         if (tmp_vars.tr_auto_order_cell) {
                             tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         }
@@ -501,7 +503,7 @@ var manager = function() {
                     item.attr('data-label', v[11]);
                     if (colums['metka'].a) {
                         var cell = item.children('td.metka');
-                        cell.children('div').attr('title', v[11]).html(v[11]);
+                        cell.children('div').attr('title', v[11]).text(v[11]);
                         if (tmp_vars.tr_auto_order_cell) {
                             tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         }
@@ -513,7 +515,7 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var str_time = writeTimeFromShtamp(v[23]);
                         var cell = item.children('td.time_dobavleno');
-                        cell.children('div').attr('title', str_time).html(str_time);
+                        cell.children('div').attr('title', str_time).text(str_time);
                         if (tmp_vars.tr_auto_order_cell) {
                             tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         }
@@ -525,7 +527,7 @@ var manager = function() {
                             item = $('#' + v[0]);
                         var str_time = writeTimeFromShtamp(v[24]);
                         var cell = item.children('td.time_zavircheno');
-                        cell.children('div').attr('title', str_time).html(str_time);
+                        cell.children('div').attr('title', str_time).text(str_time);
                         if (tmp_vars.tr_auto_order_cell) {
                             tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
                         }
@@ -869,7 +871,7 @@ var manager = function() {
                         var progress = Math.round((v.api[2] * 100 / v.api[1]) * 10) / 10;
                         var cell = item.children('td.progress');
                         var color = (v.api[1] == v.api[2] && v.api[3] != 0) ? '#41B541' : '#3687ED';
-                        cell.attr('data-value', progress).children('div.progress_b').children('div.progress_b_i').css({'width': writePersent(progress) + '%', 'background-color': color}).parent().children('div.val').html(progress + '%');
+                        cell.attr('data-value', progress).children('div.progress_b').children('div.progress_b_i').css({'width': writePersent(progress) + '%', 'background-color': color}).parent().children('div.val').text(progress + '%');
                         if (tmp_vars.fl_auto_order_cell) {
                             tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
                         }
@@ -1427,7 +1429,7 @@ var manager = function() {
             if (speed == sp)
                 with_a.eq(i).attr('data-speed', speed).children('span').html('<label>&#9679; </label>' + bytesToSizeInSec(speed * 1024));
             else
-                with_a.eq(i).attr('data-speed', speed).children('span').html(bytesToSizeInSec(speed * 1024));
+                with_a.eq(i).attr('data-speed', speed).children('span').text(bytesToSizeInSec(speed * 1024));
         }
     };
     var updateColums = function(key) {
@@ -1524,9 +1526,9 @@ var manager = function() {
         var add_layer = function() {
             $('<div class="file-list-layer-temp"></div>')
                     .css({
-                height: tables.window.height(),
-                width: tables.window.width()
-            }).on('mousedown', function() {
+                        height: tables.window.height(),
+                        width: tables.window.width()
+                    }).on('mousedown', function() {
                 $(this).remove();
                 close();
             }).appendTo(tables['body']);
@@ -1864,7 +1866,7 @@ var manager = function() {
                             }
                             var folder = "&download_dir=" + encodeURIComponent(settings.folders_array[r][0]) + "&path=" + encodeURIComponent(settings.folders_array[r][1]);
                             for (var i = 0; i < inp.files.length; i++) {
-                                if ( settings.context_labels ) {
+                                if (settings.context_labels) {
                                     _engine.upload_file(inp.files[i], undefined, settings.folders_array[r][1]);
                                 } else {
                                     _engine.upload_file(inp.files[i], folder);
@@ -2017,7 +2019,7 @@ var manager = function() {
                                 'textNo': lang_arr[110][1]
                             }, function(r) {
                                 if (r) {
-                                    if (typeof(r) !== 'string')
+                                    if (typeof (r) !== 'string')
                                     {
                                         contextActions(key, id);
                                     }
