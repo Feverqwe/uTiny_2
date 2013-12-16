@@ -164,7 +164,7 @@ var engine = function() {
             type: "GET",
             url: settings.ut_url + "token.html",
             beforeSend: function(xhr) {
-                xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password) + "=");
+                xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
             },
             success: function(data) {
                 status.connection(0);
@@ -280,7 +280,7 @@ var engine = function() {
             cache: 0,
             url: settings.ut_url + "?token=" + tmp_vars.get['token'] + action + ((!cid) ? "&cid=" + tmp_vars.get['torrentc'] : ''),
             beforeSend: function(xhr) {
-                xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password) + "=");
+                xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
             },
             success: function(data) {
                 var obj = $.parseJSON(data);
@@ -413,7 +413,7 @@ var engine = function() {
             try {
                 var xhr = new XMLHttpRequest();
                 xhr.open("GET", settings.ut_url + "?token=" + tmp_vars.get['token'] + "&list=1" + "&cid=" + tmp_vars.get['torrentc'], false);
-                xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password) + "=");
+                xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
                 xhr.send(null);
             } catch (e) {
                 return null;
@@ -474,7 +474,7 @@ var engine = function() {
             formdata.append("torrent_file", file);
             var xhr = new XMLHttpRequest();
             xhr.open("POST", settings.ut_url + "?token=" + tmp_vars.get['token'] + "&action=add-file" + dir_url, true);
-            xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password) + "=");
+            xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
                     handleResponse(xhr.responseText, label);
@@ -485,7 +485,7 @@ var engine = function() {
         var uploadMagnet = function(url, dir_url, label) {
             var xhr = new XMLHttpRequest();
             xhr.open("GET", settings.ut_url + "?token=" + tmp_vars.get['token'] + "&action=add-url&s=" + url + dir_url, true);
-            xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password) + "=");
+            xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
                     handleResponse(xhr.responseText, label);
