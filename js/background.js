@@ -134,7 +134,7 @@ var engine = function() {
                 storage['connection'] = {'status': s, 'name': d};
             }
             if ((old_s !== s || old_d !== d) && popup.chk()) {
-                tmp_vars.popup.manager.setStatus(s, (typeof(d) === 'number') ? lang_arr[d] : d);
+                tmp_vars.popup.manager.setStatus(s, (typeof (d) === 'number') ? lang_arr[d] : d);
             }
         };
         var get = function(type) {
@@ -145,9 +145,9 @@ var engine = function() {
                 d = storage[type]['name'];
             }
             if (popup.chk()) {
-                tmp_vars.popup.manager.setStatus(s, (typeof(d) === 'number') ? lang_arr[d] : d);
+                tmp_vars.popup.manager.setStatus(s, (typeof (d) === 'number') ? lang_arr[d] : d);
             }
-            return (typeof(d) === 'number') ? lang_arr[d] : d;
+            return (typeof (d) === 'number') ? lang_arr[d] : d;
         };
         return {
             connection: function(s, d) {
@@ -172,7 +172,7 @@ var engine = function() {
                 tmp_vars.get['token'] = $(data).text();
                 tmp_vars.get['torrentc'] = 0;
                 tmp_vars.token_reconnect_counter = 0;
-                if (typeof(callback) === 'function') {
+                if (typeof (callback) === 'function') {
                     callback();
                 }
             },
@@ -339,13 +339,11 @@ var engine = function() {
                             tmp_vars.get['torrents'][tmp_vars.get['torrents'].length] = tmp_vars.get['torrentp'][np];
                             if (tmp_vars.new_file_monitoring) {
                                 tmp_vars.new_file_monitoring(obj['torrentp'][np]);
-                                tmp_vars.new_file_monitoring = null;
                             }
                         }
                     }
                     if (tmp_vars.new_file_monitoring) {
                         tmp_vars.new_file_monitoring(null, 1);
-                        tmp_vars.new_file_monitoring = null;
                     }
                     if (popup.chk()) {
                         tmp_vars.popup.manager.updateList(obj['torrentp'], 1);
@@ -355,7 +353,6 @@ var engine = function() {
                 if ('torrents' in obj) {
                     if (tmp_vars.new_file_monitoring) {
                         tmp_vars.new_file_monitoring(obj['torrents'][obj['torrents'].length - 1]);
-                        tmp_vars.new_file_monitoring = null;
                     }
                     //Full torrent list
                     addons_notify(tmp_vars.get['torrents'], obj['torrents']);
@@ -421,7 +418,8 @@ var engine = function() {
             // convert response to an object
             return JSON.parse(xhr.responseText);
         };
-        var handleResponse = function(responseText, label) {
+        var handleResponse = function(type, responseText, label) {
+            var retry = 5;
             // check for errors
             var response = null;
             try {
@@ -433,24 +431,30 @@ var engine = function() {
                 link_note(lang_arr[103], null, 1);
                 return;
             }
-            ;
             if (response.error) {
                 link_note(lang_arr[23], (response.error) ? response.error : '', 1);
             } else {
                 tmp_vars.new_file_monitoring = function(item, e) {
+                    if (type !== 'url' || (type === 'url' && (!e || retry === 0) ) ) {
+                        tmp_vars.new_file_monitoring = null;
+                    }
                     if (e) {
-                        link_note(lang_arr[112], null, 1);
-                    } else {
-                        link_note(item[2], lang_arr[102], null);
-                        if (settings.context_labels && label !== undefined && label.length > 0 && item[11].length === 0) {
-                            get('&action=setprops&s=label&v=' + label + '&hash=' + item[0]);
+                        if (type === 'url' && retry !== 0) {
+                            retry--;
+                            return;
                         }
-                        if (settings.change_downloads) {
-                            var ch_label = {k: 'download', v: null};
-                            localStorage.selected_label = JSON.stringify(ch_label);
-                            if (popup.chk()) {
-                                tmp_vars.popup.manager.setLabel(ch_label);
-                            }
+                        link_note(lang_arr[112], null, 1);
+                        return;
+                    }
+                    link_note(item[2], lang_arr[102], null);
+                    if (settings.context_labels && label !== undefined && label.length > 0 && item[11].length === 0) {
+                        get('&action=setprops&s=label&v=' + label + '&hash=' + item[0]);
+                    }
+                    if (settings.change_downloads) {
+                        var ch_label = {k: 'download', v: null};
+                        localStorage.selected_label = JSON.stringify(ch_label);
+                        if (popup.chk()) {
+                            tmp_vars.popup.manager.setLabel(ch_label);
                         }
                     }
                 };
@@ -477,18 +481,21 @@ var engine = function() {
             xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
-                    handleResponse(xhr.responseText, label);
+                    handleResponse('file', xhr.responseText, label);
                 }
             };
             xhr.send(formdata);
         };
         var uploadMagnet = function(url, dir_url, label) {
+            if (dir_url === undefined) {
+                dir_url = '';
+            }
             var xhr = new XMLHttpRequest();
             xhr.open("GET", settings.ut_url + "?token=" + tmp_vars.get['token'] + "&action=add-url&s=" + url + dir_url, true);
             xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
-                    handleResponse(xhr.responseText, label);
+                    handleResponse('url', xhr.responseText, label);
                 }
             };
             xhr.send(null);
@@ -579,7 +586,8 @@ var engine = function() {
                     context_menu = items;
                 }
             },
-            'uploadTorrent': uploadTorrent
+            uploadTorrent: uploadTorrent,
+            uploadURL: uploadMagnet
         };
     }();
     var getTorrentList = function(subaction) {
@@ -666,7 +674,8 @@ var engine = function() {
             context_menu_obj.load();
             tmp_vars.get = {};
         },
-        upload_file: context_menu_obj.uploadTorrent
+        upload_file: context_menu_obj.uploadTorrent,
+        upload_url: context_menu_obj.uploadURL
     };
 }();
 $(document).ready(function() {
