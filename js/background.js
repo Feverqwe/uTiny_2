@@ -1,25 +1,25 @@
 var engine = function() {
     var def_settings = {
-        ssl: {"v": 0, "t": "checkbox"},
-        ut_ip: {"v": "127.0.0.1", "t": "text"},
-        ut_port: {"v": 8080, "t": "number"},
-        ut_path: {"v": "gui/", "t": "text"},
-        show_active_tr_on_icon: {"v": 1, "t": "checkbox"},
-        notify_on_dl_comp: {"v": 1, "t": "checkbox"},
-        bg_update_interval: {"v": 60000 * 2, "t": "number"},
-        mgr_update_interval: {"v": 2000, "t": "number"},
-        notify_visbl_interval: {"v": 5000, "t": "number"},
-        login: {"v": null, "t": "text"},
-        password: {"v": null, "t": "password"},
-        hide_seeding: {"v": 0, "t": "checkbox"},
-        hide_finished: {"v": 0, "t": "checkbox"},
-        graph: {"v": 0, "t": "checkbox"},
-        window_height: {"v": (300), "t": "number"},
-        change_downloads: {"v": 0, "t": "checkbox"},
-        auto_order: {"v": 0, "t": "checkbox"},
-        context_menu_trigger: {"v": 1, "t": "checkbox"},
-        folders_array: {"v": [], "t": "array"},
-        context_labels: {"v": 0, "t": "checkbox"}
+        ssl: {v: 0, t: "checkbox"},
+        ut_ip: {v: "127.0.0.1", t: "text"},
+        ut_port: {v: 8080, t: "number"},
+        ut_path: {v: "gui/", t: "text"},
+        show_active_tr_on_icon: {v: 1, t: "checkbox"},
+        notify_on_dl_comp: {v: 1, t: "checkbox"},
+        bg_update_interval: {v: 60000 * 2, t: "number"},
+        mgr_update_interval: {v: 2000, t: "number"},
+        notify_visbl_interval: {v: 5000, t: "number"},
+        login: {v: null, t: "text"},
+        password: {v: null, t: "password"},
+        hide_seeding: {v: 0, t: "checkbox"},
+        hide_finished: {v: 0, t: "checkbox"},
+        graph: {v: 0, t: "checkbox"},
+        window_height: {v: (300), t: "number"},
+        change_downloads: {v: 0, t: "checkbox"},
+        auto_order: {v: 0, t: "checkbox"},
+        context_menu_trigger: {v: 1, t: "checkbox"},
+        folders_array: {v: [], t: "array"},
+        context_labels: {v: 0, t: "checkbox"}
     };
     var settings = null;
     var settings_load = function() {
@@ -50,34 +50,34 @@ var engine = function() {
     };
     settings_load();
     var colums = {
-        'name': {'a': 1, 'size': 200, 'pos': 1, 'lang': 13, 'order': 1},
-        'position': {'a': 0, 'size': 20, 'pos': 2, 'lang': 74, 'order': 1},
-        'size': {'a': 1, 'size': 60, 'pos': 3, 'lang': 14, 'order': 1},
-        'ostalos': {'a': 0, 'size': 60, 'pos': 4, 'lang': 75, 'order': 1},
-        'progress': {'a': 1, 'size': 70, 'pos': 5, 'lang': 15, 'order': 1},
-        'status': {'a': 1, 'size': 70, 'pos': 6, 'lang': 16, 'order': 1},
-        'seeds': {'a': 0, 'size': 30, 'pos': 7, 'lang': 76, 'order': 1},
-        'peers': {'a': 0, 'size': 30, 'pos': 8, 'lang': 77, 'order': 1},
-        'seeds_peers': {'a': 1, 'size': 40, 'pos': 9, 'lang': 20, 'order': 1},
-        'down_speed': {'a': 1, 'size': 60, 'pos': 10, 'lang': 18, 'order': 1},
-        'uplo_speed': {'a': 1, 'size': 60, 'pos': 11, 'lang': 19, 'order': 1},
-        'time': {'a': 1, 'size': 70, 'pos': 12, 'lang': 17, 'order': 1},
-        'otdano': {'a': 0, 'size': 60, 'pos': 13, 'lang': 78, 'order': 1},
-        'poluchino': {'a': 0, 'size': 60, 'pos': 14, 'lang': 79, 'order': 1},
-        'koeficient': {'a': 0, 'size': 60, 'pos': 15, 'lang': 80, 'order': 1},
-        'dostupno': {'a': 0, 'size': 60, 'pos': 16, 'lang': 81, 'order': 1},
-        'metka': {'a': 0, 'size': 100, 'pos': 17, 'lang': 82, 'order': 1},
-        'time_dobavleno': {'a': 0, 'size': 120, 'pos': 18, 'lang': 83, 'order': 1},
-        'time_zavircheno': {'a': 0, 'size': 120, 'pos': 19, 'lang': 84, 'order': 1},
-        'controls': {'a': 1, 'size': 57, 'pos': 20, 'lang': 21, 'order': 0}
+        name: {a: 1, size: 200, pos: 1, lang: 13, order: 1},
+        position: {a: 0, size: 20, pos: 2, lang: 74, order: 1},
+        size: {a: 1, size: 60, pos: 3, lang: 14, order: 1},
+        ostalos: {a: 0, size: 60, pos: 4, lang: 75, order: 1},
+        progress: {a: 1, size: 70, pos: 5, lang: 15, order: 1},
+        status: {a: 1, size: 70, pos: 6, lang: 16, order: 1},
+        seeds: {a: 0, size: 30, pos: 7, lang: 76, order: 1},
+        peers: {a: 0, size: 30, pos: 8, lang: 77, order: 1},
+        seeds_peers: {a: 1, size: 40, pos: 9, lang: 20, order: 1},
+        down_speed: {a: 1, size: 60, pos: 10, lang: 18, order: 1},
+        uplo_speed: {a: 1, size: 60, pos: 11, lang: 19, order: 1},
+        time: {a: 1, size: 70, pos: 12, lang: 17, order: 1},
+        otdano: {a: 0, size: 60, pos: 13, lang: 78, order: 1},
+        poluchino: {a: 0, size: 60, pos: 14, lang: 79, order: 1},
+        koeficient: {a: 0, size: 60, pos: 15, lang: 80, order: 1},
+        dostupno: {a: 0, size: 60, pos: 16, lang: 81, order: 1},
+        metka: {a: 0, size: 100, pos: 17, lang: 82, order: 1},
+        time_dobavleno: {a: 0, size: 120, pos: 18, lang: 83, order: 1},
+        time_zavircheno: {a: 0, size: 120, pos: 19, lang: 84, order: 1},
+        controls: {a: 1, size: 57, pos: 20, lang: 21, order: 0}
     };
     var fl_colums = {
-        'select': {'a': 1, 'size': 19, 'pos': 1, 'lang': 113, 'order': 0},
-        'name': {'a': 1, 'size': 300, 'pos': 2, 'lang': 88, 'order': 1},
-        'size': {'a': 1, 'size': 60, 'pos': 3, 'lang': 14, 'order': 1},
-        'download': {'a': 1, 'size': 60, 'pos': 4, 'lang': 79, 'order': 1},
-        'progress': {'a': 1, 'size': 70, 'pos': 5, 'lang': 15, 'order': 1},
-        'priority': {'a': 1, 'size': 74, 'pos': 6, 'lang': 89, 'order': 1}
+        select: {a: 1, size: 19, pos: 1, lang: 113, order: 0},
+        name: {a: 1, size: 300, pos: 2, lang: 88, order: 1},
+        size: {a: 1, size: 60, pos: 3, lang: 14, order: 1},
+        download: {a: 1, size: 60, pos: 4, lang: 79, order: 1},
+        progress: {a: 1, size: 70, pos: 5, lang: 15, order: 1},
+        priority: {a: 1, size: 74, pos: 6, lang: 89, order: 1}
     }
     var timer = function() {
         var status = 0;
@@ -115,11 +115,11 @@ var engine = function() {
         };
     }();
     var tmp_vars = {
-        'token_reconnect_counter': 0,
-        'get': {},
-        'last_complite_time': 0,
-        'active_torrent': 0,
-        'get_repeat': 0
+        token_reconnect_counter: 0,
+        get: {},
+        last_complite_time: 0,
+        active_torrent: 0,
+        get_repeat: 0
     };
     var status = function() {
         var storage = {};
@@ -131,7 +131,7 @@ var engine = function() {
                 old_d = storage.connection.name;
             }
             if (s != null) {
-                storage['connection'] = {'status': s, 'name': d};
+                storage.connection = {status: s, name: d};
             }
             if ((old_s !== s || old_d !== d) && popup.chk()) {
                 tmp_vars.popup.manager.setStatus(s, (typeof (d) === 'number') ? lang_arr[d] : d);
@@ -141,8 +141,8 @@ var engine = function() {
             var s = -1;
             var d = null;
             if (type in storage) {
-                s = storage[type]['status'];
-                d = storage[type]['name'];
+                s = storage[type].status;
+                d = storage[type].name;
             }
             if (popup.chk()) {
                 tmp_vars.popup.manager.setStatus(s, (typeof (d) === 'number') ? lang_arr[d] : d);
@@ -169,8 +169,8 @@ var engine = function() {
             success: function(data) {
                 status.connection(0);
                 tmp_vars.get = {};
-                tmp_vars.get['token'] = $(data).text();
-                tmp_vars.get['torrentc'] = 0;
+                tmp_vars.get.token = $(data).text();
+                tmp_vars.get.torrentc = 0;
                 tmp_vars.token_reconnect_counter = 0;
                 if (typeof (callback) === 'function') {
                     callback();
@@ -194,15 +194,15 @@ var engine = function() {
         });
     };
     var popup = function() {
-        var popup = {'window': null};
+        var popup = {window: null};
         return {
             get: function() {
-                tmp_vars['popup'] = popup;
+                tmp_vars.popup = popup;
                 return popup;
             },
             set: function() {
                 var windows = chrome.extension.getViews({type: 'popup'});
-                popup = {'window': null};
+                popup = {window: null};
                 var t = 0;
                 for (var n = 0; n < windows.length; n++) {
                     if (t < windows[n].create_time) {
@@ -210,7 +210,7 @@ var engine = function() {
                         t = windows[n].create_time;
                     }
                 }
-                tmp_vars['popup'] = popup;
+                tmp_vars.popup = popup;
             },
             chk: function() {
                 return (popup.window) ? 1 : 0;
@@ -262,15 +262,15 @@ var engine = function() {
         if (tmp_vars.active_torrent !== ac) {
             tmp_vars.active_torrent = ac;
             chrome.browserAction.setBadgeText({
-                "text": (tmp_vars.active_torrent) ? '' + tmp_vars.active_torrent : ''
+                text: (tmp_vars.active_torrent) ? tmp_vars.active_torrent : ''
             });
         }
     };
     var get = function(action, cid, callback)
     {
-        if (!tmp_vars.get['token']) {
+        if (!tmp_vars.get.token) {
             getToken(function() {
-                tmp_vars['get_repeat'] += 1;
+                tmp_vars.get_repeat += 1;
                 get(action, cid, callback);
             });
             return 0;
@@ -278,7 +278,7 @@ var engine = function() {
         $.ajax({
             type: "GET",
             cache: 0,
-            url: settings.ut_url + "?token=" + tmp_vars.get['token'] + action + ((!cid) ? "&cid=" + tmp_vars.get['torrentc'] : ''),
+            url: settings.ut_url + "?token=" + tmp_vars.get.token + action + ((!cid) ? "&cid=" + tmp_vars.get.torrentc : ''),
             beforeSend: function(xhr) {
                 xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
             },
@@ -287,58 +287,52 @@ var engine = function() {
                 if (callback) {
                     callback(obj);
                 }
-                if ('build' in obj) {
+                if (obj.build !== undefined) {
                     //get build
-                    if ('build' in tmp_vars.get && obj['build'] != tmp_vars.get['build']) {
-                        tmp_vars.get['build'] = obj['build'];
-                    }
+                    tmp_vars.get.build = obj.build;
                 }
-                if ('torrentc' in obj) {
+                if (obj.torrentc !== undefined) {
                     //get CID
-                    tmp_vars.get['torrentc'] = obj['torrentc'];
+                    tmp_vars.get.torrentc = obj.torrentc;
                 }
-                if ('torrentm' in obj) {
+                if (obj.torrentm !== undefined) {
                     //remove torrent
-                    tmp_vars.get['torrentm'] = obj['torrentm'];
-                    var cm = tmp_vars.get['torrentm'].length;
-                    if (tmp_vars.get['torrents'] === undefined) {
-                        tmp_vars.get['torrents'] = [];
+                    tmp_vars.get.torrentm = obj.torrentm;
+                    if (tmp_vars.get.torrents === undefined) {
+                        tmp_vars.get.torrents = [];
                     }
-                    for (var nm = 0; nm < cm; nm++) {
-                        var cs = tmp_vars.get['torrents'].length;
-                        for (var ns = 0; ns < cs; ns++) {
-                            if (tmp_vars.get['torrents'][ns][0] == tmp_vars.get['torrentm'][nm]) {
-                                tmp_vars.get['torrents'].splice(ns, 1);
+                    for (var nm = 0, cm = tmp_vars.get.torrentm.length; nm < cm; nm++) {
+                        for (var ns = 0, cs = tmp_vars.get.torrents.length; ns < cs; ns++) {
+                            if (tmp_vars.get.torrents[ns][0] == tmp_vars.get.torrentm[nm]) {
+                                tmp_vars.get.torrents.splice(ns, 1);
                                 break;
                             }
                         }
                     }
                     if (popup.chk()) {
-                        tmp_vars.popup.manager.deleteItem(obj['torrentm']);
+                        tmp_vars.popup.manager.deleteItem(obj.torrentm);
                     }
                 }
-                if ('torrentp' in obj) {
+                if (obj.torrentp !== undefined) {
                     //update with CID
-                    addons_notify(tmp_vars.get['torrents'], obj['torrentp']);
-                    tmp_vars.get['torrentp'] = obj['torrentp'];
-                    if (tmp_vars.get['torrents'] === undefined) {
-                        tmp_vars.get['torrents'] = [];
+                    addons_notify(tmp_vars.get.torrents, obj.torrentp);
+                    tmp_vars.get.torrentp = obj.torrentp;
+                    if (tmp_vars.get.torrents === undefined) {
+                        tmp_vars.get.torrents = [];
                     }
-                    var cs = tmp_vars.get['torrents'].length;
-                    var cp = tmp_vars.get['torrentp'].length;
-                    for (var np = 0; np < cp; np++) {
+                    for (var np = 0, cp = tmp_vars.get.torrentp.length; np < cp; np++) {
                         var ex = 0;
-                        for (var ns = 0; ns < cs; ns++) {
-                            if (tmp_vars.get['torrents'][ns][0] == tmp_vars.get['torrentp'][np][0]) {
-                                tmp_vars.get['torrents'][ns] = tmp_vars.get['torrentp'][np];
+                        for (var ns = 0, cs = tmp_vars.get.torrents.length; ns < cs; ns++) {
+                            if (tmp_vars.get.torrents[ns][0] == tmp_vars.get.torrentp[np][0]) {
+                                tmp_vars.get.torrents[ns] = tmp_vars.get.torrentp[np];
                                 ex = 1;
                                 break;
                             }
                         }
                         if (ex === 0) {
-                            tmp_vars.get['torrents'][tmp_vars.get['torrents'].length] = tmp_vars.get['torrentp'][np];
+                            tmp_vars.get.torrents[tmp_vars.get.torrents.length] = tmp_vars.get.torrentp[np];
                             if (tmp_vars.new_file_monitoring) {
-                                tmp_vars.new_file_monitoring(obj['torrentp'][np]);
+                                tmp_vars.new_file_monitoring(obj.torrentp[np]);
                             }
                         }
                     }
@@ -346,56 +340,56 @@ var engine = function() {
                         tmp_vars.new_file_monitoring(null, 1);
                     }
                     if (popup.chk()) {
-                        tmp_vars.popup.manager.updateList(obj['torrentp'], 1);
+                        tmp_vars.popup.manager.updateList(obj.torrentp, 1);
                     }
-                    addons_active(tmp_vars.get['torrents']);
+                    addons_active(tmp_vars.get.torrents);
                 }
-                if ('torrents' in obj) {
+                if (obj.torrents !== undefined) {
                     if (tmp_vars.new_file_monitoring) {
-                        tmp_vars.new_file_monitoring(obj['torrents'][obj['torrents'].length - 1]);
+                        tmp_vars.new_file_monitoring(obj.torrents[obj.torrents.length - 1]);
                     }
                     //Full torrent list
-                    addons_notify(tmp_vars.get['torrents'], obj['torrents']);
-                    tmp_vars.get['torrents'] = obj['torrents'];
+                    addons_notify(tmp_vars.get.torrents, obj.torrents);
+                    tmp_vars.get.torrents = obj.torrents;
                     if (popup.chk()) {
-                        tmp_vars.popup.manager.updateList(obj['torrents'], 0);
+                        tmp_vars.popup.manager.updateList(obj.torrents, 0);
                     }
-                    addons_active(tmp_vars.get['torrents']);
+                    addons_active(tmp_vars.get.torrents);
                 }
-                if ('download-dirs' in obj) {
+                if (obj['download-dirs'] !== undefined) {
                     tmp_vars.get['download-dirs'] = obj['download-dirs'];
                 }
-                if ('label' in obj) {
-                    if ('label' in tmp_vars.get === false || String(tmp_vars.get['label']) !== String(obj['label'])) {
-                        tmp_vars.get['label'] = obj['label'];
+                if (obj.label !== undefined) {
+                    if ('label' in tmp_vars.get === false || String(tmp_vars.get.label) !== String(obj.label)) {
+                        tmp_vars.get.label = obj.label;
                         if (popup.chk()) {
-                            tmp_vars.popup.manager.setLabels(clone_obj(tmp_vars.get['label']));
+                            tmp_vars.popup.manager.setLabels(clone_obj(tmp_vars.get.label));
                         }
                     }
                 }
-                if ('settings' in obj) {
-                    tmp_vars.get['settings'] = obj['settings'];
+                if (obj.settings !== undefined) {
+                    tmp_vars.get.settings = obj.settings;
                     if (popup.chk()) {
-                        tmp_vars.popup.manager.setSpeedLimit(tmp_vars.get['settings']);
+                        tmp_vars.popup.manager.setSpeedLimit(tmp_vars.get.settings);
                     }
                 }
-                if ('files' in obj) {
-                    tmp_vars.get['files'] = obj['files'];
+                if (obj.files !== undefined) {
+                    tmp_vars.get.files = obj.files;
                     if (popup.chk()) {
-                        tmp_vars.popup.manager.setFileList(tmp_vars.get['files']);
+                        tmp_vars.popup.manager.setFileList(tmp_vars.get.files);
                     }
                 }
                 status.connection(0, 22);
-                tmp_vars['get_repeat'] = 0;
+                tmp_vars.get_repeat = 0;
             },
             error: function(xhr, ajaxOptions, thrownError) {
                 var error_desk = (xhr.status === 0) ? 36 : (xhr.status === 400) ? 38 :
                         lang_arr[71] + xhr.status + ' ' + thrownError;
                 status.connection(1, error_desk);
-                if (xhr.status === 400 && tmp_vars['get_repeat'] <= 3) {
-                    tmp_vars.get['token'] = null;
+                if (xhr.status === 400 && tmp_vars.get_repeat <= 3) {
+                    tmp_vars.get.token = null;
                     getToken(function() {
-                        tmp_vars['get_repeat'] += 1;
+                        tmp_vars.get_repeat += 1;
                         get(action, cid, callback);
                     });
                 }
@@ -409,7 +403,7 @@ var engine = function() {
         var getTorrentsList = function() {
             try {
                 var xhr = new XMLHttpRequest();
-                xhr.open("GET", settings.ut_url + "?token=" + tmp_vars.get['token'] + "&list=1" + "&cid=" + tmp_vars.get['torrentc'], false);
+                xhr.open("GET", settings.ut_url + "?token=" + tmp_vars.get.token + "&list=1" + "&cid=" + tmp_vars.get.torrentc, false);
                 xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
                 xhr.send(null);
             } catch (e) {
@@ -477,12 +471,10 @@ var engine = function() {
             var formdata = new FormData();
             formdata.append("torrent_file", file);
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", settings.ut_url + "?token=" + tmp_vars.get['token'] + "&action=add-file" + dir_url, true);
+            xhr.open("POST", settings.ut_url + "?token=" + tmp_vars.get.token + "&action=add-file" + dir_url, true);
             xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    handleResponse('file', xhr.responseText, label);
-                }
+            xhr.onload = function() {
+                handleResponse('file', xhr.responseText, label);
             };
             xhr.send(formdata);
         };
@@ -491,12 +483,10 @@ var engine = function() {
                 dir_url = '';
             }
             var xhr = new XMLHttpRequest();
-            xhr.open("GET", settings.ut_url + "?token=" + tmp_vars.get['token'] + "&action=add-url&s=" + url + dir_url, true);
+            xhr.open("GET", settings.ut_url + "?token=" + tmp_vars.get.token + "&action=add-url&s=" + url + dir_url, true);
             xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    handleResponse('url', xhr.responseText, label);
-                }
+            xhr.onload = function() {
+                handleResponse('url', xhr.responseText, label);
             };
             xhr.send(null);
         };
@@ -523,7 +513,7 @@ var engine = function() {
             }, (settings.notify_visbl_interval) ? settings.notify_visbl_interval : 2000);
         };
         var addTorrent = function(a) {
-            if (!tmp_vars.get['token']) {
+            if (!tmp_vars.get.token) {
                 return getToken(function() {
                     addTorrent(a);
                 }, function() {
@@ -541,27 +531,28 @@ var engine = function() {
                 }
             }
             chrome.tabs.getSelected(null, function(tab) {
-                if (a.linkUrl.substr(0, 7).toLowerCase() === 'magnet:')
+                if (a.linkUrl.substr(0, 7).toLowerCase() === 'magnet:') {
                     get('&list=1', null, function() {
                         uploadMagnet(encodeURIComponent(a.linkUrl), dir_url, label);
                     });
-                else
+                } else {
                     downloadFile(a.linkUrl, function(file) {
                         get('&list=1', null, function() {
                             uploadTorrent(file, dir_url, label);
                         });
                     });
+                }
             });
         };
         return {
-            'load': function() {
+            load: function() {
                 chrome.contextMenus.removeAll();
                 if (!settings.context_menu_trigger)
                     return;
                 var parentID = chrome.contextMenus.create({
-                    "title": lang_arr[104],
-                    "contexts": ["link"],
-                    "onclick": addTorrent
+                    title: lang_arr[104],
+                    contexts: ["link"],
+                    onclick: addTorrent
                 });
                 //выбор каталога из контекстного меню>
                 context_menu = null;
@@ -573,14 +564,14 @@ var engine = function() {
                     for (var i = 0; i < c; i++)
                     {
                         var item = chrome.contextMenus.create({
-                            "title": arr[i][1],
-                            "contexts": ["link"],
-                            "onclick": addTorrent,
-                            "parentId": parentID
+                            title: arr[i][1],
+                            contexts: ["link"],
+                            onclick: addTorrent,
+                            parentId: parentID
                         });
                         items[item] = {
-                            'key': arr[i][0],
-                            'val': arr[i][1]
+                            key: arr[i][0],
+                            val: arr[i][1]
                         };
                     }
                     context_menu = items;
@@ -612,9 +603,9 @@ var engine = function() {
             return sendAction(t, a, b);
         },
         get_cache_torrent_list: function() {
-            if ('torrents' in tmp_vars.get) {
+            if (tmp_vars.get.torrents !== undefined) {
                 if (popup.chk()) {
-                    tmp_vars.popup.manager.updateList(tmp_vars.get['torrents']);
+                    tmp_vars.popup.manager.updateList(tmp_vars.get.torrents);
                     return 1;
                 }
             }
@@ -652,7 +643,7 @@ var engine = function() {
         },
         getLabels: function() {
             if ('label' in tmp_vars.get && popup.chk()) {
-                tmp_vars.popup.manager.setLabels(tmp_vars.get['label']);
+                tmp_vars.popup.manager.setLabels(tmp_vars.get.label);
                 return 1;
             }
             return 0;
@@ -680,10 +671,10 @@ var engine = function() {
 }();
 $(document).ready(function() {
     chrome.browserAction.setBadgeBackgroundColor({
-        "color": [0, 0, 0, 40]
+        color: [0, 0, 0, 40]
     });
     chrome.browserAction.setBadgeText({
-        "text": ''
+        text: ''
     });
     engine.begin();
 });
