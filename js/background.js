@@ -546,16 +546,16 @@ var engine = function () {
         cache: var_cache.client,
         getToken: getToken,
         getColums: function () {
-            return (localStorage.colums !== undefined) ? JSON.parse(localStorage.colums) : clone_obj(colums);
+            return (localStorage.colums !== undefined) ? JSON.parse(localStorage.colums) : clone_obj(table_colums);
         },
         getDefColums: function () {
-            return clone_obj(colums);
+            return clone_obj(table_colums);
         },
         getFlColums: function () {
-            return (localStorage.fl_colums !== undefined) ? JSON.parse(localStorage.fl_colums) : clone_obj(fl_colums);
+            return (localStorage.fl_colums !== undefined) ? JSON.parse(localStorage.fl_colums) : clone_obj(filelist_colums);
         },
         getDefFlColums: function () {
-            return clone_obj(fl_colums);
+            return clone_obj(filelist_colums);
         },
         setFlColums: function (a) {
             localStorage.fl_colums = JSON.stringify(a);
