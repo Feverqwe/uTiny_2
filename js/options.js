@@ -65,6 +65,7 @@ var options = function() {
             if (value.t === "number") {
                 var val = $el.val();
                 if (val.length <= 0) {
+                    //берется из placeholder потому, что bg_update_interval итп именют кратные значения
                     val = $el.attr('placeholder');
                 }
                 if (key === "bg_update_interval" || key === "notify_visbl_interval" || key === "mgr_update_interval") {
