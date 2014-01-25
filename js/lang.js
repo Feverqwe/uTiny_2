@@ -314,7 +314,7 @@ var get_lang = function(lang) {
         119: ['Ok','Fermer'],
         120: 'Ouvrir URL',
         121: 'Entrez l\'URL',
-        122: ['Je ne peux pas télécharger le fichier torrent', 'Un fichier de plus de 10 mo.'],
+        122: ['Vous ne pouvez pas télécharger le fichier', 'Le fichier est trop gros'],
         "settings": {
             1: "uTorrent",
             2: "Notifications",
@@ -586,10 +586,10 @@ var get_lang = function(lang) {
     }
     if (lang === undefined) {
         lang = 'en';
-        if ("chrome" in window && chrome.i18n && chrome.i18n.getMessage("lang") === 'ru') {
+        if (chrome.i18n.getMessage("lang") === 'ru') {
             lang = 'ru';
         } else
-        if ("chrome" in window && chrome.i18n && chrome.i18n.getMessage("lang") === 'fr') {
+        if (chrome.i18n.getMessage("lang") === 'fr') {
             lang = 'fr';
         }
     }
@@ -604,7 +604,7 @@ var get_lang = function(lang) {
 };
 var lang_arr = get_lang();
 window.onload = function() {
-    if ("options" in window === false) {
+    if (window.options === undefined) {
         get_lang = null;
     }
 };
