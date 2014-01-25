@@ -86,7 +86,7 @@ var engine = function () {
             }
             clearInterval(timer);
             timer = clearInterval(function () {
-                updateList({list: 1});
+                sendAction({list: 1});
             }, settings.bg_update_interval);
             bgTimer.isStart = true;
         };
