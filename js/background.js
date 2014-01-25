@@ -104,32 +104,23 @@ var engine = function () {
         }
     }();
     var showNotifi = function (icon, title, text, one) {
+        var notifi = 'showNotifi';
         if (one !== undefined) {
-            one = 'notifi_' + one;
-            if (var_cache[one] !== undefined) {
-                clearTimeout(var_cache[one + '_timeout']);
-                var_cache[one].cancel();
-            }
-            var_cache[one] = webkitNotifications.createNotification(
-                icon,
-                title,
-                text
-            );
-            var_cache[one].show();
-            var_cache[one + '_timeout'] = setTimeout(function () {
-                var_cache[one].cancel();
-            }, settings.notify_visbl_interval);
-            return;
+            notifi += '_' + one;
         }
-        var notifi;
-        notifi = webkitNotifications.createNotification(
+        var timer = notifi + '_timer';
+        if (one !== undefined && var_cache[notifi] !== undefined) {
+            clearTimeout(var_cache[timer]);
+            var_cache[notifi].cancel();
+        }
+        var_cache[notifi] = webkitNotifications.createNotification(
             icon,
             title,
             text
         );
-        notifi.show();
-        setTimeout(function () {
-            notifi.cancel();
+        var_cache[notifi].show();
+        var_cache[timer] = setTimeout(function () {
+            var_cache[notifi].cancel();
         }, settings.notify_visbl_interval);
     };
     var setStatus = function (type, data) {
