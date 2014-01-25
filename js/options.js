@@ -8,7 +8,7 @@ var options = function() {
                 var dom_obj = $('input[name="' + k + '"]');
                 dom_obj.removeAttr("value");
                 if (settings[k] === undefined) {
-                    settings[k] = def_settings[k];
+                    settings[k] = v.v;
                 }
                 if (settings[k] !== v.v) {
                     if (k === "bg_update_interval" || k === "notify_visbl_interval" || k === "mgr_update_interval") {
@@ -54,7 +54,7 @@ var options = function() {
             if (value.t === "text" || value.t == "password") {
                 var val = $el.val();
                 if (val.length === 0 && (key !== 'login' || key !== 'password') ) {
-                    val = $el.attr('placeholder');
+                    val = value.v;
                 }
                 localStorage[key] = val;
             } else
