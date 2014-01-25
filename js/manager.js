@@ -56,7 +56,7 @@ var manager = function () {
         var thead = $('<tr>');
         var sum_width = 0;
         $.each(colums, function (key, value) {
-            if (value.a) {
+            if (value.a === 1) {
                 thead.append($('<th>', {'class': (key + ((value.order) ? ' s' : '')), title: lang_arr[value.lang][1]}).append($('<div>', {text: lang_arr[value.lang][0]})));
                 style += '.torrent-list-layer th.' + key + ', .torrent-list-layer td.' + key + ' {max-width:' + value.size + 'px; min-width:' + value.size + 'px}';
                 sum_width += value.size;
@@ -82,7 +82,7 @@ var manager = function () {
         var thead = $('<tr>');
         var sum_width = 0;
         $.each(colums, function (key, value) {
-            if (value.a) {
+            if (value.a === 1) {
                 if (key === 'select') {
                     thead.append($('<th>', {'class': (key + ((value.order) ? ' s' : '')), title: lang_arr[value.lang][1]}).append($('<div>').append($('<input>', {type: 'checkbox'}))));
                 } else {
@@ -181,7 +181,7 @@ var manager = function () {
     };
     var timer = function () {
         var status = 0;
-        var timer= null;
+        var timer = null;
         var start = function () {
             if (status === 1) {
                 return 0;
@@ -267,358 +267,259 @@ var manager = function () {
             graph.move(sum_dl, sum_up, 0);
         timer.start();
     };
-    var update_item = function (modifed_arr, v) {
-        var colums = tmp_vars.colums;
-        var c = modifed_arr.length;
-        for (var n = 0; n < c; n++) {
-            switching(modifed_arr[n]);
-        }
-        function switching(key) {
-            var item = null;
-            var upd_list = {};
-            switch (key) {
-                case 22:
-                    if (!item)
-                        item = $('#' + v[0]);
-                    item.attr('data-sid', v[22]);
-                    break;
-                case 26:
-                    if (!item)
-                        item = $('#' + v[0]);
-                    item.attr('data-path', v[26]);
-                    break;
-                case 2:
-                    if (colums.name.a) {
-                        if (!item)
-                            item = $('#' + v[0]);
-                        var cell = item.children('td.name');
-                        cell.children('div').attr('title', v[2]).children('span').text(v[2]);
-                        if (tmp_vars.tr_auto_order_cell) {
-                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
-                        }
-                        if (tmp_vars.moveble_enabled_tr) {
-                            calculate_moveble(tables['table-main'].find('td.name > div > span'), tmp_vars.colums.name.size);
-                        }
-                        break;
-                    }
-                case 3:
-                    if (colums.size.a) {
-                        if (!item)
-                            item = $('#' + v[0]);
-                        var t_s = bytesToSize(v[3]);
-                        var cell = item.children('td.size');
-                        cell.attr('data-value', v[3]).children('div').attr('title', t_s).text(t_s);
-                        if (tmp_vars.tr_auto_order_cell) {
-                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
-                        }
-                        break;
-                    }
-                case 4:
-                case 1:
-                    if (colums.progress.a && upd_list['4.1'] === undefined) {
-                        upd_list['4.1'] = 1;
-                        if (!item)
-                            item = $('#' + v[0]);
-                        var progress = v[4] / 10;
-                        var cell = item.children('td.progress');
-                        var with_c = cell.attr('data-value', v[4]).children('div.progress_b').children('div.progress_b_i');
-                        if (tmp_vars.tr_auto_order_cell) {
-                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
-                        }
-                        with_c.css('width', writePersent(progress) + '%').parent().children('div.val').text(progress + '%');
-                        if (v[1] == 201 && v[4] == 1000) {
-                            with_c.css('background-color', '#41B541');
-                        } else {
-                            with_c.css('background-color', '#3687ED');
-                        }
-                        break;
-                    }
-                case 21:
-                case 1:
-                    if (colums.status.a && upd_list['21.1'] === undefined) {
-                        upd_list['21.1'] = 1;
-                        if (!item)
-                            item = $('#' + v[0]);
-                        var cell = item.children('td.status');
-                        cell.attr('data-value', v[1]).children('div').attr('title', v[21]).text(v[21]);
-                        if (tmp_vars.tr_auto_order_cell) {
-                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
-                        }
-                        break;
-                    }
-                case 9:
-                    if (colums.down_speed.a) {
-                        if (!item)
-                            item = $('#' + v[0]);
-                        var cell = item.children('td.down_speed');
-                        cell.attr('data-value', v[9]).children('div').text(bytesToSizeInSec(v[9], ''));
-                        if (tmp_vars.tr_auto_order_cell) {
-                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
-                        }
-                        break;
-                    }
-                case 8:
-                    if (colums.uplo_speed.a) {
-                        if (!item)
-                            item = $('#' + v[0]);
-                        var cell = item.children('td.uplo_speed');
-                        cell.attr('data-value', v[8]).children('div').text(bytesToSizeInSec(v[8], ''));
-                        if (tmp_vars.tr_auto_order_cell) {
-                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
-                        }
-                        break;
-                    }
-                case 14:
-                case 12:
-                    if (colums.seeds_peers.a && upd_list['14.12'] === undefined) {
-                        upd_list['14.12'] = 1;
-                        if (!item)
-                            item = $('#' + v[0]);
-                        var cell = item.children('td.seeds_peers');
-                        cell.children('div').text(v[14] + '/' + v[12]);
-                        if (tmp_vars.tr_auto_order_cell) {
-                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
-                        }
-                        break;
-                    }
-                case 17:
-                    if (colums.position.a) {
-                        if (!item)
-                            item = $('#' + v[0]);
-                        var val = v[17];
-                        if (val < 0)
-                            val = '*';
-                        var cell = item.children('td.position');
-                        cell.children('div').text(val);
-                        if (tmp_vars.tr_auto_order_cell) {
-                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
-                        }
-                        break;
-                    }
-                case 9:
-                case 3:
-                    if (colums.ostalos.a && upd_list['9.3'] === undefined) {
-                        upd_list['9.3'] = 1;
-                        if (!item)
-                            item = $('#' + v[0]);
-                        var val = v[3] - v[5];
-                        if (val < 0)
-                            val = 0;
-                        var cell = item.children('td.ostalos');
-                        cell.attr('data-value', val).children('div').text(bytesToSize(val, 0));
-                        if (tmp_vars.tr_auto_order_cell) {
-                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
-                        }
-                        break;
-                    }
-                case 15:
-                    if (colums.seeds.a) {
-                        if (!item)
-                            item = $('#' + v[0]);
-                        var cell = item.children('td.seeds');
-                        cell.children('div').text(v[15]);
-                        if (tmp_vars.tr_auto_order_cell) {
-                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
-                        }
-                        break;
-                    }
-                case 13:
-                    if (colums.peers.a) {
-                        if (!item)
-                            item = $('#' + v[0]);
-                        var cell = item.children('td.peers');
-                        cell.children('div').text(v[13]);
-                        if (tmp_vars.tr_auto_order_cell) {
-                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
-                        }
-                        break;
-                    }
-                case 10:
-                    if (colums.time.a) {
-                        if (!item)
-                            item = $('#' + v[0]);
-                        var s_time = unixintime(v[10]);
-                        var cell = item.children('td.time');
-                        cell.attr('data-value', v[10]).children('div').attr('title', s_time).text(s_time);
-                        if (tmp_vars.tr_auto_order_cell) {
-                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
-                        }
-                        break;
-                    }
-                case 6:
-                    if (colums.otdano.a) {
-                        if (!item)
-                            item = $('#' + v[0]);
-                        var cell = item.children('td.otdano');
-                        cell.attr('data-value', v[6]).children('div').text(bytesToSize(v[6], 0));
-                        if (tmp_vars.tr_auto_order_cell) {
-                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
-                        }
-                        break;
-                    }
-                case 5:
-                    if (colums.poluchino.a) {
-                        if (!item)
-                            item = $('#' + v[0]);
-                        var cell = item.children('td.poluchino');
-                        cell.attr('data-value', v[5]).children('div').text(bytesToSize(v[5], 0));
-                        if (tmp_vars.tr_auto_order_cell) {
-                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
-                        }
-                        break;
-                    }
-                case 7:
-                    if (colums.koeficient.a) {
-                        if (!item)
-                            item = $('#' + v[0]);
-                        var val = v[7] / 1000;
-                        var cell = item.children('td.koeficient');
-                        cell.attr('data-value', v[7]).children('div').text(val);
-                        if (tmp_vars.tr_auto_order_cell) {
-                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
-                        }
-                        break;
-                    }
-                case 16:
-                    if (colums.dostupno.a) {
-                        if (!item)
-                            item = $('#' + v[0]);
-                        var val = Math.round((v[16] / 65535) * 1000) / 1000;
-                        var cell = item.children('td.dostupno');
-                        cell.attr('data-value', v[16]).children('div').text(val);
-                        if (tmp_vars.tr_auto_order_cell) {
-                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
-                        }
-                        break;
-                    }
-                case 11:
-                    if (!item)
-                        item = $('#' + v[0]);
-                    item.attr('data-label', v[11]);
-                    if (colums.metka.a) {
-                        var cell = item.children('td.metka');
-                        cell.children('div').attr('title', v[11]).text(v[11]);
-                        if (tmp_vars.tr_auto_order_cell) {
-                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
-                        }
-                        break;
-                    }
-                case 23:
-                    if (colums.time_dobavleno.a) {
-                        if (!item)
-                            item = $('#' + v[0]);
-                        var str_time = writeTimeFromShtamp(v[23]);
-                        var cell = item.children('td.time_dobavleno');
-                        cell.children('div').attr('title', str_time).text(str_time);
-                        if (tmp_vars.tr_auto_order_cell) {
-                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
-                        }
-                        break;
-                    }
-                case 24:
-                    if (colums.time_zavircheno.a) {
-                        if (!item)
-                            item = $('#' + v[0]);
-                        var str_time = writeTimeFromShtamp(v[24]);
-                        var cell = item.children('td.time_zavircheno');
-                        cell.children('div').attr('title', str_time).text(str_time);
-                        if (tmp_vars.tr_auto_order_cell) {
-                            tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
-                        }
-                        break;
-                    }
+    var table_update_switch = function (key, v, item) {
+        if (key === 'data_sid') {
+            item.attr('data-sid', v[22]);
+        } else if (key === 'data_path') {
+            item.attr('data-path', v[26]);
+        } else if (key === 'data_label') {
+            item.attr('data-label', v[11]);
+        } else if (key === 'name') {
+            var cell = item.children('td.name');
+            cell.children('div').attr('title', v[2]).children('span').text(v[2]);
+            if (tmp_vars.tr_auto_order_cell) {
+                tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+            }
+            if (tmp_vars.moveble_enabled_tr) {
+                calculate_moveble(tables['table-main'].find('td.name > div > span'), tmp_vars.colums.name.size);
             }
         }
+        else if (key === 'size') {
+            var t_s = bytesToSize(v[3]);
+            var cell = item.children('td.size');
+            cell.attr('data-value', v[3]).children('div').attr('title', t_s).text(t_s);
+            if (tmp_vars.tr_auto_order_cell) {
+                tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+            }
+        }
+        else if (key === 'progress') {
+            var progress = v[4] / 10;
+            var cell = item.children('td.progress');
+            var with_c = cell.attr('data-value', v[4]).children('div.progress_b').children('div.progress_b_i');
+            if (tmp_vars.tr_auto_order_cell) {
+                tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+            }
+            with_c.css('width', writePersent(progress) + '%').parent().children('div.val').text(progress + '%');
+            if (v[1] === 201 && v[4] === 1000) {
+                with_c.css('background-color', '#41B541');
+            } else {
+                with_c.css('background-color', '#3687ED');
+            }
+        }
+        else if (key === 'status') {
+            var cell = item.children('td.status');
+            cell.attr('data-value', v[1]).children('div').attr('title', v[21]).text(v[21]);
+            if (tmp_vars.tr_auto_order_cell) {
+                tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+            }
+        }
+        else if (key === 'down_speed') {
+            var cell = item.children('td.down_speed');
+            cell.attr('data-value', v[9]).children('div').text(bytesToSizeInSec(v[9], ''));
+            if (tmp_vars.tr_auto_order_cell) {
+                tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+            }
+        }
+        else if (key === 'uplo_speed') {
+            var cell = item.children('td.uplo_speed');
+            cell.attr('data-value', v[8]).children('div').text(bytesToSizeInSec(v[8], ''));
+            if (tmp_vars.tr_auto_order_cell) {
+                tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+            }
+        }
+        else if (key === 'seeds_peers') {
+            var cell = item.children('td.seeds_peers');
+            cell.children('div').text(v[14] + '/' + v[12]);
+            if (tmp_vars.tr_auto_order_cell) {
+                tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+            }
+        }
+        else if (key === 'position') {
+            var val = v[17];
+            if (val < 0)
+                val = '*';
+            var cell = item.children('td.position');
+            cell.children('div').text(val);
+            if (tmp_vars.tr_auto_order_cell) {
+                tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+            }
+        }
+        else if (key === 'ostalos') {
+            var val = v[3] - v[5];
+            if (val < 0)
+                val = 0;
+            var cell = item.children('td.ostalos');
+            cell.attr('data-value', val).children('div').text(bytesToSize(val, 0));
+            if (tmp_vars.tr_auto_order_cell) {
+                tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+            }
+        }
+        else if (key === 'seeds') {
+            var cell = item.children('td.seeds');
+            cell.children('div').text(v[15]);
+            if (tmp_vars.tr_auto_order_cell) {
+                tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+            }
+        }
+        else if (key === 'peers') {
+            var cell = item.children('td.peers');
+            cell.children('div').text(v[13]);
+            if (tmp_vars.tr_auto_order_cell) {
+                tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+            }
+        }
+        else if (key === 'time') {
+            var s_time = unixintime(v[10]);
+            var cell = item.children('td.time');
+            cell.attr('data-value', v[10]).children('div').attr('title', s_time).text(s_time);
+            if (tmp_vars.tr_auto_order_cell) {
+                tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+            }
+        }
+        else if (key === 'otdano') {
+            var cell = item.children('td.otdano');
+            cell.attr('data-value', v[6]).children('div').text(bytesToSize(v[6], 0));
+            if (tmp_vars.tr_auto_order_cell) {
+                tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+            }
+        }
+        else if (key === 'poluchino') {
+            var cell = item.children('td.poluchino');
+            cell.attr('data-value', v[5]).children('div').text(bytesToSize(v[5], 0));
+            if (tmp_vars.tr_auto_order_cell) {
+                tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+            }
+        }
+        else if (key === 'koeficient') {
+            var val = v[7] / 1000;
+            var cell = item.children('td.koeficient');
+            cell.attr('data-value', v[7]).children('div').text(val);
+            if (tmp_vars.tr_auto_order_cell) {
+                tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+            }
+        }
+        else if (key === 'dostupno') {
+            var val = Math.round((v[16] / 65535) * 1000) / 1000;
+            var cell = item.children('td.dostupno');
+            cell.attr('data-value', v[16]).children('div').text(val);
+            if (tmp_vars.tr_auto_order_cell) {
+                tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+            }
+        }
+        else if (key === 'metka') {
+            var cell = item.children('td.metka');
+            cell.children('div').attr('title', v[11]).text(v[11]);
+            if (tmp_vars.tr_auto_order_cell) {
+                tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+            }
+        }
+        else if (key === 'time_dobavleno') {
+            var str_time = writeTimeFromShtamp(v[23]);
+            var cell = item.children('td.time_dobavleno');
+            cell.children('div').attr('title', str_time).text(str_time);
+            if (tmp_vars.tr_auto_order_cell) {
+                tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+            }
+        }
+        else if (key === 'time_zavircheno') {
+            var str_time = writeTimeFromShtamp(v[24]);
+            var cell = item.children('td.time_zavircheno');
+            cell.children('div').attr('title', str_time).text(str_time);
+            if (tmp_vars.tr_auto_order_cell) {
+                tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
+            }
+        }
+    };
+    var update_item = function (change_list, v) {
+        /*
+         Получает change_list со списком занчений которые нужно изменить
+         */
+        var colums = tmp_vars.colums;
+        var item = $('#' + v[0]);
+        $.each(change_list, function (key) {
+            if (colums[key] === undefined || colums[key].a === 1) {
+                table_update_switch(key, v, item);
+            }
+        });
+    };
+    var table_create_switch = function (key, v) {
+        if (key === 'name') {
+            return $('<td>', {'class': key}).append($('<div>', {title: v[2]}).append($('<span>', {text: v[2]})));
+        } else if (key === 'size') {
+            return $('<td>', {'class': key, 'data-value': v[3]}).append($('<div>', {title: bytesToSize(v[3]), text: bytesToSize(v[3])}));
+        } else if (key === 'progress') {
+            var progress = v[4] / 10;
+            var color = (v[1] === 201 && v[4] === 1000) ? '#41B541' : '#3687ED';
+            return $('<td>', {'class': key, 'data-value': v[4]}).append($('<div>', {'class': 'progress_b'}).append($('<div>', {'class': 'val', text: progress + '%'}), $('<div>', {'class': 'progress_b_i', style: 'width: ' + writePersent(progress) + '%; background-color: ' + color + ';'})));
+        } else if (key === 'status') {
+            return $('<td>', {'class': key, 'data-value': v[1]}).append($('<div>', {title: v[21], text: v[21]}));
+        } else if (key === 'down_speed') {
+            return $('<td>', {'class': key, 'data-value': v[9]}).append($('<div>', {text: bytesToSizeInSec(v[9], '')}));
+        } else if (key === 'uplo_speed') {
+            return $('<td>', {'class': key, 'data-value': v[8]}).append($('<div>', {text: bytesToSizeInSec(v[8], '')}));
+        } else if (key === 'seeds_peers') {
+            return $('<td>', {'class': key}).append($('<div>', {text: v[14] + '/' + v[12]}));
+        } else if (key === 'position') {
+            var val = v[17];
+            if (val < 0)
+                val = '*';
+            return $('<td>', {'class': key}).append($('<div>', {text: val}));
+        } else if (key === 'ostalos') {
+            var val = v[3] - v[5];
+            if (val < 0)
+                val = 0;
+            return $('<td>', {'class': key, 'data-value': val}).append($('<div>', {text: bytesToSize(val, 0)}));
+        } else if (key === 'seeds') {
+            return $('<td>', {'class': key}).append($('<div>', {text: v[15]}));
+        } else if (key === 'peers') {
+            return $('<td>', {'class': key}).append($('<div>', {text: v[13]}));
+        } else if (key === 'time') {
+            var s_time = unixintime(v[10]);
+            return $('<td>', {'class': key, 'data-value': v[10]}).append($('<div>', {text: s_time, title: s_time}));
+        } else if (key === 'otdano') {
+            return $('<td>', {'class': key, 'data-value': v[6]}).append($('<div>', {text: bytesToSize(v[6], 0)}));
+        } else if (key === 'poluchino') {
+            return $('<td>', {'class': key, 'data-value': v[5]}).append($('<div>', {text: bytesToSize(v[5], 0)}));
+        } else if (key === 'koeficient') {
+            var val = v[7] / 1000;
+            return $('<td>', {'class': key, 'data-value': v[7]}).append($('<div>', {text: val}));
+        } else if (key === 'dostupno') {
+            var val = Math.round((v[16] / 65535) * 1000) / 1000;
+            return $('<td>', {'class': key, 'data-value': v[16]}).append($('<div>', {text: val}));
+        } else if (key === 'metka') {
+            return $('<td>', {'class': key}).append($('<div>', {title: v[11], text: v[11]}));
+        } else if (key === 'time_dobavleno') {
+            var str_time = writeTimeFromShtamp(v[23]);
+            return $('<td>', {'class': key, 'data-value': v[23]}).append($('<div>', {text: str_time, title: str_time}));
+        } else if (key === 'time_zavircheno') {
+            var str_time = writeTimeFromShtamp(v[24]);
+            return $('<td>', {'class': key, 'data-value': v[24]}).append($('<div>', {text: str_time, title: str_time}));
+        } else if (key === 'controls') {
+            return $('<td>', {'class': key}).append($('<div>', {'class': 'btns'}).append($('<a>', {href: '#start', title: lang_arr[0], 'class': 'start'}), $('<a>', {href: '#pause', title: lang_arr[1], 'class': 'pause'}), $('<a>', {href: '#stop', title: lang_arr[2], 'class': 'stop'})));
+        }
+        return '';
     };
     var create_item = function (v) {
         var colums = tmp_vars.colums;
         var item = $('<tr>', {id: v[0], 'data-label': v[11], 'data-sid': v[22], 'data-path': v[26]});
         $.each(colums, function (key, value) {
-            if (value.a) {
-                item.append(switching(key));
+            if (value.a === 1) {
+                item.append(table_create_switch(key, v));
             }
         });
         tables['tr-body'].prepend(item);
-        function switching(key) {
-            switch (key) {
-                case 'name':
-                    return $('<td>', {'class': key}).append($('<div>', {title: v[2]}).append($('<span>', {text: v[2]})));
-                    break;
-                case 'size':
-                    return $('<td>', {'class': key, 'data-value': v[3]}).append($('<div>', {title: bytesToSize(v[3]), text: bytesToSize(v[3])}));
-                    break;
-                case 'progress':
-                    var progress = v[4] / 10;
-                    var color = (v[1] == 201 && v[4] == 1000) ? '#41B541' : '#3687ED';
-                    return $('<td>', {'class': key, 'data-value': v[4]}).append($('<div>', {'class': 'progress_b'}).append($('<div>', {'class': 'val', text: progress + '%'}), $('<div>', {'class': 'progress_b_i', style: 'width: ' + writePersent(progress) + '%; background-color: ' + color + ';'})));
-                    break;
-                case 'status':
-                    return $('<td>', {'class': key, 'data-value': v[1]}).append($('<div>', {title: v[21], text: v[21]}));
-                    break;
-                case 'down_speed':
-                    return $('<td>', {'class': key, 'data-value': v[9]}).append($('<div>', {text: bytesToSizeInSec(v[9], '')}));
-                    break;
-                case 'uplo_speed':
-                    return $('<td>', {'class': key, 'data-value': v[8]}).append($('<div>', {text: bytesToSizeInSec(v[8], '')}));
-                    break;
-                case 'seeds_peers':
-                    return $('<td>', {'class': key}).append($('<div>', {text: v[14] + '/' + v[12]}));
-                    break;
-                case 'position':
-                    var val = v[17];
-                    if (val < 0)
-                        val = '*';
-                    return $('<td>', {'class': key}).append($('<div>', {text: val}));
-                    break;
-                case 'ostalos':
-                    var val = v[3] - v[5];
-                    if (val < 0)
-                        val = 0;
-                    return $('<td>', {'class': key, 'data-value': val}).append($('<div>', {text: bytesToSize(val, 0)}));
-                    break;
-                case 'seeds':
-                    return $('<td>', {'class': key}).append($('<div>', {text: v[15]}));
-                    break;
-                case 'peers':
-                    return $('<td>', {'class': key}).append($('<div>', {text: v[13]}));
-                    break;
-                case 'time':
-                    var s_time = unixintime(v[10]);
-                    return $('<td>', {'class': key, 'data-value': v[10]}).append($('<div>', {text: s_time, title: s_time}));
-                    break;
-                case 'otdano':
-                    return $('<td>', {'class': key, 'data-value': v[6]}).append($('<div>', {text: bytesToSize(v[6], 0)}));
-                    break;
-                case 'poluchino':
-                    return $('<td>', {'class': key, 'data-value': v[5]}).append($('<div>', {text: bytesToSize(v[5], 0)}));
-                    break;
-                case 'koeficient':
-                    var val = v[7] / 1000;
-                    return $('<td>', {'class': key, 'data-value': v[7]}).append($('<div>', {text: val}));
-                    break;
-                case 'dostupno':
-                    var val = Math.round((v[16] / 65535) * 1000) / 1000;
-                    return $('<td>', {'class': key, 'data-value': v[16]}).append($('<div>', {text: val}));
-                    break;
-                case 'metka':
-                    return $('<td>', {'class': key}).append($('<div>', {title: v[11], text: v[11]}));
-                    break;
-                case 'time_dobavleno':
-                    var str_time = writeTimeFromShtamp(v[23]);
-                    return $('<td>', {'class': key, 'data-value': v[23]}).append($('<div>', {text: str_time, title: str_time}));
-                    break;
-                case 'time_zavircheno':
-                    var str_time = writeTimeFromShtamp(v[24]);
-                    return $('<td>', {'class': key, 'data-value': v[24]}).append($('<div>', {text: str_time, title: str_time}));
-                    break;
-                case 'controls':
-                    return $('<td>', {'class': key}).append($('<div>', {'class': 'btns'}).append($('<a>', {href: '#start', title: lang_arr[0], 'class': 'start'}), $('<a>', {href: '#pause', title: lang_arr[1], 'class': 'pause'}), $('<a>', {href: '#stop', title: lang_arr[2], 'class': 'stop'})));
-                    break;
-            }
-            return '';
-        }
     };
     var fl_table_controller = function () {
+        var filelist_itemIndexToChanges = function (n, change_list) {
+            if (n === 1) {
+                change_list.size = 1;
+            } else if (n === 2) {
+                change_list.download = 1;
+                change_list.progress = 1;
+            } else if (n === 3) {
+                change_list.priority = 1;
+            }
+        };
         var cached = {};
         var folders = {};
         var clear = function () {
@@ -631,7 +532,7 @@ var manager = function () {
             folders = {};
         };
         var short_name = function (arr, level) {
-            if (arr == null) {
+            if (arr === null) {
                 $.each(cached, function (k) {
                     if (cached[k].gui.mod_name) {
                         var name = get_folder_link(k, (cached[k].gui.path_arr.length > 1) ? cached[k].gui.path_arr.slice(0, -1) : []) + cached[k].gui.name;
@@ -665,7 +566,7 @@ var manager = function () {
             if (path.length === 0) {
                 return '';
             }
-            if (cached[id].gui.name_level[level] != null) {
+            if (cached[id].gui.name_level[level] !== undefined) {
                 return cached[id].gui.name_level[level];
             }
             var link = '';
@@ -698,14 +599,19 @@ var manager = function () {
             if (cached[id] !== undefined) {
                 var tr = cached[id].api;
                 var c = v.length;
-                var modifed_arr = [];
+                var change_list = {};
+                var chenge_count = 0;
                 for (var n = 0; n < c; n++) {
-                    if (tr[n] != v[n]) {
-                        modifed_arr[modifed_arr.length] = n;
-                        cached[id].api[n] = v[n];
+                    if (tr[n] !== v[n]) {
+                        filelist_itemIndexToChanges(n, change_list);
+                        chenge_count++;
                     }
                 }
-                update_fl_item(id, cached[id], modifed_arr);
+                if (chenge_count === 0) {
+                    return;
+                }
+                cached[id].api = v;
+                filelist_update_item(id, v, change_list);
             } else {
                 cached[id] = {
                     api: null,
@@ -726,7 +632,7 @@ var manager = function () {
                     name_level: []
                 };
                 cached[id].gui.link_path = get_folder_link(id, (fl_path_arr.length > 1) ? fl_path_arr.slice(0, -1) : []) + fl_name;
-                create_fl_item(id, cached[id]);
+                filelist_create_item(id, cached[id]);
             }
         };
         var get = function (id) {
@@ -784,7 +690,26 @@ var manager = function () {
             }
         };
     }();
-    var create_fl_item = function (id, v) {
+    var filelist_create_switch = function (key, v) {
+        if (key === 'select') {
+            return $('<td>', {'class': 'select'}).append($('<input>', {type: 'checkbox'}));
+        } else if (key === 'name') {
+            return $('<td>', {'class': 'name', 'data-value': v.api[0], title: v.gui.name}).append($('<div>').append($('<span>').html(v.gui.link_path)));
+        } else if (key === 'size') {
+            return $('<td>', {'class': 'size', 'data-value': v.api[1]}).append($('<div>', {text: bytesToSize(v.api[1], '0')}));
+        } else if (key === 'download') {
+            return $('<td>', {'class': 'download', 'data-value': v.api[2]}).append($('<div>', {text: bytesToSize(v.api[2], '0')}));
+        } else if (key === 'progress') {
+            var progress = Math.round((v.api[2] * 100 / v.api[1]) * 10) / 10;
+            var color = (v.api[1] === v.api[2] && v.api[3] !== 0) ? '#41B541' : '#3687ED';
+            return $('<td>', {'class': 'progress', 'data-value': progress}).append($('<div>', {'class': 'progress_b'}).append($('<div>', {'class': 'val', text: progress + '%'}), $('<div>', {'class': 'progress_b_i', style: 'width: ' + writePersent(progress) + '%; background-color: ' + color + ';'})));
+        } else if (key === 'priority') {
+            var priority = lang_arr[87][v.api[3]];
+            return $('<td>', {'class': 'priority', 'data-value': v.api[3], title: priority}).append($('<div>', {text: priority}));
+        }
+        return '';
+    }
+    var filelist_create_item = function (id, v) {
         /*
          * name = 0
          * size = 1
@@ -795,98 +720,106 @@ var manager = function () {
         var colums = tmp_vars.fl_colums;
         var item = $('<tr>', {id: id});
         $.each(colums, function (key, value) {
-            if (value.a) {
-                item.append(switching(key));
+            if (value.a === 1) {
+                item.append(filelist_create_switch(key, v));
             }
         });
         tables['fl-body'].append(item);
-        function switching(key) {
-            switch (key) {
-                case 'select':
-                    return $('<td>', {'class': 'select'}).append($('<input>', {type: 'checkbox'}));
-                    break;
-                case 'name':
-                    return $('<td>', {'class': 'name', 'data-value': v.api[0], title: v.gui.name}).append($('<div>').append($('<span>').html(v.gui.link_path)));
-                    break;
-                case 'size':
-                    return $('<td>', {'class': 'size', 'data-value': v.api[1]}).append($('<div>', {text: bytesToSize(v.api[1], '0')}));
-                    break;
-                case 'download':
-                    return $('<td>', {'class': 'download', 'data-value': v.api[2]}).append($('<div>', {text: bytesToSize(v.api[2], '0')}));
-                    break;
-                case 'progress':
-                    var progress = Math.round((v.api[2] * 100 / v.api[1]) * 10) / 10;
-                    var color = (v.api[1] == v.api[2] && v.api[3] != 0) ? '#41B541' : '#3687ED';
-                    return $('<td>', {'class': 'progress', 'data-value': progress}).append($('<div>', {'class': 'progress_b'}).append($('<div>', {'class': 'val', text: progress + '%'}), $('<div>', {'class': 'progress_b_i', style: 'width: ' + writePersent(progress) + '%; background-color: ' + color + ';'})));
-                    break;
-                case 'priority':
-                    var priority = lang_arr[87][v.api[3]];
-                    return $('<td>', {'class': 'priority', 'data-value': v.api[3], title: priority}).append($('<div>', {text: priority}));
-                    break;
+    };
+    var filelist_update_switch = function (key, v, item) {
+        if (key === 'size') {
+            var cell = item.children('td.size');
+            cell.attr('data-value', v[1]).children('div').text(bytesToSize(v[1], '0'));
+            if (tmp_vars.fl_auto_order_cell) {
+                tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
             }
-            return '';
+        } else if (key === 'download') {
+            var cell = item.children('td.download');
+            cell.attr('data-value', v[2]).children('div').text(bytesToSize(v[2], '0'));
+            if (tmp_vars.fl_auto_order_cell) {
+                tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
+            }
+        } else if (key === 'progress') {
+            var cell = item.children('td.progress');
+            var progress = Math.round((v[2] * 100 / v[1]) * 10) / 10;
+            var color = (v[1] === v[2] && v[3] !== 0) ? '#41B541' : '#3687ED';
+            cell.attr('data-value', progress).children('div.progress_b').children('div.progress_b_i').css({width: writePersent(progress) + '%', 'background-color': color}).parent().children('div.val').text(progress + '%');
+            if (tmp_vars.fl_auto_order_cell) {
+                tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
+            }
+        } else if (key === 'priority') {
+            var cell = item.children('td.priority');
+            var priority = lang_arr[87][v[3]];
+            cell.attr('data-value', v[3]).attr("title", priority).children('div').text(priority);
+            if (tmp_vars.fl_auto_order_cell) {
+                tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
+            }
         }
     };
-    var update_fl_item = function (id, v, modifed_arr) {
+    var filelist_update_item = function (id, v, change_list) {
+        /*
+         Получает change_list со списком занчений которые нужно изменить
+         */
         var colums = tmp_vars.fl_colums;
-        var c = modifed_arr.length;
-        for (var n = 0; n < c; n++)
-            switching(modifed_arr[n]);
-        function switching(key) {
-            var item = null;
-            switch (key) {
-                case 1:
-                    if (colums.size.a) {
-                        if (!item)
-                            item = $('#' + id);
-                        cell = item.children('td.size');
-                        cell.attr('data-value', v.api[1]).children('div').text(bytesToSize(v.api[1], '0'));
-                        if (tmp_vars.fl_auto_order_cell) {
-                            tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
-                        }
-                        break;
-                    }
-                case 2:
-                case 3:
-                    if (colums.download.a) {
-                        if (!item)
-                            item = $('#' + id);
-                        var cell = item.children('td.download');
-                        cell.attr('data-value', v.api[2]).children('div').text(bytesToSize(v.api[2], '0'));
-                        if (tmp_vars.fl_auto_order_cell) {
-                            tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
-                        }
-                    }
-                    if (colums.progress.a) {
-                        if (!item)
-                            item = $('#' + id);
-                        var progress = Math.round((v.api[2] * 100 / v.api[1]) * 10) / 10;
-                        var cell = item.children('td.progress');
-                        var color = (v.api[1] == v.api[2] && v.api[3] != 0) ? '#41B541' : '#3687ED';
-                        cell.attr('data-value', progress).children('div.progress_b').children('div.progress_b_i').css({width: writePersent(progress) + '%', 'background-color': color}).parent().children('div.val').text(progress + '%');
-                        if (tmp_vars.fl_auto_order_cell) {
-                            tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
-                        }
-                        if (key != 3) {
-                            break;
-                        }
-                    }
-                case 3:
-                    if (colums.priority.a) {
-                        if (!item)
-                            item = $('#' + id);
-                        cell = item.children('td.priority');
-                        var priority = lang_arr[87][v.api[3]];
-                        cell.attr('data-value', v.api[3]).attr("title", priority).children('div').text(priority);
-                        if (tmp_vars.fl_auto_order_cell) {
-                            tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
-                        }
-                        break;
-                    }
+        var item = $('#' + id);
+        $.each(change_list, function (key) {
+            if (colums[key] === undefined || colums[key].a === 1) {
+                filelist_update_switch(key, v, item);
             }
-        }
+        });
     };
     var tr_table_controller = function () {
+        var table_itemIndexToChanges = function (n, change_list) {
+            if (n === 1) {
+                change_list.status = 1;
+                change_list.progress = 1;
+            } else if (n === 2) {
+                change_list.name = 1;
+            } else if (n === 3) {
+                change_list.size = 1;
+                change_list.ostalos = 1;
+            } else if (n === 4) {
+                change_list.progress = 1;
+            } else if (n === 21) {
+                change_list.status = 1;
+            } else if (n === 9) {
+                change_list.down_speed = 1;
+                change_list.ostalos = 1;
+            } else if (n === 8) {
+                change_list.uplo_speed = 1;
+            } else if (n === 12) {
+                change_list.seeds_peers = 1;
+            } else if (n === 14) {
+                change_list.seeds_peers = 1;
+            } else if (n === 17) {
+                change_list.position = 1;
+            } else if (n === 15) {
+                change_list.seeds = 1;
+            } else if (n === 13) {
+                change_list.peers = 1;
+            } else if (n === 10) {
+                change_list.time = 1;
+            } else if (n === 6) {
+                change_list.otdano = 1;
+            } else if (n === 5) {
+                change_list.poluchino = 1;
+            } else if (n === 7) {
+                change_list.koeficient = 1;
+            } else if (n === 16) {
+                change_list.dostupno = 1;
+            } else if (n === 11) {
+                change_list.metka = 1;
+                change_list.data_label = 1;
+            } else if (n === 23) {
+                change_list.time_dobavleno = 1;
+            } else if (n === 24) {
+                change_list.time_zavircheno = 1;
+            } else if (n === 22) {
+                change_list.data_sid = 1;
+            } else if (n === 26) {
+                change_list.data_path = 1;
+            }
+        };
         var cached = {};
         var clear = function () {
             tables['tr-body'].empty();
@@ -895,16 +828,24 @@ var manager = function () {
         var add = function (v) {
             var id = v[0];
             if (cached[id] !== undefined) {
+                /*
+                 Если в кэше уже есть запись, провреряется какие поля изменились и выписываюются нормера в отдельный массив
+                 */
                 var tr = cached[id].api;
                 var c = v.length;
-                var modifed_arr = [];
+                var change_list = {};
+                var chenge_count = 0;
                 for (var n = 0; n < c; n++) {
-                    if (tr[n] != v[n]) {
-                        modifed_arr[modifed_arr.length] = n;
-                        cached[id].api[n] = v[n];
+                    if (tr[n] !== v[n]) {
+                        table_itemIndexToChanges(n, change_list);
+                        chenge_count++;
                     }
                 }
-                update_item(modifed_arr, v);
+                if (chenge_count === 0) {
+                    return;
+                }
+                update_item(change_list, v);
+                cached[id].api = v;
             } else {
                 cached[id] = {
                     api: null,
@@ -979,8 +920,8 @@ var manager = function () {
         };
     }();
     var settings_filtering = function (id, display, v) {
-        if ((settings.hide_seeding && v[4] == 1000 && v[1] == 201) ||
-            (settings.hide_finished && v[4] == 1000 && v[1] == 136)) {
+        if ((settings.hide_seeding && v[4] === 1000 && v[1] === 201) ||
+            (settings.hide_finished && v[4] === 1000 && v[1] === 136)) {
             if (display)
                 tr_table_controller.hide(id);
         }
@@ -994,35 +935,35 @@ var manager = function () {
                     }
                     break;
                 case ('download'):
-                    if (param[4] != 1000) {
+                    if (param[4] !== 1000) {
                         tr_table_controller.show(id);
                     } else if (display) {
                         tr_table_controller.hide(id);
                     }
                     break;
                 case ('active'):
-                    if (param[9] != 0 || param[8] != 0) {
+                    if (param[9] !== 0 || param[8] !== 0) {
                         tr_table_controller.show(id);
                     } else if (display) {
                         tr_table_controller.hide(id);
                     }
                     break;
                 case ('inacive'):
-                    if (param[9] == 0 && param[8] == 0) {
+                    if (param[9] === 0 && param[8] === 0) {
                         tr_table_controller.show(id);
                     } else if (display) {
                         tr_table_controller.hide(id);
                     }
                     break;
                 case ('complite'):
-                    if (param[4] == 1000) {
+                    if (param[4] === 1000) {
                         tr_table_controller.show(id);
                     } else if (display) {
                         tr_table_controller.hide(id);
                     }
                     break;
                 case ('seeding'):
-                    if (param[1] == 201 && param[4] == 1000) {
+                    if (param[1] === 201 && param[4] === 1000) {
                         tr_table_controller.show(id);
                     } else if (display) {
                         tr_table_controller.hide(id);
@@ -1045,7 +986,7 @@ var manager = function () {
                     }
             }
         } else {
-            if (tmp_vars.sel_label.v == param[11]) {
+            if (tmp_vars.sel_label.v === param[11]) {
                 if (!display) {
                     tr_table_controller.show(id);
                 }
@@ -1088,7 +1029,7 @@ var manager = function () {
             code = '<li class="context-menu-item select_label" data-key="del_label"><span>' + lang_arr[12] + '</span></li>';
         }
         for (var n = 0; n < c; n++) {
-            if (current_label && current_label == arr[n][0]) {
+            if (current_label && current_label === arr[n][0]) {
                 code += '<li class="context-menu-item select_label" data-key="' + arr[n][1] + '"><span><label>● </label>' + arr[n][0] + '</span></li>';
             } else {
                 code += '<li class="context-menu-item select_label" data-key="' + arr[n][1] + '"><span>' + arr[n][0] + '</span></li>';
@@ -1106,14 +1047,14 @@ var manager = function () {
         var num = 0;
         for (var n = 0; n < cc; n++) {
             num++;
-            options += '<option value="' + costum[n] + '"' + ((isNumber(tmp_vars.sel_label.k) === false && tmp_vars.sel_label.k == costum[n]) ? ' selected' : '') + '>' + lang_arr[70][n] + '</option>';
+            options += '<option value="' + costum[n] + '"' + ((isNumber(tmp_vars.sel_label.k) === false && tmp_vars.sel_label.k === costum[n]) ? ' selected' : '') + '>' + lang_arr[70][n] + '</option>';
         }
         for (var n = 0; n < c; n++) {
             num++;
             arr[n][2] = arr[n][1];
             arr[n][1] = num;
             tmp_vars.label_obj[arr[n][1]] = arr[n][0];
-            options += '<option value="' + arr[n][1] + '"' + ((isNumber(tmp_vars.sel_label.k) && tmp_vars.sel_label.k == arr[n][1]) ? ' selected' : '') + '>' + arr[n][0] + '</option>';
+            options += '<option value="' + arr[n][1] + '"' + ((isNumber(tmp_vars.sel_label.k) && tmp_vars.sel_label.k === arr[n][1]) ? ' selected' : '') + '>' + arr[n][0] + '</option>';
         }
         tables['label-select'].selectBox('options', options);
         update_labels_context_menu();
@@ -1251,14 +1192,14 @@ var manager = function () {
                 } else if (i >= 1) {
                     //Started
                     minus_par[1] = true;
-                    if (minus_par[32] == null) {
+                    if (minus_par[32] === undefined) {
                         sel_en[1] = 0;
                         sel_en[2] = 1;
                         sel_en[3] = 1;
                         sel_en[4] = 1;
                         sel_en[5] = 0;
                     }
-                    if (minus_par[8] && minus_par[1] && minus_par[64] == null) {
+                    if (minus_par[8] && minus_par[1] && minus_par[64] === undefined) {
                         sel_en[1] = 1;
                     }
                     sel_en[6] = 0;
@@ -1313,7 +1254,7 @@ var manager = function () {
         }
         tmp_vars["torrent_context_menu"].find('li.first').removeClass('first');
         tmp_vars["torrent_context_menu"].attr('data-id', '');
-        if (tmp_vars["torrent_context_menu"].attr('data-lable') == 1) {
+        if (tmp_vars["torrent_context_menu"].attr('data-lable') === '1') {
             $('.context-menu-item.labels').children('span').html(lang_arr[11]);
         }
         tmp_vars["torrent_context_menu"].attr('data-lable', '');
@@ -1384,18 +1325,18 @@ var manager = function () {
         var count = tmp_vars.speed_limit.count;
         var sp = (type) ? download_limit : upload_limit;
         var count_p = sp;
-        if (count_p == 0)
+        if (count_p === 0)
             count_p = 200;
         if (count_p < Math.round(count / 2))
             count_p = Math.round(count / 2);
-        if (sp == 0)
+        if (sp === 0)
             tmp_vars.speed_context_menu.children('li[data-key=unlimited]').children('span').html('<label>● </label>' + lang_arr[69]);
         else
             tmp_vars.speed_context_menu.children('li[data-key=unlimited]').children('span').html(lang_arr[69]);
         var with_a = tmp_vars.speed_context_menu.children('li[data-key!=unlimited]');
         for (var i = 0; i <= count; i++) {
             var speed = Math.round((i + 1) / Math.round(count / 2) * count_p);
-            if (speed == sp)
+            if (speed === sp)
                 with_a.eq(i).attr('data-speed', speed).children('span').html('<label>● </label>' + bytesToSizeInSec(speed * 1024));
             else
                 with_a.eq(i).attr('data-speed', speed).children('span').text(bytesToSizeInSec(speed * 1024));
@@ -1458,7 +1399,7 @@ var manager = function () {
                 tmp_vars.filelist_param = {};
                 return;
             }
-            if (arr[0] != id) {
+            if (arr[0] !== id) {
                 return;
             }
             var files = arr[1];
@@ -1472,7 +1413,7 @@ var manager = function () {
                 tables['fl-layer'].children('div.file-list-loading').remove();
                 display_loading = 0;
             }
-            if (clear == 1) {
+            if (clear === 1) {
                 tables['fl-table-main'].trigger('update');
                 if (tmp_vars.moveble_enabled_fl) {
                     calculate_moveble(tables['fl-table-main'].find('td.name > div > span'), 270);
@@ -1609,7 +1550,7 @@ var manager = function () {
         var sizes = lang_arr[59];
         if (nan === undefined)
             nan = 'n/a';
-        if (bytes == 0)
+        if (bytes === 0)
             return nan;
         var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
         if (i === 0) {
@@ -1624,7 +1565,7 @@ var manager = function () {
     var bytesToSizeInSec = function (bytes, nan) {
         //переводит байты в строчки\сек
         var sizes = lang_arr[60];
-        if (bytes == 0)
+        if (bytes === 0)
             return nan;
         var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
         if (i === 0) {
@@ -1807,7 +1748,7 @@ var manager = function () {
                 var table = tr_table_controller.get_table();
                 var hash_list = [];
                 $.each(table, function (key, value) {
-                    if (value.api[1] == 233 && value.gui.display)
+                    if (value.api[1] === 233 && value.gui.display)
                         hash_list.push(key);
                 });
                 if (hash_list.length > 0) {
@@ -1858,7 +1799,7 @@ var manager = function () {
             tables.file_select.on('change', function (e) {
                 e.preventDefault();
                 if (settings.folders_array.length === 0) {
-                    for (var i = 0,  len = this.files.length; i < len; i++) {
+                    for (var i = 0, len = this.files.length; i < len; i++) {
                         _engine.sendFile(this.files[i]);
                     }
                     tables.file_select.get(0).value = '';
@@ -2104,7 +2045,7 @@ var manager = function () {
             });
             tmp_vars.speed_context_menu = $(".context-menu-list.context-menu-root.speed");
             if (settings.graph) {
-                $('li.graph').append( $('<canvas>',{id: 'graph'}) );
+                $('li.graph').append($('<canvas>', {id: 'graph'}));
                 graph.init(settings.mgr_update_interval / 1000);
             }
             write_language();
@@ -2138,7 +2079,7 @@ var manager = function () {
                         if (tmp_vars.auto_order) {
                             tmp_vars.fl_auto_order = true;
                         }
-                        if (tmp_vars.fl_file_selected == 0) {
+                        if (tmp_vars.fl_file_selected === 0) {
                             $(this).find('input').trigger('click');
                         }
                         tables.fl_context_manu.find('label').remove();
@@ -2193,6 +2134,7 @@ var manager = function () {
                                     (tr_table_controller.get(torrent_file_list.getID()))[22] + '&file=' + file_number +
                                     '&disposition=ATTACHMENT&service=DOWNLOAD&qos=0';
                             }
+
                             var c = tmp_vars.fl_select_array.length;
                             /**
                              * @namespace chrome.tabs.create
