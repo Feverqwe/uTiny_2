@@ -104,6 +104,7 @@ var engine = function () {
         };
     }();
     var showNotifi = function (icon, title, text, one) {
+        var current_notifi;
         var notifi = 'showNotifi';
         if (one !== undefined) {
             notifi += '_' + one;
@@ -113,14 +114,14 @@ var engine = function () {
             clearTimeout(var_cache[timer]);
             var_cache[notifi].cancel();
         }
-        var_cache[notifi] = webkitNotifications.createNotification(
+        var_cache[notifi] = current_notifi = webkitNotifications.createNotification(
             icon,
             title,
             text
         );
         var_cache[notifi].show();
         var_cache[timer] = setTimeout(function () {
-            var_cache[notifi].cancel();
+            current_notifi.cancel();
         }, settings.notify_visbl_interval);
     };
     var setStatus = function (type, data) {
