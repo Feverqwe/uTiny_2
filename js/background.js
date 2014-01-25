@@ -223,7 +223,8 @@ var engine = function () {
             xhr.onerror = function () {
                 showNotifi(error_icon, xhr.status, xhr.statusText, 'addFile');
                 setStatus('sendFile', [xhr.status, xhr.statusText, data]);
-                if (var_cache.client.sendAction_error > 3 || xhr.status === 401) {
+                //400 - invalid request, когда token протухает
+                if (var_cache.client.sendAction_error > 3 || xhr.status === 400) {
                     var_cache.client.token = undefined;
                     data.torrent_file = file;
                     sendAction(data, onload);
@@ -446,7 +447,7 @@ var engine = function () {
             }
             showNotifi(add_icon, item[2], lang_arr[102], 'addFile');
             var_cache.newFileListener = undefined;
-        }
+        };
     };
     var downloadFile = function (url, cb) {
         var xhr = new XMLHttpRequest();
