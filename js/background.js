@@ -574,7 +574,7 @@ var engine = function () {
         },
         updateSettings: function (lang) {
             if (lang) {
-                lang_arr = lang;
+                window.lang_arr = lang;
             }
             loadSettings();
             engine.bgTimer.stop();
