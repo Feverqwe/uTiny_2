@@ -114,6 +114,9 @@ var engine = function () {
             clearTimeout(var_cache[timer]);
             var_cache[notifi].cancel();
         }
+        /**
+         * @namespace webkitNotifications.createNotification
+         */
         var_cache[notifi] = current_notifi = webkitNotifications.createNotification(
             icon,
             title,
@@ -257,6 +260,15 @@ var engine = function () {
         });
     };
     var readResponse = function (data) {
+        /**
+         * @namespace data.torrentc
+         * @namespace data.torrents
+         * @namespace data.torrentp
+         * @namespace data.torrentm
+         * @namespace data.label
+         * @namespace data.settings
+         * @namespace data.files
+         */
         if (data.torrentc !== undefined) {
             //get CID
             var_cache.client.cid = data.torrentc;
@@ -397,6 +409,9 @@ var engine = function () {
         }
         if (var_cache.client.active_torrent !== active) {
             var_cache.client.active_torrent = active;
+            /**
+             * @namespace chrome.browserAction.setBadgeText
+             */
             chrome.browserAction.setBadgeText({
                 text: (active > 0) ? String(active) : ''
             });
@@ -438,6 +453,10 @@ var engine = function () {
         xhr.open('GET', url, true);
         xhr.responseType = 'blob';
         xhr.onprogress = function (e) {
+            /**
+             * @namespace e.total
+             * @namespace e.loaded
+             */
             if (e.total > 1048576 * 10 || e.loaded > 1048576 * 10) {
                 xhr.abort();
                 showNotifi(error_icon, lang_arr[122][0],  lang_arr[122][1], 'addFile');
@@ -484,6 +503,10 @@ var engine = function () {
         }
     };
     var onCtxMenuCall = function (e) {
+        /**
+         * @namespace e.linkUrl
+         * @namespace e.menuItemId
+         */
         var link = e.linkUrl;
         var id = e.menuItemId;
         if (id === 'main') {
@@ -503,6 +526,10 @@ var engine = function () {
         if (!settings.context_menu_trigger) {
             return;
         }
+        /**
+         * @namespace chrome.contextMenus.removeAll
+         * @namespace chrome.contextMenus.create
+         */
         chrome.contextMenus.removeAll(function () {
             chrome.contextMenus.create({
                 id: 'main',
@@ -581,6 +608,9 @@ var engine = function () {
     engine.loadSettings();
     engine.createCtxMenu();
     engine.bgTimer.start();
+    /**
+     * @namespace chrome.browserAction.setBadgeBackgroundColor
+     */
     chrome.browserAction.setBadgeBackgroundColor({
         color: [0, 0, 0, 40]
     });
