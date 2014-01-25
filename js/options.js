@@ -223,10 +223,10 @@ var options = function() {
         }
         if (language === undefined) {
             language = 'en';
-            if ("chrome" in window && chrome.i18n && chrome.i18n.getMessage("lang") === 'ru') {
+            if (chrome.i18n.getMessage("lang") === 'ru') {
                 language = 'ru';
             } else
-            if ("chrome" in window && chrome.i18n && chrome.i18n.getMessage("lang") === 'fr') {
+            if (chrome.i18n.getMessage("lang") === 'fr') {
                 language = 'fr';
             }
         }
