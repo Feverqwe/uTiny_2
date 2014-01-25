@@ -101,7 +101,7 @@ var engine = function () {
             isStart: false,
             start: start,
             stop: stop
-        }
+        };
     }();
     var showNotifi = function (icon, title, text, one) {
         var notifi = 'showNotifi';
@@ -168,7 +168,6 @@ var engine = function () {
                 bgTimer.start();
             },
             error: function (xhr, textStatus) {
-                console.log(xhr)
                 setStatus('getToken', [xhr.status, textStatus]);
                 if (onerror !== undefined) {
                     onerror();
