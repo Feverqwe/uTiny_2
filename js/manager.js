@@ -532,7 +532,7 @@ var manager = function () {
             folders = {};
         };
         var short_name = function (arr, level) {
-            if (arr === null) {
+            if (arr === undefined) {
                 $.each(cached, function (k) {
                     if (cached[k].gui.mod_name) {
                         var name = get_folder_link(k, (cached[k].gui.path_arr.length > 1) ? cached[k].gui.path_arr.slice(0, -1) : []) + cached[k].gui.name;
@@ -848,7 +848,7 @@ var manager = function () {
                 cached[id].api = v;
             } else {
                 cached[id] = {
-                    api: null,
+                    api: undefined,
                     gui: {
                         display: 1
                     }
@@ -884,7 +884,7 @@ var manager = function () {
             if (cached[id] !== undefined)
                 return cached[id].api;
             else
-                return null;
+                return undefined;
         };
         var del = function (id) {
             if (cached[id] !== undefined)
@@ -1015,21 +1015,22 @@ var manager = function () {
         }
     };
     var update_labels_context_menu = function (id) {
-        var current_label = null;
+        var current_label = undefined;
         if (id) {
             current_label = tr_table_controller.get(id);
-            if (!current_label)
+            if (current_label === undefined) {
                 return;
+            }
             current_label = current_label[11];
         }
         var arr = tmp_vars.label;
         var c = arr.length;
         var code = '<li class="context-menu-item select_label" data-key="add_label"><span>' + lang_arr[114] + '</span></li>';
-        if (current_label && current_label.length) {
+        if (current_label !== undefined && current_label.length) {
             code = '<li class="context-menu-item select_label" data-key="del_label"><span>' + lang_arr[12] + '</span></li>';
         }
         for (var n = 0; n < c; n++) {
-            if (current_label && current_label === arr[n][0]) {
+            if (current_label !== undefined && current_label === arr[n][0]) {
                 code += '<li class="context-menu-item select_label" data-key="' + arr[n][1] + '"><span><label>● </label>' + arr[n][0] + '</span></li>';
             } else {
                 code += '<li class="context-menu-item select_label" data-key="' + arr[n][1] + '"><span>' + arr[n][0] + '</span></li>';
@@ -1223,7 +1224,7 @@ var manager = function () {
             return {start: sel_en[1], force_start: sel_en[2], stop: sel_en[3], pause: sel_en[4], unpause: sel_en[5], recheck: sel_en[6]};
         };
         var status = tr_table_controller.get(id);
-        if (!status)
+        if (status === undefined)
             return;
         var menu_items = readStatus(status[1]);
         var f = 0;
@@ -1235,7 +1236,7 @@ var manager = function () {
                 tmp_vars["torrent_context_menu"].find('li[data-key=' + k + ']').css('display', (v) ? 'block' : 'none');
         });
         var current_label = tr_table_controller.get(id);
-        if (!current_label)
+        if (current_label === undefined)
             return;
         current_label = current_label[11];
         tmp_vars["torrent_context_menu"].attr('data-id', id).attr('data-lable', (current_label.length) ? 1 : 0);
