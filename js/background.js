@@ -403,7 +403,7 @@ var engine = function () {
         }
         var active = 0;
         for (var i = 0, item; item = arr[i]; i++) {
-            if (arr[i][4] != 1000 && arr[i][24] == 0) {
+            if (arr[i][4] !== 1000 && arr[i][24] === 0) {
                 active++;
             }
         }
