@@ -449,7 +449,7 @@ var engine = function () {
         xhr.onprogress = function (e) {
             if (e.total > 1048576 * 10 || e.loaded > 1048576 * 10) {
                 xhr.abort();
-                showNotifi(error_icon, 'Can\'t download file', 'File is too large', 'addFile');
+                showNotifi(error_icon, lang_arr[122][0],  lang_arr[122][1], 'addFile');
             }
         };
         xhr.onload = function () {

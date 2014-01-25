@@ -120,6 +120,7 @@ var get_lang = function(lang) {
         119: ['Ok','Cancel'],
         120: 'Add link',
         121: 'Enter URL',
+        122: ['Can\'t download file', 'File is too large'],
         "settings": {
             1: "uTorrent",
             2: "Notifications",
@@ -313,6 +314,7 @@ var get_lang = function(lang) {
         119: ['Ok','Fermer'],
         120: 'Ouvrir URL',
         121: 'Entrez l\'URL',
+        122: ['Je ne peux pas télécharger le fichier torrent', 'Un fichier de plus de 10 mo.'],
         "settings": {
             1: "uTorrent",
             2: "Notifications",
@@ -506,6 +508,7 @@ var get_lang = function(lang) {
         119: ['Ок','Отменить'],
         120: 'Добавить ссылку',
         121: 'Введите URL',
+        122: ['Не могу загрузить торрент-файл', 'Файл больше 10 мб'],
         "settings": {
             1: "uTorrent",
             2: "Уведомления",
