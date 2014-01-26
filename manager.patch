@@ -13,7 +13,6 @@
 -        <script src="js/jquery.contextMenu.js"></script>
 -        <script src="js/jquery.tablesorter.js"></script>
 -        <script src="js/graph.js"></script>
--        <script src="js/lang.js"></script>
          <script src="js/manager.js"></script>
      </head>
      <body>

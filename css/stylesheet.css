@@ -184,6 +184,7 @@ table tbody tr.selected {
 table td.progress, table th.progress {
     padding: 0;
     position: relative;
+    padding-left: 2px;
     padding-right: 2px;
     overflow: hidden;
 }
@@ -195,6 +196,7 @@ table td.progress div.progress_b {
     border-radius: 3px;
     position: relative;
     color: #fff;
+    margin-left: -1px;
 }
 table td.progress div.progress_b_i {
     position: absolute;
@@ -379,25 +381,25 @@ div.fl-layer a.folder {
     padding-right: 1px;
     text-decoration: none;
 }
-div.fl-layer a.folder.c7 {
+div.fl-layer a.folder.c6 {
     background-color: #d0d0d0;
 }
-div.fl-layer a.folder.c6 {
+div.fl-layer a.folder.c5 {
     background-color: #ffa39f;
 }
-div.fl-layer a.folder.c5 {
+div.fl-layer a.folder.c4 {
     background-color: #e8bdeb;
 }
-div.fl-layer a.folder.c4 {
+div.fl-layer a.folder.c3 {
     background-color: #f6f79d;
 }
-div.fl-layer a.folder.c3 {
+div.fl-layer a.folder.c2 {
     background-color: #fad294;
 }
-div.fl-layer a.folder.c2 {
+div.fl-layer a.folder.c1 {
     background-color: #d1f09d;
 }
-div.fl-layer a.folder.c1 {
+div.fl-layer a.folder.c0 {
     background-color: #acd1ff;
 }
 table thead .headerSortDown {
@@ -475,6 +477,62 @@ li.select div[data-image=inacive],
 .appriseOverlay {
     z-index: 3;
 }
-input[name="torrent_file"] {
-    display: none;
+.selectBox [data-image="all"],
+.selectBox-dropdown-menu [data-image="all"] > a {
+    background: url('/images/c_all.png') left center no-repeat;
+    padding-left: 20px !important;
+    background-position-x: 3px;
+}
+.selectBox-dropdown-menu [data-image="all"] > a {
+    background-position-y: 1px;
+}
+
+.selectBox [data-image="download"],
+.selectBox-dropdown-menu [data-image="download"] > a {
+    background: url('/images/c_down.png') left center no-repeat;
+    padding-left: 20px !important;
+    background-position-x: 3px;
+}
+.selectBox-dropdown-menu [data-image="download"] > a {
+    background-position-y: 1px;
+}
+
+.selectBox [data-image="seeding"],
+.selectBox-dropdown-menu [data-image="seeding"] > a {
+    background: url('/images/c_uplo.png') left center no-repeat;
+    padding-left: 20px !important;
+    background-position-x: 3px;
+}
+.selectBox-dropdown-menu [data-image="seeding"] > a {
+    background-position-y: 1px;
+}
+
+.selectBox [data-image="complite"],
+.selectBox-dropdown-menu [data-image="complite"] > a {
+    background: url('/images/c_comp.png') left center no-repeat;
+    padding-left: 20px !important;
+    background-position-x: 3px;
+}
+.selectBox-dropdown-menu [data-image="complite"] > a {
+    background-position-y: 1px;
+}
+
+.selectBox [data-image="active"],
+.selectBox-dropdown-menu [data-image="active"] > a {
+    background: url('/images/c_active.png') left center no-repeat;
+    padding-left: 20px !important;
+    background-position-x: 3px;
+}
+.selectBox-dropdown-menu [data-image="active"] > a {
+    background-position-y: 1px;
+}
+
+.selectBox [data-image="inacive"],
+.selectBox-dropdown-menu [data-image="inacive"] > a {
+    background: url('/images/c_iact.png') left center no-repeat;
+    padding-left: 20px !important;
+    background-position-x: 3px;
+}
+.selectBox-dropdown-menu [data-image="inacive"] > a {
+    background-position-y: 1px;
 }
