@@ -261,20 +261,24 @@ var manager = function () {
             tmp_vars.new_tr_count = 0;
         }
         tr_table_controller.filter();
-        tables['dl-speed'].text(bytesToSizeInSec(sum_dl, '-'));
-        tables['up-speed'].text(bytesToSizeInSec(sum_up, '-'));
+        tables['dl-speed'].text(bytesToSize(sum_dl, '-', 1));
+        tables['up-speed'].text(bytesToSize(sum_up, '-', 1));
         if (settings.graph)
             graph.move(sum_dl, sum_up, 0);
         timer.start();
     };
-    var table_update_switch = function (key, v, item) {
-        if (key === 'data_sid') {
+    var table_update_switch = function (ch, v) {
+        var item = $('#' + v[0]);
+        if (ch.data_sid !== undefined) {
             item.attr('data-sid', v[22]);
-        } else if (key === 'data_path') {
+        }
+        if (ch.data_path !== undefined) {
             item.attr('data-path', v[26]);
-        } else if (key === 'data_label') {
+        }
+        if (ch.data_label !== undefined) {
             item.attr('data-label', v[11]);
-        } else if (key === 'name') {
+        }
+        if (ch.name !== undefined) {
             var cell = item.children('td.name');
             cell.children('div').attr('title', v[2]).children('span').text(v[2]);
             if (tmp_vars.tr_auto_order_cell) {
@@ -284,7 +288,7 @@ var manager = function () {
                 calculate_moveble(tables['table-main'].find('td.name > div > span'), tmp_vars.colums.name.size);
             }
         }
-        else if (key === 'size') {
+        if (ch.size !== undefined) {
             var t_s = bytesToSize(v[3]);
             var cell = item.children('td.size');
             cell.attr('data-value', v[3]).children('div').attr('title', t_s).text(t_s);
@@ -292,7 +296,7 @@ var manager = function () {
                 tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
             }
         }
-        else if (key === 'progress') {
+        if (ch.progress !== undefined) {
             var progress = v[4] / 10;
             var cell = item.children('td.progress');
             var with_c = cell.attr('data-value', v[4]).children('div.progress_b').children('div.progress_b_i');
@@ -306,35 +310,35 @@ var manager = function () {
                 with_c.css('background-color', '#3687ED');
             }
         }
-        else if (key === 'status') {
+        if (ch.status !== undefined) {
             var cell = item.children('td.status');
             cell.attr('data-value', v[1]).children('div').attr('title', v[21]).text(v[21]);
             if (tmp_vars.tr_auto_order_cell) {
                 tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
             }
         }
-        else if (key === 'down_speed') {
+        if (ch.down_speed !== undefined) {
             var cell = item.children('td.down_speed');
-            cell.attr('data-value', v[9]).children('div').text(bytesToSizeInSec(v[9], ''));
+            cell.attr('data-value', v[9]).children('div').text(bytesToSize(v[9], '', 1));
             if (tmp_vars.tr_auto_order_cell) {
                 tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
             }
         }
-        else if (key === 'uplo_speed') {
+        if (ch.uplo_speed !== undefined) {
             var cell = item.children('td.uplo_speed');
-            cell.attr('data-value', v[8]).children('div').text(bytesToSizeInSec(v[8], ''));
+            cell.attr('data-value', v[8]).children('div').text(bytesToSize(v[8], '', 1));
             if (tmp_vars.tr_auto_order_cell) {
                 tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
             }
         }
-        else if (key === 'seeds_peers') {
+        if (ch.seeds_peers !== undefined) {
             var cell = item.children('td.seeds_peers');
             cell.children('div').text(v[14] + '/' + v[12]);
             if (tmp_vars.tr_auto_order_cell) {
                 tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
             }
         }
-        else if (key === 'position') {
+        if (ch.position !== undefined) {
             var val = v[17];
             if (val < 0)
                 val = '*';
@@ -344,7 +348,7 @@ var manager = function () {
                 tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
             }
         }
-        else if (key === 'ostalos') {
+        if (ch.ostalos !== undefined) {
             var val = v[3] - v[5];
             if (val < 0)
                 val = 0;
@@ -354,21 +358,21 @@ var manager = function () {
                 tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
             }
         }
-        else if (key === 'seeds') {
+        if (ch.seeds !== undefined) {
             var cell = item.children('td.seeds');
             cell.children('div').text(v[15]);
             if (tmp_vars.tr_auto_order_cell) {
                 tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
             }
         }
-        else if (key === 'peers') {
+        if (ch.peers !== undefined) {
             var cell = item.children('td.peers');
             cell.children('div').text(v[13]);
             if (tmp_vars.tr_auto_order_cell) {
                 tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
             }
         }
-        else if (key === 'time') {
+        if (ch.time !== undefined) {
             var s_time = unixintime(v[10]);
             var cell = item.children('td.time');
             cell.attr('data-value', v[10]).children('div').attr('title', s_time).text(s_time);
@@ -376,21 +380,21 @@ var manager = function () {
                 tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
             }
         }
-        else if (key === 'otdano') {
+        if (ch.otdano !== undefined) {
             var cell = item.children('td.otdano');
             cell.attr('data-value', v[6]).children('div').text(bytesToSize(v[6], 0));
             if (tmp_vars.tr_auto_order_cell) {
                 tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
             }
         }
-        else if (key === 'poluchino') {
+        if (ch.poluchino !== undefined) {
             var cell = item.children('td.poluchino');
             cell.attr('data-value', v[5]).children('div').text(bytesToSize(v[5], 0));
             if (tmp_vars.tr_auto_order_cell) {
                 tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
             }
         }
-        else if (key === 'koeficient') {
+        if (ch.koeficient !== undefined) {
             var val = v[7] / 1000;
             var cell = item.children('td.koeficient');
             cell.attr('data-value', v[7]).children('div').text(val);
@@ -398,7 +402,7 @@ var manager = function () {
                 tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
             }
         }
-        else if (key === 'dostupno') {
+        if (ch.dostupno !== undefined) {
             var val = Math.round((v[16] / 65535) * 1000) / 1000;
             var cell = item.children('td.dostupno');
             cell.attr('data-value', v[16]).children('div').text(val);
@@ -406,14 +410,14 @@ var manager = function () {
                 tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
             }
         }
-        else if (key === 'metka') {
+        if (ch.metka !== undefined) {
             var cell = item.children('td.metka');
             cell.children('div').attr('title', v[11]).text(v[11]);
             if (tmp_vars.tr_auto_order_cell) {
                 tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
             }
         }
-        else if (key === 'time_dobavleno') {
+        if (ch.time_dobavleno !== undefined) {
             var str_time = writeTimeFromShtamp(v[23]);
             var cell = item.children('td.time_dobavleno');
             cell.children('div').attr('title', str_time).text(str_time);
@@ -421,7 +425,7 @@ var manager = function () {
                 tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
             }
         }
-        else if (key === 'time_zavircheno') {
+        if (ch.time_zavircheno === undefined) {
             var str_time = writeTimeFromShtamp(v[24]);
             var cell = item.children('td.time_zavircheno');
             cell.children('div').attr('title', str_time).text(str_time);
@@ -429,18 +433,6 @@ var manager = function () {
                 tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
             }
         }
-    };
-    var update_item = function (change_list, v) {
-        /*
-         Получает change_list со списком занчений которые нужно изменить
-         */
-        var colums = tmp_vars.colums;
-        var item = $('#' + v[0]);
-        $.each(change_list, function (key) {
-            if (colums[key] === undefined || colums[key].a === 1) {
-                table_update_switch(key, v, item);
-            }
-        });
     };
     var table_create_switch = function (key, v) {
         if (key === 'name') {
@@ -454,9 +446,9 @@ var manager = function () {
         } else if (key === 'status') {
             return $('<td>', {'class': key, 'data-value': v[1]}).append($('<div>', {title: v[21], text: v[21]}));
         } else if (key === 'down_speed') {
-            return $('<td>', {'class': key, 'data-value': v[9]}).append($('<div>', {text: bytesToSizeInSec(v[9], '')}));
+            return $('<td>', {'class': key, 'data-value': v[9]}).append($('<div>', {text: bytesToSize(v[9], '', 1)}));
         } else if (key === 'uplo_speed') {
-            return $('<td>', {'class': key, 'data-value': v[8]}).append($('<div>', {text: bytesToSizeInSec(v[8], '')}));
+            return $('<td>', {'class': key, 'data-value': v[8]}).append($('<div>', {text: bytesToSize(v[8], '', 1)}));
         } else if (key === 'seeds_peers') {
             return $('<td>', {'class': key}).append($('<div>', {text: v[14] + '/' + v[12]}));
         } else if (key === 'position') {
@@ -512,12 +504,12 @@ var manager = function () {
     var fl_table_controller = function () {
         var filelist_itemIndexToChanges = function (n, change_list) {
             if (n === 1) {
-                change_list.size = 1;
+                change_list.size = (tmp_vars.fl_colums.size.a === 1) ? 1 : undefined;
             } else if (n === 2) {
-                change_list.download = 1;
-                change_list.progress = 1;
+                change_list.download = (tmp_vars.fl_colums.download.a === 1) ? 1 : undefined;
+                change_list.progress = (tmp_vars.fl_colums.progress.a === 1) ? 1 : undefined;
             } else if (n === 3) {
-                change_list.priority = 1;
+                change_list.priority = (tmp_vars.fl_colums.priority.a === 1) ? 1 : undefined;
             }
         };
         var cached = {};
@@ -611,7 +603,7 @@ var manager = function () {
                     return;
                 }
                 cached[id].api = v;
-                filelist_update_item(id, v, change_list);
+                filelist_update_switch(id, v, change_list);
             } else {
                 cached[id] = {
                     api: null,
@@ -726,20 +718,23 @@ var manager = function () {
         });
         tables['fl-body'].append(item);
     };
-    var filelist_update_switch = function (key, v, item) {
-        if (key === 'size') {
+    var filelist_update_switch = function (id, v, ch) {
+        var item = $('#' + id);
+        if (ch.size !== undefined) {
             var cell = item.children('td.size');
             cell.attr('data-value', v[1]).children('div').text(bytesToSize(v[1], '0'));
             if (tmp_vars.fl_auto_order_cell) {
                 tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
             }
-        } else if (key === 'download') {
+        }
+        if (ch.download !== undefined) {
             var cell = item.children('td.download');
             cell.attr('data-value', v[2]).children('div').text(bytesToSize(v[2], '0'));
             if (tmp_vars.fl_auto_order_cell) {
                 tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
             }
-        } else if (key === 'progress') {
+        }
+        if (ch.progress !== undefined) {
             var cell = item.children('td.progress');
             var progress = Math.round((v[2] * 100 / v[1]) * 10) / 10;
             var color = (v[1] === v[2] && v[3] !== 0) ? '#41B541' : '#3687ED';
@@ -747,7 +742,8 @@ var manager = function () {
             if (tmp_vars.fl_auto_order_cell) {
                 tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
             }
-        } else if (key === 'priority') {
+        }
+        if (ch.priority !== undefined) {
             var cell = item.children('td.priority');
             var priority = lang_arr[87][v[3]];
             cell.attr('data-value', v[3]).attr("title", priority).children('div').text(priority);
@@ -756,64 +752,52 @@ var manager = function () {
             }
         }
     };
-    var filelist_update_item = function (id, v, change_list) {
-        /*
-         Получает change_list со списком занчений которые нужно изменить
-         */
-        var colums = tmp_vars.fl_colums;
-        var item = $('#' + id);
-        $.each(change_list, function (key) {
-            if (colums[key] === undefined || colums[key].a === 1) {
-                filelist_update_switch(key, v, item);
-            }
-        });
-    };
     var tr_table_controller = function () {
         var table_itemIndexToChanges = function (n, change_list) {
             if (n === 1) {
-                change_list.status = 1;
-                change_list.progress = 1;
+                change_list.status = (tmp_vars.colums.status.a === 1) ? 1 : undefined;
+                change_list.progress = (tmp_vars.colums.progress.a === 1) ? 1 : undefined;
             } else if (n === 2) {
-                change_list.name = 1;
+                change_list.name = (tmp_vars.colums.name.a === 1) ? 1 : undefined;
             } else if (n === 3) {
-                change_list.size = 1;
-                change_list.ostalos = 1;
+                change_list.size = (tmp_vars.colums.size.a === 1) ? 1 : undefined;
+                change_list.ostalos = (tmp_vars.colums.ostalos.a === 1) ? 1 : undefined;
             } else if (n === 4) {
-                change_list.progress = 1;
+                change_list.progress = (tmp_vars.colums.progress.a === 1) ? 1 : undefined;
             } else if (n === 21) {
-                change_list.status = 1;
+                change_list.status = (tmp_vars.colums.status.a === 1) ? 1 : undefined;
             } else if (n === 9) {
-                change_list.down_speed = 1;
-                change_list.ostalos = 1;
+                change_list.down_speed = (tmp_vars.colums.down_speed.a === 1) ? 1 : undefined;
+                change_list.ostalos = (tmp_vars.colums.ostalos.a === 1) ? 1 : undefined;
             } else if (n === 8) {
-                change_list.uplo_speed = 1;
+                change_list.uplo_speed = (tmp_vars.colums.uplo_speed.a === 1) ? 1 : undefined;
             } else if (n === 12) {
-                change_list.seeds_peers = 1;
+                change_list.seeds_peers = (tmp_vars.colums.seeds_peers.a === 1) ? 1 : undefined;
             } else if (n === 14) {
-                change_list.seeds_peers = 1;
+                change_list.seeds_peers = (tmp_vars.colums.seeds_peers.a === 1) ? 1 : undefined;
             } else if (n === 17) {
-                change_list.position = 1;
+                change_list.position = (tmp_vars.colums.position.a === 1) ? 1 : undefined;
             } else if (n === 15) {
-                change_list.seeds = 1;
+                change_list.seeds = (tmp_vars.colums.seeds.a === 1) ? 1 : undefined;
             } else if (n === 13) {
-                change_list.peers = 1;
+                change_list.peers = (tmp_vars.colums.peers.a === 1) ? 1 : undefined;
             } else if (n === 10) {
-                change_list.time = 1;
+                change_list.time = (tmp_vars.colums.time.a === 1) ? 1 : undefined;
             } else if (n === 6) {
-                change_list.otdano = 1;
+                change_list.otdano = (tmp_vars.colums.otdano.a === 1) ? 1 : undefined;
             } else if (n === 5) {
-                change_list.poluchino = 1;
+                change_list.poluchino = (tmp_vars.colums.poluchino.a === 1) ? 1 : undefined;
             } else if (n === 7) {
-                change_list.koeficient = 1;
+                change_list.koeficient = (tmp_vars.colums.koeficient.a === 1) ? 1 : undefined;
             } else if (n === 16) {
-                change_list.dostupno = 1;
+                change_list.dostupno = (tmp_vars.colums.dostupno.a === 1) ? 1 : undefined;
             } else if (n === 11) {
-                change_list.metka = 1;
+                change_list.metka = (tmp_vars.colums.metka.a === 1) ? 1 : undefined;
                 change_list.data_label = 1;
             } else if (n === 23) {
-                change_list.time_dobavleno = 1;
+                change_list.time_dobavleno = (tmp_vars.colums.time_dobavleno.a === 1) ? 1 : undefined;
             } else if (n === 24) {
-                change_list.time_zavircheno = 1;
+                change_list.time_zavircheno = (tmp_vars.colums.time_zavircheno.a === 1) ? 1 : undefined;
             } else if (n === 22) {
                 change_list.data_sid = 1;
             } else if (n === 26) {
@@ -844,7 +828,7 @@ var manager = function () {
                 if (chenge_count === 0) {
                     return;
                 }
-                update_item(change_list, v);
+                table_update_switch(change_list, v);
                 cached[id].api = v;
             } else {
                 cached[id] = {
@@ -1338,9 +1322,9 @@ var manager = function () {
         for (var i = 0; i <= count; i++) {
             var speed = Math.round((i + 1) / Math.round(count / 2) * count_p);
             if (speed === sp)
-                with_a.eq(i).attr('data-speed', speed).children('span').html('<label>● </label>' + bytesToSizeInSec(speed * 1024));
+                with_a.eq(i).attr('data-speed', speed).children('span').html('<label>● </label>' + bytesToSize(speed * 1024, undefined, 1));
             else
-                with_a.eq(i).attr('data-speed', speed).children('span').text(bytesToSizeInSec(speed * 1024));
+                with_a.eq(i).attr('data-speed', speed).children('span').text(bytesToSize(speed * 1024, undefined, 1));
         }
     };
     var updateColums = function (key) {
@@ -1545,10 +1529,9 @@ var manager = function () {
     function isNumber(n) {
         return !isNaN(parseFloat(n)) && isFinite(n);
     }
-
-    var bytesToSize = function (bytes, nan) {
+    var bytesToSize = function (bytes, nan, ps) {
         //переводит байты в строчки
-        var sizes = lang_arr[59];
+        var sizes = (ps === undefined)?lang_arr[59]:lang_arr[60];
         if (nan === undefined)
             nan = 'n/a';
         if (bytes === 0)
@@ -1563,21 +1546,11 @@ var manager = function () {
         //выписывает проценты для прогресс баров
         return Math.round(i);
     };
-    var bytesToSizeInSec = function (bytes, nan) {
-        //переводит байты в строчки\сек
-        var sizes = lang_arr[60];
-        if (bytes === 0)
-            return nan;
-        var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-        if (i === 0) {
-            return (bytes / Math.pow(1024, i)) + ' ' + sizes[i];
-        }
-        return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
-    };
     var unixintime = function (i) {
         //выписывает отсчет времени из unixtime
-        if (i <= 0)
+        if (i === 0) {
             return '∞';
+        }
         var day = Math.floor(i / 60 / 60 / 24);
         var week = Math.floor(day / 7);
         var hour = Math.floor((i - day * 60 * 60 * 24) / 60 / 60);
@@ -1599,28 +1572,26 @@ var manager = function () {
         return '∞';
     };
     var writeTimeFromShtamp = function (shtamp) {
-        if (!shtamp) {
+        if (shtamp === 0) {
             return '∞';
         }
-        //преврящает TimeShtamp в строчку
         var dt = new Date(shtamp * 1000);
         var m = dt.getMonth() + 1;
-        if (m.toString().length === 1)
+        if (m < 10)
             m = '0' + m.toString();
         var d = dt.getDate();
-        if (d.toString().length === 1)
+        if (d < 10)
             d = '0' + d.toString();
         var h = dt.getHours();
-        if (h.toString().length === 1)
+        if (h < 10)
             h = '0' + h.toString();
         var mi = dt.getMinutes();
-        if (mi.toString().length === 1)
+        if (mi < 10)
             mi = '0' + mi.toString();
         var sec = dt.getSeconds();
-        if (sec.toString().length === 1)
+        if (sec < 10)
             sec = '0' + sec.toString();
-        var t = dt.getFullYear() + '-' + m + '-' + d + ' ' + h + ':' + mi + ':' + sec;
-        return t;
+        return dt.getFullYear() + '-' + m + '-' + d + ' ' + h + ':' + mi + ':' + sec;
     };
     //=================
     return {
