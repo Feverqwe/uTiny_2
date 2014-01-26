@@ -1088,10 +1088,10 @@ var manager = function () {
             case ('speed'):
                 if (opt) {
                     _engine.sendAction({action: 'setsetting', s: 'max_dl_rate', v: v});
-                    tmp_vars.speed_limit.download_limit = v;
+                    tmp_vars.speed_limit.download_limit = parseInt(v);
                 } else {
                     _engine.sendAction({action: 'setsetting', s: 'max_ul_rate', v: v});
-                    tmp_vars.speed_limit.upload_limit = v;
+                    tmp_vars.speed_limit.upload_limit = parseInt(v);
                 }
                 update_speed_menu(opt);
                 break;
@@ -1247,7 +1247,7 @@ var manager = function () {
     var make_speed_menu = function () {
         //выстраивает внутренности контекстного меню для ограничения скорости
         var items = {};
-        items["unlimited"] = {
+        items.unlimited = {
             name: lang_arr[69],
             callback: function (opt) {
                 var type = $(this).hasClass('download');
@@ -1277,14 +1277,14 @@ var manager = function () {
         var b = 0;
         for (var n = 0; n < c; n++) {
             if (arr[n][0] === 'max_dl_rate') {
-                tmp_vars.speed_limit.download_limit = arr[n][2];
+                tmp_vars.speed_limit.download_limit = parseInt(arr[n][2]);
                 a++;
                 if (b) {
                     break;
                 }
             }
             if (arr[n][0] === 'max_ul_rate') {
-                tmp_vars.speed_limit.upload_limit = arr[n][2];
+                tmp_vars.speed_limit.upload_limit = parseInt(arr[n][2]);
                 b++;
                 if (a) {
                     break;
@@ -1298,33 +1298,36 @@ var manager = function () {
     var update_speed_menu = function (type) {
         //обновляет контекстное меню ограничения скорости, в зависимости от скорости
         tmp_vars.speed_limit['last-type'] = type;
-        download_limit = 0;
-        upload_limit = 0;
-        if (tmp_vars.speed_limit['download_limit'] !== undefined) {
-            var download_limit = tmp_vars.speed_limit.download_limit;
-            var upload_limit = tmp_vars.speed_limit.upload_limit;
+        var download_limit = 0;
+        var upload_limit = 0;
+        if (tmp_vars.speed_limit.download_limit !== undefined) {
+            download_limit = tmp_vars.speed_limit.download_limit;
+            upload_limit = tmp_vars.speed_limit.upload_limit;
         } else {
             _engine.sendAction({action: 'getsettings'});
         }
-
         var count = tmp_vars.speed_limit.count;
         var sp = (type) ? download_limit : upload_limit;
         var count_p = sp;
-        if (count_p === 0)
+        if (count_p === 0) {
             count_p = 200;
-        if (count_p < Math.round(count / 2))
+        }
+        if (count_p < Math.round(count / 2)) {
             count_p = Math.round(count / 2);
-        if (sp === 0)
+        }
+        if (sp === 0) {
             tmp_vars.speed_context_menu.children('li[data-key=unlimited]').children('span').html('<label>● </label>' + lang_arr[69]);
-        else
+        } else {
             tmp_vars.speed_context_menu.children('li[data-key=unlimited]').children('span').html(lang_arr[69]);
+        }
         var with_a = tmp_vars.speed_context_menu.children('li[data-key!=unlimited]');
         for (var i = 0; i <= count; i++) {
             var speed = Math.round((i + 1) / Math.round(count / 2) * count_p);
-            if (speed === sp)
+            if (speed === sp) {
                 with_a.eq(i).attr('data-speed', speed).children('span').html('<label>● </label>' + bytesToSize(speed * 1024, undefined, 1));
-            else
+            } else {
                 with_a.eq(i).attr('data-speed', speed).children('span').text(bytesToSize(speed * 1024, undefined, 1));
+            }
         }
     };
     var updateColums = function (key) {
