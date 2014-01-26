@@ -1,7 +1,7 @@
 var manager = function () {
     var _engine = (chrome.extension.getBackgroundPage()).engine;
-    var settings = null;
-    var tables = null;
+    var settings = {};
+    var tables = {};
     tmp_vars = {
         sel_label: (localStorage.selected_label !== undefined) ? JSON.parse(localStorage.selected_label) : {k: 'all', v: null},
         new_tr_count: 0,
@@ -181,7 +181,7 @@ var manager = function () {
     };
     var timer = function () {
         var status = 0;
-        var timer = null;
+        var timer;
         var start = function () {
             if (status === 1) {
                 return 0;
@@ -303,7 +303,7 @@ var manager = function () {
             if (tmp_vars.tr_auto_order_cell) {
                 tables['table-main'].trigger('updateCell', [cell[0], tmp_vars.tr_auto_order]);
             }
-            with_c.css('width', writePersent(progress) + '%').parent().children('div.val').text(progress + '%');
+            with_c.css('width', Math.round(progress) + '%').parent().children('div.val').text(progress + '%');
             if (v[1] === 201 && v[4] === 1000) {
                 with_c.css('background-color', '#41B541');
             } else {
@@ -442,7 +442,7 @@ var manager = function () {
         } else if (key === 'progress') {
             var progress = v[4] / 10;
             var color = (v[1] === 201 && v[4] === 1000) ? '#41B541' : '#3687ED';
-            return $('<td>', {'class': key, 'data-value': v[4]}).append($('<div>', {'class': 'progress_b'}).append($('<div>', {'class': 'val', text: progress + '%'}), $('<div>', {'class': 'progress_b_i', style: 'width: ' + writePersent(progress) + '%; background-color: ' + color + ';'})));
+            return $('<td>', {'class': key, 'data-value': v[4]}).append($('<div>', {'class': 'progress_b'}).append($('<div>', {'class': 'val', text: progress + '%'}), $('<div>', {'class': 'progress_b_i', style: 'width: ' + Math.round(progress) + '%; background-color: ' + color + ';'})));
         } else if (key === 'status') {
             return $('<td>', {'class': key, 'data-value': v[1]}).append($('<div>', {title: v[21], text: v[21]}));
         } else if (key === 'down_speed') {
@@ -694,7 +694,7 @@ var manager = function () {
         } else if (key === 'progress') {
             var progress = Math.round((v.api[2] * 100 / v.api[1]) * 10) / 10;
             var color = (v.api[1] === v.api[2] && v.api[3] !== 0) ? '#41B541' : '#3687ED';
-            return $('<td>', {'class': 'progress', 'data-value': progress}).append($('<div>', {'class': 'progress_b'}).append($('<div>', {'class': 'val', text: progress + '%'}), $('<div>', {'class': 'progress_b_i', style: 'width: ' + writePersent(progress) + '%; background-color: ' + color + ';'})));
+            return $('<td>', {'class': 'progress', 'data-value': progress}).append($('<div>', {'class': 'progress_b'}).append($('<div>', {'class': 'val', text: progress + '%'}), $('<div>', {'class': 'progress_b_i', style: 'width: ' + Math.round(progress) + '%; background-color: ' + color + ';'})));
         } else if (key === 'priority') {
             var priority = lang_arr[87][v.api[3]];
             return $('<td>', {'class': 'priority', 'data-value': v.api[3], title: priority}).append($('<div>', {text: priority}));
@@ -738,7 +738,7 @@ var manager = function () {
             var cell = item.children('td.progress');
             var progress = Math.round((v[2] * 100 / v[1]) * 10) / 10;
             var color = (v[1] === v[2] && v[3] !== 0) ? '#41B541' : '#3687ED';
-            cell.attr('data-value', progress).children('div.progress_b').children('div.progress_b_i').css({width: writePersent(progress) + '%', 'background-color': color}).parent().children('div.val').text(progress + '%');
+            cell.attr('data-value', progress).children('div.progress_b').children('div.progress_b_i').css({width: Math.round(progress) + '%', 'background-color': color}).parent().children('div.val').text(progress + '%');
             if (tmp_vars.fl_auto_order_cell) {
                 tables['fl-table-main'].trigger('updateCell', [cell[0], tmp_vars.fl_auto_order]);
             }
@@ -1367,7 +1367,7 @@ var manager = function () {
         }
         timer.start();
     };
-    var torrent_file_list = function (id) {
+    var torrent_file_list = function () {
         var id = '';
         var clear = 0;
         var display_fl = 0;
@@ -1541,10 +1541,6 @@ var manager = function () {
             return (bytes / Math.pow(1024, i)) + ' ' + sizes[i];
         }
         return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
-    };
-    var writePersent = function (i) {
-        //выписывает проценты для прогресс баров
-        return Math.round(i);
     };
     var unixintime = function (i) {
         //выписывает отсчет времени из unixtime
@@ -2164,28 +2160,16 @@ var manager = function () {
             get_torrent_list();
             return 1;
         },
-        updateList: function (a, b) {
-            write_torrent_list(a, b);
-        },
-        deleteItem: function (a) {
-            delete_from_table(a);
-        },
-        setStatus: function (a) {
-            set_status(a);
-        },
-        setLabels: function (a) {
-            set_labels(a);
-        },
+        updateList: write_torrent_list,
+        deleteItem: delete_from_table,
+        setStatus: set_status,
+        setLabels: set_labels,
         setLabel: function (a) {
             tr_table_controller.filter(a.k, a.v);
             tables['label-select'].selectBox('value', a.k);
         },
-        setSpeedLimit: function (a) {
-            set_speed_limit(a);
-        },
-        setFileList: function (a) {
-            torrent_file_list.setFL(a);
-        }
+        setSpeedLimit: set_speed_limit,
+        setFileList: torrent_file_list.setFL
     };
 }();
 $(function () {
