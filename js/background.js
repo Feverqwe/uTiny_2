@@ -274,7 +274,7 @@ var engine = function () {
             //get CID
             var_cache.client.cid = data.torrentc;
         }
-        if (data.torrentm !== undefined) {
+        if (data.torrentm !== undefined && data.torrentm.length > 0) {
             var list = var_cache.client.torrents || [];
             for (var i = 0, item_m; item_m = data.torrentm[i]; i++) {
                 for (var n = 0, item_s; item_s = list[n]; n++) {
@@ -285,6 +285,10 @@ var engine = function () {
                 }
             }
             _send(function (window) {
+                if (window.manager === undefined) {
+                    console.log('deleteItem not found!');
+                    return;
+                }
                 window.manager.deleteItem(data.torrentm);
             });
         }
@@ -419,15 +423,10 @@ var engine = function () {
         }
     };
     var setOnFileAddListener = function (label) {
-        var retry_count = 3;
         var_cache.newFileListener = function (new_file) {
-            if (retry_count === 0) {
+            if (new_file.length === 0) {
                 var_cache.newFileListener = undefined;
                 showNotifi(error_icon, lang_arr[112], '', 'addFile');
-                return;
-            }
-            if (new_file.length === 0) {
-                retry_count--;
                 return;
             }
             if (new_file.length !== 1) {
@@ -439,11 +438,11 @@ var engine = function () {
                 sendAction({action: 'setprops', s: 'label', v: label, hash: item[0]});
             }
             if (settings.change_downloads) {
-                var ch_label = {k: 'download', v: null};
-                localStorage.selected_label = JSON.stringify(ch_label);
+                var ch_label = {label: 'download', custom: 1};
                 _send(function (window) {
                     window.manager.setLabel(ch_label);
                 });
+                localStorage.selected_label = JSON.stringify(ch_label);
             }
             showNotifi(add_icon, item[2], lang_arr[102], 'addFile');
             var_cache.newFileListener = undefined;

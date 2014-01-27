@@ -371,7 +371,6 @@
         if (!control) {
             return;
         }
-
         var current_option = $(this.selectElement).find('OPTION:selected').eq(0);
         var label = control.find('.selectBox-label').eq(0);
         label.attr('class', this.getLabelClass()).text(current_option.text());
