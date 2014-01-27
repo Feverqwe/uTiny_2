@@ -23,7 +23,8 @@ var manager = function() {
         fl_sort_colum: 'name',
         fl_sort_by: 0,
         tr_sort_colum: 'name',
-        tr_sort_by: 0
+        tr_sort_by: 0,
+        fl_sortInsert: false
     };
     var dom_cache = {};
     var options = {
@@ -35,7 +36,8 @@ var manager = function() {
         tr_auto_order_cell: false,
         tr_auto_order: false,
         fl_auto_order_cell: false,
-        fl_auto_order: false
+        fl_auto_order: false,
+        window_mode: false
     };
     var write_tr_head = function () {
         var style_text = '';
@@ -57,10 +59,13 @@ var manager = function() {
         if (width > 800) {
             width = 800;
         }
+        if (window.innerWidth > 800) {
+            width = 'auto';
+        }
         var style = $('<style>',{class: 'torrent-style', text: style_text});
         dom_cache.body.children('style.torrent-style').remove();
         dom_cache.body.append(style);
-        dom_cache.body.css('width', width+'px');
+        dom_cache.body.css('width', width);
         var_cache.body_width = dom_cache.body.width();
         dom_cache.tr_fixed_head.html(head);
         dom_cache.tr_head.html(head.clone());
@@ -908,12 +913,19 @@ var manager = function() {
         var_cache.fl_list_dom = [];
         var_cache.fl_list_gui = [];
         var_cache.fl_list_gui_display = [];
+        var_cache.fl_sort_pos = [];
+        var_cache.fl_sortInsert = false;
         var_cache.fl_param = {};
         var_cache.tr_list_dom[var_cache.fl_id].removeClass('selected');
         dom_cache.body.children('style.fl_filter').remove();
         var_cache.fl_id = undefined;
         var_cache.fl_layer_dom.remove();
         dom_cache.fl_body.empty();
+        dom_cache.fl_fixed_head.find('input').prop('checked', false);
+        if (var_cache.fl_loading === true) {
+            var_cache.fl_loading_dom.remove();
+            var_cache.fl_loading = false;
+        }
     };
     var fl_show = function (id) {
         var_cache.fl_id = id;
@@ -1302,7 +1314,15 @@ var manager = function() {
             if (options.fl_word_wrap) {
                 dom_cache.body.append($('<style>', {text: 'div.fl-layer td div {white-space: normal;word-wrap: break-word;}'}));
             }
-            dom_cache.body.append($('<style>', {text: '.torrent-list-layer{max-height: '+(_settings.window_height - 54)+'px; min-height: '+(_settings.window_height - 54)+'px}'}));
+            if (window.innerHeight < _settings.window_height) {
+                dom_cache.body.append($('<style>', {text: '.torrent-list-layer{max-height: '+(_settings.window_height - 54)+'px; min-height: '+(_settings.window_height - 54)+'px}'}));
+            } else {
+                $('html').css('height','100%');
+                dom_cache.body.css('height','100%');
+                dom_cache.body.css('min-width','100%');
+                dom_cache.body.append($('<style>', {text: '.torrent-list-layer{max-height: calc(100% - 54px);min-height: calc(100% - 54px);}'}));
+                options.window_mode = true;
+            }
 
             if (localStorage.tr_sort_colum !== undefined) {
                 var_cache.tr_sort_colum = localStorage.tr_sort_colum;
@@ -1321,6 +1341,9 @@ var manager = function() {
             var_cache.fl_colums = _engine.getFlColums();
             write_tr_head();
             write_fl_head();
+            if (options.window_mode === true) {
+                dom_cache.fl.css('left','calc(50% - '+(dom_cache.fl.width()/2)+'px)');
+            }
             //need add order
             dom_cache.label_select.selectBox();
             dom_cache.label_select.on('change', function (e, data) {
