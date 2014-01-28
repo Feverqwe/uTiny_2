@@ -10,6 +10,7 @@ var notify = function () {
         layer = undefined;
         notifi = undefined;
         inputs = [];
+        count = 0;
     };
     var inputs = [];
     var count = 0;
@@ -39,6 +40,9 @@ var notify = function () {
         var item = $('<div>', {class: 'item '+type});
         if (type !== 'buttons') {
             item.append( $('<span>', {text: _item.text}) );
+        }
+        if (type === 'note') {
+            count++;
         }
         if (type === 'select') {
             var select = $('<select>');
@@ -82,6 +86,9 @@ var notify = function () {
         });
         notifi.append(createType({type: 'buttons', textOk: textOk, textNo: textNo}))
             .appendTo(body);
+        if (inputs.length > 0) {
+            inputs[0].focus();
+        }
     };
     return function (array, textOk, textNo, _cb) {
         if (layer !== undefined || notifi !== undefined) {

@@ -22,7 +22,6 @@ var engine = function () {
         graph: {v: 0, t: "checkbox"},
         window_height: {v: 300, t: "number", min: 100},
         change_downloads: {v: 0, t: "checkbox"},
-        auto_order: {v: 0, t: "checkbox"},
         context_menu_trigger: {v: 1, t: "checkbox"},
         folders_array: {v: [], t: "array"},
         context_labels: {v: 0, t: "checkbox"}
@@ -466,7 +465,11 @@ var engine = function () {
             cb(xhr.response);
         };
         xhr.onerror = function () {
-            showNotifi(error_icon, xhr.status, xhr.statusText, 'addFile');
+            if (xhr.status === 0) {
+                showNotifi(error_icon, xhr.status, lang_arr[103], 'addFile');
+            } else {
+                showNotifi(error_icon, xhr.status, xhr.statusText, 'addFile');
+            }
             setStatus('downloadFile', [xhr.status, xhr.statusText]);
         };
         xhr.send();
@@ -578,7 +581,11 @@ var engine = function () {
         setFlColums: function (a) {
             localStorage.fl_colums = JSON.stringify(a);
         },
+        setTrColums: function (a) {
+            localStorage.colums = JSON.stringify(a);
+        },
         setColums: function (a) {
+            //setTrColums
             localStorage.colums = JSON.stringify(a);
         },
         setWindow: function (window) {

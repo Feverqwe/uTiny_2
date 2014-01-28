@@ -261,11 +261,13 @@ table.status-panel td.download {
 table.status-panel td.upload {
     background-image: url(/images/icon_uploading.png);
 }
-li.context-menu-item label {
-    margin-left: -10px;
-}
 ul.context-menu-list label {
-    margin-left: -13px;
+    position: absolute;
+    left: 4px;
+}
+ul.context-menu-list label.context {
+    position: absolute;
+    left: auto;
 }
 div.file-list-layer-temp {
     position: fixed;
@@ -583,4 +585,27 @@ li.select div[data-image=inacive],
 .nf-notifi .item select{
     width: 200px;
     margin-left: calc(50% - 100px);
+}
+.speed .limit {
+    padding-left: 3px;
+    padding-right: 3px;
+    border-radius: 5px;
+    margin-right: 3px;
+    margin-left: 3px;
+    cursor: pointer;
+    color: #fff;
+}
+.speed .limit.dl {
+    background-color: #3687ED;
+}
+.speed .limit.up {
+    background-color: #41B541;
+}
+li.labels span > i {
+    padding-left: 3px;
+    padding-right: 3px;
+    margin-left: 5px;
+    background-color: #818181;
+    border-radius: 3px;
+    color: #fff;
 }

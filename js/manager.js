@@ -9,22 +9,48 @@
 var manager = function() {
     var var_cache = {
         status: null,
+        //кэшироованный список торрентов
         tr_list: {},
+        //кэшированный список дом дерева торрентов
         tr_list_dom: {},
+        //кэширует статус отображения торрента, скрытые имеют класс filtered
         tr_list_display: {},
+        //кэшироованный список файлов
         fl_list: [],
+        //кэшированный список дом дерева файлов
         fl_list_dom: [],
+        //кэш списка папок файлов, для отображения папок
         fl_list_gui: [],
+        //кэш названия и отображения файла {mod_name: false, show: false}
         fl_list_gui_display: [],
+        //текущий фильтр таблицы
         current_filter: {label: 'all', custom: 1},
+        //кэш скорости загрузки
         speed_limit: {},
+        //кэш текущей позиции торрентов
         tr_sort_pos: [],
+        //кэш текущей позиции файлов
         fl_sort_pos: [],
+        //текущий столбец сортировки файлов
         fl_sort_colum: 'name',
+        //текущая сортировка по возр. или убыванию. для файлов
         fl_sort_by: 0,
+        //текущий столбец сортировки торрентов
         tr_sort_colum: 'name',
+        //текущая сортировка по возр. или убыванию. для торрентов
         tr_sort_by: 0,
-        fl_sortInsert: false
+        //триггер который блокирует сортировку, пока текущая не завершится для файлов
+        fl_sortInsert: false,
+        //триггер который блокирует сортировку, пока текущая не завершится для торрентов
+        tr_sortInsert: false,
+        //номер item в массиве информации о торренте, получается из названия столбца.
+        tr_sort_index: undefined,
+        //номер item в массиве информации о файле, получается из названия столбца.
+        fl_sort_index: undefined,
+        //статус отображения списка файлов
+        fl_show: false,
+        //масств id файлов, генерируется при появлении контекстного меню файлов
+        fl_list_ctx_sel_arr: []
     };
     var dom_cache = {};
     var options = {
@@ -32,11 +58,6 @@ var manager = function() {
         tr_word_wrap: false,
         fl_word_wrap: true,
         moveble_enabled_tr: true,
-        auto_order: false,
-        tr_auto_order_cell: false,
-        tr_auto_order: false,
-        fl_auto_order_cell: false,
-        fl_auto_order: false,
         window_mode: false
     };
     var write_tr_head = function () {
@@ -706,6 +727,12 @@ var manager = function() {
         for (var i = 0, item; item = list[i]; i++) {
             sum_dl+=item[9];
             sum_up+=item[8];
+
+            if (_settings.hide_seeding && item[4] === 1000 && item[1] === 201 ||
+                _settings.hide_finished && item[4] === 1000 && item[1] === 136) {
+                continue;
+            }
+
             var id = item[0];
             id_list[i] = id;
             var torrent_item = var_cache.tr_list[id];
@@ -758,6 +785,9 @@ var manager = function() {
             });
         }
         tr_sort();
+        if (_settings.graph) {
+            graph.move(sum_dl, sum_up, 0);
+        }
         setSumDlDom(sum_dl);
         setSumUpDom(sum_up);
         mgTimer.start();
@@ -1183,13 +1213,13 @@ var manager = function() {
             var_cache.speed_limit.download_dom = undefined;
             return;
         }
-        value = bytesToSize(value, '-', 1);
+        value = bytesToSize(value * 1024, '-', 1);
         if (var_cache.speed_limit.download_dom === undefined) {
             var_cache.speed_limit.download_dom = $('<span>', {class: 'limit dl', text: value});
-            dom_cache.dl_speed.prepend( var_cache.speed_limit.download_dom );
+            dom_cache.dl_speed.append( var_cache.speed_limit.download_dom );
             return;
         }
-        var_cache.speed_limit.download_dom.text(var_cache.speed_limit.download);
+        var_cache.speed_limit.download_dom.text(value);
     };
     var setUpSpeedDom = function (value) {
         if (value === 0) {
@@ -1200,13 +1230,54 @@ var manager = function() {
             var_cache.speed_limit.upload_dom = undefined;
             return;
         }
-        value = bytesToSize(value, '-', 1);
+        value = bytesToSize(value * 1024, '-', 1);
         if (var_cache.speed_limit.upload_dom === undefined) {
             var_cache.speed_limit.upload_dom = $('<span>', {class: 'limit up', text: value});
-            dom_cache.up_speed.prepend( var_cache.speed_limit.upload_dom );
+            dom_cache.up_speed.append( var_cache.speed_limit.upload_dom );
             return;
         }
-        var_cache.speed_limit.upload_dom.text(var_cache.speed_limit.upload);
+        var_cache.speed_limit.upload_dom.text(value);
+    };
+    var getSpeedArray = function (current_speed, count) {
+        if (current_speed === 0) {
+            current_speed = 512;
+        }
+        var arr = new Array(count);
+        for (var i = 0; i < count; i++) {
+            arr[i] = Math.round((i + 1) / Math.round(count / 2) * current_speed);
+        }
+        return arr;
+    };
+    var updateSpeedCtxMenu = function () {
+        if (var_cache.speed_limit.ctx === undefined) {
+            return;
+        }
+        var items = var_cache.speed_limit.ctx;
+        var type = var_cache.speed_limit.ctx_type;
+        var speeds = getSpeedArray(var_cache.speed_limit[type] || 0, var_cache.speed_limit.count);
+        var n = 0;
+        $.each(items, function(key, value) {
+            if (value.name === undefined) {
+                return 1;
+            }
+            if (key !== 'unlimited') {
+                if (value.speed !== speeds[n]) {
+                    value.speed = speeds[n];
+                    value.$node.children('span').text( bytesToSize(value.speed * 1024, undefined, 1) );
+                }
+                n++;
+            }
+            if (value.t !== type) {
+                value.t = type;
+            }
+            if (var_cache.speed_limit[type] !== value.speed && value.a === 1) {
+                value.$node.children('label').remove();
+                value.a = 0;
+            } else if (var_cache.speed_limit[type] === value.speed && value.a !== 1) {
+                value.a = 1;
+                value.$node.prepend( $('<label>', {text: '●'}) );
+            }
+        });
     };
     var setSpeedLimit = function (settings) {
         var change_d = false;
@@ -1228,13 +1299,16 @@ var manager = function() {
         if (change_u === true) {
             setUpSpeedDom(var_cache.speed_limit.upload);
         }
+        updateSpeedCtxMenu();
     };
     var setUpSpeed = function (value) {
         _engine.sendAction({action: 'setsetting', s: 'max_ul_rate', v: value});
+        var_cache.speed_limit.upload = value;
         setUpSpeedDom(value);
     };
     var setDlSpeed = function (value) {
         _engine.sendAction({action: 'setsetting', s: 'max_dl_rate', v: value});
+        var_cache.speed_limit.download = value;
         setDlSpeedDom(value);
     };
     var setColumSort = function (el, fl) {
@@ -1272,6 +1346,208 @@ var manager = function() {
         var bc = a.filter(':checked').length;
         dom_cache.fl_fixed_head.children('tr').children('th.select').children('div').children('input').prop('checked', bc === a.length);
     };
+    var trToggleColum = function (key) {
+        mgTimer.stop();
+        var_cache.tr_colums[key].a = (var_cache.tr_colums[key].a === 1) ? 0 : 1;
+        _engine.setTrColums(var_cache.tr_colums);
+        write_tr_head();
+        dom_cache.tr_body.empty();
+        write_tr_head();
+        var_cache.tr_list = {};
+        var_cache.tr_list_dom = {};
+        var_cache.tr_list_display = {};
+        var_cache.tr_sort_pos = [];
+        var_cache.tr_sortInsert = false;
+        tr_list(_engine.cache.torrents || []);
+        mgTimer.start();
+    };
+    var flToggleColum = function (key) {
+        mgTimer.stop();
+        var_cache.fl_colums[key].a = (var_cache.fl_colums[key].a === 1) ? 0 : 1;
+        _engine.setFlColums(var_cache.fl_colums);
+        var id = var_cache.fl_id;
+        fl_close();
+        write_fl_head();
+        fl_show(id);
+        mgTimer.start();
+    };
+    var tr_readStatus = function (i) {
+        //показывает что можно, а что нельзя в контекстном меню торрента - скрывает
+        var minus_par = {};
+        var sel_en = [];
+        var minusSt = function (i) {
+            //читает код статуса тооррента
+            if (i >= 128) {
+                //Loaded
+                minus_par[128] = true;
+                sel_en[2] = 0;
+                sel_en[3] = 0;
+                return i - 128;
+            } else if (i >= 64) {
+                //Queued
+                minus_par[64] = true;
+                sel_en[1] = 0;
+                sel_en[3] = 1;
+                return i - 64;
+            } else if (i >= 32) {
+                //Paused
+                minus_par[32] = true;
+                sel_en[1] = 1;
+                sel_en[5] = 1;
+                sel_en[6] = 1;
+                return i - 32;
+            } else if (i >= 16) {
+                //Error
+                minus_par[16] = true;
+                sel_en[6] = 1;
+                sel_en[1] = 1;
+                return i - 16;
+            } else if (i >= 8) {
+                //Checked
+                minus_par[8] = true;
+                sel_en[6] = 1;
+                return i - 8;
+            } else if (i >= 4) {
+                //Start after check
+                minus_par[4] = true;
+                sel_en[4] = 1;
+                sel_en[1] = 0;
+                sel_en[2] = 1;
+                sel_en[3] = 1;
+                return i - 4;
+            } else if (i >= 2) {
+                //Checking
+                minus_par[2] = true;
+                sel_en[6] = 0;
+                sel_en[3] = 1;
+                if (!minus_par[32])
+                    sel_en[2] = 1;
+                return i - 2;
+            } else if (i >= 1) {
+                //Started
+                minus_par[1] = true;
+                if (minus_par[32] === undefined) {
+                    sel_en[1] = 0;
+                    sel_en[2] = 1;
+                    sel_en[3] = 1;
+                    sel_en[4] = 1;
+                    sel_en[5] = 0;
+                }
+                if (minus_par[8] && minus_par[1] && minus_par[64] === undefined) {
+                    sel_en[1] = 1;
+                }
+                sel_en[6] = 0;
+                return i - 1;
+            } else
+                return i;
+        };
+        sel_en[1] = 1; //start
+        sel_en[2] = 1; //pause
+        sel_en[3] = 1; //stop
+        sel_en[4] = 0; //force start
+        sel_en[5] = 0; //unpause
+        sel_en[6] = 1; //forcer re-check
+        var t = i;
+        while (t > 0) {
+            t = minusSt(t);
+        }
+        /*
+         start,force_start,stop,pause,unpause,recheck
+         */
+        return {start: sel_en[1], force_start: sel_en[2], stop: sel_en[3], pause: sel_en[4], unpause: sel_en[5], recheck: sel_en[6]};
+    };
+    var updateLabesCtx = function (trigger, id) {
+        var ul = trigger.items.labels.$node.children('ul');
+        var current_label = var_cache.tr_list[id][11];
+        var items = trigger.items.labels.items;
+        if (current_label.length > 0) {
+            if (items.del_label === undefined) {
+                items.del_label = {
+                    name: _lang_arr[12],
+                    $node: $('<li>', {class: 'context-menu-item'}).data('key', 'del_label').append($('<span>',{text: _lang_arr[12]}))
+                };
+                items.del_label.$node.prependTo(trigger.items.labels.$node.children('ul'));
+                items.del_label.$node.on('click', function(){
+                    _engine.sendAction({list: 1, action: 'setprops', s: 'label', v: '', hash: trigger.items.labels.id});
+                    $('#context-menu-layer').trigger('mousedown');
+                });
+            }
+            if (items.add_label !== undefined) {
+                items.add_label.$node.remove();
+                delete items.add_label;
+            }
+        } else {
+            if (items.add_label === undefined) {
+                items.add_label = {
+                    name: _lang_arr[114],
+                    $node: $('<li>', {class: 'context-menu-item'}).data('key', 'add_label').append($('<span>',{text: _lang_arr[114]}))
+                };
+                items.add_label.$node.prependTo(trigger.items.labels.$node.children('ul'));
+                items.add_label.$node.on('click', function(){
+                    notify([{type: 'input', text: _lang_arr[115]}], _lang_arr[116][0], _lang_arr[116][1], function(arr){
+                        if (arr === undefined) {
+                            return;
+                        }
+                        var label = arr[0];
+                        if (label === undefined) {
+                            return;
+                        }
+                        _engine.sendAction({list: 1, action: 'setprops', s: 'label', v: label, hash: trigger.items.labels.id});
+                    });
+                    $('#context-menu-layer').trigger('mousedown');
+                });
+            }
+            if (items.del_label !== undefined) {
+                items.del_label.$node.remove();
+                delete items.del_label;
+            }
+        }
+        var_cache.labels.forEach(function (label) {
+            if (items['_'+label] === undefined) {
+                items['_'+label] = {
+                    name: label,
+                    a: 0,
+                    $node: $('<li>', {class: 'context-menu-item'}).data('key', label).append($('<span>',{text: label}))
+                };
+                items['_'+label].$node.appendTo(trigger.items.labels.$node.children('ul'));
+                items['_'+label].$node.on('click', function(){
+                    _engine.sendAction({list: 1, action: 'setprops', s: 'label', v: $(this).data('key'), hash: trigger.items.labels.id});
+                    $('#context-menu-layer').trigger('mousedown');
+                });
+            }
+        });
+        if (var_cache.labels.length > 0 && items.s === undefined) {
+            items.s = {
+                name: '-',
+                $node: $('<li>',{class: 'context-menu-item  context-menu-separator not-selectable'})
+            };
+            if (items.del_label !== undefined) {
+                items.del_label.$node.after(items.s.$node);
+            } else {
+                items.add_label.$node.after(items.s.$node);
+            }
+        } else if (items.s !== undefined) {
+            items.s.$node.remove();
+            delete items.s;
+        }
+        $.each(items, function(key, value) {
+            if (key.substr(0,1) !== '_') {
+                return 1;
+            }
+            if (var_cache.labels.indexOf(value.name) === -1) {
+                value.$node.remove();
+                delete items[key];
+                return;
+            }
+            if (value.name !== current_label && value.a === 1) {
+                value.a = 0;
+                value.$node.children('label').remove();
+            } else if (value.a === 0 && value.name === current_label) {
+                value.a = 1;
+                value.$node.prepend( $('<label>', {text: '●'}) );
+            }
+        });
+    };
     return {
         start: function() {
             _engine.setWindow(window);
@@ -1298,16 +1574,6 @@ var manager = function() {
                 fl_bottom: $('.file-list ul.bottom-menu')
             };
             writeLanguage();
-            if (_settings.auto_order) {
-                options.auto_order = true;
-                options.moveble_enabled_tr = false;
-            }
-            if (options.auto_order) {
-                options.tr_auto_order_cell = true;
-                options.tr_auto_order = true;
-                options.fl_auto_order_cell = true;
-                options.fl_auto_order = true;
-            }
             if (options.tr_word_wrap) {
                 dom_cache.body.append($('<style>', {text: 'div.torrent-list-layer td div {white-space: normal;word-wrap: break-word;}'}));
             }
@@ -1322,6 +1588,11 @@ var manager = function() {
                 dom_cache.body.css('min-width','100%');
                 dom_cache.body.append($('<style>', {text: '.torrent-list-layer{max-height: calc(100% - 54px);min-height: calc(100% - 54px);}'}));
                 options.window_mode = true;
+            }
+
+            if (_settings.graph) {
+                $('li.graph').append($('<canvas>', {id: 'graph'}));
+                graph.init(_settings.mgr_update_interval / 1000);
             }
 
             if (localStorage.tr_sort_colum !== undefined) {
@@ -1391,6 +1662,7 @@ var manager = function() {
             });
 
             setSpeedLimit(_engine.cache.settings || []);
+            _engine.sendAction({action: 'getsettings'});
 
             dom_cache.fl_fixed_head.on('click', 'th', function(e){
                 if (e.target.nodeName === 'INPUT' || $(e.target).find('input').length !== 0) {
@@ -1437,10 +1709,13 @@ var manager = function() {
                                 return;
                             }
                             var label = out[0];
-                            var folder = out[0];
+                            var folder = out[1];
+                            if (label !== undefined) {
+                                label = var_cache.labels[label];
+                            }
                             if (folder !== undefined) {
-                                folder = {download_dir: _settings.folders_array[out[2]][0],
-                                    path: _settings.folders_array[out[2]][1]};
+                                folder = {download_dir: _settings.folders_array[out[1]][0],
+                                    path: _settings.folders_array[out[1]][1]};
                             }
                             for (var i = 0, len = _this.files.length; i < len; i++) {
                                 _engine.sendFile(_this.files[i], folder, label);
@@ -1464,6 +1739,9 @@ var manager = function() {
                             return;
                         }
                         var label = out[1];
+                        if (label !== undefined) {
+                            label = var_cache.labels[label];
+                        }
                         var folder = out[2];
                         if (folder !== undefined) {
                             folder = {download_dir: _settings.folders_array[out[2]][0],
@@ -1472,6 +1750,419 @@ var manager = function() {
                         _engine.sendFile(url, folder, label);
                     }
                 );
+            });
+
+            dom_cache.dl_speed.on('click', '.limit', function(e){
+                e.preventDefault();
+                setDlSpeed(0);
+            });
+            dom_cache.up_speed.on('click', '.limit', function(e){
+                e.preventDefault();
+                setUpSpeed(0);
+            });
+            dom_cache.menu.on('click', 'a.pause_all', function (e) {
+                e.preventDefault();
+                var hash_list = [];
+                $.each(var_cache.tr_list, function (key, value) {
+                    if (value[1] !== 201 || var_cache.tr_list_display[key] === false) {
+                        return 1;
+                    }
+                    if (var_cache.current_filter.custom === 0 && value[11] !== var_cache.current_filter.label) {
+                        return 1;
+                    }
+                    hash_list.push(key);
+                });
+                if (hash_list.length > 0) {
+                    _engine.sendAction($.param({list: 1, action: 'pause', hash: hash_list}, true));
+                }
+            });
+            dom_cache.menu.on('click', 'a.refresh', function (e) {
+                e.preventDefault();
+                window._engine = chrome.extension.getBackgroundPage().engine;
+                _engine.setWindow(window);
+                mgTimer.start();
+                getTorrentList();
+            });
+            dom_cache.menu.on('click', 'a.start_all', function (e) {
+                e.preventDefault();
+                var hash_list = [];
+                $.each(var_cache.tr_list, function (key, value) {
+                    if (value[1] !== 233 || var_cache.tr_list_display[key] === false) {
+                        return 1;
+                    }
+                    if (var_cache.current_filter.custom === 0 && value[11] !== var_cache.current_filter.label) {
+                        return 1;
+                    }
+                    hash_list.push(key);
+                });
+                if (hash_list.length > 0) {
+                    _engine.sendAction($.param({list: 1, action: 'unpause', hash: hash_list}, true));
+                }
+            });
+            dom_cache.fl_bottom.on('click', 'a.update', function () {
+                _engine.sendAction({action: 'getfiles', hash: var_cache.fl_id});
+            });
+            dom_cache.fl_bottom.on('click', 'a.close', function () {
+                fl_close();
+            });
+
+            dom_cache.tr_body.on('click', 'a.start', function (e) {
+                e.preventDefault();
+                var hash = $(this).parents().eq(2).attr('id');
+                _engine.sendAction({list: 1, action: 'start', hash: hash});
+            });
+            dom_cache.tr_body.on('click', 'a.pause', function (e) {
+                e.preventDefault();
+                var hash = $(this).parents().eq(2).attr('id');
+                _engine.sendAction({list: 1, action: 'pause', hash: hash});
+            });
+            dom_cache.tr_body.on('click', 'a.stop', function (e) {
+                e.preventDefault();
+                var hash = $(this).parents().eq(2).attr('id');
+                _engine.sendAction({list: 1, action: 'stop', hash: hash});
+            });
+
+            $.contextMenu({
+                zIndex: 3,
+                selector: ".torrent-table-body tr",
+                className: "torrent",
+                events: {
+                    show: function (trigger) {
+                        var id = this.attr('id');
+                        this.addClass('selected');
+                        var status = tr_readStatus( var_cache.tr_list[id][1] );
+                        $.each(trigger.items, function(key, value) {
+                            value.id = id;
+                            if (status[key] !== undefined) {
+                                if (value.a !== status[key]) {
+                                    value.a = status[key];
+                                    if (value.a === 1) {
+                                        value.$node.show();
+                                    } else {
+                                        value.$node.hide();
+                                    }
+                                }
+                            }
+                            if (key === 'labels') {
+                                var lable = var_cache.tr_list[id][11];
+                                if ( value.label !== lable ) {
+                                    if (value.label.length > 0) {
+                                        value.$node.children('span').children('i').remove();
+                                        value.label = '';
+                                    }
+                                    if (lable.length > 0) {
+                                        value.$node.children('span').append( $('<i>', {text: lable}) );
+                                        value.label = lable;
+                                    }
+                                }
+                            }
+                        });
+                        updateLabesCtx(trigger, id);
+                    },
+                    hide: function () {
+                        if (var_cache.fl_show !== true) {
+                            this.removeClass('selected');
+                        }
+                    }
+                },
+                items: {
+                    start: {
+                        name: _lang_arr[0],
+                        callback: function (key, trigger) {
+                            _engine.sendAction({list: 1, action: 'start', hash: trigger.items[key].id });
+                        }
+                    },
+                    force_start: {
+                        name: _lang_arr[3],
+                        callback: function (key, trigger) {
+                            _engine.sendAction({list: 1, action: 'forcestart', hash: trigger.items[key].id });
+                        }
+                    },
+                    pause: {
+                        name: _lang_arr[1],
+                        callback: function (key, trigger) {
+                            _engine.sendAction({list: 1, action: 'pause', hash: trigger.items[key].id });
+                        }
+                    },
+                    unpause: {
+                        name: _lang_arr[4],
+                        callback: function (key, trigger) {
+                            _engine.sendAction({list: 1, action: 'unpause', hash: trigger.items[key].id });
+                        }
+                    },
+                    stop: {
+                        name: _lang_arr[2],
+                        callback: function (key, trigger) {
+                            _engine.sendAction({list: 1, action: 'stop', hash: trigger.items[key].id });
+                        }
+                    },
+                    s1: '-',
+                    recheck: {
+                        name: _lang_arr[5],
+                        callback: function (key, trigger) {
+                            _engine.sendAction({list: 1, action: 'recheck', hash: trigger.items[key].id });
+                        }
+                    },
+                    remove: {
+                        name: _lang_arr[6],
+                        callback: function (key, trigger) {
+                            notify([{text: _lang_arr[73], type: 'note'}], _lang_arr[110][0], _lang_arr[110][1],function(cb) {
+                                if (cb === undefined) {
+                                    return;
+                                }
+                                _engine.sendAction({list: 1, action: 'remove', hash: trigger.items[key].id});
+                            });
+                        }
+                    },
+                    remove_with: {
+                        name: _lang_arr[7],
+                        items: {
+                            remove_torrent: {
+                                name: _lang_arr[8],
+                                callback: function (key, trigger) {
+                                    _engine.sendAction({list: 1, action: 'removetorrent', hash: trigger.items.remove.id });
+                                }
+                            },
+                            remove_files: {
+                                name: _lang_arr[9],
+                                callback: function (key, trigger) {
+                                    _engine.sendAction({list: 1, action: 'removedata', hash: trigger.items.remove.id });
+                                }
+                            },
+                            remove_torrent_files: {
+                                name: _lang_arr[10],
+                                callback: function (key, trigger) {
+                                    _engine.sendAction({list: 1, action: 'removedatatorrent', hash: trigger.items.remove.id });
+                                }
+                            }
+                        }
+                    },
+                    's2': '-',
+                    torrent_files: {
+                        name: _lang_arr[111],
+                        callback: function (key, trigger) {
+                            fl_show(trigger.items[key].id);
+                        }
+                    },
+                    labels: {
+                        name: _lang_arr[11],
+                        className: "labels",
+                        label: '',
+                        items: {}
+                    }
+                }
+            });
+
+            $.contextMenu({
+                selector: ".fl-table-body tr",
+                className: "filelist",
+                events: {
+                    show: function (trigger) {
+                        var id = parseInt(this.attr('id').substr(5));
+                        if (!this.hasClass('selected')) {
+                            this.addClass('selected');
+                            this.find('input').trigger('click');
+                        } else {
+                            this.addClass('selected force')
+                        }
+                        var priority = var_cache.fl_list[id][3];
+                        $.each(trigger.items, function(key, value) {
+                            value.id = id;
+                            if (value.priority !== undefined) {
+                                if (value.priority !== priority && value.a === 1) {
+                                    value.$node.children('label').remove();
+                                    value.a = 0;
+                                }
+                                if (value.priority === priority && value.a !== 1) {
+                                    value.$node.prepend( $('<label>', {text: '●'}) );
+                                    value.a = 1;
+                                }
+                            }
+                        });
+                        var_cache.fl_list_ctx_sel_arr = [];
+                        dom_cache.fl_body.find('input:checked').each(function(){
+                            var_cache.fl_list_ctx_sel_arr.push($(this).parent().parent().attr('id').substr(5));
+                        });
+                    },
+                    hide: function () {
+                        if (this.hasClass('selected') && !this.hasClass('force')) {
+                            this.removeClass('selected');
+                            this.find('input').trigger('click');
+                        } else {
+                            this.removeClass('force');
+                        }
+                        var_cache.fl_list_ctx_sel_arr = [];
+                    }
+                },
+                items: {
+                    high: {
+                        className: 'p3',
+                        name: _lang_arr[87][3],
+                        priority: 3,
+                        callback: function (key, trigger) {
+                            _engine.sendAction($.param({action: 'setprio', p: 3}) + '&' + $.param({f: var_cache.fl_list_ctx_sel_arr, hash: var_cache.fl_id}, true));
+                            dom_cache.fl_body.find('input:checked').trigger('click');
+                        }
+                    },
+                    normal: {
+                        className: 'p2',
+                        name: _lang_arr[87][2],
+                        priority: 2,
+                        callback: function (key, trigger) {
+                            _engine.sendAction($.param({action: 'setprio', p: 2}) + '&' + $.param({f: var_cache.fl_list_ctx_sel_arr, hash: var_cache.fl_id}, true));
+                            dom_cache.fl_body.find('input:checked').trigger('click');
+                        }
+                    },
+                    low: {
+                        className: 'p1',
+                        priority: 1,
+                        name: _lang_arr[87][1],
+                        callback: function (key, trigger) {
+                            _engine.sendAction($.param({action: 'setprio', p: 1}) + '&' + $.param({f: var_cache.fl_list_ctx_sel_arr, hash: var_cache.fl_id}, true));
+                            dom_cache.fl_body.find('input:checked').trigger('click');
+                        }
+                    },
+                    s: '-',
+                    dntdownload: {
+                        className: 'p0',
+                        priority: 0,
+                        name: _lang_arr[87][0],
+                        callback: function (key, trigger) {
+                            _engine.sendAction($.param({action: 'setprio', p: 0}) + '&' + $.param({f: var_cache.fl_list_ctx_sel_arr, hash: var_cache.fl_id}, true));
+                            dom_cache.fl_body.find('input:checked').trigger('click');
+                        }
+                    },
+                    s1: '-',
+                    download: {
+                        name: _lang_arr[90],
+                        callback: function (key, trigger) {
+                            /**
+                             * @namespace chrome.tabs.create
+                             */
+                            var webUi_url = ((_settings.ssl) ? 'https' : 'http') + "://" + _settings.login + ":" + _settings.password + "@" +
+                                _settings.ut_ip + ":" + _settings.ut_port + "/";
+                            for (var n = 0, item; item = var_cache.fl_list_ctx_sel_arr[n]; n++) {
+                                chrome.tabs.create({
+                                    url: webUi_url + 'proxy?sid=' + var_cache.tr_list[var_cache.fl_id][22] + '&file='+item+'&disposition=ATTACHMENT&service=DOWNLOAD&qos=0'
+                                });
+                            }
+                            dom_cache.fl_body.find('input:checked').trigger('click');
+                        }
+                    }
+                }
+            });
+
+            $.contextMenu({
+                className: 'speed',
+                selector: 'table.status-panel td.speed',
+                events: {
+                    show: function (trigger) {
+                        var_cache.speed_limit.ctx = trigger.items;
+                        var_cache.speed_limit.ctx_type =  this.hasClass('download')?'download':'upload';
+                        updateSpeedCtxMenu();
+                    }
+                },
+                items: function () {
+                    //выстраивает внутренности контекстного меню для ограничения скорости
+                    var items = {};
+                    items.unlimited = {
+                        name: _lang_arr[69],
+                        a: 0,
+                        speed: 0,
+                        callback: function (key, toggle) {
+                            if (toggle.items[key].t === 'download') {
+                                setDlSpeed( 0 );
+                            } else {
+                                setUpSpeed( 0 );
+                            }
+                        }
+                    };
+                    items["s"] = '-';
+                    var count = Math.round((_settings.window_height - 54) / 27);
+                    if (count > 10) {
+                        count = 10;
+                    }
+                    var_cache.speed_limit.count = count;
+                    for (var i = 0; i < count; i++) {
+                        items['s' + i] = {
+                            name: '-',
+                            a: undefined,
+                            speed: undefined,
+                            callback: function (key, toggle) {
+                                if (toggle.items[key].t === 'download') {
+                                    setDlSpeed( toggle.items[key].speed );
+                                } else {
+                                    setUpSpeed( toggle.items[key].speed );
+                                }
+                            }
+                        };
+                    }
+                    return items;
+                }()
+            });
+
+            $.contextMenu({
+                className: 'colum_select',
+                selector: 'table.torrent-table-head thead',
+                events: {
+                    show: function (trigger) {
+                        $.each(var_cache.tr_colums, function(key, value) {
+                            if (value.a !== trigger.items[key].a) {
+                                trigger.items[key].a = value.a;
+                                if (value.a === 0) {
+                                    trigger.items[key].$node.children('label').remove();
+                                } else {
+                                    trigger.items[key].$node.prepend( $('<label>', {text: '●'}) );
+                                }
+                            }
+                        });
+                    }
+                },
+                items: function () {
+                    var items = {};
+                    $.each(var_cache.tr_colums, function (key, value) {
+                        items[key] = {
+                            name: _lang_arr[value.lang][1],
+                            a: undefined,
+                            callback: function (key) {
+                                trToggleColum(key);
+                            }
+                        };
+                    });
+                    return items;
+                }()
+            });
+
+            $.contextMenu({
+                className: 'fl_colum_select',
+                selector: 'table.fl-table-head thead',
+                events: {
+                    show: function (trigger) {
+                        $.each(var_cache.fl_colums, function(key, value) {
+                            if (value.a !== trigger.items[key].a) {
+                                trigger.items[key].a = value.a;
+                                if (value.a === 0) {
+                                    trigger.items[key].$node.children('label').remove();
+                                } else {
+                                    trigger.items[key].$node.prepend( $('<label>', {text: '●'}) );
+                                }
+                            }
+                        });
+                    }
+                },
+                items: function () {
+                    var items = {};
+                    $.each(var_cache.fl_colums, function (key, value) {
+                        items[key] = {
+                            name: _lang_arr[value.lang][1],
+                            a: undefined,
+                            callback: function (key) {
+                                flToggleColum(key);
+                            }
+                        };
+                    });
+                    return items;
+                }()
             });
         },
         setLabel: tr_changeFilter,
