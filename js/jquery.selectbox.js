@@ -155,8 +155,8 @@
             this.disableSelection(control);
         } else {
             // Dropdown controls
-            var label = $('<span>',{class: this.getLabelClass(), text: this.getLabelText()}),
-                arrow = $('<span>', {class: 'selectBox-arrow'});
+            var label = $('<span>',{'class': this.getLabelClass(), text: this.getLabelText()}),
+                arrow = $('<span>', {'class': 'selectBox-arrow'});
 
             // Update label
             options = this.getOptions('dropdown');

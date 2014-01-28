@@ -83,7 +83,7 @@ var manager = function() {
         if (window.innerWidth > 800) {
             width = 'auto';
         }
-        var style = $('<style>',{class: 'torrent-style', text: style_text});
+        var style = $('<style>',{'class': 'torrent-style', text: style_text});
         dom_cache.body.children('style.torrent-style').remove();
         dom_cache.body.append(style);
         dom_cache.body.css('width', width);
@@ -130,7 +130,7 @@ var manager = function() {
         style_text += 'div.fl-layer {' +
             'max-height: ' + fl_table_height + 'px;' +
             'min-height: ' + fl_table_height + 'px; }';
-        var style = $('<style>', {class: 'filelist-style', text: style_text});
+        var style = $('<style>', {'class': 'filelist-style', text: style_text});
         dom_cache.body.children('style.filelist-style').remove();
         dom_cache.body.append(style);
         dom_cache.fl_fixed_head.html(head);
@@ -1019,12 +1019,12 @@ var manager = function() {
         if (level !== 0) {
             var lev = level - 1;
             dom_links = new Array(links.length - lev);
-            dom_links[lev] = $('<a>', {class: 'folder c'+lev, text: '←', href: '#'}).data('path', links[lev].back);
+            dom_links[lev] = $('<a>', {'class': 'folder c'+lev, text: '←', href: '#'}).data('path', links[lev].back);
         } else {
             dom_links = new Array(links.length);
         }
         for (var i = level, link; link = links[i]; i++) {
-            dom_links[i] = $('<a>', {class: 'folder c'+i, text: link.name, href: '#'}).data('path', link.path);
+            dom_links[i] = $('<a>', {'class': 'folder c'+i, text: link.name, href: '#'}).data('path', link.path);
         }
         return {name: name, link: dom_links};
     };
@@ -1059,7 +1059,7 @@ var manager = function() {
             var_cache.fl_list_gui_display[n].mod_name = true;
         });
         dom_cache.body.children('style.fl_filter').remove();
-        $('<style>', {class: 'fl_filter', text: '.fl-table-body tbody > tr{display: none;}.fl-table-body tbody > tr.show{display:table-row;}'}).appendTo(dom_cache.body);
+        $('<style>', {'class': 'fl_filter', text: '.fl-table-body tbody > tr{display: none;}.fl-table-body tbody > tr.show{display:table-row;}'}).appendTo(dom_cache.body);
     };
     var fl_create_switch = function (key, v, n) {
         if (key === 'select') {
@@ -1215,7 +1215,7 @@ var manager = function() {
         }
         value = bytesToSize(value * 1024, '-', 1);
         if (var_cache.speed_limit.download_dom === undefined) {
-            var_cache.speed_limit.download_dom = $('<span>', {class: 'limit dl', text: value});
+            var_cache.speed_limit.download_dom = $('<span>', {'class': 'limit dl', text: value});
             dom_cache.dl_speed.append( var_cache.speed_limit.download_dom );
             return;
         }
@@ -1232,7 +1232,7 @@ var manager = function() {
         }
         value = bytesToSize(value * 1024, '-', 1);
         if (var_cache.speed_limit.upload_dom === undefined) {
-            var_cache.speed_limit.upload_dom = $('<span>', {class: 'limit up', text: value});
+            var_cache.speed_limit.upload_dom = $('<span>', {'class': 'limit up', text: value});
             dom_cache.up_speed.append( var_cache.speed_limit.upload_dom );
             return;
         }
@@ -1464,7 +1464,7 @@ var manager = function() {
             if (items.del_label === undefined) {
                 items.del_label = {
                     name: _lang_arr[12],
-                    $node: $('<li>', {class: 'context-menu-item'}).data('key', 'del_label').append($('<span>',{text: _lang_arr[12]}))
+                    $node: $('<li>', {'class': 'context-menu-item'}).data('key', 'del_label').append($('<span>',{text: _lang_arr[12]}))
                 };
                 items.del_label.$node.prependTo(trigger.items.labels.$node.children('ul'));
                 items.del_label.$node.on('click', function(){
@@ -1480,7 +1480,7 @@ var manager = function() {
             if (items.add_label === undefined) {
                 items.add_label = {
                     name: _lang_arr[114],
-                    $node: $('<li>', {class: 'context-menu-item'}).data('key', 'add_label').append($('<span>',{text: _lang_arr[114]}))
+                    $node: $('<li>', {'class': 'context-menu-item'}).data('key', 'add_label').append($('<span>',{text: _lang_arr[114]}))
                 };
                 items.add_label.$node.prependTo(trigger.items.labels.$node.children('ul'));
                 items.add_label.$node.on('click', function(){
@@ -1507,7 +1507,7 @@ var manager = function() {
                 items['_'+label] = {
                     name: label,
                     a: 0,
-                    $node: $('<li>', {class: 'context-menu-item'}).data('key', label).append($('<span>',{text: label}))
+                    $node: $('<li>', {'class': 'context-menu-item'}).data('key', label).append($('<span>',{text: label}))
                 };
                 items['_'+label].$node.appendTo(trigger.items.labels.$node.children('ul'));
                 items['_'+label].$node.on('click', function(){
@@ -1519,7 +1519,7 @@ var manager = function() {
         if (var_cache.labels.length > 0 && items.s === undefined) {
             items.s = {
                 name: '-',
-                $node: $('<li>',{class: 'context-menu-item  context-menu-separator not-selectable'})
+                $node: $('<li>',{'class': 'context-menu-item  context-menu-separator not-selectable'})
             };
             if (items.del_label !== undefined) {
                 items.del_label.$node.after(items.s.$node);

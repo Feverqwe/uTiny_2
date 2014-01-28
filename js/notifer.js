@@ -30,14 +30,14 @@ var notify = function () {
         return vals;
     };
     var createLayer = function () {
-        layer = $('<div>', {class: _prefix+'-layer'}).on('mousedown', function() {
+        layer = $('<div>', {'class': _prefix+'-layer'}).on('mousedown', function() {
             close();
             cb();
         }).appendTo(body);
     };
     var createType = function (_item) {
         var type = _item.type;
-        var item = $('<div>', {class: 'item '+type});
+        var item = $('<div>', {'class': 'item '+type});
         if (type !== 'buttons') {
             item.append( $('<span>', {text: _item.text}) );
         }
@@ -68,11 +68,11 @@ var notify = function () {
             inputs.push(input);
             count++;
         } else if (type === 'buttons') {
-            $('<button>', {class: 'btn_ok', text: _item.textOk}).on('click', function() {
+            $('<button>', {'class': 'btn_ok', text: _item.textOk}).on('click', function() {
                 cb(getValues());
                 close();
             }).appendTo(item);
-            $('<button>', {class: 'btn_cancel', text: _item.textNo}).on('click', function() {
+            $('<button>', {'class': 'btn_cancel', text: _item.textNo}).on('click', function() {
                 close();
                 cb();
             }).appendTo(item);
@@ -80,7 +80,7 @@ var notify = function () {
         return item;
     };
     var createNotifi = function (array, textOk, textNo) {
-        notifi = $('<div>', {class: _prefix+'-notifi'});
+        notifi = $('<div>', {'class': _prefix+'-notifi'});
         array.forEach(function(item) {
             notifi.append(createType(item));
         });
