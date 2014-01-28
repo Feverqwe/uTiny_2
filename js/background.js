@@ -374,13 +374,15 @@ var engine = function () {
         }
     };
     var _send = function (cb) {
-        if (var_cache.popup === undefined || var_cache.popup.window === null) {
+        if (var_cache.popup === undefined || var_cache.popup.window === null || var_cache.popup.manager === undefined) {
+            delete var_cache.popup;
             return;
         }
         cb(var_cache.popup);
     };
     var _sendOptions = function (cb) {
-        if (var_cache.options === undefined || var_cache.options.window === null) {
+        if (var_cache.options === undefined || var_cache.options.window === null || var_cache.options.options === undefined) {
+            delete var_cache.options;
             return;
         }
         cb(var_cache.options);

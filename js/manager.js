@@ -80,9 +80,6 @@ var manager = function() {
         if (width > 800) {
             width = 800;
         }
-        if (window.innerWidth > 800) {
-            width = 'auto';
-        }
         var style = $('<style>',{'class': 'torrent-style', text: style_text});
         dom_cache.body.children('style.torrent-style').remove();
         dom_cache.body.append(style);
@@ -1574,20 +1571,31 @@ var manager = function() {
                 fl_bottom: $('.file-list ul.bottom-menu')
             };
             writeLanguage();
+
             if (options.tr_word_wrap) {
                 dom_cache.body.append($('<style>', {text: 'div.torrent-list-layer td div {white-space: normal;word-wrap: break-word;}'}));
             }
             if (options.fl_word_wrap) {
                 dom_cache.body.append($('<style>', {text: 'div.fl-layer td div {white-space: normal;word-wrap: break-word;}'}));
             }
-            if (window.innerHeight < _settings.window_height) {
+
+            _lang_arr.isMe = 1;
+            $.each(chrome.extension.getViews({type: 'popup'}), function(n, window){
+                if (window._lang_arr !== undefined && window._lang_arr.isMe === 1) {
+                    window._lang_arr.isMe = 2;
+                }
+            });
+            options.window_mode = (_lang_arr.isMe === 1);
+            delete _lang_arr.isMe;
+
+            if (options.window_mode === false) {
                 dom_cache.body.append($('<style>', {text: '.torrent-list-layer{max-height: '+(_settings.window_height - 54)+'px; min-height: '+(_settings.window_height - 54)+'px}'}));
             } else {
                 $('html').css('height','100%');
+                $('body').css('width', 'auto');
                 dom_cache.body.css('height','100%');
                 dom_cache.body.css('min-width','100%');
                 dom_cache.body.append($('<style>', {text: '.torrent-list-layer{max-height: calc(100% - 54px);min-height: calc(100% - 54px);}'}));
-                options.window_mode = true;
             }
 
             if (_settings.graph) {
@@ -2184,7 +2192,5 @@ var manager = function() {
     };
 }();
 $(function(){
-    console.time('manager.start');
     manager.start();
-    console.timeEnd('manager.start');
 });
