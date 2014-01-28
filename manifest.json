@@ -3,7 +3,7 @@
     "browser_action": {
         "default_icon": "images/icon.png",
         "default_popup": "manager.html",
-        "default_title": "uTorrent"
+        "default_title": "uTorrent easy client"
     },
     "background": {
         "scripts": ["js/jquery-2.1.0.min.js","js/lang.js","js/background.js"]

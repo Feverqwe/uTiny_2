@@ -2172,6 +2172,9 @@ var manager = function() {
         updateList: tr_list, //a, b
         deleteItem: function (rm_list) {
             for (var i = 0, id; id = rm_list[i]; i++) {
+                if (var_cache.tr_list[id] === undefined) {
+                    continue;
+                }
                 tr_item_delete(id);
                 var_cache.tr_sort_pos.splice(var_cache.tr_sort_pos.indexOf(id), 1);
             }
