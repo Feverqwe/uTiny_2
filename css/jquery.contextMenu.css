@@ -16,7 +16,7 @@
     margin:0; 
     padding:0;
     
-    min-width: 120px;
+    min-width: 150px;
     max-width: 250px;
     display: inline-block;
     position: absolute;
@@ -38,7 +38,6 @@
     padding-left: 15px;
     padding-right: 15px;
     border: 1px solid #fff;
-    white-space: nowrap;
 }
 
 .context-menu-item:first-child, .context-menu-item.first {
