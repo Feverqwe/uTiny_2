@@ -1,4 +1,4 @@
-(function(){
+(function () {
     window._engine = chrome.extension.getBackgroundPage().engine;
     window._lang_arr = chrome.extension.getBackgroundPage().lang_arr;
     window._settings = _engine.settings;
@@ -6,7 +6,7 @@
         window.location = "options.html";
     }
 })();
-var manager = function() {
+var manager = function () {
     var var_cache = {
         status: null,
         //кэшироованный список торрентов
@@ -65,11 +65,11 @@ var manager = function() {
         var head = $('<tr>');
         var width = 0;
         $.each(var_cache.tr_colums, function (key, value) {
-            var sort = ( var_cache.tr_sort_colum === key )? ' ' + (( var_cache.tr_sort_by === 1 )? 'sortDown' : 'sortUp') : '';
+            var sort = ( var_cache.tr_sort_colum === key ) ? ' ' + (( var_cache.tr_sort_by === 1 ) ? 'sortDown' : 'sortUp') : '';
             if (value.a !== 1) {
                 return 1;
             }
-            head.append($('<th>', {'class': key + sort, title: _lang_arr[value.lang][1]}).data('type',key).append($('<div>', {text: _lang_arr[value.lang][0]})));
+            head.append($('<th>', {'class': key + sort, title: _lang_arr[value.lang][1]}).data('type', key).append($('<div>', {text: _lang_arr[value.lang][0]})));
             style_text += '.torrent-list-layer th.' + key + ', .torrent-list-layer td.' + key + ' {max-width:' + value.size + 'px; min-width:' + value.size + 'px}';
             //2px padding; 1-border size right; 2px ??
             width += value.size + 2 + 1 + 2;
@@ -80,7 +80,7 @@ var manager = function() {
         if (width > 800) {
             width = 800;
         }
-        var style = $('<style>',{'class': 'torrent-style', text: style_text});
+        var style = $('<style>', {'class': 'torrent-style', text: style_text});
         dom_cache.body.children('style.torrent-style').remove();
         dom_cache.body.append(style);
         dom_cache.body.css('width', width);
@@ -94,15 +94,15 @@ var manager = function() {
         var width = 0;
         var n = 0;
         $.each(var_cache.fl_colums, function (key, value) {
-            var sort = ( var_cache.fl_sort_colum === key )? ' ' + (( var_cache.fl_sort_by === 1 )? 'sortDown' : 'sortUp') : '';
+            var sort = ( var_cache.fl_sort_colum === key ) ? ' ' + (( var_cache.fl_sort_by === 1 ) ? 'sortDown' : 'sortUp') : '';
             if (value.a !== 1) {
                 return 1;
             }
             n++;
             if (key === 'select') {
-                head.append($('<th>', {'class': key + sort, title: _lang_arr[value.lang][1]}).data('type',key).append($('<div>').append($('<input>', {type: 'checkbox'}))));
+                head.append($('<th>', {'class': key + sort, title: _lang_arr[value.lang][1]}).data('type', key).append($('<div>').append($('<input>', {type: 'checkbox'}))));
             } else {
-                head.append($('<th>', {'class': key + sort, title: _lang_arr[value.lang][1]}).data('type',key).append($('<div>', {text: _lang_arr[value.lang][0]})));
+                head.append($('<th>', {'class': key + sort, title: _lang_arr[value.lang][1]}).data('type', key).append($('<div>', {text: _lang_arr[value.lang][0]})));
             }
             style_text += '.fl-layer th.' + key + ', .fl-layer td.' + key + ' {max-width:' + value.size + 'px; min-width:' + value.size + 'px}';
             //2px padding; 1-border size right; 2px ??
@@ -149,13 +149,13 @@ var manager = function() {
         var custom = ['all', 'download', 'seeding', 'complite', 'active', 'inacive', 'no label'];
         var $options = [];
         for (var i = 0, item; item = custom[i]; i++) {
-            $options.push( $('<option>', {value: item, text: _lang_arr[70][i], selected: (var_cache.current_filter.custom === 1 && var_cache.current_filter.label === item)}).data('image', item).data('type', 'custom'));
+            $options.push($('<option>', {value: item, text: _lang_arr[70][i], selected: (var_cache.current_filter.custom === 1 && var_cache.current_filter.label === item)}).data('image', item).data('type', 'custom'));
         }
         var_cache.labels = new Array(items.length);
         for (var i = 0, item; item = items[i]; i++) {
             item = item[0];
             var_cache.labels[i] = item;
-            $options.push( $('<option>', {value: item, text: item, selected: (var_cache.current_filter.custom === 0 && var_cache.current_filter.label === item)}) );
+            $options.push($('<option>', {value: item, text: item, selected: (var_cache.current_filter.custom === 0 && var_cache.current_filter.label === item)}));
         }
         dom_cache.label_select.selectBox('options', $options);
         tr_changeFilter(var_cache.current_filter);
@@ -202,7 +202,7 @@ var manager = function() {
         localStorage.selected_label = JSON.stringify(var_cache.current_filter);
         if (custom === 0) {
             dom_cache.body.children('style.tr_filter').remove();
-            $('<style>', {'class': 'tr_filter', text: '.torrent-table-body tbody > tr{display: none;}.torrent-table-body tbody > tr[data-label="'+label+'"]{display: table-row;}'})
+            $('<style>', {'class': 'tr_filter', text: '.torrent-table-body tbody > tr{display: none;}.torrent-table-body tbody > tr[data-label="' + label + '"]{display: table-row;}'})
                 .appendTo(dom_cache.body);
             return;
         }
@@ -504,19 +504,17 @@ var manager = function() {
             return 3;
         }
     };
-    var fl_onsort = function (v_a,v_b) {
+    var fl_onsort = function (v_a, v_b) {
         var index = var_cache.fl_sort_index;
         var by = var_cache.fl_sort_by;
         var a = v_a[index];
         var b = v_b[index];
         if (a === b) {
             return 0;
-        } else
-        if (a < b) {
-            return  (by === 1)?-1:1;
-        } else
-        if (a > b) {
-            return (by === 1)?1:-1;
+        } else if (a < b) {
+            return  (by === 1) ? -1 : 1;
+        } else if (a > b) {
+            return (by === 1) ? 1 : -1;
         }
     };
     var fl_sort_insert_in_list = function (list) {
@@ -539,7 +537,7 @@ var manager = function() {
                 if (id !== _id) {
                     var_cache.fl_list_dom[_id].before(var_cache.fl_list_dom[id]);
                     indexs.splice(indexs.indexOf(id), 1);
-                    indexs.splice(i,0,id);
+                    indexs.splice(i, 0, id);
                     break_index = i;
                     break;
                 }
@@ -566,7 +564,7 @@ var manager = function() {
         var_cache.fl_sort_colum = colum;
         var index = 0;
         var n = 0;
-        $.each(var_cache.fl_colums, function(k) {
+        $.each(var_cache.fl_colums, function (k) {
             if (k === colum) {
                 index = fl_colum_name_in_index(k);
                 return 0;
@@ -624,12 +622,12 @@ var manager = function() {
             return;
         }
     };
-    var tr_onsort = function (v_a,v_b) {
+    var tr_onsort = function (v_a, v_b) {
         var index = var_cache.tr_sort_index;
         var by = var_cache.tr_sort_by;
         var a;
         var b;
-        if (typeof index === 'string' ) {
+        if (typeof index === 'string') {
             if (index === 'ostalos') {
                 a = v_a[3] - v_a[5];
                 b = v_b[3] - v_b[5];
@@ -642,12 +640,10 @@ var manager = function() {
         }
         if (a === b) {
             return 0;
-        } else
-        if (a < b) {
-            return (by === 1)?-1:1;
-        } else
-        if (a > b) {
-            return (by === 1)?1:-1;
+        } else if (a < b) {
+            return (by === 1) ? -1 : 1;
+        } else if (a > b) {
+            return (by === 1) ? 1 : -1;
         }
     };
     var tr_sort_insert_in_list = function (list) {
@@ -670,7 +666,7 @@ var manager = function() {
                 if (id !== _id) {
                     var_cache.tr_list_dom[_id].before(var_cache.tr_list_dom[id]);
                     indexs.splice(indexs.indexOf(id), 1);
-                    indexs.splice(i,0,id);
+                    indexs.splice(i, 0, id);
                     break_index = i;
                     break;
                 }
@@ -697,7 +693,7 @@ var manager = function() {
         var_cache.tr_sort_colum = colum;
         var index = 0;
         var n = 0;
-        $.each(var_cache.tr_colums, function(k) {
+        $.each(var_cache.tr_colums, function (k) {
             if (k === colum) {
                 index = tr_colum_name_in_index(k);
                 return 0;
@@ -709,7 +705,7 @@ var manager = function() {
         }
         var_cache.tr_sort_index = index;
         var list = [];
-        $.each(var_cache.tr_list, function(k,v){
+        $.each(var_cache.tr_list, function (k, v) {
             list.push(v);
         });
         list.sort(tr_onsort);
@@ -722,8 +718,8 @@ var manager = function() {
         var sum_up = 0;
         var update_pos = false;
         for (var i = 0, item; item = list[i]; i++) {
-            sum_dl+=item[9];
-            sum_up+=item[8];
+            sum_dl += item[9];
+            sum_up += item[8];
 
             if (_settings.hide_seeding && item[4] === 1000 && item[1] === 201 ||
                 _settings.hide_finished && item[4] === 1000 && item[1] === 136) {
@@ -736,7 +732,7 @@ var manager = function() {
             if (torrent_item === undefined) {
                 var_cache.tr_list[id] = item;
                 tr_item_create(item);
-                created_list.push( var_cache.tr_list_dom[id] );
+                created_list.push(var_cache.tr_list_dom[id]);
                 update_pos = true;
             } else {
                 var change_list = {};
@@ -777,7 +773,7 @@ var manager = function() {
         }
         if (update_pos) {
             var_cache.tr_sort_pos = [];
-            dom_cache.tr_body.children().each(function(){
+            dom_cache.tr_body.children().each(function () {
                 var_cache.tr_sort_pos.push(this.id);
             });
         }
@@ -791,7 +787,7 @@ var manager = function() {
     };
     var bytesToSize = function (bytes, nan, ps) {
         //переводит байты в строчки
-        var sizes = (ps === undefined)?_lang_arr[59]:_lang_arr[60];
+        var sizes = (ps === undefined) ? _lang_arr[59] : _lang_arr[60];
         if (nan === undefined)
             nan = 'n/a';
         if (bytes === 0)
@@ -959,8 +955,8 @@ var manager = function() {
         var_cache.fl_param = {action: 'getfiles', hash: id};
         _engine.sendAction(var_cache.fl_param);
         var_cache.tr_list_dom[id].addClass('selected');
-        var_cache.fl_layer_dom = $('<div>', {'class':'file-list-layer-temp'})
-            .on('mousedown',function () {
+        var_cache.fl_layer_dom = $('<div>', {'class': 'file-list-layer-temp'})
+            .on('mousedown', function () {
                 $(this).remove();
                 fl_close();
             })
@@ -1008,7 +1004,7 @@ var manager = function() {
         } else {
             var l_pos = path.lastIndexOf('/');
             var cache_path = path.substr(0, l_pos);
-            name = path.substr(l_pos+1);
+            name = path.substr(l_pos + 1);
             links = var_cache.fl_list_gui[cache_path].links;
         }
 
@@ -1016,12 +1012,12 @@ var manager = function() {
         if (level !== 0) {
             var lev = level - 1;
             dom_links = new Array(links.length - lev);
-            dom_links[lev] = $('<a>', {'class': 'folder c'+lev, text: '←', href: '#'}).data('path', links[lev].back);
+            dom_links[lev] = $('<a>', {'class': 'folder c' + lev, text: '←', href: '#'}).data('path', links[lev].back);
         } else {
             dom_links = new Array(links.length);
         }
         for (var i = level, link; link = links[i]; i++) {
-            dom_links[i] = $('<a>', {'class': 'folder c'+i, text: link.name, href: '#'}).data('path', link.path);
+            dom_links[i] = $('<a>', {'class': 'folder c' + i, text: link.name, href: '#'}).data('path', link.path);
         }
         return {name: name, link: dom_links};
     };
@@ -1079,7 +1075,7 @@ var manager = function() {
         return '';
     };
     var fl_item_create = function (v, n) {
-        var item = $('<tr>',{id: 'flid_'+n});
+        var item = $('<tr>', {id: 'flid_' + n});
         $.each(var_cache.fl_colums, function (key, value) {
             if (value.a === 1) {
                 item.append(fl_create_switch(key, v, n));
@@ -1179,7 +1175,7 @@ var manager = function() {
         }
         if (update_pos) {
             var_cache.fl_sort_pos = [];
-            dom_cache.fl_body.children().each(function(){
+            dom_cache.fl_body.children().each(function () {
                 var_cache.fl_sort_pos.push(parseInt(this.id.substr(5)));
             });
         }
@@ -1188,7 +1184,7 @@ var manager = function() {
     var setSumDlDom = function (value) {
         value = bytesToSize(value, '-', 1);
         if (var_cache.sum_dl_dom === undefined) {
-            var_cache.sum_dl_dom = $('<span>', {'class': 'sum dl', text: value}).appendTo( dom_cache.dl_speed );
+            var_cache.sum_dl_dom = $('<span>', {'class': 'sum dl', text: value}).appendTo(dom_cache.dl_speed);
             return;
         }
         var_cache.sum_dl_dom.text(value);
@@ -1196,7 +1192,7 @@ var manager = function() {
     var setSumUpDom = function (value) {
         value = bytesToSize(value, '-', 1);
         if (var_cache.sum_up_dom === undefined) {
-            var_cache.sum_up_dom = $('<span>', {'class': 'sum up', text: value}).appendTo( dom_cache.up_speed );
+            var_cache.sum_up_dom = $('<span>', {'class': 'sum up', text: value}).appendTo(dom_cache.up_speed);
             return;
         }
         var_cache.sum_up_dom.text(value);
@@ -1213,7 +1209,7 @@ var manager = function() {
         value = bytesToSize(value * 1024, '-', 1);
         if (var_cache.speed_limit.download_dom === undefined) {
             var_cache.speed_limit.download_dom = $('<span>', {'class': 'limit dl', text: value});
-            dom_cache.dl_speed.append( var_cache.speed_limit.download_dom );
+            dom_cache.dl_speed.append(var_cache.speed_limit.download_dom);
             return;
         }
         var_cache.speed_limit.download_dom.text(value);
@@ -1230,7 +1226,7 @@ var manager = function() {
         value = bytesToSize(value * 1024, '-', 1);
         if (var_cache.speed_limit.upload_dom === undefined) {
             var_cache.speed_limit.upload_dom = $('<span>', {'class': 'limit up', text: value});
-            dom_cache.up_speed.append( var_cache.speed_limit.upload_dom );
+            dom_cache.up_speed.append(var_cache.speed_limit.upload_dom);
             return;
         }
         var_cache.speed_limit.upload_dom.text(value);
@@ -1253,14 +1249,14 @@ var manager = function() {
         var type = var_cache.speed_limit.ctx_type;
         var speeds = getSpeedArray(var_cache.speed_limit[type] || 0, var_cache.speed_limit.count);
         var n = 0;
-        $.each(items, function(key, value) {
+        $.each(items, function (key, value) {
             if (value.name === undefined) {
                 return 1;
             }
             if (key !== 'unlimited') {
                 if (value.speed !== speeds[n]) {
                     value.speed = speeds[n];
-                    value.$node.children('span').text( bytesToSize(value.speed * 1024, undefined, 1) );
+                    value.$node.children('span').text(bytesToSize(value.speed * 1024, undefined, 1));
                 }
                 n++;
             }
@@ -1272,7 +1268,7 @@ var manager = function() {
                 value.a = 0;
             } else if (var_cache.speed_limit[type] === value.speed && value.a !== 1) {
                 value.a = 1;
-                value.$node.prepend( $('<label>', {text: '●'}) );
+                value.$node.prepend($('<label>', {text: '●'}));
             }
         });
     };
@@ -1310,17 +1306,18 @@ var manager = function() {
     };
     var setColumSort = function (el, fl) {
         if (fl === 1) {
-            dom_cache.fl_fixed_head.children().children('th.'+var_cache.fl_sort_colum).removeClass('sortDown').removeClass('sortUp');
+            dom_cache.fl_fixed_head.children().children('th.' + var_cache.fl_sort_colum).removeClass('sortDown').removeClass('sortUp');
         } else {
-            dom_cache.tr_fixed_head.children().children('th.'+var_cache.tr_sort_colum).removeClass('sortDown').removeClass('sortUp');
+            dom_cache.tr_fixed_head.children().children('th.' + var_cache.tr_sort_colum).removeClass('sortDown').removeClass('sortUp');
         }
         var colum = el.data('type');
-        var by = el.data('by') || ((fl === 1)?var_cache.fl_sort_by:var_cache.tr_sort_by);
-        if (by === 1) {
-            by = 0;
+        var by = (fl === 1) ? var_cache.fl_sort_by : var_cache.tr_sort_by;
+        if (fl === 1 && var_cache.fl_sort_colum === colum || fl !== 1 && var_cache.tr_sort_colum === colum) {
+            by = (by === 1) ? 0 : 1;
+        }
+        if (by === 0) {
             el.removeClass('sortDown').addClass('sortUp');
         } else {
-            by = 1;
             el.removeClass('sortUp').addClass('sortDown');
         }
         if (fl === 1) {
@@ -1336,7 +1333,6 @@ var manager = function() {
             localStorage.tr_sort_colum = colum;
             localStorage.tr_sort_by = by;
         }
-        el.data('by', by);
     };
     var fl_select_all_checkbox = function () {
         var a = dom_cache.fl_body.find('input:visible');
@@ -1461,10 +1457,10 @@ var manager = function() {
             if (items.del_label === undefined) {
                 items.del_label = {
                     name: _lang_arr[12],
-                    $node: $('<li>', {'class': 'context-menu-item'}).data('key', 'del_label').append($('<span>',{text: _lang_arr[12]}))
+                    $node: $('<li>', {'class': 'context-menu-item'}).data('key', 'del_label').append($('<span>', {text: _lang_arr[12]}))
                 };
                 items.del_label.$node.prependTo(trigger.items.labels.$node.children('ul'));
-                items.del_label.$node.on('click', function(){
+                items.del_label.$node.on('click', function () {
                     _engine.sendAction({list: 1, action: 'setprops', s: 'label', v: '', hash: trigger.items.labels.id});
                     $('#context-menu-layer').trigger('mousedown');
                 });
@@ -1477,11 +1473,13 @@ var manager = function() {
             if (items.add_label === undefined) {
                 items.add_label = {
                     name: _lang_arr[114],
-                    $node: $('<li>', {'class': 'context-menu-item'}).data('key', 'add_label').append($('<span>',{text: _lang_arr[114]}))
+                    $node: $('<li>', {'class': 'context-menu-item'}).data('key', 'add_label').append($('<span>', {text: _lang_arr[114]}))
                 };
                 items.add_label.$node.prependTo(trigger.items.labels.$node.children('ul'));
-                items.add_label.$node.on('click', function(){
-                    notify([{type: 'input', text: _lang_arr[115]}], _lang_arr[116][0], _lang_arr[116][1], function(arr){
+                items.add_label.$node.on('click', function () {
+                    notify([
+                        {type: 'input', text: _lang_arr[115]}
+                    ], _lang_arr[116][0], _lang_arr[116][1], function (arr) {
                         if (arr === undefined) {
                             return;
                         }
@@ -1500,14 +1498,14 @@ var manager = function() {
             }
         }
         var_cache.labels.forEach(function (label) {
-            if (items['_'+label] === undefined) {
-                items['_'+label] = {
+            if (items['_' + label] === undefined) {
+                items['_' + label] = {
                     name: label,
                     a: 0,
-                    $node: $('<li>', {'class': 'context-menu-item'}).data('key', label).append($('<span>',{text: label}))
+                    $node: $('<li>', {'class': 'context-menu-item'}).data('key', label).append($('<span>', {text: label}))
                 };
-                items['_'+label].$node.appendTo(trigger.items.labels.$node.children('ul'));
-                items['_'+label].$node.on('click', function(){
+                items['_' + label].$node.appendTo(trigger.items.labels.$node.children('ul'));
+                items['_' + label].$node.on('click', function () {
                     _engine.sendAction({list: 1, action: 'setprops', s: 'label', v: $(this).data('key'), hash: trigger.items.labels.id});
                     $('#context-menu-layer').trigger('mousedown');
                 });
@@ -1516,7 +1514,7 @@ var manager = function() {
         if (var_cache.labels.length > 0 && items.s === undefined) {
             items.s = {
                 name: '-',
-                $node: $('<li>',{'class': 'context-menu-item  context-menu-separator not-selectable'})
+                $node: $('<li>', {'class': 'context-menu-item  context-menu-separator not-selectable'})
             };
             if (items.del_label !== undefined) {
                 items.del_label.$node.after(items.s.$node);
@@ -1527,8 +1525,8 @@ var manager = function() {
             items.s.$node.remove();
             delete items.s;
         }
-        $.each(items, function(key, value) {
-            if (key.substr(0,1) !== '_') {
+        $.each(items, function (key, value) {
+            if (key.substr(0, 1) !== '_') {
                 return 1;
             }
             if (var_cache.labels.indexOf(value.name) === -1) {
@@ -1541,12 +1539,12 @@ var manager = function() {
                 value.$node.children('label').remove();
             } else if (value.a === 0 && value.name === current_label) {
                 value.a = 1;
-                value.$node.prepend( $('<label>', {text: '●'}) );
+                value.$node.prepend($('<label>', {text: '●'}));
             }
         });
     };
     return {
-        start: function() {
+        start: function () {
             _engine.setWindow(window);
             dom_cache = {
                 body: $('body'),
@@ -1579,22 +1577,21 @@ var manager = function() {
                 dom_cache.body.append($('<style>', {text: 'div.fl-layer td div {white-space: normal;word-wrap: break-word;}'}));
             }
 
-            _lang_arr.isMe = 1;
-            $.each(chrome.extension.getViews({type: 'popup'}), function(n, window){
-                if (window._lang_arr !== undefined && window._lang_arr.isMe === 1) {
-                    window._lang_arr.isMe = 2;
+            manager.isMe = 1;
+            $.each(chrome.extension.getViews({type: 'popup'}), function (n, window) {
+                if (window.manager !== undefined && window.manager.isMe === 1) {
+                    delete  window.manager.isMe;
                 }
             });
-            options.window_mode = (_lang_arr.isMe === 1);
-            delete _lang_arr.isMe;
+            options.window_mode = (manager.isMe === 1);
 
             if (options.window_mode === false) {
-                dom_cache.body.append($('<style>', {text: '.torrent-list-layer{max-height: '+(_settings.window_height - 54)+'px; min-height: '+(_settings.window_height - 54)+'px}'}));
+                dom_cache.body.append($('<style>', {text: '.torrent-list-layer{max-height: ' + (_settings.window_height - 54) + 'px; min-height: ' + (_settings.window_height - 54) + 'px}'}));
             } else {
-                $('html').css('height','100%');
+                $('html').css('height', '100%');
                 $('body').css('width', 'auto');
-                dom_cache.body.css('height','100%');
-                dom_cache.body.css('min-width','100%');
+                dom_cache.body.css('height', '100%');
+                dom_cache.body.css('min-width', '100%');
                 dom_cache.body.append($('<style>', {text: '.torrent-list-layer{max-height: calc(100% - 54px);min-height: calc(100% - 54px);}'}));
             }
 
@@ -1621,7 +1618,7 @@ var manager = function() {
             write_tr_head();
             write_fl_head();
             if (options.window_mode === true) {
-                dom_cache.fl.css('left','calc(50% - '+(dom_cache.fl.width()/2)+'px)');
+                dom_cache.fl.css('left', 'calc(50% - ' + (dom_cache.fl.width() / 2) + 'px)');
             }
             //need add order
             dom_cache.label_select.selectBox();
@@ -1629,7 +1626,7 @@ var manager = function() {
                 if (data === undefined) {
                     return;
                 }
-                var data = {label: this.value, custom: (data.type === 'custom')?1:0};
+                var data = {label: this.value, custom: (data.type === 'custom') ? 1 : 0};
                 tr_changeFilter(data);
             });
             dom_cache.fl_layer.on('scroll', function () {
@@ -1672,14 +1669,14 @@ var manager = function() {
             setSpeedLimit(_engine.cache.settings || []);
             _engine.sendAction({action: 'getsettings'});
 
-            dom_cache.fl_fixed_head.on('click', 'th', function(e){
+            dom_cache.fl_fixed_head.on('click', 'th', function (e) {
                 if (e.target.nodeName === 'INPUT' || $(e.target).find('input').length !== 0) {
                     return;
                 }
                 e.preventDefault();
                 setColumSort($(this), 1);
             });
-            dom_cache.tr_fixed_head.on('click', 'th', function(e){
+            dom_cache.tr_fixed_head.on('click', 'th', function (e) {
                 e.preventDefault();
                 setColumSort($(this));
             });
@@ -1691,7 +1688,7 @@ var manager = function() {
                 }
                 fl_select_all_checkbox();
             });
-            dom_cache.fl_fixed_head.on('click', 'input', function() {
+            dom_cache.fl_fixed_head.on('click', 'input', function () {
                 if (this.checked) {
                     var t = dom_cache.fl_body.find('input:visible');
                     for (var n = 0, len = t.length; n < len; n++) {
@@ -1707,10 +1704,12 @@ var manager = function() {
 
             dom_cache.menu.on('click', 'a.add_file', function (e) {
                 e.preventDefault();
-                $('<input class="file-select" type="file" multiple accept="application/x-bittorrent"/>').on('change', function() {
+                $('<input class="file-select" type="file" multiple accept="application/x-bittorrent"/>').on('change',function () {
                     var _this = this;
-                    notify([{type: 'select', options: var_cache.labels, empty: true, text: _lang_arr[82][0]},
-                        {type: 'select', options: _settings.folders_array, o: 'folders', text: _lang_arr[117]}],
+                    notify([
+                        {type: 'select', options: var_cache.labels, empty: true, text: _lang_arr[82][0]},
+                        {type: 'select', options: _settings.folders_array, o: 'folders', text: _lang_arr[117]}
+                    ],
                         _lang_arr[119][0], _lang_arr[119][1],
                         function (out) {
                             if (out === undefined) {
@@ -1734,9 +1733,11 @@ var manager = function() {
             });
             dom_cache.menu.on('click', 'a.add_magnet', function (e) {
                 e.preventDefault();
-                notify([{type: 'input', text: _lang_arr[121]},
+                notify([
+                    {type: 'input', text: _lang_arr[121]},
                     {type: 'select', options: var_cache.labels, empty: true, text: _lang_arr[82][0]},
-                    {type: 'select', options: _settings.folders_array, o: 'folders', text: _lang_arr[117]}],
+                    {type: 'select', options: _settings.folders_array, o: 'folders', text: _lang_arr[117]}
+                ],
                     _lang_arr[119][0], _lang_arr[119][1],
                     function (out) {
                         if (out === undefined) {
@@ -1760,11 +1761,11 @@ var manager = function() {
                 );
             });
 
-            dom_cache.dl_speed.on('click', '.limit', function(e){
+            dom_cache.dl_speed.on('click', '.limit', function (e) {
                 e.preventDefault();
                 setDlSpeed(0);
             });
-            dom_cache.up_speed.on('click', '.limit', function(e){
+            dom_cache.up_speed.on('click', '.limit', function (e) {
                 e.preventDefault();
                 setUpSpeed(0);
             });
@@ -1838,8 +1839,8 @@ var manager = function() {
                     show: function (trigger) {
                         var id = this.attr('id');
                         this.addClass('selected');
-                        var status = tr_readStatus( var_cache.tr_list[id][1] );
-                        $.each(trigger.items, function(key, value) {
+                        var status = tr_readStatus(var_cache.tr_list[id][1]);
+                        $.each(trigger.items, function (key, value) {
                             value.id = id;
                             if (status[key] !== undefined) {
                                 if (value.a !== status[key]) {
@@ -1853,13 +1854,13 @@ var manager = function() {
                             }
                             if (key === 'labels') {
                                 var lable = var_cache.tr_list[id][11];
-                                if ( value.label !== lable ) {
+                                if (value.label !== lable) {
                                     if (value.label.length > 0) {
                                         value.$node.children('span').children('i').remove();
                                         value.label = '';
                                     }
                                     if (lable.length > 0) {
-                                        value.$node.children('span').append( $('<i>', {text: lable}) );
+                                        value.$node.children('span').append($('<i>', {text: lable}));
                                         value.label = lable;
                                     }
                                 }
@@ -1914,7 +1915,9 @@ var manager = function() {
                     remove: {
                         name: _lang_arr[6],
                         callback: function (key, trigger) {
-                            notify([{text: _lang_arr[73], type: 'note'}], _lang_arr[110][0], _lang_arr[110][1],function(cb) {
+                            notify([
+                                {text: _lang_arr[73], type: 'note'}
+                            ], _lang_arr[110][0], _lang_arr[110][1], function (cb) {
                                 if (cb === undefined) {
                                     return;
                                 }
@@ -1971,10 +1974,10 @@ var manager = function() {
                             this.addClass('selected');
                             this.find('input').trigger('click');
                         } else {
-                            this.addClass('selected force')
+                            this.addClass('selected force');
                         }
                         var priority = var_cache.fl_list[id][3];
-                        $.each(trigger.items, function(key, value) {
+                        $.each(trigger.items, function (key, value) {
                             value.id = id;
                             if (value.priority !== undefined) {
                                 if (value.priority !== priority && value.a === 1) {
@@ -1982,13 +1985,13 @@ var manager = function() {
                                     value.a = 0;
                                 }
                                 if (value.priority === priority && value.a !== 1) {
-                                    value.$node.prepend( $('<label>', {text: '●'}) );
+                                    value.$node.prepend($('<label>', {text: '●'}));
                                     value.a = 1;
                                 }
                             }
                         });
                         var_cache.fl_list_ctx_sel_arr = [];
-                        dom_cache.fl_body.find('input:checked').each(function(){
+                        dom_cache.fl_body.find('input:checked').each(function () {
                             var_cache.fl_list_ctx_sel_arr.push($(this).parent().parent().attr('id').substr(5));
                         });
                     },
@@ -2051,7 +2054,7 @@ var manager = function() {
                                 _settings.ut_ip + ":" + _settings.ut_port + "/";
                             for (var n = 0, item; item = var_cache.fl_list_ctx_sel_arr[n]; n++) {
                                 chrome.tabs.create({
-                                    url: webUi_url + 'proxy?sid=' + var_cache.tr_list[var_cache.fl_id][22] + '&file='+item+'&disposition=ATTACHMENT&service=DOWNLOAD&qos=0'
+                                    url: webUi_url + 'proxy?sid=' + var_cache.tr_list[var_cache.fl_id][22] + '&file=' + item + '&disposition=ATTACHMENT&service=DOWNLOAD&qos=0'
                                 });
                             }
                             dom_cache.fl_body.find('input:checked').trigger('click');
@@ -2066,7 +2069,7 @@ var manager = function() {
                 events: {
                     show: function (trigger) {
                         var_cache.speed_limit.ctx = trigger.items;
-                        var_cache.speed_limit.ctx_type =  this.hasClass('download')?'download':'upload';
+                        var_cache.speed_limit.ctx_type = this.hasClass('download') ? 'download' : 'upload';
                         updateSpeedCtxMenu();
                     }
                 },
@@ -2079,9 +2082,9 @@ var manager = function() {
                         speed: 0,
                         callback: function (key, toggle) {
                             if (toggle.items[key].t === 'download') {
-                                setDlSpeed( 0 );
+                                setDlSpeed(0);
                             } else {
-                                setUpSpeed( 0 );
+                                setUpSpeed(0);
                             }
                         }
                     };
@@ -2098,9 +2101,9 @@ var manager = function() {
                             speed: undefined,
                             callback: function (key, toggle) {
                                 if (toggle.items[key].t === 'download') {
-                                    setDlSpeed( toggle.items[key].speed );
+                                    setDlSpeed(toggle.items[key].speed);
                                 } else {
-                                    setUpSpeed( toggle.items[key].speed );
+                                    setUpSpeed(toggle.items[key].speed);
                                 }
                             }
                         };
@@ -2114,13 +2117,13 @@ var manager = function() {
                 selector: 'table.torrent-table-head thead',
                 events: {
                     show: function (trigger) {
-                        $.each(var_cache.tr_colums, function(key, value) {
+                        $.each(var_cache.tr_colums, function (key, value) {
                             if (value.a !== trigger.items[key].a) {
                                 trigger.items[key].a = value.a;
                                 if (value.a === 0) {
                                     trigger.items[key].$node.children('label').remove();
                                 } else {
-                                    trigger.items[key].$node.prepend( $('<label>', {text: '●'}) );
+                                    trigger.items[key].$node.prepend($('<label>', {text: '●'}));
                                 }
                             }
                         });
@@ -2146,13 +2149,13 @@ var manager = function() {
                 selector: 'table.fl-table-head thead',
                 events: {
                     show: function (trigger) {
-                        $.each(var_cache.fl_colums, function(key, value) {
+                        $.each(var_cache.fl_colums, function (key, value) {
                             if (value.a !== trigger.items[key].a) {
                                 trigger.items[key].a = value.a;
                                 if (value.a === 0) {
                                     trigger.items[key].$node.children('label').remove();
                                 } else {
-                                    trigger.items[key].$node.prepend( $('<label>', {text: '●'}) );
+                                    trigger.items[key].$node.prepend($('<label>', {text: '●'}));
                                 }
                             }
                         });
@@ -2191,6 +2194,6 @@ var manager = function() {
         setStatus: setStatus
     };
 }();
-$(function(){
+$(function () {
     manager.start();
 });
