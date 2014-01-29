@@ -255,7 +255,7 @@ var engine = function () {
             },
             error: function (xhr, textStatus) {
                 setStatus('sendAction', [xhr.status, textStatus, data]);
-                if (var_cache.client.sendAction_error > 3 || xhr.status === 401) {
+                if (var_cache.client.sendAction_error > 3 || xhr.status === 400) {
                     var_cache.client.token = undefined;
                     sendAction(data, onload);
                     return;
