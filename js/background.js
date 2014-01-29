@@ -3,7 +3,8 @@ var engine = function () {
     var add_icon = 'images/notification_add.png';
     var error_icon = 'images/notification_error.png';
     var var_cache = {
-        client: {}
+        client: {},
+        traffic: [{name:'download', values: []}, {name:'upload', values: []}]
     };
     var def_settings = {
         ssl: {v: 0, t: "checkbox"},
@@ -304,6 +305,7 @@ var engine = function () {
             });
             showOnCompleteNotification(old_arr, data.torrents);
             showActiveCount(data.torrents);
+            trafficCounter(data.torrents);
         } else if (data.torrentp !== undefined) {
             //update with CID
             var old_arr = (var_cache.client.torrents || []).slice(0);
@@ -330,6 +332,7 @@ var engine = function () {
             });
             showOnCompleteNotification(old_arr, data.torrentp);
             showActiveCount(list);
+            trafficCounter(data.torrents);
             if (var_cache.newFileListener !== undefined) {
                 var_cache.newFileListener(new_item);
             }
@@ -407,13 +410,31 @@ var engine = function () {
             }
         }
     };
+    var trafficCounter = function (arr) {
+        if (!settings.graph) {
+            return;
+        }
+        var dl_sum = 0;
+        var up_sum = 0;
+        for (var i = 0, item; item = arr[i]; i++) {
+            dl_sum += item[9];
+            up_sum += item[8];
+        }
+        var time = parseInt((new Data()).getTime()/1000);
+        var_cache.traffic[0].values.push({time: time, pos: dl_sum});
+        var_cache.traffic[1].values.push({time: time, pos: up_sum});
+        if (var_cache.traffic[0].values.length > 50) {
+            var_cache.traffic[0].values = var_cache.traffic[0].values.slice(-25);
+            var_cache.traffic[1].values = var_cache.traffic[1].values.slice(-25);
+        }
+    };
     var showActiveCount = function (arr) {
         if (!settings.show_active_tr_on_icon) {
             return;
         }
         var active = 0;
         for (var i = 0, item; item = arr[i]; i++) {
-            if (arr[i][4] !== 1000 && arr[i][24] === 0) {
+            if (item[4] !== 1000 && item[24] === 0) {
                 active++;
             }
         }
