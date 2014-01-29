@@ -116,6 +116,10 @@ var engine = function () {
         /**
          * @namespace webkitNotifications.createNotification
          */
+        if (title === 0) {
+            title = text;
+            text = '';
+        }
         var_cache[notifi] = current_notifi = webkitNotifications.createNotification(
             icon,
             title,

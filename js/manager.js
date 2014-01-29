@@ -788,10 +788,12 @@ var manager = function () {
     var bytesToSize = function (bytes, nan, ps) {
         //переводит байты в строчки
         var sizes = (ps === undefined) ? _lang_arr[59] : _lang_arr[60];
-        if (nan === undefined)
+        if (nan === undefined) {
             nan = 'n/a';
-        if (bytes === 0)
+        }
+        if (bytes === 0) {
             return nan;
+        }
         var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
         if (i === 0) {
             return (bytes / Math.pow(1024, i)) + ' ' + sizes[i];
