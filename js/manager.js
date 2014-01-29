@@ -968,7 +968,7 @@ var manager = function () {
             var_cache.fl_loading = true;
         }
         var folder = var_cache.tr_list[id][26];
-        dom_cache.fl_bottom.children('li.path').children('input').attr('title', folder).val(folder);
+        dom_cache.fl_bottom.children('li.path').children('input').attr('title', folder).val(folder).focus();
         var_cache.fl_show = true;
     };
     var fl_create_gui_link = function (path, n, level) {
@@ -1829,6 +1829,12 @@ var manager = function () {
                 e.preventDefault();
                 var hash = $(this).parents().eq(2).attr('id');
                 _engine.sendAction({list: 1, action: 'stop', hash: hash});
+            });
+            dom_cache.fl.on('keydown', function (e) {
+                if ( e.keyCode === 27 ) {
+                    e.preventDefault();
+                    fl_close();
+                }
             });
 
             $.contextMenu({
