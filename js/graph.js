@@ -5,7 +5,7 @@ var graph = function () {
     var line;
     var svg;
     var currentData;
-    var _limit = 60;
+    var _limit = 30;
     var created = false;
 
     var getInfo = function (data) {
@@ -19,12 +19,11 @@ var graph = function () {
         if (values_len === 0) {
             return;
         }
-        end = traf0[values_len - 1].time;
-        start = traf0[0].time;
         if ( values_len > _limit ) {
             startItem = values_len - _limit;
-            start = traf0[startItem].time;
         }
+        end = traf0[values_len - 1].time;
+        start = end - _limit;
         min = traf0[startItem].pos;
         max = traf0[startItem].pos;
         data.forEach(function (subdata) {
