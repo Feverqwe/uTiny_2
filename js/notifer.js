@@ -86,8 +86,22 @@ var notify = function () {
         });
         notifi.append(createType({type: 'buttons', textOk: textOk, textNo: textNo}))
             .appendTo(body);
-        if (inputs.length > 0) {
-            inputs[0].focus();
+        for (var i = 0, inp; inp = inputs[i]; i++) {
+            if (i === 0) {
+                inp.focus();
+            }
+            if (inp[0].nodeName === 'INPUT') {
+                inp.on('keydown', function (e) {
+                    if ( e.keyCode === 13 ) {
+                        e.preventDefault();
+                        notifi.find('button.btn_ok').trigger('click');
+                    } else
+                    if ( e.keyCode === 27 ) {
+                        e.preventDefault();
+                        notifi.find('button.btn_cancel').trigger('click');
+                    }
+                });
+            }
         }
     };
     return function (array, textOk, textNo, _cb) {
