@@ -14,9 +14,9 @@ var notify = function () {
     };
     var inputs = [];
     var count = 0;
-    var getValues = function (){
+    var getValues = function () {
         var vals = [];
-        inputs.forEach(function(item) {
+        inputs.forEach(function (item) {
             var val = item.val();
             if (val === undefined) {
                 val = undefined;
@@ -30,31 +30,31 @@ var notify = function () {
         return vals;
     };
     var createLayer = function () {
-        layer = $('<div>', {'class': _prefix+'-layer'}).on('mousedown', function() {
+        layer = $('<div>', {'class': _prefix + '-layer'}).on('mousedown',function () {
             close();
             cb();
         }).appendTo(body);
     };
     var createType = function (_item) {
         var type = _item.type;
-        var item = $('<div>', {'class': 'item '+type});
+        var item = $('<div>', {'class': 'item ' + type});
         if (type !== 'buttons') {
-            item.append( $('<span>', {text: _item.text}) );
+            item.append($('<span>', {text: _item.text}));
         }
         if (type === 'note') {
             count++;
         }
         if (type === 'select') {
             var select = $('<select>');
-            $.each(_item.options, function(key, value) {
+            $.each(_item.options, function (key, value) {
                 if (_item.o === 'folders') {
-                    select.append( $('<option>', {text: value[1], value: key}) );
+                    select.append($('<option>', {text: value[1], value: key}));
                 } else {
-                    select.append( $('<option>', {text: value, value: key}) );
+                    select.append($('<option>', {text: value, value: key}));
                 }
             });
             if (_item.empty) {
-                select.append( $('<option>', {text: '', value: '', selected: true}) );
+                select.append($('<option>', {text: '', value: '', selected: true}));
             }
             item.append(select);
             inputs.push(select);
@@ -68,11 +68,11 @@ var notify = function () {
             inputs.push(input);
             count++;
         } else if (type === 'buttons') {
-            $('<button>', {'class': 'btn_ok', text: _item.textOk}).on('click', function() {
+            $('<button>', {'class': 'btn_ok', text: _item.textOk}).on('click',function () {
                 cb(getValues());
                 close();
             }).appendTo(item);
-            $('<button>', {'class': 'btn_cancel', text: _item.textNo}).on('click', function() {
+            $('<button>', {'class': 'btn_cancel', text: _item.textNo}).on('click',function () {
                 close();
                 cb();
             }).appendTo(item);
@@ -80,8 +80,8 @@ var notify = function () {
         return item;
     };
     var createNotifi = function (array, textOk, textNo) {
-        notifi = $('<div>', {'class': _prefix+'-notifi'});
-        array.forEach(function(item) {
+        notifi = $('<div>', {'class': _prefix + '-notifi'});
+        array.forEach(function (item) {
             notifi.append(createType(item));
         });
         notifi.append(createType({type: 'buttons', textOk: textOk, textNo: textNo}))
@@ -90,18 +90,15 @@ var notify = function () {
             if (i === 0) {
                 inp.focus();
             }
-            if (inp[0].nodeName === 'INPUT') {
-                inp.on('keydown', function (e) {
-                    if ( e.keyCode === 13 ) {
-                        e.preventDefault();
-                        notifi.find('button.btn_ok').trigger('click');
-                    } else
-                    if ( e.keyCode === 27 ) {
-                        e.preventDefault();
-                        notifi.find('button.btn_cancel').trigger('click');
-                    }
-                });
-            }
+            inp.on('keydown', function (e) {
+                if (e.keyCode === 13) {
+                    e.preventDefault();
+                    notifi.find('button.btn_ok').trigger('click');
+                } else if (e.keyCode === 27) {
+                    e.preventDefault();
+                    notifi.find('button.btn_cancel').trigger('click');
+                }
+            });
         }
     };
     return function (array, textOk, textNo, _cb) {
