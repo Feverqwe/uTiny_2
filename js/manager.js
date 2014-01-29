@@ -87,6 +87,9 @@ var manager = function () {
         var_cache.body_width = dom_cache.body.width();
         dom_cache.tr_fixed_head.html(head);
         dom_cache.tr_head.html(head.clone());
+        var graph_left = dom_cache.menu.children('li.graph').offset().left;
+        var select_left = dom_cache.menu.children('li.select').offset().left;
+        dom_cache.menu.children('li.graph').css('width', select_left - graph_left - 5);
     };
     var write_fl_head = function () {
         var style_text = '';
@@ -778,8 +781,8 @@ var manager = function () {
             });
         }
         tr_sort();
-        if (_settings.graph) {
-            graph.move(sum_dl, sum_up, 0);
+        if (_settings.graph && window.graph !== undefined) {
+            graph.move(sum_dl, sum_up);
         }
         setSumDlDom(sum_dl);
         setSumUpDom(sum_up);
@@ -1597,11 +1600,6 @@ var manager = function () {
                 dom_cache.body.append($('<style>', {text: '.torrent-list-layer{max-height: calc(100% - 54px);min-height: calc(100% - 54px);}'}));
             }
 
-            if (_settings.graph) {
-                $('li.graph').append($('<canvas>', {id: 'graph'}));
-                graph.init(_settings.mgr_update_interval / 1000);
-            }
-
             if (localStorage.tr_sort_colum !== undefined) {
                 var_cache.tr_sort_colum = localStorage.tr_sort_colum;
             }
@@ -2183,6 +2181,15 @@ var manager = function () {
                     return items;
                 }()
             });
+
+            if (_settings.graph === 1) {
+                var s = document.getElementsByTagName('script')[0];
+                ['d3.min','graph'].forEach(function (src) {
+                    var script = document.createElement('script');
+                    script.src = 'js/' + src + '.js';
+                    s.parentNode.insertBefore(script, s);
+                });
+            }
         },
         setLabel: tr_changeFilter,
         setFileList: fl_list,

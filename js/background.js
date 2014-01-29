@@ -20,7 +20,7 @@ var engine = function () {
         password: {v: undefined, t: "password"},
         hide_seeding: {v: 0, t: "checkbox"},
         hide_finished: {v: 0, t: "checkbox"},
-        graph: {v: 0, t: "checkbox"},
+        graph: {v: 1, t: "checkbox"},
         window_height: {v: 300, t: "number", min: 100},
         change_downloads: {v: 0, t: "checkbox"},
         context_menu_trigger: {v: 1, t: "checkbox"},
@@ -300,12 +300,12 @@ var engine = function () {
             //Full torrent list
             var old_arr = (var_cache.client.torrents || []).slice(0);
             var_cache.client.torrents = data.torrents;
+            trafficCounter(data.torrents);
             _send(function (window) {
                 window.manager.updateList(data.torrents, 1);
             });
             showOnCompleteNotification(old_arr, data.torrents);
             showActiveCount(data.torrents);
-            trafficCounter(data.torrents);
         } else if (data.torrentp !== undefined) {
             //update with CID
             var old_arr = (var_cache.client.torrents || []).slice(0);
@@ -327,12 +327,12 @@ var engine = function () {
                 }
             }
             var_cache.client.torrents = list;
+            trafficCounter(data.torrentp);
             _send(function (window) {
                 window.manager.updateList(list, 1);
             });
             showOnCompleteNotification(old_arr, data.torrentp);
             showActiveCount(list);
-            trafficCounter(data.torrents);
             if (var_cache.newFileListener !== undefined) {
                 var_cache.newFileListener(new_item);
             }
@@ -414,18 +414,21 @@ var engine = function () {
         if (!settings.graph) {
             return;
         }
+        var limit = 60;
         var dl_sum = 0;
         var up_sum = 0;
         for (var i = 0, item; item = arr[i]; i++) {
             dl_sum += item[9];
             up_sum += item[8];
         }
-        var time = parseInt((new Data()).getTime()/1000);
-        var_cache.traffic[0].values.push({time: time, pos: dl_sum});
-        var_cache.traffic[1].values.push({time: time, pos: up_sum});
-        if (var_cache.traffic[0].values.length > 50) {
-            var_cache.traffic[0].values = var_cache.traffic[0].values.slice(-25);
-            var_cache.traffic[1].values = var_cache.traffic[1].values.slice(-25);
+        var time = parseInt((new Date()).getTime()/1000);
+        var traf0 = var_cache.traffic[0];
+        var traf1 = var_cache.traffic[1];
+        traf0.values.push({time: time, pos: dl_sum});
+        traf1.values.push({time: time, pos: up_sum});
+        if (traf0.values.length > limit * 5) {
+            traf0.values = traf0.values.slice(-limit);
+            traf1.values = traf1.values.slice(-limit);
         }
     };
     var showActiveCount = function (arr) {
@@ -592,6 +595,7 @@ var engine = function () {
         def_settings: def_settings,
         sendAction: sendAction,
         cache: var_cache.client,
+        traffic: var_cache.traffic,
         getToken: getToken,
         getColums: function () {
             return (localStorage.colums !== undefined) ? JSON.parse(localStorage.colums) : clone_obj(table_colums);

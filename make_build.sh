@@ -40,8 +40,6 @@ cat jquery.selectBox.js >> new_manager.js
 echo "" >> new_manager.js
 cat jquery.contextMenu.js >> new_manager.js
 echo "" >> new_manager.js
-cat graph.js >> new_manager.js
-echo "" >> new_manager.js
 cat manager.js >> new_manager.js
 cd ../
 #make stylesheet.css
@@ -55,7 +53,6 @@ echo "" >> new_stylesheet.css
 cd ../
 #clear
 rm ./js/notifer.js
-rm ./js/graph.js
 rm ./css/jquery.contextMenu.css
 rm ./js/jquery.contextMenu.js
 rm ./css/jquery.selectBox.css

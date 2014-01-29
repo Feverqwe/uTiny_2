@@ -23,12 +23,11 @@ java -jar compiler.jar --js .\js\lang.js --js .\js\options.js --js_output_file .
 :: make background.js
 java -jar compiler.jar --js .\js\lang.js --js .\js\background.js --js_output_file .\build\js\background.js
 :: make manager.js
-java -jar compiler.jar --js .\js\notifer.js --js .\js\jquery.selectBox.js --js .\js\jquery.contextMenu.js --js .\js\graph.js --js .\js\manager.js --js_output_file .\build\js\manager.js
+java -jar compiler.jar --js .\js\notifer.js --js .\js\jquery.selectBox.js --js .\js\jquery.contextMenu.js --js .\js\manager.js --js_output_file .\build\js\manager.js
 :: make stylesheet.css
 copy .\css\stylesheet.css+.\css\jquery.contextMenu.css+.\css\jquery.selectBox.css .\build\css\stylesheet.css
 :: clear
 del .\build\js\notifer.js
-del .\build\js\graph.js
 del .\build\css\jquery.contextMenu.css
 del .\build\js\jquery.contextMenu.js
 del .\build\css\jquery.selectBox.css

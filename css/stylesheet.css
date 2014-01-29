@@ -12,6 +12,7 @@ ul {
 ul.menu {
     overflow: hidden;
     height: 33px;
+    position: relative;
 }
 ul.menu li {
     display: inline-block;
@@ -31,7 +32,6 @@ ul.menu li.separate {
     margin-left: 3px;
 }
 ul.menu li.graph {
-    width: auto;
 }
 ul.menu li.select {
     width: auto;
@@ -43,6 +43,11 @@ ul.menu li.select > a {
     width: 110px !important;
     float: right;
     height: 24px !important;
+}
+ul.menu li.select {
+    width: 152px;
+    position: absolute;
+    right: 0;
 }
 ul.menu a.btn{
     width: 28px;
@@ -610,4 +615,9 @@ li.labels span > i {
     background-color: #818181;
     border-radius: 3px;
     color: #fff;
+}
+path.line {
+    fill: none;
+    stroke: red;
+    stroke-width: 1.5px;
 }
