@@ -414,7 +414,7 @@ var engine = function () {
         if (!settings.graph) {
             return;
         }
-        var limit = 30;
+        var limit = 80;
         var dl_sum = 0;
         var up_sum = 0;
         for (var i = 0, item; item = arr[i]; i++) {
@@ -426,7 +426,7 @@ var engine = function () {
         var traf1 = var_cache.traffic[1];
         traf0.values.push({time: time, pos: dl_sum});
         traf1.values.push({time: time, pos: up_sum});
-        if (traf0.values.length > limit * 5) {
+        if (traf0.values.length > limit * 3) {
             traf0.values = traf0.values.slice(-limit);
             traf1.values = traf1.values.slice(-limit);
         }

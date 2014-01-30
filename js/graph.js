@@ -5,7 +5,7 @@ var graph = function () {
     var line;
     var svg;
     var currentData;
-    var _limit = 30;
+    var _limit = 80;
     var created = false;
 
     var getInfo = function (data) {
@@ -81,6 +81,10 @@ var graph = function () {
 
     var init = function () {
         var width = body.width();
+        _limit = parseInt(width / 10);
+        if (_limit > 80) {
+            _limit = 80;
+        }
         var height = 30;
         x = d3.time.scale().range([0, width]);
         y = d3.scale.linear().range([height, 0]);
