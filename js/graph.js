@@ -24,15 +24,15 @@ var graph = function () {
         }
         end = traf0[values_len - 1].time;
         start = end - _limit;
-        min = traf0[startItem].pos;
-        max = traf0[startItem].pos;
+        min = 0;
+        max = traf0[values_len - 1].pos;
         data.forEach(function (subdata) {
-        for (var i = startItem, item; item = subdata.values[i]; i++) {
+            for (var i = startItem, item; item = subdata.values[i]; i++) {
+                if (item.time < start) {
+                    continue;
+                }
                 if (item.pos > max) {
                     max = item.pos;
-                }
-                if (item.pos < min) {
-                    min = item.pos;
                 }
             }
         });
@@ -93,8 +93,6 @@ var graph = function () {
                 return y(d.pos);
             });
         svg = d3.select("li.graph").append("svg").attr({"width": width, "height": height}).append("g");
-        /*[{name: _engine.traffic[0].name, values: _engine.traffic[0].values.slice(0)},
-            {name: _engine.traffic[1].name, values: _engine.traffic[1].values.slice(0)}];*/
         currentData = _engine.traffic;
         createLines(currentData);
     };

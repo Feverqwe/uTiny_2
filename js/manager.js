@@ -1846,6 +1846,7 @@ var manager = function () {
                         var id = this.attr('id');
                         this.addClass('selected');
                         var status = tr_readStatus(var_cache.tr_list[id][1]);
+                        var first;
                         $.each(trigger.items, function (key, value) {
                             value.id = id;
                             if (status[key] !== undefined) {
@@ -1853,6 +1854,10 @@ var manager = function () {
                                     value.a = status[key];
                                     if (value.a === 1) {
                                         value.$node.show();
+                                        if (first === undefined) {
+                                            value.$node.addClass('first');
+                                            first = true;
+                                        }
                                     } else {
                                         value.$node.hide();
                                     }

@@ -48,6 +48,7 @@ ul.menu li.select {
     width: 152px;
     position: absolute;
     right: 0;
+    top: 0;
 }
 ul.menu a.btn{
     width: 28px;
