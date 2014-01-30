@@ -556,14 +556,14 @@ var engine = function () {
         sendFile(link, dir, label);
     };
     var createCtxMenu = function () {
-        if (!settings.context_menu_trigger) {
-            return;
-        }
         /**
          * @namespace chrome.contextMenus.removeAll
          * @namespace chrome.contextMenus.create
          */
         chrome.contextMenus.removeAll(function () {
+            if (!settings.context_menu_trigger) {
+                return;
+            }
             chrome.contextMenus.create({
                 id: 'main',
                 title: lang_arr[104],
