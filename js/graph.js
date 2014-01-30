@@ -5,7 +5,8 @@ var graph = function () {
     var line;
     var svg;
     var currentData;
-    var _limit = 80;
+    //количество пиков на графике 1 пик - 1 секунда
+    var _limit = 90;
     var created = false;
 
     var getInfo = function (data) {
@@ -81,9 +82,9 @@ var graph = function () {
 
     var init = function () {
         var width = body.width();
-        _limit = parseInt(width / 10);
-        if (_limit > 80) {
-            _limit = 80;
+        var limit = parseInt(width / 10);
+        if (limit < _limit) {
+            _limit = limit;
         }
         var height = 30;
         x = d3.time.scale().range([0, width]);

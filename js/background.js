@@ -414,7 +414,7 @@ var engine = function () {
         if (!settings.graph) {
             return;
         }
-        var limit = 80;
+        var limit = 90;
         var dl_sum = 0;
         var up_sum = 0;
         for (var i = 0, item; item = arr[i]; i++) {
