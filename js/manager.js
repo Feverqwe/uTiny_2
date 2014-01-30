@@ -774,14 +774,14 @@ var manager = function () {
             console.log('Force update tr!');
             update_pos = true;
         }
-        if (update_pos) {
+        if (update_pos === true) {
             var_cache.tr_sort_pos = [];
             dom_cache.tr_body.children().each(function () {
                 var_cache.tr_sort_pos.push(this.id);
             });
         }
         tr_sort();
-        if (_settings.graph && window.graph !== undefined) {
+        if (_settings.graph === 1 && window.graph !== undefined) {
             graph.move(sum_dl, sum_up);
         }
         setSumDlDom(sum_dl);
