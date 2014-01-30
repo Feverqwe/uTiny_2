@@ -424,9 +424,15 @@ var engine = function () {
         var time = parseInt((new Date()).getTime()/1000);
         var traf0 = var_cache.traffic[0];
         var traf1 = var_cache.traffic[1];
+        var values_len = traf0.values.length;
+        if (values_len > 1 && time - limit > traf0.values[values_len - 1].time) {
+            traf0.values = traf0.values.slice(-1);
+            traf1.values = traf1.values.slice(-1);
+            values_len = 2;
+        }
         traf0.values.push({time: time, pos: dl_sum});
         traf1.values.push({time: time, pos: up_sum});
-        if (traf0.values.length > limit * 3) {
+        if (values_len > limit * 3) {
             traf0.values = traf0.values.slice(-limit);
             traf1.values = traf1.values.slice(-limit);
         }
