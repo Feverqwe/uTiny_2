@@ -196,7 +196,7 @@ var engine = function () {
         }
         if (typeof data === 'string') {
             data += '&token=' + var_cache.client.token;
-            data += '&cid' + var_cache.client.cid;
+            data += '&cid=' + var_cache.client.cid;
         } else {
             data.token = var_cache.client.token;
             data.cid = var_cache.client.cid;
