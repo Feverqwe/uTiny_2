@@ -1099,6 +1099,7 @@ var manager = function () {
             cl.progress = (var_cache.fl_colums.progress.a === 1) ? 1 : undefined;
         } else if (n === 3) {
             cl.priority = (var_cache.fl_colums.priority.a === 1) ? 1 : undefined;
+            cl.progress = (var_cache.fl_colums.progress.a === 1) ? 1 : undefined;
         }
     };
     var fl_item_update = function (v, cl, n) {
