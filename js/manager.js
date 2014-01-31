@@ -1653,7 +1653,7 @@ var manager = function () {
 
             setStatus(_engine.cache.status);
             tr_list(_engine.cache.torrents || []);
-            getTorrentList();
+            _engine.sendAction({list: 1});
 
             dom_cache.tr_body.on('dblclick', 'tr', function () {
                 var id = $(this).attr('id');
