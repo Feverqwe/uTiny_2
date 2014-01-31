@@ -244,10 +244,10 @@ var engine = function () {
             data: data,
             url: var_cache.webui_url,
             beforeSend: function (xhr) {
-                setStatus('sendAction', [200]);
                 xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
             },
             success: function (data) {
+                setStatus('sendAction', [200]);
                 if (onload !== undefined) {
                     onload(data);
                 }
