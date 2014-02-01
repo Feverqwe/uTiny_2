@@ -41,6 +41,9 @@ var options = function() {
         });
         write_sortable_tables();
         $('select[name="folder_arr"]').empty().off().on('click', function() {
+            if ($(this).children().length !== 0) {
+                return;
+            }
             _engine.sendAction({action: 'list-dirs'});
             return 1;
         });
@@ -201,7 +204,7 @@ var options = function() {
         f_select.empty();
         $(this).unbind('click');
         $.each(arr, function(key, value) {
-            var name = '[' + bytesToSize(value['available'] * 1024 * 1024) + ' ' + lang_arr[107][1] + '] ' + value['path'];
+            var name = '[' + bytesToSize(value.available * 1024 * 1024) + ' ' + lang_arr[107][1] + '] ' + value.path;
             f_select.append( $('<option>', {value: key, text: name}) );
         });
     };
@@ -300,6 +303,12 @@ var options = function() {
                     return;
                 $('select[name="folders"]').append(new Option(arr[1], JSON.stringify(arr)));
                 $(this).parent().children('input[type=text]').val("");
+            });
+            $('span[data-lang="23"]').next().one('dblclick', function () {
+                if ( $('select[name="folder_arr"]').children().length !== 0 ) {
+                    return;
+                }
+                setDirList([{path:'Default download dir'}]);
             });
             $('input[name="rm_folder"]').on('click', function() {
                 $('select[name="folders"] :selected').remove();
