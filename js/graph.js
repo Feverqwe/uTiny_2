@@ -20,21 +20,26 @@ var graph = function () {
         if (values_len === 0) {
             return;
         }
-        if ( values_len > _limit + 1 ) {
-            startItem = values_len - _limit - 1;
+        if ( values_len > _limit) {
+            startItem = values_len - _limit;
         }
         end = traf0[values_len - 1].time;
         start = end - _limit;
         min = 0;
         max = traf0[values_len - 1].pos;
         data.forEach(function (subdata) {
+            var out_index;
             for (var i = startItem, item; item = subdata.values[i]; i++) {
                 if (item.time < start) {
+                    out_index = i;
                     continue;
                 }
                 if (item.pos > max) {
                     max = item.pos;
                 }
+            }
+            if (out_index !== undefined && subdata.values[out_index].pos > max) {
+                max = subdata.values[out_index].pos;
             }
         });
         return {min: min, max: max, start: start, end: end};
