@@ -4,7 +4,9 @@ var engine = function () {
     var error_icon = 'images/notification_error.png';
     var var_cache = {
         client: {},
-        traffic: [{name:'download', values: []}, {name:'upload', values: []}]
+        traffic: [{name:'download', values: []}, {name:'upload', values: []}],
+        //лимит на кол-во получений токена, сбрасывается при первом успешном sendAction
+        get_token_count: 0
     };
     var def_settings = {
         ssl: {v: 0, t: "checkbox"},
@@ -158,6 +160,11 @@ var engine = function () {
         }
     };
     var getToken = function (onload, onerror) {
+        if (var_cache.get_token_count > 10) {
+            console.log('Get token timeout!');
+            return;
+        }
+        var_cache.get_token_count++;
         setStatus('getToken', [-1, 'Getting token...']);
         $.ajax({
             url: var_cache.webui_url + "token.html",
@@ -195,10 +202,10 @@ var engine = function () {
             return;
         }
         if (typeof data === 'string') {
-            data += '&token=' + var_cache.client.token;
+            data = 'token=' + var_cache.client.token + '&' + data;
             data += '&cid=' + var_cache.client.cid;
         } else {
-            data.token = var_cache.client.token;
+            data = $.extend({token: var_cache.client.token}, data);
             data.cid = var_cache.client.cid;
         }
         if (data.torrent_file !== undefined) {
@@ -210,6 +217,7 @@ var engine = function () {
             xhr.open("POST", var_cache.webui_url + '?' + $.param(data), true);
             xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
             xhr.onload = function () {
+                var_cache.get_token_count = 0;
                 var data;
                 try {
                     data = JSON.parse(xhr.responseText);
@@ -245,6 +253,7 @@ var engine = function () {
                 xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
             },
             success: function (data) {
+                var_cache.get_token_count = 0;
                 setStatus('sendAction', [200]);
                 if (onload !== undefined) {
                     onload(data);
@@ -401,10 +410,10 @@ var engine = function () {
                 continue;
             }
             for (var n = 0, item_old; item_old = old_array[n]; n++) {
-                if (item_old[4] === 1000 || item_old[24] !== 0 || item_old[0] !== item_new[0]) {
+                if (item_old[4] === 1000 || ( item_old[24] !== 0 && item_old[24] !== undefined ) || item_old[0] !== item_new[0]) {
                     continue;
                 }
-                showNotifi(complete_icon, item_new[2], lang_arr[57] + item_new[21]);
+                showNotifi(complete_icon, item_new[2], (item_new[21]!== undefined)?lang_arr[57] + item_new[21]:'');
             }
         }
     };
@@ -441,7 +450,7 @@ var engine = function () {
         }
         var active = 0;
         for (var i = 0, item; item = arr[i]; i++) {
-            if (item[4] !== 1000 && item[24] === 0) {
+            if (item[4] !== 1000 && ( item[24] === undefined || item[24] === 0) ) {
                 active++;
             }
         }
@@ -639,6 +648,7 @@ var engine = function () {
             loadSettings();
             engine.bgTimer.stop();
             engine.bgTimer.start();
+            var_cache.get_token_count = 0;
             engine.cache = var_cache.client = {};
             createCtxMenu();
         },

@@ -839,7 +839,7 @@ var manager = function () {
         return '∞';
     };
     var utimeToTimeStamp = function (shtamp) {
-        if (shtamp === 0) {
+        if (shtamp === 0 || shtamp === undefined) {
             return '∞';
         }
         var dt = new Date(shtamp * 1000);
