@@ -1737,11 +1737,9 @@ var manager = function () {
                             if (folder !== undefined) {
                                 folder = {download_dir: _settings.folders_array[out[1]][0],
                                     path: _settings.folders_array[out[1]][1]};
-                                if (_settings.context_labels) {
-                                    if (label === undefined) {
-                                        label = folder.path;
-                                        folder = undefined;
-                                    }
+                                if (_settings.context_labels === 1 && label === undefined) {
+                                    label = folder.path;
+                                    folder = undefined;
                                 }
                             }
                             for (var i = 0, len = _this.files.length; i < len; i++) {
@@ -1775,11 +1773,9 @@ var manager = function () {
                         if (folder !== undefined) {
                             folder = {download_dir: _settings.folders_array[out[2]][0],
                                 path: _settings.folders_array[out[2]][1]};
-                            if (_settings.context_labels) {
-                                if (label === undefined) {
-                                    label = folder.path;
-                                    folder = undefined;
-                                }
+                            if (_settings.context_labels === 1 && label === undefined) {
+                                label = folder.path;
+                                folder = undefined;
                             }
                         }
                         _engine.sendFile(url, folder, label);
