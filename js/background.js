@@ -160,8 +160,9 @@ var engine = function () {
         }
     };
     var getToken = function (onload, onerror) {
-        if (var_cache.get_token_count > 10) {
+        if (var_cache.get_token_count > 5) {
             console.log('Get token timeout!');
+            var_cache.get_token_count = 0;
             return;
         }
         var_cache.get_token_count++;
@@ -296,10 +297,6 @@ var engine = function () {
                 }
             }
             _send(function (window) {
-                if (window.manager === undefined) {
-                    console.log('deleteItem not found!');
-                    return;
-                }
                 window.manager.deleteItem(data.torrentm);
             });
         }
@@ -477,7 +474,7 @@ var engine = function () {
             }
             var item = new_file[0];
             if (label !== undefined && item[11].length === 0) {
-                sendAction({action: 'setprops', s: 'label', v: label, hash: item[0]});
+                sendAction({action: 'setprops', s: 'label', hash: item[0], v: label});
             }
             if (settings.change_downloads) {
                 var ch_label = {label: 'download', custom: 1};

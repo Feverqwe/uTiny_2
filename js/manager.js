@@ -1480,7 +1480,7 @@ var manager = function () {
                 };
                 items.del_label.$node.prependTo(trigger.items.labels.$node.children('ul'));
                 items.del_label.$node.on('click', function () {
-                    _engine.sendAction({list: 1, action: 'setprops', s: 'label', v: '', hash: trigger.items.labels.id});
+                    _engine.sendAction({list: 1, action: 'setprops', s: 'label', hash: trigger.items.labels.id, v: ''});
                     $('#context-menu-layer').trigger('mousedown');
                 });
             }
@@ -1506,7 +1506,7 @@ var manager = function () {
                         if (label === undefined) {
                             return;
                         }
-                        _engine.sendAction({list: 1, action: 'setprops', s: 'label', v: label, hash: trigger.items.labels.id});
+                        _engine.sendAction({list: 1, action: 'setprops', s: 'label', hash: trigger.items.labels.id, v: label});
                     });
                     $('#context-menu-layer').trigger('mousedown');
                 });
@@ -1525,7 +1525,7 @@ var manager = function () {
                 };
                 items['_' + label].$node.appendTo(trigger.items.labels.$node.children('ul'));
                 items['_' + label].$node.on('click', function () {
-                    _engine.sendAction({list: 1, action: 'setprops', s: 'label', v: $(this).data('key'), hash: trigger.items.labels.id});
+                    _engine.sendAction({list: 1, action: 'setprops', s: 'label', hash: trigger.items.labels.id, v: $(this).data('key')});
                     $('#context-menu-layer').trigger('mousedown');
                 });
             }
@@ -1737,6 +1737,12 @@ var manager = function () {
                             if (folder !== undefined) {
                                 folder = {download_dir: _settings.folders_array[out[1]][0],
                                     path: _settings.folders_array[out[1]][1]};
+                                if (_settings.context_labels) {
+                                    if (label === undefined) {
+                                        label = folder.path;
+                                        folder = undefined;
+                                    }
+                                }
                             }
                             for (var i = 0, len = _this.files.length; i < len; i++) {
                                 _engine.sendFile(_this.files[i], folder, label);
@@ -1769,6 +1775,12 @@ var manager = function () {
                         if (folder !== undefined) {
                             folder = {download_dir: _settings.folders_array[out[2]][0],
                                 path: _settings.folders_array[out[2]][1]};
+                            if (_settings.context_labels) {
+                                if (label === undefined) {
+                                    label = folder.path;
+                                    folder = undefined;
+                                }
+                            }
                         }
                         _engine.sendFile(url, folder, label);
                     }
@@ -2036,7 +2048,7 @@ var manager = function () {
                         name: _lang_arr[87][3],
                         priority: 3,
                         callback: function (key, trigger) {
-                            _engine.sendAction($.param({action: 'setprio', p: 3}) + '&' + $.param({f: var_cache.fl_list_ctx_sel_arr, hash: var_cache.fl_id}, true));
+                            _engine.sendAction($.param({action: 'setprio', p: 3}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
                             dom_cache.fl_body.find('input:checked').trigger('click');
                         }
                     },
@@ -2045,7 +2057,7 @@ var manager = function () {
                         name: _lang_arr[87][2],
                         priority: 2,
                         callback: function (key, trigger) {
-                            _engine.sendAction($.param({action: 'setprio', p: 2}) + '&' + $.param({f: var_cache.fl_list_ctx_sel_arr, hash: var_cache.fl_id}, true));
+                            _engine.sendAction($.param({action: 'setprio', p: 2}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
                             dom_cache.fl_body.find('input:checked').trigger('click');
                         }
                     },
@@ -2054,7 +2066,7 @@ var manager = function () {
                         priority: 1,
                         name: _lang_arr[87][1],
                         callback: function (key, trigger) {
-                            _engine.sendAction($.param({action: 'setprio', p: 1}) + '&' + $.param({f: var_cache.fl_list_ctx_sel_arr, hash: var_cache.fl_id}, true));
+                            _engine.sendAction($.param({action: 'setprio', p: 1}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
                             dom_cache.fl_body.find('input:checked').trigger('click');
                         }
                     },
@@ -2064,7 +2076,7 @@ var manager = function () {
                         priority: 0,
                         name: _lang_arr[87][0],
                         callback: function (key, trigger) {
-                            _engine.sendAction($.param({action: 'setprio', p: 0}) + '&' + $.param({f: var_cache.fl_list_ctx_sel_arr, hash: var_cache.fl_id}, true));
+                            _engine.sendAction($.param({action: 'setprio', p: 0}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
                             dom_cache.fl_body.find('input:checked').trigger('click');
                         }
                     },
