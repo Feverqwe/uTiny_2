@@ -202,20 +202,19 @@ var engine = function () {
             });
             return;
         }
+        var _data;
         if (typeof data === 'string') {
-            data = 'token=' + var_cache.client.token + '&' + data;
-            data += '&cid=' + var_cache.client.cid;
+            _data = 'token=' + var_cache.client.token + '&cid=' + var_cache.client.cid + '&' + data;
         } else {
-            data = $.extend({token: var_cache.client.token}, data);
-            data.cid = var_cache.client.cid;
+            _data = $.extend({token: var_cache.client.token, cid: var_cache.client.cid}, data);
         }
-        if (data.torrent_file !== undefined) {
+        if (_data.torrent_file !== undefined) {
             var form_data = new FormData();
-            var file = data.torrent_file;
+            var file = _data.torrent_file;
             form_data.append("torrent_file", file);
             var xhr = new XMLHttpRequest();
-            delete data.torrent_file;
-            xhr.open("POST", var_cache.webui_url + '?' + $.param(data), true);
+            delete _data.torrent_file;
+            xhr.open("POST", var_cache.webui_url + '?' + $.param(_data), true);
             xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
             xhr.onload = function () {
                 var_cache.get_token_count = 0;
@@ -233,11 +232,10 @@ var engine = function () {
             };
             xhr.onerror = function () {
                 showNotifi(error_icon, xhr.status, xhr.statusText, 'addFile');
-                setStatus('sendFile', [xhr.status, xhr.statusText, data]);
+                setStatus('sendFile', [xhr.status, xhr.statusText, _data]);
                 //400 - invalid request, когда token протухает
                 if (var_cache.client.sendAction_error > 3 || xhr.status === 400) {
                     var_cache.client.token = undefined;
-                    data.torrent_file = file;
                     sendAction(data, onload);
                     return;
                 }
@@ -248,7 +246,7 @@ var engine = function () {
         }
         $.ajax({
             dataType: 'json',
-            data: data,
+            data: _data,
             url: var_cache.webui_url,
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
@@ -262,7 +260,7 @@ var engine = function () {
                 readResponse(data);
             },
             error: function (xhr, textStatus) {
-                setStatus('sendAction', [xhr.status, textStatus, data]);
+                setStatus('sendAction', [xhr.status, textStatus, _data]);
                 if (var_cache.client.sendAction_error > 3 || xhr.status === 400) {
                     var_cache.client.token = undefined;
                     sendAction(data, onload);
