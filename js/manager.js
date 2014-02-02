@@ -2096,8 +2096,12 @@ var manager = function () {
                             var webUi_url = ((_settings.ssl) ? 'https' : 'http') + "://" + _settings.login + ":" + _settings.password + "@" +
                                 _settings.ut_ip + ":" + _settings.ut_port + "/";
                             for (var n = 0, item; item = var_cache.fl_list_ctx_sel_arr[n]; n++) {
+                                var sid = var_cache.tr_list[var_cache.fl_id][22];
+                                if (sid === undefined) {
+                                    continue;
+                                }
                                 chrome.tabs.create({
-                                    url: webUi_url + 'proxy?sid=' + var_cache.tr_list[var_cache.fl_id][22] + '&file=' + item + '&disposition=ATTACHMENT&service=DOWNLOAD&qos=0'
+                                    url: webUi_url + 'proxy?sid=' + sid + '&file=' + item + '&disposition=ATTACHMENT&service=DOWNLOAD&qos=0'
                                 });
                             }
                             dom_cache.fl_body.find('input:checked').trigger('click');
