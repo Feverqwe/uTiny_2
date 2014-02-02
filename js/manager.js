@@ -1964,7 +1964,12 @@ var manager = function () {
                             remove_torrent: {
                                 name: _lang_arr[8],
                                 callback: function (key, trigger) {
-                                    _engine.sendAction({list: 1, action: 'removetorrent', hash: trigger.items.remove.id });
+                                    var params = {list: 1, action: 'removetorrent', hash: trigger.items.remove.id };
+                                    //для 2.xx проверяем версию по наличию статуса
+                                    if (var_cache.tr_list[params.hash][21] === undefined) {
+                                        params.action = 'remove';
+                                    }
+                                    _engine.sendAction(params);
                                 }
                             },
                             remove_files: {
@@ -1976,7 +1981,12 @@ var manager = function () {
                             remove_torrent_files: {
                                 name: _lang_arr[10],
                                 callback: function (key, trigger) {
-                                    _engine.sendAction({list: 1, action: 'removedatatorrent', hash: trigger.items.remove.id });
+                                    var params = {list: 1, action: 'removedatatorrent', hash: trigger.items.remove.id };
+                                    //для 2.xx проверяем версию по наличию статуса
+                                    if (var_cache.tr_list[params.hash][21] === undefined) {
+                                        params.action = 'removedata';
+                                    }
+                                    _engine.sendAction(params);
                                 }
                             }
                         }
