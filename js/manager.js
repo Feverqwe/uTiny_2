@@ -1473,7 +1473,6 @@ var manager = function () {
             //OV_FL_STOPPED
                 return _lang_arr.status[8];
         }
-        return '';
     };
     var updateLabesCtx = function (trigger, id) {
         var ul = trigger.items.labels.$node.children('ul');
