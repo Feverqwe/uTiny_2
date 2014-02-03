@@ -594,7 +594,7 @@ var engine = function () {
         });
     };
     var clone_obj = function (obj) {
-        return JSON.parse(JSON.stringify(obj));
+        return $.extend(true, {}, obj);
     };
     return {
         bgTimer: bgTimer,
