@@ -316,7 +316,7 @@ var manager = function () {
             var color = (v[1] === 201 && v[4] === 1000) ? '#41B541' : '#3687ED';
             return $('<td>', {'class': key}).append($('<div>', {'class': 'progress_b'}).append($('<div>', {'class': 'val', text: progress + '%'}), $('<div>', {'class': 'progress_b_i', style: 'width: ' + Math.round(progress) + '%; background-color: ' + color + ';'})));
         } else if (key === 'status') {
-            var val = (v[21] !== undefined)?v[21]:getStatusInfo(v[1], v[4]);
+            var val = (v[21] !== undefined)?v[21]:tr_statusInfo(v[1], v[4]);
             return $('<td>', {'class': key}).append($('<div>', {title: val, text: val}));
         } else if (key === 'down_speed') {
             return $('<td>', {'class': key}).append($('<div>', {text: bytesToSize(v[9], '', 1)}));
@@ -424,7 +424,7 @@ var manager = function () {
         }
         if (cl.status !== undefined) {
             var cell = item.children('td.status');
-            var val = (v[21] !== undefined)?v[21]:getStatusInfo(v[1], v[4]);
+            var val = (v[21] !== undefined)?v[21]:tr_statusInfo(v[1], v[4]);
             cell.children('div').attr('title', val).text(val);
         }
         if (cl.down_speed !== undefined) {
@@ -1425,7 +1425,7 @@ var manager = function () {
         //console.log( 'Started:',started, 'Checking:',checking, 'Paused:',paused, 'Queued:',queued )
         return items;
     };
-    var getStatusInfo = function(state, dune) {
+    var tr_statusInfo = function(state, dune) {
         if (state & 32) { // paused
             if (state & 2) {
                     //OV_FL_CHECKED //Progress
@@ -1469,6 +1469,7 @@ var manager = function () {
             //OV_FL_STOPPED
                 return _lang_arr.status[8];
         }
+        return '';
     };
     var updateLabesCtx = function (trigger, id) {
         var ul = trigger.items.labels.$node.children('ul');
