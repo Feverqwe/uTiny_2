@@ -1395,10 +1395,14 @@ var manager = function () {
             recheck: 0
         };
 
-        var started = !!(state & 1),
-            checking = !!(state & 2),
+        var loaded = !!(state & 128),
+            queued = !!(state & 64),
             paused = !!(state & 32),
-            queued = !!(state & 64);
+            error = !!(state & 16),
+            checked = !!(state & 8),
+            start_after_check = !!(state & 4),
+            checking = !!(state & 2),
+            started = !!(state & 1);
 
         if ((!started || queued || paused) && !checking) {
             items.force_start = 1;
@@ -1408,19 +1412,19 @@ var manager = function () {
         }
         if (!paused && (checking || started || queued)) {
             items.pause = 1;
-            items.unpause = 0;
-        }
-        if (!started) {
-            items.unpause = 0;
         }
         if (checking || started || queued) {
             items.stop = 1;
         }
+        if (items.pause === 1) {
+            items.unpause = 0;
+        } else {
+            if ((started || checking) && paused) {
+                items.unpause = 1;
+            }
+        }
         if (!checking && !started && !queued) {
             items.recheck = 1;
-        }
-        if ((started || checking) && paused) {
-            items.unpause = 1;
         }
         //console.log( 'Started:',started, 'Checking:',checking, 'Paused:',paused, 'Queued:',queued )
         return items;
