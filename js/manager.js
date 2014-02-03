@@ -1422,7 +1422,7 @@ var manager = function () {
         if ((started || checking) && paused) {
             items.unpause = 1;
         }
-        console.log( 'Started:',started, 'Checking:',checking, 'Paused:',paused, 'Queued:',queued )
+        //console.log( 'Started:',started, 'Checking:',checking, 'Paused:',paused, 'Queued:',queued )
         return items;
     };
     var getStatusInfo = function(state, dune) {
