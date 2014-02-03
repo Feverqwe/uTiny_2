@@ -316,7 +316,8 @@ var manager = function () {
             var color = (v[1] === 201 && v[4] === 1000) ? '#41B541' : '#3687ED';
             return $('<td>', {'class': key}).append($('<div>', {'class': 'progress_b'}).append($('<div>', {'class': 'val', text: progress + '%'}), $('<div>', {'class': 'progress_b_i', style: 'width: ' + Math.round(progress) + '%; background-color: ' + color + ';'})));
         } else if (key === 'status') {
-            return $('<td>', {'class': key}).append($('<div>', {title: v[21], text: v[21]}));
+            var val = (v[21] !== undefined)?v[21]:getStatusInfo(v[1], v[4]);
+            return $('<td>', {'class': key}).append($('<div>', {title: val, text: val}));
         } else if (key === 'down_speed') {
             return $('<td>', {'class': key}).append($('<div>', {text: bytesToSize(v[9], '', 1)}));
         } else if (key === 'uplo_speed') {
@@ -423,7 +424,8 @@ var manager = function () {
         }
         if (cl.status !== undefined) {
             var cell = item.children('td.status');
-            cell.children('div').attr('title', v[21]).text(v[21]);
+            var val = (v[21] !== undefined)?v[21]:getStatusInfo(v[1], v[4]);
+            cell.children('div').attr('title', val).text(val);
         }
         if (cl.down_speed !== undefined) {
             var cell = item.children('td.down_speed');
@@ -1467,6 +1469,51 @@ var manager = function () {
          start,force_start,stop,pause,unpause,recheck
          */
         return {start: sel_en[1], force_start: sel_en[2], stop: sel_en[3], pause: sel_en[4], unpause: sel_en[5], recheck: sel_en[6]};
+    };
+    var getStatusInfo = function(state, dune) {
+        if (state & 32) { // paused
+            if (state & 2) {
+                    //OV_FL_CHECKED //Progress
+                        return _lang_arr.status[0];
+                } else {
+                    //OV_FL_PAUSED
+                        return _lang_arr.status[1];
+                }
+        } else if (state & 1) { // started, seeding or leeching
+            var status = '';
+            if (dune === 1000) {
+                    //OV_FL_SEEDING
+                        status = _lang_arr.status[2];
+                } else {
+                    //OV_FL_DOWNLOADING
+                        status = _lang_arr.status[3];
+                }
+            if (!(state & 64)) {
+                    return "[F] " + status;
+                } else {
+                    return status;
+                }
+        } else if (state & 2) { // checking
+            //OV_FL_CHECKED //Progress
+                return _lang_arr.status[0];
+        } else if (state & 16) { // error
+            //OV_FL_ERROR //Progress
+                return _lang_arr.status[4];
+        } else if (state & 64) { // queued
+            if (dune === 1000) {
+                    //OV_FL_QUEUED_SEED
+                        return _lang_arr.status[5];
+                } else {
+                    //OV_FL_QUEUED
+                        return _lang_arr.status[6];
+                }
+        } else if (dune == 1000) { // finished
+            //OV_FL_FINISHED
+                return _lang_arr.status[7];
+        } else { // stopped
+            //OV_FL_STOPPED
+                return _lang_arr.status[8];
+        }
     };
     var updateLabesCtx = function (trigger, id) {
         var ul = trigger.items.labels.$node.children('ul');
