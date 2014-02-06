@@ -314,12 +314,12 @@ var options = function() {
                 $('select[name="folders"] :selected').remove();
             });
             $('input[name="option_down"]').on('click', function() {
-                var $this = $('select[name="folders"] :selected');
+                var $this = $('select[name="folders"] :selected').eq(0);
                 var $next = $this.next();
                 $next.after($this);
             });
             $('input[name="option_up"]').on('click', function() {
-                var $this = $('select[name="folders"] :selected');
+                var $this = $('select[name="folders"] :selected').eq(0);
                 var $next = $this.prev();
                 $next.before($this);
             });
