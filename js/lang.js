@@ -145,7 +145,8 @@ var get_lang = function(lang) {
             68: 'Press the button "Save all"',
             69: 'Replace the directories on the label (with the addition of the label will be assigned)',
             70: 'Down',
-            71: 'Up'
+            71: 'Up',
+            72: 'To correct Cyrillic encoding (for version 3.4.30660, only Russian language)'
         }
     };
     var lang_arr_fr = {
@@ -294,7 +295,8 @@ var get_lang = function(lang) {
             68: 'Cliquez sur "OK"',
             69: 'Remplacez les répertoires sur l\'étiquette (avec l\'ajout de l\'étiquette va être affecté)',
             70: 'Vers le bas',
-            71: 'Vers le haut'
+            71: 'Vers le haut',
+            72: 'Corriger cyrillique l\'encodage (pour la version 3.4.30660, seulement pour le russe)'
         }
     };
     var lang_arr_ru = {
@@ -443,7 +445,8 @@ var get_lang = function(lang) {
             68: 'Нажмите "Сохранить всё"',
             69: 'Заменить каталоги на метки (при добавлении будет присваиваться метка)',
             70: 'Вниз',
-            71: 'Вверх'
+            71: 'Вверх',
+            72: 'Исправить кириллическую кодировку (для версии 3.4.30660, только для русского языка)'
         }
     };
     if (lang === undefined) {
