@@ -648,6 +648,9 @@ var engine = function () {
             "\\u037777777721\\u037777777614 \\u037777777721\\u037777777615 " +
             "\\u037777777721\\u037777777616 \\u037777777721\\u037777777617").split(' ');
         return function (data) {
+            if (data.indexOf("\\u03777777772") === -1) {
+                return data;
+            }
             for (var i = 0, char_item; char_item = chars[i]; i++) {
                 while (data.indexOf(char_item) !== -1) {
                     data = data.replace(char_item, cirilic[i]);
