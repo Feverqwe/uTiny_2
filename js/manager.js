@@ -1138,7 +1138,7 @@ var manager = function () {
         var item = var_cache.fl_list_dom[n];
         if (cl.name !== undefined) {
             var cell = item.children('td.name');
-            var gui = fl_create_gui_link(v[0], n);
+            var gui = fl_create_gui_link(v[0], n, -1);
             cell.children('div').children('span').text(gui.name).prepend(gui.link);
         }
         if (cl.size !== undefined) {
