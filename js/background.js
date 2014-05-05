@@ -40,6 +40,7 @@ var engine = function () {
             }
             if (item.t === 'checkbox' || item.t === 'number') {
                 if (item.min !== undefined && value < item.min) {
+                    settings[key] = item.min;
                     return 1;
                 }
                 settings[key] = parseInt(value);
