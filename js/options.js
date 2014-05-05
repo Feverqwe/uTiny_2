@@ -349,7 +349,7 @@ var options = function() {
                 chk_settings();
             });
             $('input[name="context_labels"]').on('click', function() {
-                $('input[name="add_folder"]')[0].disabled = this.checked;
+                $('input[name="add_folder"]')[0].disabled = !this.checked;
             });
             if (chrome.storage) {
                 $('input[name="save_in_cloud"]').on('click', function() {
