@@ -52,7 +52,9 @@ var manager = function () {
         //масств id файлов, генерируется при появлении контекстного меню файлов
         fl_list_ctx_sel_arr: [],
         //триггер на случай если меню файл-листа скрыто
-        fl_bottom_hide: false
+        fl_bottom_hide: false,
+        //
+        drag_timeout: undefined
     };
     var dom_cache = {};
     var options = {
@@ -1603,6 +1605,35 @@ var manager = function () {
         });
         fl_select_all_checkbox();
     };
+    var onGetFiles = function(files) {
+        notify([
+                {type: 'select', options: var_cache.labels, empty: true, text: _lang_arr[82][0]},
+                {type: 'select', options: _settings.folders_array, o: 'folders', text: _lang_arr[117]}
+            ],
+            _lang_arr[119][0], _lang_arr[119][1],
+            function (out) {
+                if (out === undefined) {
+                    return;
+                }
+                var label = out[0];
+                var folder = out[1];
+                if (label !== undefined) {
+                    label = var_cache.labels[label];
+                }
+                if (folder !== undefined) {
+                    folder = {download_dir: _settings.folders_array[out[1]][0],
+                        path: _settings.folders_array[out[1]][1]};
+                    if (_settings.context_labels === 1 && label === undefined) {
+                        label = folder.path;
+                        folder = undefined;
+                    }
+                }
+                for (var i = 0, len = files.length; i < len; i++) {
+                    _engine.sendFile(files[i], folder, label);
+                }
+            }
+        );
+    }
     return {
         start: function () {
             _engine.setWindow(window);
@@ -1626,7 +1657,8 @@ var manager = function () {
                 fl_body: $('.fl-table-body').children('tbody'),
                 fl_head: $('.fl-table-body').children('thead'),
                 fl_fixed_head: $('.fl-table-head').children('thead'),
-                fl_bottom: $('.file-list ul.bottom-menu')
+                fl_bottom: $('.file-list ul.bottom-menu'),
+                drop_layer: $('div.drop_layer')
             };
             writeLanguage();
 
@@ -1762,34 +1794,8 @@ var manager = function () {
             dom_cache.menu.on('click', 'a.add_file', function (e) {
                 e.preventDefault();
                 $('<input class="file-select" type="file" multiple accept="application/x-bittorrent"/>').on('change',function () {
-                    var _this = this;
-                    notify([
-                        {type: 'select', options: var_cache.labels, empty: true, text: _lang_arr[82][0]},
-                        {type: 'select', options: _settings.folders_array, o: 'folders', text: _lang_arr[117]}
-                    ],
-                        _lang_arr[119][0], _lang_arr[119][1],
-                        function (out) {
-                            if (out === undefined) {
-                                return;
-                            }
-                            var label = out[0];
-                            var folder = out[1];
-                            if (label !== undefined) {
-                                label = var_cache.labels[label];
-                            }
-                            if (folder !== undefined) {
-                                folder = {download_dir: _settings.folders_array[out[1]][0],
-                                    path: _settings.folders_array[out[1]][1]};
-                                if (_settings.context_labels === 1 && label === undefined) {
-                                    label = folder.path;
-                                    folder = undefined;
-                                }
-                            }
-                            for (var i = 0, len = _this.files.length; i < len; i++) {
-                                _engine.sendFile(_this.files[i], folder, label);
-                            }
-                        }
-                    );
+                    var files = this.files;
+                    onGetFiles(files);
                 }).trigger('click');
             });
             dom_cache.menu.on('click', 'a.add_magnet', function (e) {
@@ -1824,6 +1830,25 @@ var manager = function () {
                         _engine.sendFile(url, folder, label);
                     }
                 );
+            });
+
+            dom_cache.body.on('drop', function (e) {
+                e.preventDefault();
+                /**
+                 * @namespace event.originalEvent.dataTransfer
+                 * @namespace event.originalEvent.dataTransfer.files
+                 */
+                dom_cache.drop_layer.addClass('dropped');
+                var files = e.originalEvent.dataTransfer.files;
+                onGetFiles(files);
+            }).on('dragover', function (e) {
+                e.preventDefault();
+                dom_cache.drop_layer.css({"display": "block"});
+                clearTimeout(var_cache.drag_timeout);
+                var_cache.drag_timeout = setTimeout(function () {
+                    dom_cache.drop_layer.css({"display": "none"});
+                    dom_cache.drop_layer.removeClass('dropped');
+                }, 300);
             });
 
             dom_cache.dl_speed.on('click', '.limit', function (e) {
