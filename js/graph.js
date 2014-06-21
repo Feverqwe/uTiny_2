@@ -4,7 +4,6 @@ var graph = function () {
     var y;
     var line;
     var svg;
-    var currentData;
     //количество пиков на графике 1 пик - 1 секунда
     var _limit = 90;
     var created = false;
@@ -46,6 +45,9 @@ var graph = function () {
     };
 
     var createLines = function (data) {
+        if (created === true) {
+            return;
+        }
         if (data === undefined) {
             return;
         }
