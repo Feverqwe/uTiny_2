@@ -106,14 +106,19 @@
 
     var ffMessaging = function() {
         var cbList = mono.debug.messagCbList = {};
+        var cbCount = 0;
         var id = 0;
         var _send = function(message, cb) {
             if (cb !== undefined) {
                 id++;
+                cbCount++;
                 message.monoCallbackId = id;
                 cbList[id] = cb;
             }
             addon.port.emit(message.monoTo, message);
+            if (cbCount > 10) {
+                cbList = mono.debug.messagCbList = {};
+            }
         };
         var _on = function(cb) {
             var pageId = mono.pageId;
@@ -122,6 +127,7 @@
                 if (message.monoResponseId) {
                     cbList[message.monoResponseId](message.data);
                     delete cbList[message.monoResponseId];
+                    cbCount--;
                     return;
                 }
                 if (message.monoCallbackId !== undefined) {
@@ -149,14 +155,19 @@
 
     var chMessaging = function() {
         var cbList = mono.debug.messagCbList = {};
+        var cbCount = 0;
         var id = 0;
         var _send = function(message, cb) {
             if (cb !== undefined) {
                 id++;
+                cbCount++;
                 message.monoCallbackId = id;
                 cbList[id] = cb;
             }
             chrome.runtime.sendMessage(message);
+            if (cbCount > 10) {
+                cbList = mono.debug.messagCbList = {};
+            }
         };
         var _on = function(cb) {
             var pageId = mono.pageId;
@@ -168,6 +179,7 @@
                 if (message.monoResponseId) {
                     cbList[message.monoResponseId](message.data);
                     delete cbList[message.monoResponseId];
+                    cbCount--;
                     return;
                 }
                 if (message.monoCallbackId !== undefined) {
