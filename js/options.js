@@ -227,28 +227,30 @@ var options = function() {
     };
     var write_sortable_tables = function() {
         var items;
-        var tr_colums = _engine.getColums();
-        var tr_table = dom_cache.ul_tr_colums;
-        tr_table.empty();
-        items = [];
-        $.each(tr_colums, function(k, v) {
-            items.push(ap(tr_table, k, v));
-        });
-        tr_table.append(items);
-        var fl_colums = _engine.getFlColums();
-        var fl_table = $("ul.fl_colums");
-        fl_table.empty();
-        items = [];
-        $.each(fl_colums, function(k, v) {
-            items.push(ap(fl_table, k, v));
-        });
-        fl_table.append(items);
-        var ul_sortable = $("ul.sortable");
-        ul_sortable.sortable({placeholder: "ui-state-highlight"});
-        ul_sortable.disableSelection();
-        ul_sortable.find("div.size").resizable({handles: "e", resize: function(event, ui) {
-            $(this).parent().children('div').children("div").eq(1).children('label').html(ui.size.width);
-        }});
+        mono.sendMessage(['getColums', 'getFlColums'], function(data) {
+            var tr_colums = data.getColums;
+            var tr_table = dom_cache.ul_tr_colums;
+            tr_table.empty();
+            items = [];
+            $.each(tr_colums, function(k, v) {
+                items.push(ap(tr_table, k, v));
+            });
+            tr_table.append(items);
+            var fl_colums = data.getFlColums;
+            var fl_table = $("ul.fl_colums");
+            fl_table.empty();
+            items = [];
+            $.each(fl_colums, function(k, v) {
+                items.push(ap(fl_table, k, v));
+            });
+            fl_table.append(items);
+            var ul_sortable = $("ul.sortable");
+            ul_sortable.sortable({placeholder: "ui-state-highlight"});
+            ul_sortable.disableSelection();
+            ul_sortable.find("div.size").resizable({handles: "e", resize: function(event, ui) {
+                $(this).parent().children('div').children("div").eq(1).children('label').html(ui.size.width);
+            }});
+        }, 'bg');
     };
     var reset_table = function(table, arr) {
         var items;
