@@ -28,65 +28,67 @@
         actionReader(message, response);
     });
     $(function () {
-        manager.boot();
+        options.boot();
     });
 })();
 var options = function() {
-    var _engine = (chrome.extension.getBackgroundPage()).engine;
     var var_cache = {};
     var dom_cache = {};
     var currentLanguage = navigator.language.substr(0,2);
     var def_settings = undefined;
     var set_place_holder = function() {
-        var settings = _engine.settings;
-        $.each(def_settings, function(k, v) {
-            if (v.t === "text" || v.t === "number" || v.t === "password") {
-                var dom_obj = $('input[name="' + k + '"]');
-                dom_obj.removeAttr("value");
-                if (settings[k] === undefined) {
-                    settings[k] = v.v;
-                }
-                if (settings[k] !== v.v) {
-                    if (k === "bg_update_interval" || k === "notify_visbl_interval" || k === "mgr_update_interval") {
-                        dom_obj.attr("value", settings[k] / 1000);
-                    } else {
-                        dom_obj.attr("value", settings[k]);
+        mono.sendMessage('settings', function(settings) {
+            $.each(def_settings, function(k, v) {
+                if (v.t === "text" || v.t === "number" || v.t === "password") {
+                    var dom_obj = $('input[name="' + k + '"]');
+                    dom_obj.removeAttr("value");
+                    if (settings[k] === undefined) {
+                        settings[k] = v.v;
+                    }
+                    if (settings[k] !== v.v) {
+                        if (k === "bg_update_interval" || k === "notify_visbl_interval" || k === "mgr_update_interval") {
+                            dom_obj.attr("value", settings[k] / 1000);
+                        } else {
+                            dom_obj.attr("value", settings[k]);
+                        }
+                    }
+                    if (v.v !== undefined) {
+                        if (k === "bg_update_interval" || k === "notify_visbl_interval" || k === "mgr_update_interval") {
+                            dom_obj.attr("placeholder", v.v / 1000);
+                        } else {
+                            dom_obj.attr("placeholder", v.v);
+                        }
+                    }
+                } else
+                if (v.t === "checkbox") {
+                    $('input[name="' + k + '"]').prop('checked', settings[k]);
+                } else
+                if (v.t === "array") {
+                    if (k === "folders_array") {
+                        var arr = settings[k];
+                        var $select =  dom_cache.sel_folders;
+                        $select.empty();
+                        for (var n = 0, len = arr.length; n < len; n++) {
+                            $select.append( $('<option>', {text: arr[n][1], value: JSON.stringify(arr[n])}) );
+                        }
                     }
                 }
-                if (v.v !== undefined) {
-                    if (k === "bg_update_interval" || k === "notify_visbl_interval" || k === "mgr_update_interval") {
-                        dom_obj.attr("placeholder", v.v / 1000);
-                    } else {
-                        dom_obj.attr("placeholder", v.v);
-                    }
-                }
-            } else
-            if (v.t === "checkbox") {
-                $('input[name="' + k + '"]').prop('checked', settings[k]);
-            } else
-            if (v.t === "array") {
-                if (k === "folders_array") {
-                    var arr = settings[k];
-                    var $select =  dom_cache.sel_folders;
-                    $select.empty();
-                    for (var n = 0, len = arr.length; n < len; n++) {
-                        $select.append( $('<option>', {text: arr[n][1], value: JSON.stringify(arr[n])}) );
-                    }
-                }
-            }
-        });
-        write_sortable_tables();
+            });
+            write_sortable_tables();
+            dom_cache.inp_add_folder.prop('disabled', !dom_cache.ctx_labels.prop('checked'));
+        }, 'bg');
+
         dom_cache.sel_folder_arr.empty().off().on('click', function() {
             if ($(this).children().length !== 0) {
                 return;
             }
-            mono.sendMessage({action: 'sendAction', data: {action: 'list-dirs'} });
+            mono.sendMessage({action: 'sendAction', data: {action: 'list-dirs'} }, undefined, 'bg');
             return 1;
         });
-        dom_cache.inp_add_folder.prop('disabled', !dom_cache.ctx_labels.prop('checked'));
     };
     var saveAll = function() {
-        localStorage['lang'] = dom_cache.select_language.val();
+        var changes = {};
+        changes['lang'] = dom_cache.select_language.val();
         $.each(def_settings, function(key, value) {
             var $el = $('input[name="' + key + '"]');
             if (value.t === "text" || value.t == "password") {
@@ -94,11 +96,11 @@ var options = function() {
                 if (val.length === 0 && key !== 'login' && key !== 'password') {
                     val = value.v;
                 }
-                localStorage[key] = val;
+                changes[key] = val;
             } else
             if (value.t === "checkbox") {
                 var val = ($el.prop('checked'))?1:0;
-                localStorage[key] = val;
+                changes[key] = val;
             } else
             if (value.t === "number") {
                 var val = $el.val();
@@ -112,7 +114,7 @@ var options = function() {
                 if (value.min !== undefined && val < value.min) {
                     val = value.min;
                 }
-                localStorage[key] = val;
+                changes[key] = val;
             }
         });
         var $f_select = dom_cache.sel_folders.children('option');
@@ -121,41 +123,48 @@ var options = function() {
         for (var n = 0; n < f_select_len; n++) {
             folders_arr[n] = JSON.parse($f_select.eq(n).val());
         }
-        localStorage['folders_array'] = JSON.stringify(folders_arr);
+        changes['folders_array'] = JSON.stringify(folders_arr);
 
-        var tr_colums = _engine.getColums();
-        var table = $('ul.tr_colums');
-        var new_obj = {};
-        var items = table.children('li');
-        var c = items.length;
-        for (var n = 0; n < c; n++) {
-            var item = items.eq(n);
-            var key = item.data('key');
-            var active = (item.children('div.info').children('div').eq(2).children('input').eq(0)[0].checked) ? 1 : 0;
-            var size = parseInt(item.children('div.info').children('div').eq(1).children('label').text());
-            new_obj[key] = tr_colums[key];
-            new_obj[key].size = size;
-            new_obj[key].a = active;
-        }
-        localStorage['colums'] = JSON.stringify(new_obj);
-        var fl_colums = _engine.getFlColums();
-        var table = $('ul.fl_colums');
-        var new_obj = {};
-        var items = table.children('li');
-        var c = items.length;
-        for (var n = 0; n < c; n++) {
-            var item = items.eq(n);
-            var key = item.data('key');
-            var active = (item.children('div.info').children('div').eq(2).children('input').eq(0)[0].checked) ? 1 : 0;
-            var size = parseInt(item.children('div.info').children('div').eq(1).children('label').text());
-            new_obj[key] = fl_colums[key];
-            new_obj[key].size = size;
-            new_obj[key].a = active;
-        }
-        localStorage['fl_colums'] = JSON.stringify(new_obj);
+        mono.storage.set(changes);
+
+        mono.sendMessage(['getColums', 'getFlColums'], function(data) {
+            var tr_colums = data.getColums;
+            var table = $('ul.tr_colums');
+            var new_obj = {};
+            var items = table.children('li');
+            var c = items.length;
+            for (var n = 0; n < c; n++) {
+                var item = items.eq(n);
+                var key = item.data('key');
+                var active = (item.children('div.info').children('div').eq(2).children('input').eq(0)[0].checked) ? 1 : 0;
+                var size = parseInt(item.children('div.info').children('div').eq(1).children('label').text());
+                new_obj[key] = tr_colums[key];
+                new_obj[key].size = size;
+                new_obj[key].a = active;
+            }
+            mono.storage.set({colums: JSON.stringify(new_obj)});
+
+            var fl_colums = data.getFlColums;
+            var table = $('ul.fl_colums');
+            var new_obj = {};
+            var items = table.children('li');
+            var c = items.length;
+            for (var n = 0; n < c; n++) {
+                var item = items.eq(n);
+                var key = item.data('key');
+                var active = (item.children('div.info').children('div').eq(2).children('input').eq(0)[0].checked) ? 1 : 0;
+                var size = parseInt(item.children('div.info').children('div').eq(1).children('label').text());
+                new_obj[key] = fl_colums[key];
+                new_obj[key].size = size;
+                new_obj[key].a = active;
+            }
+            mono.storage.set({fl_colums: JSON.stringify(new_obj)});
+        }, 'bg');
     };
     var getBackup = function() {
-        $('textarea[name="backup"]').val(JSON.stringify(localStorage));
+        mono.storage.get(undefined, function(data) {
+            $('textarea[name="backup"]').val(JSON.stringify(data));
+        });
     };
     var stngsRestore = function(text) {
         var rst;
@@ -167,19 +176,22 @@ var options = function() {
         if (rst === undefined) {
             return;
         }
-        localStorage.clear();
+        mono.storage.clear();
+        var changes = {};
         for (var key in rst)
         {
             var value = rst[key];
             if (value === undefined || key === 'length')
                 continue;
-            localStorage[key] = value;
+            changes[key] = value;
         }
-        write_language(rst.lang || currentLanguage);
-        mono.sendMessage({action: 'updateSettings', data: lang_arr}, function() {
-            set_place_holder();
-            $('a[data-page="setup"]').trigger('click');
-            chk_settings();
+        mono.storage.set(changes, function() {
+            write_language(rst.lang || currentLanguage);
+            mono.sendMessage({action: 'updateSettings', data: lang_arr}, function() {
+                set_place_holder();
+                $('a[data-page="setup"]').trigger('click');
+                chk_settings();
+            }, 'bg');
         });
     };
     var make_bakup_form = function() {
@@ -291,8 +303,8 @@ var options = function() {
         return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
     };
     var write_language = function(language) {
-        currentLanguage = language;
         window.lang_arr = get_lang(language);
+        currentLanguage = window.lang_arr.t;
         var lang = lang_arr.settings;
         dom_cache.select_language.val(language);
         $.each(lang, function(k, v) {
@@ -322,8 +334,9 @@ var options = function() {
         return isPopup;
     };
     var chk_settings = function() {
-        mono.sendMessage(['getToken', 'cache'], function(result) {
-            if (result.getToken === 1) {
+        mono.sendMessage('getToken', function(getToken) {
+            console.log(getToken)
+            if (getToken === 1) {
                 $('div.page.save > div.status').css({'background': 'none', 'color': '#009900'}).text(lang_arr.settings[52]).animate({opacity: 0}, 3000, function() {
                     $(this).empty().css("opacity", "1");
                 });
@@ -331,21 +344,22 @@ var options = function() {
                     window.location = "manager.html";
                 }
             } else {
-                $('div.page.save > div.status').css({'background': 'none', 'color': '#c40005'}).text(lang_arr.settings[53] + ' ' + result.cache.status);
+                mono.sendMessage('cache', function(cache) {
+                    $('div.page.save > div.status').css({'background': 'none', 'color': '#c40005'}).text(lang_arr.settings[53] + ' ' + cache.status);
+                }, 'bg');
             }
-        });
+        }, 'bg');
     };
     return {
         boot: function() {
-            mono.storage.get(['lang'], function(options) {
-                var_cache.onBootOptions = options;
-                currentLanguage = options.lang;
+            mono.storage.get('lang', function(data) {
+                currentLanguage = data.lang || currentLanguage;
                 mono.sendMessage(['def_settings'], function(data) {
                     def_settings = data.def_settings;
                     $(function() {
                         options.begin();
                     });
-                });
+                }, 'bg');
             });
         },
         begin: function() {
@@ -376,12 +390,12 @@ var options = function() {
             $('input[name="tr_reset"]').on("click", function() {
                 mono.sendMessage('getDefColums', function(data) {
                     reset_table(dom_cache.ul_tr_colums, data);
-                });
+                }, 'bg');
             });
             $('input[name="fl_reset"]').on("click", function() {
                 mono.sendMessage('getDefFlColums', function(data) {
                     reset_table($("ul.fl_colums"), data);
-                });
+                }, 'bg');
             });
             dom_cache.inp_add_folder.on('click', function() {
                 var arr = [dom_cache.sel_folder_arr.val(), $(this).parent().children('input[type=text]').val()];
@@ -414,21 +428,26 @@ var options = function() {
                 $('div.page.save > div.status').css('background', 'url(images/loading.gif) center center no-repeat').text('');
                 mono.sendMessage({action: 'updateSettings', data: lang_arr}, function() {
                     chk_settings();
-                });
+                }, 'bg');
             });
             dom_cache.ctx_labels.on('click', function() {
                 dom_cache.inp_add_folder[0].disabled = !this.checked;
             });
             if (chrome.storage) {
                 $('input[name="save_in_cloud"]').on('click', function() {
-                    var obj = {};
-                    obj['backup'] = JSON.stringify(localStorage);
-                    chrome.storage.sync.set(obj);
-                    $(this).val(lang_arr.settings[52]);
-                    window.setTimeout(function() {
-                        $('input[name="save_in_cloud"]').val(lang_arr.settings[59]);
-                    }, 3000);
-                    $('input[name="get_from_cloud"]')[0].disabled = false;
+                    var _this = this;
+                    mono.storage.get(undefined, function(data) {
+                        var obj = {
+                            backup: JSON.stringify(data)
+                        };
+                        mono.storage.sync.set(obj, function() {
+                            $(_this).val(lang_arr.settings[52]);
+                            window.setTimeout(function() {
+                                $('input[name="save_in_cloud"]').val(lang_arr.settings[59]);
+                            }, 3000);
+                            $('input[name="get_from_cloud"]')[0].disabled = false;
+                        });
+                    });
                 });
                 $('input[name="get_from_cloud"]').on('click', function() {
                     chrome.storage.sync.get("backup", function(val) {

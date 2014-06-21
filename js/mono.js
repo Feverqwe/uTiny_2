@@ -16,6 +16,7 @@
     var isChrome = window.chrome !== undefined;
     var isFF = window.addon !== undefined;
     mono.pageId = defaultId;
+    mono.debug = {};
 
     var externalStorage = {
         get: function(src, cb) {
@@ -73,11 +74,6 @@
             _set = externalStorage.set;
             _clear = externalStorage.clear;
         } else
-        if (window.localStorage !== undefined) {
-            _get = localStorageMode.get;
-            _set = localStorageMode.set;
-            _clear = localStorageMode.clear;
-        } else
         if (isChrome && chrome.storage !== undefined) {
             _get = function(obj, cb) {
                 chrome.storage[mode].get(obj, cb);
@@ -88,6 +84,11 @@
             _clear = function(cb) {
                 chrome.storage[mode].clear(cb);
             }
+        } else
+        if (window.localStorage !== undefined) {
+            _get = localStorageMode.get;
+            _set = localStorageMode.set;
+            _clear = localStorageMode.clear;
         } else {
             _get = externalStorage.get;
             _set = externalStorage.set;
@@ -104,7 +105,7 @@
     mono.storage.sync = storage_fn('sync');
 
     var ffMessaging = function() {
-        var cbList = {};
+        var cbList = mono.debug.messagCbList = {};
         var id = 0;
         var _send = function(message, cb) {
             if (cb !== undefined) {
@@ -119,7 +120,9 @@
             addon.port.on(pageId, function(message) {
                 var response;
                 if (message.monoResponseId) {
-                    return cbList[message.monoResponseId](message.data);
+                    cbList[message.monoResponseId](message.data);
+                    delete cbList[message.monoResponseId];
+                    return;
                 }
                 if (message.monoCallbackId !== undefined) {
                     response = function(responseMessage) {
@@ -140,6 +143,55 @@
             on: _on
         }
     };
+    if (isFF) {
+        ffMessaging = ffMessaging();
+    }
+
+    var chMessaging = function() {
+        var cbList = mono.debug.messagCbList = {};
+        var id = 0;
+        var _send = function(message, cb) {
+            if (cb !== undefined) {
+                id++;
+                message.monoCallbackId = id;
+                cbList[id] = cb;
+            }
+            chrome.runtime.sendMessage(message);
+        };
+        var _on = function(cb) {
+            var pageId = mono.pageId;
+            chrome.runtime.onMessage.addListener(function(message) {
+                if (message.monoTo !== pageId && message.monoTo !== defaultId) {
+                    return;
+                }
+                var response;
+                if (message.monoResponseId) {
+                    cbList[message.monoResponseId](message.data);
+                    delete cbList[message.monoResponseId];
+                    return;
+                }
+                if (message.monoCallbackId !== undefined) {
+                    response = function(responseMessage) {
+                        responseMessage = {
+                            data: responseMessage,
+                            monoResponseId: message.monoCallbackId,
+                            monoTo: message.monoFrom,
+                            monoFrom: pageId
+                        };
+                        _send(responseMessage);
+                    }
+                }
+                cb(message.data, response);
+            });
+        };
+        return {
+            send: _send,
+            on: _on
+        }
+    };
+    if (isChrome) {
+        chMessaging = chMessaging();
+    }
 
     mono.sendMessage = function(message, cb, to) {
         message = {
@@ -151,8 +203,11 @@
     };
     (function() {
         // sendMessage init
-        if (isChrome && chrome.runtime.sendMessage) {
+        if (isChrome) {
+            /*
             mono.sendMessage.send = chrome.runtime.sendMessage;
+            */
+            mono.sendMessage.send = chMessaging.send;
         } else
         if (isFF && addon.port !== undefined) {
             mono.sendMessage.send = ffMessaging.send;
@@ -160,13 +215,15 @@
     })();
 
     mono.onMessage = function(cb) {
-        if (isChrome && chrome.runtime.sendMessage) {
+        if (isChrome) {
+            /*
             chrome.runtime.onMessage.addListener(function(message, sender, response) {
                 if (message.monoTo !== mono.pageId && message.monoTo !== defaultId) {
                     return;
                 }
                 cb(message.data, response);
-            });
+            });*/
+            chMessaging.on(cb);
         } else
         if (isFF && addon.port !== undefined) {
             ffMessaging.on(cb);

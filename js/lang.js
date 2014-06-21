@@ -449,18 +449,6 @@ var get_lang = function(lang) {
             72: 'Исправить кириллическую кодировку (для версии 3.4.30660, только для русского языка)'
         }
     };
-    if (lang === undefined) {
-        lang = localStorage["lang"];
-    }
-    if (lang === undefined) {
-        lang = 'en';
-        if (chrome.i18n.getMessage("lang") === 'ru') {
-            lang = 'ru';
-        } else
-        if (chrome.i18n.getMessage("lang") === 'fr') {
-            lang = 'fr';
-        }
-    }
     if (lang === 'ru') {
         return lang_arr_ru;
     } else
@@ -468,11 +456,5 @@ var get_lang = function(lang) {
         return lang_arr_fr;
     } else {
         return lang_arr_en;
-    }
-};
-var lang_arr = get_lang();
-window.onload = function() {
-    if (window.options === undefined) {
-        get_lang = null;
     }
 };

@@ -1705,12 +1705,12 @@ var manager = function () {
                     return window.location = "options.html";
                 }
                 var_cache.onBootOptions = options;
-                mono.sendMessage(['getLanguage', 'getSettings',
+                mono.sendMessage(['lang_arr', 'settings',
                     'getColums', 'getFlColums',
                     'cache'], function(response) {
                     var_cache.onBootVars.cache = response.cache;
-                    window._lang_arr = response.getLanguage;
-                    window._settings = response.getSettings;
+                    window._lang_arr = response.lang_arr;
+                    window._settings = response.settings;
                     var_cache.tr_colums = response.getColums;
                     var_cache.fl_colums = response.getFlColums;
                     manager.start();

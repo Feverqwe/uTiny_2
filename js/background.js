@@ -5,10 +5,10 @@
      */
     mono.pageId = 'bg';
     var actionReader = function(message, cb) {
-        if (message === 'getLanguage') {
+        if (message === 'lang_arr') {
             return cb(lang_arr);
         }
-        if (message === 'getSettings') {
+        if (message === 'settings') {
             return cb(engine.settings);
         }
         if (message === 'getColums') {
@@ -83,6 +83,11 @@
             return;
         }
         actionReader(message, response);
+    });
+
+    mono.storage.get('lang', function(options) {
+        window.lang_arr = get_lang(options.lang);
+        engine.boot();
     });
 })();
 var engine = function () {
@@ -766,6 +771,23 @@ var engine = function () {
         };
     }();
     return {
+        boot: function() {
+            engine.loadSettings(function() {
+                engine.createCtxMenu();
+                engine.bgTimer.start();
+            });
+            if (window.chrome !== undefined) {
+                /**
+                 * @namespace chrome.browserAction.setBadgeBackgroundColor
+                 */
+                chrome.browserAction.setBadgeBackgroundColor({
+                    color: [0, 0, 0, 40]
+                });
+                chrome.browserAction.setBadgeText({
+                    text: ''
+                });
+            }
+        },
         bgTimer: bgTimer,
         loadSettings: loadSettings,
         settings: settings,
@@ -823,20 +845,3 @@ var engine = function () {
         createCtxMenu: createCtxMenu
     };
 }();
-(function () {
-    engine.loadSettings(function() {
-        engine.createCtxMenu();
-        engine.bgTimer.start();
-    });
-    if (window.chrome !== undefined) {
-        /**
-         * @namespace chrome.browserAction.setBadgeBackgroundColor
-         */
-        chrome.browserAction.setBadgeBackgroundColor({
-            color: [0, 0, 0, 40]
-        });
-        chrome.browserAction.setBadgeText({
-            text: ''
-        });
-    }
-})();
