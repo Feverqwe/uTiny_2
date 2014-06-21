@@ -326,6 +326,9 @@ var options = function() {
     };
     var popup = function() {
         var isPopup = false;
+        if (!window.chrome) {
+            return isPopup;
+        }
         var windows = chrome.extension.getViews({type: 'popup'});
         for (var n = 0; n < windows.length; n++) {
             if ("options" in windows[n])
@@ -433,7 +436,7 @@ var options = function() {
             dom_cache.ctx_labels.on('click', function() {
                 dom_cache.inp_add_folder[0].disabled = !this.checked;
             });
-            if (chrome.storage) {
+            if (window.chrome !== undefined && chrome.storage) {
                 $('input[name="save_in_cloud"]').on('click', function() {
                     var _this = this;
                     mono.storage.get(undefined, function(data) {
