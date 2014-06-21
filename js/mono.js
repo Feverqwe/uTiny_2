@@ -10,23 +10,26 @@
         args.unshift('monoLog:');
         console.log.apply(console, args);
     };
+
+
     var defaultId = 'monoScope';
     var strunefined = typeof undefined;
     var isArray = Array.isArray;
     var isChrome = window.chrome !== undefined;
-    var isFF = window.addon !== undefined;
+    var addon = window.addon || window.self;
+    var isFF = addon !== undefined;
     mono.pageId = defaultId;
     mono.debug = {};
 
     var externalStorage = {
         get: function(src, cb) {
-            mono.sendMessage(src, cb, 'monoStorage');
+            mono.sendMessage({action: 'get', data: src}, cb, 'monoStorage');
         },
         set: function(obj, cb) {
-            mono.sendMessage(obj, cb, 'monoStorage');
+            mono.sendMessage({action: 'set', data: obj}, cb, 'monoStorage');
         },
         clear: function(cb) {
-            mono.sendMessage('monoStorageClear', cb, 'monoStorage');
+            mono.sendMessage({action: 'clear'}, cb, 'monoStorage');
         }
     };
     var localStorageMode = {
@@ -123,6 +126,9 @@
         var _on = function(cb) {
             var pageId = mono.pageId;
             addon.port.on(pageId, function(message) {
+                if (message.monoTo !== pageId && message.monoTo !== defaultId) {
+                    return;
+                }
                 var response;
                 if (message.monoResponseId) {
                     cbList[message.monoResponseId](message.data);

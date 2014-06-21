@@ -86,7 +86,7 @@ var options = function() {
             return 1;
         });
     };
-    var saveAll = function() {
+    var saveAll = function(cb) {
         var changes = {};
         changes['lang'] = dom_cache.select_language.val();
         $.each(def_settings, function(key, value) {
@@ -125,7 +125,9 @@ var options = function() {
         }
         changes['folders_array'] = JSON.stringify(folders_arr);
 
-        mono.storage.set(changes);
+        mono.storage.set(changes, function() {
+            cb && cb();
+        });
 
         mono.sendMessage(['getColums', 'getFlColums'], function(data) {
             var tr_colums = data.getColums;
@@ -338,7 +340,6 @@ var options = function() {
     };
     var chk_settings = function() {
         mono.sendMessage('getToken', function(getToken) {
-            console.log(getToken)
             if (getToken === 1) {
                 $('div.page.save > div.status').css({'background': 'none', 'color': '#009900'}).text(lang_arr.settings[52]).animate({opacity: 0}, 3000, function() {
                     $(this).empty().css("opacity", "1");
@@ -427,11 +428,12 @@ var options = function() {
                 $next.before($this);
             });
             $('input[name="save"]').on('click', function() {
-                saveAll();
                 $('div.page.save > div.status').css('background', 'url(images/loading.gif) center center no-repeat').text('');
-                mono.sendMessage({action: 'updateSettings', data: lang_arr}, function() {
-                    chk_settings();
-                }, 'bg');
+                saveAll(function() {
+                    mono.sendMessage({action: 'updateSettings', data: lang_arr}, function() {
+                        chk_settings();
+                    }, 'bg');
+                });
             });
             dom_cache.ctx_labels.on('click', function() {
                 dom_cache.inp_add_folder[0].disabled = !this.checked;
