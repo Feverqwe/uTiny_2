@@ -252,7 +252,7 @@ var manager = function () {
         }
         var_cache.status = text;
         if (text === undefined) {
-            dom_cache.status.html($('<img>', {src: '/images/status_update.gif'}));
+            dom_cache.status.html($('<img>', {src: 'images/status_update.gif'}));
         } else {
             dom_cache.status.text(text);
         }
