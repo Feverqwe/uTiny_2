@@ -80,6 +80,52 @@ var init = function(pageList, scope) {
         }
     };
 
+
+    var request = require("sdk/request").Request;
+    var serviceMsgFrom = 'service';
+    var serviceMsg = function(message) {
+        var response;
+        var to = message.monoFrom;
+        var msg = message.data;
+        if (message.monoCallbackId !== undefined) {
+            response = function(responseMessage) {
+                responseMessage = {
+                    data: responseMessage,
+                    monoTo: to,
+                    monoFrom: serviceMsgFrom,
+                    monoResponseId: message.monoCallbackId
+                };
+                routing[to].forEach(function(page) {
+                    page.port.emit(to, responseMessage);
+                });
+            }
+        }
+
+
+        if (msg.action === 'sendXHR') {
+            return request({
+                url: msg.url,
+                overrideMimeType: msg.overrideMimeType,
+                contentType: msg.contentType,
+                content: msg.content,
+                onComplete: function (xhr) {
+                    response({ responseText: xhr.responseText, text: xhr.text, json: xhr.json, status: xhr.status, statusText: xhr.statusText });
+                },
+                headers: msg.headers
+            })[msg.method]();
+        }
+        if (msg.action === 'resize') {
+            routing[to].forEach(function(page) {
+                if (msg.width) {
+                    page.width = msg.width;
+                }
+                if (msg.height) {
+                    page.height = msg.height;
+                }
+            });
+        }
+    };
+
     pageList.forEach(function(item) {
         if (typeof item.id === 'string') {
             item.id = [item.id];
@@ -104,6 +150,9 @@ var init = function(pageList, scope) {
             routing[defaultId].forEach(function(page){
                 page.port.emit(defaultId, message);
             });
+        });
+        item.page.port.on(serviceMsgFrom, function(message) {
+            serviceMsg(message);
         });
         scope.forEach(function(sc) {
             item.page.port.on(sc, function(message) {

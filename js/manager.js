@@ -133,6 +133,7 @@ var manager = function () {
         dom_cache.body.children('style.torrent-style').remove();
         dom_cache.body.append(style);
         dom_cache.body.css('width', width);
+        mono.sendMessage({action: 'resize', width: width}, undefined, 'service');
         var_cache.body_width = dom_cache.body.width();
         dom_cache.tr_fixed_head.html(head);
         dom_cache.tr_head.html(head.clone());

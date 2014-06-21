@@ -304,9 +304,43 @@ var engine = function () {
         }
         var_cache.get_token_count++;
         setStatus('getToken', [-1, 'Getting token...']);
+
+        mono.sendMessage({
+            action: 'sendXHR',
+            url: var_cache.webui_url + "token.html",
+            method: 'get',
+            headers: {
+                Authorization: "Basic " + window.btoa(settings.login + ":" + settings.password)
+            }
+        }, function(xhr) {
+            if (xhr.status === 200) {
+                setStatus('getToken', [200]);
+                engine.cache = var_cache.client = {
+                    status: var_cache.client.status,
+                    token: $(xhr.responseText).text()
+                };
+                if (onload !== undefined) {
+                    onload();
+                }
+                bgTimer.start();
+                return;
+            }
+            console.log(xhr)
+            setStatus('getToken', [xhr.status, xhr.statusText]);
+            if (onerror !== undefined) {
+                onerror();
+            }
+            if (var_cache.client.getToken_error > 10) {
+                bgTimer.stop();
+            }
+            var_cache.client.getToken_error = (var_cache.client.getToken_error === undefined) ? 1 : var_cache.client.getToken_error + 1;
+        }, 'service');
+
+        /*
         $.ajax({
             url: var_cache.webui_url + "token.html",
             beforeSend: function (xhr) {
+                xhr.withCredentials = true;
                 xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
             },
             success: function (data) {
@@ -331,6 +365,7 @@ var engine = function () {
                 var_cache.client.getToken_error = (var_cache.client.getToken_error === undefined) ? 1 : var_cache.client.getToken_error + 1;
             }
         });
+        */
     };
     var sendAction = function (data, onload) {
         if (var_cache.client.token === undefined) {
@@ -385,6 +420,44 @@ var engine = function () {
             xhr.send(form_data);
             return;
         }
+
+        mono.sendMessage({
+            action: 'sendXHR',
+            url: var_cache.webui_url + '?' + $.param(_data),
+            overrideMimeType: 'text/plain',
+            method: 'post',
+            headers: {
+                Authorization: "Basic " + window.btoa(settings.login + ":" + settings.password)
+            }
+        }, function(xhr) {
+            var data = xhr.text;
+            if (xhr.status === 200) {
+                try {
+                    if (settings.fix_cirilic === 1) {
+                        data = fixCirilic(data);
+                    }
+                    data = JSON.parse(data);
+                } catch (err) {
+                    console.log('Data parse error!', data);
+                    return;
+                }
+                var_cache.get_token_count = 0;
+                setStatus('sendAction', [200]);
+                if (onload !== undefined) {
+                    onload(data);
+                }
+                readResponse(data);
+                return;
+            }
+            setStatus('sendAction', [xhr.status, xhr.statusText, _data]);
+            if (var_cache.client.sendAction_error > 3 || xhr.status === 400) {
+                var_cache.client.token = undefined;
+                sendAction(data, onload);
+                return;
+            }
+            var_cache.client.sendAction_error = (var_cache.client.sendAction_error === undefined) ? 1 : var_cache.client.sendAction_error + 1;
+        }, 'service');
+        /*
         $.ajax({
             dataType: 'text',
             data: _data,
@@ -419,6 +492,7 @@ var engine = function () {
                 var_cache.client.sendAction_error = (var_cache.client.sendAction_error === undefined) ? 1 : var_cache.client.sendAction_error + 1;
             }
         });
+        */
     };
     var readResponse = function (data) {
         /**

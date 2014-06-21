@@ -329,7 +329,7 @@ var options = function() {
     var popup = function() {
         var isPopup = false;
         if (!window.chrome) {
-            return isPopup;
+            return true;
         }
         var windows = chrome.extension.getViews({type: 'popup'});
         for (var n = 0; n < windows.length; n++) {
