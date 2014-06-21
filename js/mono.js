@@ -28,44 +28,42 @@
             mono.sendMessage('monoStorageClear', cb, 'monoStorage');
         }
     };
-    var localStorage = function() {
-        return {
-            get: function (src, cb) {
-                var key, obj = {};
-                if (src === undefined || src === null) {
-                    for (key in localStorage) {
-                        if (!localStorage.hasOwnProperty(key)) {
-                            continue;
-                        }
-                        obj[key] = localStorage[key];
+    var localStorageMode = {
+        get: function (src, cb) {
+            var key, obj = {};
+            if (src === undefined || src === null) {
+                for (key in localStorage) {
+                    if (!localStorage.hasOwnProperty(key)) {
+                        continue;
                     }
-                    return cb(obj);
+                    obj[key] = localStorage[key];
                 }
-                if (typeof src === 'string') {
-                    src = [src];
-                }
-                if (isArray(src) === true) {
-                    for (var i = 0, len = src.length; i < len; i++) {
-                        key = src[i];
-                        obj[key] = localStorage[key];
-                    }
-                } else
-                    for (key in src) {
-                        obj[key] = localStorage[key];
-                    }
-                cb(obj);
-            },
-            set: function (obj, cb) {
-                var key;
-                for (key in obj) {
-                    localStorage[key] = obj[key];
-                }
-                cb && cb();
-            },
-            clear: function (cb) {
-                localStorage.clear();
-                cb && cb();
+                return cb(obj);
             }
+            if (typeof src === 'string') {
+                src = [src];
+            }
+            if (isArray(src) === true) {
+                for (var i = 0, len = src.length; i < len; i++) {
+                    key = src[i];
+                    obj[key] = localStorage[key];
+                }
+            } else
+                for (key in src) {
+                    obj[key] = localStorage[key];
+                }
+            cb(obj);
+        },
+        set: function (obj, cb) {
+            var key;
+            for (key in obj) {
+                localStorage[key] = obj[key];
+            }
+            cb && cb();
+        },
+        clear: function (cb) {
+            localStorage.clear();
+            cb && cb();
         }
     };
     var storage_fn = function(mode) {
@@ -75,16 +73,21 @@
             _set = externalStorage.set;
             _clear = externalStorage.clear;
         } else
-        if (isChrome && chrome.storage !== undefined) {
-            _get = chrome.storage[mode].get;
-            _set = chrome.storage[mode].set;
-            _clear = chrome.storage[mode].clear;
-        } else
         if (window.localStorage !== undefined) {
-            var ls = localStorage();
-            _get = ls.get;
-            _set = ls.set;
-            _clear = ls.clear;
+            _get = localStorageMode.get;
+            _set = localStorageMode.set;
+            _clear = localStorageMode.clear;
+        } else
+        if (isChrome && chrome.storage !== undefined) {
+            _get = function(obj, cb) {
+                chrome.storage[mode].get(obj, cb);
+            };
+            _set = function(obj, cb) {
+                chrome.storage[mode].set(obj, cb);
+            };
+            _clear = function(cb) {
+                chrome.storage[mode].clear(cb);
+            }
         } else {
             _get = externalStorage.get;
             _set = externalStorage.set;

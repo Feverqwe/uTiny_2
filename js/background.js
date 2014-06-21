@@ -1,3 +1,90 @@
+(function() {
+    /**
+     * @namespace Promise
+     * @namespace Promise.all
+     */
+    mono.pageId = 'bg';
+    var actionReader = function(message, cb) {
+        if (message === 'getLanguage') {
+            return cb(lang_arr);
+        }
+        if (message === 'getSettings') {
+            return cb(engine.settings);
+        }
+        if (message === 'getColums') {
+            return engine.getColums(cb);
+        }
+        if (message === 'getFlColums') {
+            return engine.getFlColums(cb);
+        }
+        if (message === 'cache') {
+            return cb(engine.cache);
+        }
+        if (message === 'def_settings') {
+            return cb(engine.def_settings);
+        }
+        if (message === 'getTraffic') {
+            return cb(engine.traffic);
+        }
+        if (message.action === 'sendAction') {
+            if (cb) {
+                engine.sendAction(message.data, function() {
+                    cb();
+                });
+            } else {
+                engine.sendAction(message.data);
+            }
+            return;
+        }
+        if (message.action === 'setTrColums') {
+            return engine.setTrColums(message.data);
+        }
+        if (message.action === 'setFlColums') {
+            return engine.setFlColums(message.data);
+        }
+        if (message.action === 'sendFile') {
+            return engine.sendFile(message.url, message.folder, message.label);
+        }
+        if (message.action === 'updateSettings') {
+            return engine.updateSettings(message.data, cb);
+        }
+        if (message === 'getToken') {
+            return engine.getToken(function(){
+                cb(1);
+            }, function(){
+                cb(0);
+            });
+        }
+        if (message === 'getDefColums') {
+            return cb(engine.getDefColums());
+        }
+        if (message === 'getDefFlColums') {
+            return cb(engine.getDefFlColums());
+        }
+        mono('>', message);
+    };
+    mono.onMessage(function(message, response) {
+        if (Array.isArray(message)) {
+            var c_wait = message.length;
+            var c_ready = 0;
+            var resultList = {};
+            var ready = function(key, data) {
+                c_ready+= 1;
+                resultList[key] = data;
+                if (c_wait === c_ready) {
+                    response(resultList);
+                }
+            };
+            message.forEach(function(action) {
+                actionReader(action, function (data) {
+                    ready(action, data);
+                });
+            });
+            return;
+        }
+        actionReader(message, response);
+    });
+})();
 var engine = function () {
     var complete_icon = 'images/notification_done.png';
     var add_icon = 'images/notification_add.png';
@@ -31,26 +118,33 @@ var engine = function () {
         fix_cirilic: {v: 0, t: "checkbox"}
     };
     var settings = {};
-    var loadSettings = function () {
-        $.each(def_settings, function (key, item) {
-            var value = localStorage[key];
-            if (value === undefined) {
-                settings[key] = item.v;
-                return 1;
-            }
-            if (item.t === 'checkbox' || item.t === 'number') {
-                if (item.min !== undefined && value < item.min) {
-                    settings[key] = item.min;
+    var loadSettings = function (cb) {
+        var keys = [];
+        for (var key in def_settings) {
+            keys.push(key);
+        }
+        mono.storage.get(keys, function(options) {
+            $.each(def_settings, function (key, item) {
+                var value = options[key];
+                if (value === undefined) {
+                    settings[key] = item.v;
                     return 1;
                 }
-                settings[key] = parseInt(value);
-            } else if (item.t === 'text' || item.t === 'password') {
-                settings[key] = value;
-            } else if (item.t === 'array') {
-                settings[key] = JSON.parse(value);
-            }
+                if (item.t === 'checkbox' || item.t === 'number') {
+                    if (item.min !== undefined && value < item.min) {
+                        settings[key] = item.min;
+                        return 1;
+                    }
+                    settings[key] = parseInt(value);
+                } else if (item.t === 'text' || item.t === 'password') {
+                    settings[key] = value;
+                } else if (item.t === 'array') {
+                    settings[key] = JSON.parse(value);
+                }
+            });
+            var_cache.webui_url = ((settings.ssl) ? 'https' : 'http') + "://" + settings.ut_ip + ':' + settings.ut_port + '/' + settings.ut_path;
+            cb && cb();
         });
-        var_cache.webui_url = ((settings.ssl) ? 'https' : 'http') + "://" + settings.ut_ip + ':' + settings.ut_port + '/' + settings.ut_path;
     };
     var table_colums = {
         name: {a: 1, size: 200, pos: 1, lang: 13, order: 1},
@@ -108,43 +202,69 @@ var engine = function () {
         };
     }();
     var showNotifi = function (icon, title, text, one) {
-        if (chrome.notifications === undefined) {
+        if (window.Notification !== undefined) {
+            var note_id = 'showNotifi';
+            if (one !== undefined) {
+                note_id += '_' + one;
+            } else {
+                note_id += Date.now();
+            }
+            var timer = note_id + '_timer';
+            if (one !== undefined && var_cache[note_id] !== undefined) {
+                clearTimeout(var_cache[timer]);
+                var_cache[note_id].close();
+                delete var_cache[note_id];
+            }
+            if (title === 0) {
+                title = text;
+                text = undefined;
+            }
+            var_cache[note_id] = new Notification(title, { icon: icon, body: text });
+            if (settings.notify_visbl_interval > 0) {
+                var_cache[timer] = setTimeout(function () {
+                    var_cache[note_id].close();
+                    delete var_cache[note_id];
+                }, settings.notify_visbl_interval);
+            }
             return;
         }
-        var note_id = 'showNotifi';
-        if (one !== undefined) {
-            note_id += '_' + one;
-        } else {
-            note_id += Date.now();
-        }
-        var timer = note_id + '_timer';
-        if (one !== undefined && var_cache[note_id] !== undefined) {
-            var_cache[note_id] = undefined;
-            clearTimeout(var_cache[timer]);
-            chrome.notifications.clear(note_id, function() {});
-        }
-        /**
-         * @namespace chrome.notifications
-         */
-        if (title === 0) {
-            title = text;
-            text = undefined;
-        }
-        chrome.notifications.create(
-            note_id,
-            { type: 'basic',
-                iconUrl: icon,
-                title: title,
-                message: text },
-            function(id) {
-                var_cache[note_id] = id;
+        if (window.chrome !== undefined && chrome.notifications !== undefined) {
+            var note_id = 'showNotifi';
+            if (one !== undefined) {
+                note_id += '_' + one;
+            } else {
+                note_id += Date.now();
             }
-        );
-        if (settings.notify_visbl_interval > 0) {
-            var_cache[timer] = setTimeout(function () {
+            var timer = note_id + '_timer';
+            if (one !== undefined && var_cache[note_id] !== undefined) {
                 var_cache[note_id] = undefined;
+                clearTimeout(var_cache[timer]);
                 chrome.notifications.clear(note_id, function() {});
-            }, settings.notify_visbl_interval);
+            }
+            /**
+             * @namespace chrome.notifications
+             */
+            if (title === 0) {
+                title = text;
+                text = undefined;
+            }
+            chrome.notifications.create(
+                note_id,
+                { type: 'basic',
+                    iconUrl: icon,
+                    title: title,
+                    message: text },
+                function(id) {
+                    var_cache[note_id] = id;
+                }
+            );
+            if (settings.notify_visbl_interval > 0) {
+                var_cache[timer] = setTimeout(function () {
+                    var_cache[note_id] = undefined;
+                    chrome.notifications.clear(note_id, function() {});
+                }, settings.notify_visbl_interval);
+            }
+            return;
         }
     };
     var setStatus = function (type, data) {
@@ -165,9 +285,7 @@ var engine = function () {
                 }
                 var_cache.client.status = data[0] + ', ' + data[1];
             }
-            _send(function (window) {
-                window.manager.setStatus(var_cache.client.status);
-            });
+            mono.sendMessage({action: 'setStatus', data: var_cache.client.status}, undefined, 'mgr');
         } else {
             //for debug
             //console.log(type, data);
@@ -321,18 +439,14 @@ var engine = function () {
                     }
                 }
             }
-            _send(function (window) {
-                window.manager.deleteItem(data.torrentm);
-            });
+            mono.sendMessage({action: 'deleteItem', data: data.torrentm}, undefined, 'mgr');
         }
         if (data.torrents !== undefined) {
             //Full torrent list
             var old_arr = (var_cache.client.torrents || []).slice(0);
             var_cache.client.torrents = data.torrents;
             trafficCounter(data.torrents);
-            _send(function (window) {
-                window.manager.updateList(data.torrents, 1);
-            });
+            mono.sendMessage({action: 'updateList', data1: data.torrents, data2: 1}, undefined, 'mgr');
             showOnCompleteNotification(old_arr, data.torrents);
             showActiveCount(data.torrents);
         } else if (data.torrentp !== undefined) {
@@ -357,9 +471,7 @@ var engine = function () {
             }
             var_cache.client.torrents = list;
             trafficCounter(data.torrentp);
-            _send(function (window) {
-                window.manager.updateList(list, 1);
-            });
+            mono.sendMessage({action: 'updateList', data1: list, data2: 1}, undefined, 'mgr');
             showOnCompleteNotification(old_arr, data.torrentp);
             showActiveCount(list);
             if (var_cache.newFileListener !== undefined) {
@@ -367,17 +479,13 @@ var engine = function () {
             }
         }
         if (data['download-dirs'] !== undefined) {
-            _sendOptions(function (window) {
-                window.options.setDirList(data['download-dirs']);
-            });
+            mono.sendMessage({action: 'setDirList', data: data['download-dirs']}, undefined, 'opt');
         }
         if (data.label !== undefined) {
             var labels = var_cache.client.labels || [];
             if (data.label.length !== labels.length) {
                 var_cache.client.labels = data.label;
-                _send(function (window) {
-                    window.manager.setLabels(data.label);
-                });
+                mono.sendMessage({action: 'setLabels', data: data.label}, undefined, 'mgr');
             } else {
                 for (var i = 0, item_d; item_d = data.label[i]; i++) {
                     var found = false;
@@ -389,9 +497,7 @@ var engine = function () {
                     }
                     if (!found) {
                         var_cache.client.labels = data.label;
-                        _send(function (window) {
-                            window.manager.setLabels(data.label);
-                        });
+                        mono.sendMessage({action: 'setLabels', data: data.label}, undefined, 'mgr');
                         break;
                     }
                 }
@@ -399,29 +505,11 @@ var engine = function () {
         }
         if (data.settings !== undefined) {
             var_cache.client.settings = data.settings;
-            _send(function (window) {
-                window.manager.setSpeedLimit(var_cache.client.settings);
-            });
+            mono.sendMessage({action: 'setSpeedLimit', data: var_cache.client.settings}, undefined, 'mgr');
         }
         if (data.files !== undefined) {
-            _send(function (window) {
-                window.manager.setFileList(data.files);
-            });
+            mono.sendMessage({action: 'setFileList', data: data.files}, undefined, 'mgr');
         }
-    };
-    var _send = function (cb) {
-        if (var_cache.popup === undefined || var_cache.popup.window === null || var_cache.popup.manager === undefined) {
-            delete var_cache.popup;
-            return;
-        }
-        cb(var_cache.popup);
-    };
-    var _sendOptions = function (cb) {
-        if (var_cache.options === undefined || var_cache.options.window === null || var_cache.options.options === undefined) {
-            delete var_cache.options;
-            return;
-        }
-        cb(var_cache.options);
     };
     var showOnCompleteNotification = function (old_array, new_array) {
         if (!settings.notify_on_dl_comp || old_array.length === 0) {
@@ -467,6 +555,9 @@ var engine = function () {
         }
     };
     var showActiveCount = function (arr) {
+        if (!window.chrome) {
+            return;
+        }
         if (!settings.show_active_tr_on_icon) {
             return;
         }
@@ -503,10 +594,8 @@ var engine = function () {
             }
             if (settings.change_downloads) {
                 var ch_label = {label: 'download', custom: 1};
-                _send(function (window) {
-                    window.manager.setLabel(ch_label);
-                });
-                localStorage.selected_label = JSON.stringify(ch_label);
+                mono.sendMessage({action: 'setLabel', data: ch_label}, undefined, 'mgr');
+                mono.storage.set({selected_label: JSON.stringify(ch_label)});
             }
             showNotifi(add_icon, item[2], lang_arr[102], 'addFile');
             var_cache.newFileListener = undefined;
@@ -554,6 +643,9 @@ var engine = function () {
                 });
             } else {
                 downloadFile(url, function (file) {
+                    if (url.substr(0,5) === 'blob:') {
+                        URL.revokeObjectURL(url);
+                    }
                     sendFile(file, dir, label);
                 });
             }
@@ -591,6 +683,9 @@ var engine = function () {
         sendFile(link, dir, label);
     };
     var createCtxMenu = function () {
+        if (!window.chrome) {
+            return;
+        }
         /**
          * @namespace chrome.contextMenus.removeAll
          * @namespace chrome.contextMenus.create
@@ -679,65 +774,69 @@ var engine = function () {
         cache: var_cache.client,
         traffic: var_cache.traffic,
         getToken: getToken,
-        getColums: function () {
-            return (localStorage.colums !== undefined) ? JSON.parse(localStorage.colums) : clone_obj(table_colums);
+        getColums: function (cb) {
+            mono.storage.get('colums', function(storage) {
+                var value = storage.colums;
+                if (value === undefined) {
+                    return cb(clone_obj(table_colums));
+                }
+                cb( JSON.parse(value) );
+            });
         },
         getDefColums: function () {
             return clone_obj(table_colums);
         },
-        getFlColums: function () {
-            return (localStorage.fl_colums !== undefined) ? JSON.parse(localStorage.fl_colums) : clone_obj(filelist_colums);
+        getFlColums: function (cb) {
+            mono.storage.get('fl_colums', function(storage) {
+                var value = storage.fl_colums;
+                if (value === undefined) {
+                    return cb(clone_obj(filelist_colums));
+                }
+                cb( JSON.parse(value) );
+            });
         },
         getDefFlColums: function () {
             return clone_obj(filelist_colums);
         },
         setFlColums: function (a) {
-            localStorage.fl_colums = JSON.stringify(a);
+            mono.storage.set({ fl_colums: JSON.stringify(a) });
         },
         setTrColums: function (a) {
-            localStorage.colums = JSON.stringify(a);
+            mono.storage.set({ colums: JSON.stringify(a) });
         },
-        setColums: function (a) {
-            //setTrColums
-            localStorage.colums = JSON.stringify(a);
-        },
-        setWindow: function (window) {
-            var_cache.popup = window;
-        },
-        setOptionsWindow: function (window) {
-            var_cache.options = window;
-        },
-        getDefSettings: function () {
-            return clone_obj(def_settings);
-        },
-        updateSettings: function (lang) {
+        updateSettings: function (lang, cb) {
             if (lang) {
                 window.lang_arr = lang;
             }
-            loadSettings();
-            engine.bgTimer.stop();
-            engine.bgTimer.start();
-            var_cache.get_token_count = 0;
-            engine.cache = var_cache.client = {};
-            var_cache.traffic[0].values = [];
-            var_cache.traffic[1].values = [];
-            createCtxMenu();
+            loadSettings(function() {
+                engine.bgTimer.stop();
+                engine.bgTimer.start();
+                var_cache.get_token_count = 0;
+                engine.cache = var_cache.client = {};
+                var_cache.traffic[0].values = [];
+                var_cache.traffic[1].values = [];
+                createCtxMenu();
+                cb && cb();
+            });
         },
         sendFile: sendFile,
         createCtxMenu: createCtxMenu
     };
 }();
 (function () {
-    engine.loadSettings();
-    engine.createCtxMenu();
-    engine.bgTimer.start();
-    /**
-     * @namespace chrome.browserAction.setBadgeBackgroundColor
-     */
-    chrome.browserAction.setBadgeBackgroundColor({
-        color: [0, 0, 0, 40]
+    engine.loadSettings(function() {
+        engine.createCtxMenu();
+        engine.bgTimer.start();
     });
-    chrome.browserAction.setBadgeText({
-        text: ''
-    });
+    if (window.chrome !== undefined) {
+        /**
+         * @namespace chrome.browserAction.setBadgeBackgroundColor
+         */
+        chrome.browserAction.setBadgeBackgroundColor({
+            color: [0, 0, 0, 40]
+        });
+        chrome.browserAction.setBadgeText({
+            text: ''
+        });
+    }
 })();

@@ -1,10 +1,53 @@
 (function () {
-    window._engine = chrome.extension.getBackgroundPage().engine;
-    window._lang_arr = chrome.extension.getBackgroundPage().lang_arr;
-    window._settings = _engine.settings;
-    if (_settings.login === undefined || _settings.password === undefined) {
-        window.location = "options.html";
-    }
+    mono.pageId = 'mgr';
+    var actionReader = function(message, cb) {
+        if (message.action === 'setStatus') {
+            return manager.setStatus(message.data);
+        }
+        if (message.action === 'deleteItem') {
+            return manager.deleteItem(message.data);
+        }
+        if (message.action === 'updateList') {
+            return manager.updateList(message.data1, message.data2);
+        }
+        if (message.action === 'setLabels') {
+            return manager.setLabels(message.data);
+        }
+        if (message.action === 'setSpeedLimit') {
+            return manager.setSpeedLimit(message.data);
+        }
+        if (message.action === 'setFileList') {
+            return manager.setFileList(message.data);
+        }
+        if (message.action === 'setLabel') {
+            return manager.setLabel(message.data);
+        }
+        mono('>', message);
+    };
+    mono.onMessage(function(message, response) {
+        if (Array.isArray(message)) {
+            var c_wait = message.length;
+            var c_ready = 0;
+            var resultList = {};
+            var ready = function(key, data) {
+                c_ready+= 1;
+                resultList[key] = data;
+                if (c_wait === c_ready) {
+                    response(resultList);
+                }
+            };
+            message.forEach(function(action) {
+                actionReader(action, function (data) {
+                    ready(action, data);
+                });
+            });
+            return;
+        }
+        actionReader(message, response);
+    });
+    $(function () {
+        manager.boot();
+    });
 })();
 var manager = function () {
     var var_cache = {
@@ -54,7 +97,9 @@ var manager = function () {
         //триггер на случай если меню файл-листа скрыто
         fl_bottom_hide: false,
         //
-        drag_timeout: undefined
+        drag_timeout: undefined,
+        // vars for boot mgr
+        onBootVars: {}
     };
     var dom_cache = {};
     var options = {
@@ -149,6 +194,15 @@ var manager = function () {
         dom_cache.fl_fixed_head.html(head);
         dom_cache.fl_head.html(head.clone());
     };
+    var sendAction = function (data, onload) {
+        if (onload) {
+            console.log('Need onload!')
+        }
+        mono.sendMessage({action: 'sendAction', data: data}, undefined, 'bg');
+    };
+    var sendFile = function(url, folder, label) {
+        mono.sendMessage({action: 'sendFile', url: url, folder: folder, label: label}, undefined, 'bg');
+    }
     var writeLanguage = function () {
         var webUi_url = ((_settings.ssl) ? 'https' : 'http') + "://" + _settings.login + ":" + _settings.password + "@" +
             _settings.ut_ip + ":" + _settings.ut_port + "/" + _settings.ut_path;
@@ -215,7 +269,7 @@ var manager = function () {
         var label = data.label;
         var custom = data.custom;
         var_cache.current_filter = {label: label, custom: custom};
-        localStorage.selected_label = JSON.stringify(var_cache.current_filter);
+        mono.storage.set({selected_label: JSON.stringify(var_cache.current_filter)});
         if (custom === 0) {
             dom_cache.body.children('style.tr_filter').remove();
             $('<style>', {'class': 'tr_filter', text: '.torrent-table-body tbody > tr{display: none;}.torrent-table-body tbody > tr[data-label="' + label + '"]{display: table-row;}'})
@@ -974,7 +1028,7 @@ var manager = function () {
     }();
     var getTorrentList = function () {
         mgTimer.stop();
-        _engine.sendAction($.extend({list: 1}, var_cache.fl_param));
+        sendAction($.extend({list: 1}, var_cache.fl_param));
     };
     var fl_close = function () {
         dom_cache.fl.hide();
@@ -1000,7 +1054,7 @@ var manager = function () {
     var fl_show = function (id) {
         var_cache.fl_id = id;
         var_cache.fl_param = {action: 'getfiles', hash: id};
-        _engine.sendAction(var_cache.fl_param);
+        sendAction(var_cache.fl_param);
         var_cache.tr_list_dom[id].addClass('selected');
         var_cache.fl_layer_dom = $('<div>', {'class': 'file-list-layer-temp'})
             .on('mousedown', function () {
@@ -1346,12 +1400,12 @@ var manager = function () {
         updateSpeedCtxMenu();
     };
     var setUpSpeed = function (value) {
-        _engine.sendAction({action: 'setsetting', s: 'max_ul_rate', v: value});
+        sendAction({action: 'setsetting', s: 'max_ul_rate', v: value});
         var_cache.speed_limit.upload = value;
         setUpSpeedDom(value);
     };
     var setDlSpeed = function (value) {
-        _engine.sendAction({action: 'setsetting', s: 'max_dl_rate', v: value});
+        sendAction({action: 'setsetting', s: 'max_dl_rate', v: value});
         var_cache.speed_limit.download = value;
         setDlSpeedDom(value);
     };
@@ -1375,14 +1429,18 @@ var manager = function () {
             fl_sort(colum, by);
             var_cache.fl_sort_colum = colum;
             var_cache.fl_sort_by = by;
-            localStorage.fl_sort_colum = colum;
-            localStorage.fl_sort_by = by;
+            mono.storage.set({
+                fl_sort_colum: colum,
+                fl_sort_by: by
+            });
         } else {
             tr_sort(colum, by);
             var_cache.tr_sort_colum = colum;
             var_cache.tr_sort_by = by;
-            localStorage.tr_sort_colum = colum;
-            localStorage.tr_sort_by = by;
+            mono.storage.set({
+                tr_sort_colum: colum,
+                tr_sort_by: by
+            });
         }
     };
     var fl_select_all_checkbox = function () {
@@ -1393,7 +1451,7 @@ var manager = function () {
     var trToggleColum = function (key) {
         mgTimer.stop();
         var_cache.tr_colums[key].a = (var_cache.tr_colums[key].a === 1) ? 0 : 1;
-        _engine.setTrColums(var_cache.tr_colums);
+        mono.sendMessage({action: 'setTrColums', data: var_cache.tr_colums}, undefined, 'bg');
         write_tr_head();
         dom_cache.tr_body.empty();
         write_tr_head();
@@ -1402,13 +1460,15 @@ var manager = function () {
         var_cache.tr_list_display = {};
         var_cache.tr_sort_pos = [];
         var_cache.tr_sortInsert = false;
-        tr_list(_engine.cache.torrents || []);
-        mgTimer.start();
+        mono.sendMessage('cache', function(response) {
+            tr_list(response.torrents || []);
+            mgTimer.start();
+        }, 'bg');
     };
     var flToggleColum = function (key) {
         mgTimer.stop();
         var_cache.fl_colums[key].a = (var_cache.fl_colums[key].a === 1) ? 0 : 1;
-        _engine.setFlColums(var_cache.fl_colums);
+        mono.sendMessage({action: 'setFlColums', data: var_cache.fl_colums}, undefined, 'bg');
         var id = var_cache.fl_id;
         fl_close();
         write_fl_head();
@@ -1516,7 +1576,7 @@ var manager = function () {
                 };
                 items.del_label.$node.prependTo(trigger.items.labels.$node.children('ul'));
                 items.del_label.$node.on('click', function () {
-                    _engine.sendAction({list: 1, action: 'setprops', s: 'label', hash: trigger.items.labels.id, v: ''});
+                    sendAction({list: 1, action: 'setprops', s: 'label', hash: trigger.items.labels.id, v: ''});
                     $('#context-menu-layer').trigger('mousedown');
                 });
             }
@@ -1542,7 +1602,7 @@ var manager = function () {
                         if (label === undefined) {
                             return;
                         }
-                        _engine.sendAction({list: 1, action: 'setprops', s: 'label', hash: trigger.items.labels.id, v: label});
+                        sendAction({list: 1, action: 'setprops', s: 'label', hash: trigger.items.labels.id, v: label});
                     });
                     $('#context-menu-layer').trigger('mousedown');
                 });
@@ -1561,7 +1621,7 @@ var manager = function () {
                 };
                 items['_' + label].$node.appendTo(trigger.items.labels.$node.children('ul'));
                 items['_' + label].$node.on('click', function () {
-                    _engine.sendAction({list: 1, action: 'setprops', s: 'label', hash: trigger.items.labels.id, v: $(this).data('key')});
+                    sendAction({list: 1, action: 'setprops', s: 'label', hash: trigger.items.labels.id, v: $(this).data('key')});
                     $('#context-menu-layer').trigger('mousedown');
                 });
             }
@@ -1629,14 +1689,35 @@ var manager = function () {
                     }
                 }
                 for (var i = 0, len = files.length; i < len; i++) {
-                    _engine.sendFile(files[i], folder, label);
+                    sendFile(URL.createObjectURL(files[i]), folder, label);
                 }
             }
         );
-    }
+    };
     return {
+        boot: function() {
+            mono.storage.get([
+                'login', 'password',
+                'tr_sort_colum', 'tr_sort_by',
+                'fl_sort_colum', 'fl_sort_by',
+                'selected_label'], function(options) {
+                if (options.login === undefined || options.password === undefined) {
+                    return window.location = "options.html";
+                }
+                var_cache.onBootOptions = options;
+                mono.sendMessage(['getLanguage', 'getSettings',
+                    'getColums', 'getFlColums',
+                    'cache'], function(response) {
+                    var_cache.onBootVars.cache = response.cache;
+                    window._lang_arr = response.getLanguage;
+                    window._settings = response.getSettings;
+                    var_cache.tr_colums = response.getColums;
+                    var_cache.fl_colums = response.getFlColums;
+                    manager.start();
+                }, 'bg');
+            });
+        },
         start: function () {
-            _engine.setWindow(window);
             dom_cache = {
                 body: $('body'),
                 menu: $('ul.menu'),
@@ -1669,13 +1750,15 @@ var manager = function () {
                 dom_cache.body.append($('<style>', {text: 'div.fl-layer td div {white-space: normal;word-wrap: break-word;}'}));
             }
 
-            manager.isMe = 1;
-            $.each(chrome.extension.getViews({type: 'popup'}), function (n, window) {
-                if (window.manager !== undefined && window.manager.isMe === 1) {
-                    delete  window.manager.isMe;
-                }
-            });
-            options.window_mode = (manager.isMe === 1);
+            if (window.chrome !== undefined) {
+                manager.isMe = 1;
+                $.each(chrome.extension.getViews({type: 'popup'}), function (n, window) {
+                    if (window.manager !== undefined && window.manager.isMe === 1) {
+                        delete  window.manager.isMe;
+                    }
+                });
+                options.window_mode = (manager.isMe === 1);
+            }
 
             if (options.window_mode === false) {
                 dom_cache.body.append($('<style>', {text: '.torrent-list-layer{max-height: ' + (_settings.window_height - 54) + 'px; min-height: ' + (_settings.window_height - 54) + 'px}'}));
@@ -1687,21 +1770,19 @@ var manager = function () {
                 dom_cache.body.append($('<style>', {text: '.torrent-list-layer{max-height: calc(100% - 54px);min-height: calc(100% - 54px);}'}));
             }
 
-            if (localStorage.tr_sort_colum !== undefined) {
-                var_cache.tr_sort_colum = localStorage.tr_sort_colum;
+            if (var_cache.onBootOptions.tr_sort_colum !== undefined) {
+                var_cache.tr_sort_colum = var_cache.onBootOptions.tr_sort_colum;
             }
-            if (localStorage.tr_sort_by !== undefined) {
-                var_cache.tr_sort_by = parseInt(localStorage.tr_sort_by);
+            if (var_cache.onBootOptions.tr_sort_by !== undefined) {
+                var_cache.tr_sort_by = parseInt(var_cache.onBootOptions.tr_sort_by);
             }
-            if (localStorage.fl_sort_colum !== undefined) {
-                var_cache.fl_sort_colum = localStorage.fl_sort_colum;
+            if (var_cache.onBootOptions.fl_sort_colum !== undefined) {
+                var_cache.fl_sort_colum = var_cache.onBootOptions.fl_sort_colum;
             }
-            if (localStorage.fl_sort_by !== undefined) {
-                var_cache.fl_sort_by = parseInt(localStorage.fl_sort_by);
+            if (var_cache.onBootOptions.fl_sort_by !== undefined) {
+                var_cache.fl_sort_by = parseInt(var_cache.onBootOptions.fl_sort_by);
             }
 
-            var_cache.tr_colums = _engine.getColums();
-            var_cache.fl_colums = _engine.getFlColums();
             write_tr_head();
             write_fl_head();
             if (options.window_mode === true) {
@@ -1728,8 +1809,8 @@ var manager = function () {
                 dom_cache.tr_table_fixed.css('left', -this.scrollLeft);
             });
 
-            setLabels(_engine.cache.labels || []);
-            var selected_label = localStorage.selected_label;
+            setLabels(var_cache.onBootVars.cache.labels || []);
+            var selected_label = var_cache.onBootOptions.selected_label;
             if (selected_label !== undefined) {
                 var selected_label = JSON.parse(selected_label);
                 if (selected_label.label !== undefined && selected_label.custom !== undefined) {
@@ -1738,9 +1819,9 @@ var manager = function () {
                 }
             }
 
-            setStatus(_engine.cache.status);
-            tr_list(_engine.cache.torrents || []);
-            _engine.sendAction({list: 1});
+            setStatus(var_cache.onBootVars.cache.status);
+            tr_list(var_cache.onBootVars.cache.torrents || []);
+            sendAction({list: 1});
 
             dom_cache.tr_body.on('dblclick', 'tr', function () {
                 var id = $(this).attr('id');
@@ -1753,8 +1834,8 @@ var manager = function () {
                 fl_select_all_checkbox();
             });
 
-            setSpeedLimit(_engine.cache.settings || []);
-            _engine.sendAction({action: 'getsettings'});
+            setSpeedLimit(var_cache.onBootVars.cache.settings || []);
+            sendAction({action: 'getsettings'});
 
             dom_cache.fl_fixed_head.on('click', 'th', function (e) {
                 if (e.target.nodeName === 'INPUT' || $(e.target).find('input').length !== 0) {
@@ -1827,7 +1908,7 @@ var manager = function () {
                                 folder = undefined;
                             }
                         }
-                        _engine.sendFile(url, folder, label);
+                        sendFile(url, folder, label);
                     }
                 );
             });
@@ -1872,13 +1953,11 @@ var manager = function () {
                     hash_list.push(key);
                 });
                 if (hash_list.length > 0) {
-                    _engine.sendAction($.param({list: 1, action: 'pause', hash: hash_list}, true));
+                    sendAction($.param({list: 1, action: 'pause', hash: hash_list}, true));
                 }
             });
             dom_cache.menu.on('click', 'a.refresh', function (e) {
                 e.preventDefault();
-                window._engine = chrome.extension.getBackgroundPage().engine;
-                _engine.setWindow(window);
                 mgTimer.start();
                 getTorrentList();
             });
@@ -1895,11 +1974,11 @@ var manager = function () {
                     hash_list.push(key);
                 });
                 if (hash_list.length > 0) {
-                    _engine.sendAction($.param({list: 1, action: 'unpause', hash: hash_list}, true));
+                    sendAction($.param({list: 1, action: 'unpause', hash: hash_list}, true));
                 }
             });
             dom_cache.fl_bottom.on('click', 'a.update', function () {
-                _engine.sendAction({action: 'getfiles', hash: var_cache.fl_id});
+                sendAction({action: 'getfiles', hash: var_cache.fl_id});
             });
             dom_cache.fl_bottom.on('click', 'a.close', function () {
                 fl_close();
@@ -1908,17 +1987,17 @@ var manager = function () {
             dom_cache.tr_body.on('click', 'a.start', function (e) {
                 e.preventDefault();
                 var hash = $(this).parents().eq(2).attr('id');
-                _engine.sendAction({list: 1, action: 'start', hash: hash});
+                sendAction({list: 1, action: 'start', hash: hash});
             });
             dom_cache.tr_body.on('click', 'a.pause', function (e) {
                 e.preventDefault();
                 var hash = $(this).parents().eq(2).attr('id');
-                _engine.sendAction({list: 1, action: 'pause', hash: hash});
+                sendAction({list: 1, action: 'pause', hash: hash});
             });
             dom_cache.tr_body.on('click', 'a.stop', function (e) {
                 e.preventDefault();
                 var hash = $(this).parents().eq(2).attr('id');
-                _engine.sendAction({list: 1, action: 'stop', hash: hash});
+                sendAction({list: 1, action: 'stop', hash: hash});
             });
             dom_cache.fl.on('keydown', function (e) {
                 if ( e.keyCode === 27 ) {
@@ -1977,38 +2056,38 @@ var manager = function () {
                     start: {
                         name: _lang_arr[0],
                         callback: function (key, trigger) {
-                            _engine.sendAction({list: 1, action: 'start', hash: trigger.items[key].id });
+                            sendAction({list: 1, action: 'start', hash: trigger.items[key].id });
                         }
                     },
                     force_start: {
                         name: _lang_arr[3],
                         callback: function (key, trigger) {
-                            _engine.sendAction({list: 1, action: 'forcestart', hash: trigger.items[key].id });
+                            sendAction({list: 1, action: 'forcestart', hash: trigger.items[key].id });
                         }
                     },
                     pause: {
                         name: _lang_arr[1],
                         callback: function (key, trigger) {
-                            _engine.sendAction({list: 1, action: 'pause', hash: trigger.items[key].id });
+                            sendAction({list: 1, action: 'pause', hash: trigger.items[key].id });
                         }
                     },
                     unpause: {
                         name: _lang_arr[4],
                         callback: function (key, trigger) {
-                            _engine.sendAction({list: 1, action: 'unpause', hash: trigger.items[key].id });
+                            sendAction({list: 1, action: 'unpause', hash: trigger.items[key].id });
                         }
                     },
                     stop: {
                         name: _lang_arr[2],
                         callback: function (key, trigger) {
-                            _engine.sendAction({list: 1, action: 'stop', hash: trigger.items[key].id });
+                            sendAction({list: 1, action: 'stop', hash: trigger.items[key].id });
                         }
                     },
                     s1: '-',
                     recheck: {
                         name: _lang_arr[5],
                         callback: function (key, trigger) {
-                            _engine.sendAction({list: 1, action: 'recheck', hash: trigger.items[key].id });
+                            sendAction({list: 1, action: 'recheck', hash: trigger.items[key].id });
                         }
                     },
                     remove: {
@@ -2020,7 +2099,7 @@ var manager = function () {
                                 if (cb === undefined) {
                                     return;
                                 }
-                                _engine.sendAction({list: 1, action: 'remove', hash: trigger.items[key].id});
+                                sendAction({list: 1, action: 'remove', hash: trigger.items[key].id});
                             });
                         }
                     },
@@ -2035,13 +2114,13 @@ var manager = function () {
                                     if (var_cache.tr_list[params.hash][21] === undefined) {
                                         params.action = 'remove';
                                     }
-                                    _engine.sendAction(params);
+                                    sendAction(params);
                                 }
                             },
                             remove_files: {
                                 name: _lang_arr[9],
                                 callback: function (key, trigger) {
-                                    _engine.sendAction({list: 1, action: 'removedata', hash: trigger.items.remove.id });
+                                    sendAction({list: 1, action: 'removedata', hash: trigger.items.remove.id });
                                 }
                             },
                             remove_torrent_files: {
@@ -2052,7 +2131,7 @@ var manager = function () {
                                     if (var_cache.tr_list[params.hash][21] === undefined) {
                                         params.action = 'removedata';
                                     }
-                                    _engine.sendAction(params);
+                                    sendAction(params);
                                 }
                             }
                         }
@@ -2120,7 +2199,7 @@ var manager = function () {
                         name: _lang_arr[87][3],
                         priority: 3,
                         callback: function (key, trigger) {
-                            _engine.sendAction($.param({action: 'setprio', p: 3}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
+                            sendAction($.param({action: 'setprio', p: 3}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
                             fl_unckeckCkecked();
                         }
                     },
@@ -2129,7 +2208,7 @@ var manager = function () {
                         name: _lang_arr[87][2],
                         priority: 2,
                         callback: function (key, trigger) {
-                            _engine.sendAction($.param({action: 'setprio', p: 2}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
+                            sendAction($.param({action: 'setprio', p: 2}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
                             fl_unckeckCkecked();
                         }
                     },
@@ -2138,7 +2217,7 @@ var manager = function () {
                         priority: 1,
                         name: _lang_arr[87][1],
                         callback: function (key, trigger) {
-                            _engine.sendAction($.param({action: 'setprio', p: 1}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
+                            sendAction($.param({action: 'setprio', p: 1}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
                             fl_unckeckCkecked();
                         }
                     },
@@ -2148,7 +2227,7 @@ var manager = function () {
                         priority: 0,
                         name: _lang_arr[87][0],
                         callback: function (key, trigger) {
-                            _engine.sendAction($.param({action: 'setprio', p: 0}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
+                            sendAction($.param({action: 'setprio', p: 0}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
                             fl_unckeckCkecked();
                         }
                     },
@@ -2166,9 +2245,11 @@ var manager = function () {
                                 if (sid === undefined) {
                                     continue;
                                 }
-                                chrome.tabs.create({
-                                    url: webUi_url + 'proxy?sid=' + sid + '&file=' + item + '&disposition=ATTACHMENT&service=DOWNLOAD&qos=0'
-                                });
+                                if (window.chrome !== undefined) {
+                                    chrome.tabs.create({
+                                        url: webUi_url + 'proxy?sid=' + sid + '&file=' + item + '&disposition=ATTACHMENT&service=DOWNLOAD&qos=0'
+                                    });
+                                }
                             }
                             fl_unckeckCkecked();
                         }
@@ -2316,6 +2397,3 @@ var manager = function () {
         setStatus: setStatus
     };
 }();
-$(function () {
-    manager.start();
-});
