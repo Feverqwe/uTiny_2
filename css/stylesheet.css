@@ -226,7 +226,7 @@ table td.progress div.val {
     position: absolute;
     text-align: center;
     z-index: 1;
-    line-height: 15px;
+    line-height: 14px;
     width: 100%;
 }
 div.torrent-list-layer table td.controls div.btns {
