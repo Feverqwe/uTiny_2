@@ -10,7 +10,7 @@ if (isFF) {
     timers = require("sdk/timers");
     window.get_lang = langModule.get_lang;
     window.Notifications = require("sdk/notifications");
-    // const {XMLHttpRequest} = require('sdk/net/xhr');
+    const {XMLHttpRequest} = require('sdk/net/xhr');
 } else {
     timers = window;
 }

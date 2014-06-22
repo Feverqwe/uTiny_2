@@ -21,11 +21,6 @@ var button = ToggleButton({
     }
 });
 
-var bg = panels.Panel({
-    contentScriptFile: [self.data.url("./js/mono.js"), self.data.url("./js/jquery-2.1.0.min.js"),
-        self.data.url("./js/lang.js"), self.data.url("./js/background.js")]
-});
-
 var popup = panels.Panel({
     width: 800,
     height: 300,
@@ -35,4 +30,7 @@ var popup = panels.Panel({
     }
 });
 
-mono.inti([{id: 'bg', page: bg}, {id: ['mgr', 'opt'], page: popup}], ['mgr', 'opt', 'bg']);
+var bg = require("./background.js");
+bg.init(popup);
+
+mono.inti([{id: ['mgr', 'opt'], page: popup}], ['mgr', 'opt']);

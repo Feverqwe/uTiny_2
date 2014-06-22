@@ -81,8 +81,6 @@ var init = function(pageList, scope) {
     };
 
 
-    var request = require("sdk/request").Request;
-    // const {XMLHttpRequest} = require("sdk/net/xhr");
     var serviceMsgFrom = 'service';
     var serviceMsg = function(message) {
         var response;
@@ -102,18 +100,6 @@ var init = function(pageList, scope) {
             }
         }
 
-        if (msg.action === 'sendXHR') {
-            return request({
-                url: msg.url,
-                overrideMimeType: msg.overrideMimeType,
-                contentType: msg.contentType,
-                content: msg.content,
-                onComplete: function (xhr) {
-                    response({ responseText: xhr.responseText, text: xhr.text, json: xhr.json, status: xhr.status, statusText: xhr.statusText });
-                },
-                headers: msg.headers
-            })[msg.method]();
-        }
         if (msg.action === 'resize') {
             return routing[to].forEach(function(page) {
                 if (msg.width) {
