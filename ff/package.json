@@ -1,9 +1,9 @@
 {
-  "name": "bin",
-  "title": "bin",
+  "name": "utorrent_easy_client",
+  "title": "uTorrent easy client",
   "id": "jid1-xJrt4U23zkSdbA",
-  "description": "a basic add-on",
-  "author": "",
+  "description": "uTorrent webUi",
+  "author": "Anton V.",
   "license": "MPL 2.0",
   "version": "0.1",
   "permissions": {
