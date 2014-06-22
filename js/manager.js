@@ -1036,6 +1036,9 @@ var manager = function () {
                 getTorrentList();
             }
             clearInterval(timer);
+            if (window._settings === undefined) {
+                return;
+            }
             timer = setInterval(function () {
                 if (mgTimer.sleep === true) {
                     return mgTimer.stop();

@@ -484,7 +484,6 @@ var engine = function () {
                     onload(data);
                 }
                 readResponse(data);
-                return;
             };
             xhr.onerror = function () {
                 showNotifi(error_icon, xhr.status, xhr.statusText, 'addFile');
@@ -501,9 +500,8 @@ var engine = function () {
             return;
         }
 
-        var params = jQ.param(_data);
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', var_cache.webui_url + '?' + params, true);
+        xhr.open('GET', var_cache.webui_url + '?' + jQ.param(_data), true);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
         xhr.onload = function() {

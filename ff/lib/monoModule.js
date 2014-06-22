@@ -54,7 +54,7 @@ var init = function(addon) {
             },
             clear: function (cb) {
                 var key;
-                for (key in obj) {
+                for (key in ss.storage) {
                     delete ss.storage[key];
                 }
                 cb && cb();
