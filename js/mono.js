@@ -113,15 +113,16 @@
         var id = 0;
         var _send = function(message, cb) {
             if (cb !== undefined) {
+                if (cbCount > 10) {
+                    cbList = mono.debug.messagCbList = {};
+                    cbCount = 0;
+                }
                 id++;
                 cbCount++;
                 message.monoCallbackId = id;
                 cbList[id] = cb;
             }
             addon.port.emit(message.monoTo, message);
-            if (cbCount > 10) {
-                cbList = mono.debug.messagCbList = {};
-            }
         };
         var _on = function(cb) {
             var pageId = mono.pageId;
@@ -165,15 +166,16 @@
         var id = 0;
         var _send = function(message, cb) {
             if (cb !== undefined) {
+                if (cbCount > 10) {
+                    cbList = mono.debug.messagCbList = {};
+                    cbCount = 0;
+                }
                 id++;
                 cbCount++;
                 message.monoCallbackId = id;
                 cbList[id] = cb;
             }
             chrome.runtime.sendMessage(message);
-            if (cbCount > 10) {
-                cbList = mono.debug.messagCbList = {};
-            }
         };
         var _on = function(cb) {
             var pageId = mono.pageId;
