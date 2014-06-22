@@ -325,7 +325,6 @@ var engine = function () {
                 bgTimer.start();
                 return;
             }
-            console.log(xhr)
             setStatus('getToken', [xhr.status, xhr.statusText]);
             if (onerror !== undefined) {
                 onerror();
@@ -340,7 +339,6 @@ var engine = function () {
         $.ajax({
             url: var_cache.webui_url + "token.html",
             beforeSend: function (xhr) {
-                xhr.withCredentials = true;
                 xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
             },
             success: function (data) {
@@ -364,7 +362,36 @@ var engine = function () {
                 }
                 var_cache.client.getToken_error = (var_cache.client.getToken_error === undefined) ? 1 : var_cache.client.getToken_error + 1;
             }
-        });
+        });*/
+
+        /*
+        var request = new XMLHttpRequest();
+        request.open("GET", var_cache.webui_url + "token.html", true, settings.login, settings.password);
+        // request.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
+        request.withCredentials = true;
+        request.onload = function (xhr) {
+            if (xhr.status === 200) {
+                setStatus('getToken', [200]);
+                engine.cache = var_cache.client = {
+                    status: var_cache.client.status,
+                    token: $(xhr.responseText).text()
+                };
+                if (onload !== undefined) {
+                    onload();
+                }
+                bgTimer.start();
+                return;
+            }
+            setStatus('getToken', [xhr.status, xhr.statusText]);
+            if (onerror !== undefined) {
+                onerror();
+            }
+            if (var_cache.client.getToken_error > 10) {
+                bgTimer.stop();
+            }
+            var_cache.client.getToken_error = (var_cache.client.getToken_error === undefined) ? 1 : var_cache.client.getToken_error + 1;
+        };
+        request.send();
         */
     };
     var sendAction = function (data, onload) {
@@ -405,6 +432,7 @@ var engine = function () {
                     onload(data);
                 }
                 readResponse(data);
+                return;
             };
             xhr.onerror = function () {
                 showNotifi(error_icon, xhr.status, xhr.statusText, 'addFile');
@@ -457,6 +485,7 @@ var engine = function () {
             }
             var_cache.client.sendAction_error = (var_cache.client.sendAction_error === undefined) ? 1 : var_cache.client.sendAction_error + 1;
         }, 'service');
+
         /*
         $.ajax({
             dataType: 'text',

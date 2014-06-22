@@ -82,6 +82,7 @@ var init = function(pageList, scope) {
 
 
     var request = require("sdk/request").Request;
+    // const {XMLHttpRequest} = require("sdk/net/xhr");
     var serviceMsgFrom = 'service';
     var serviceMsg = function(message) {
         var response;
@@ -101,7 +102,6 @@ var init = function(pageList, scope) {
             }
         }
 
-
         if (msg.action === 'sendXHR') {
             return request({
                 url: msg.url,
@@ -115,7 +115,7 @@ var init = function(pageList, scope) {
             })[msg.method]();
         }
         if (msg.action === 'resize') {
-            routing[to].forEach(function(page) {
+            return routing[to].forEach(function(page) {
                 if (msg.width) {
                     page.width = msg.width;
                 }
