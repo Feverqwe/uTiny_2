@@ -44,6 +44,9 @@ var jQ = {
             if (!obj.hasOwnProperty(key)) {
                 continue;
             }
+            if (obj[key] === undefined) {
+                obj[key] = '';
+            }
             itemsList.push(encodeURIComponent(key)+'='+encodeURIComponent(obj[key]));
         }
         return itemsList.join('&');
@@ -500,7 +503,7 @@ var engine = function () {
 
         var params = jQ.param(_data);
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', var_cache.webui_url + '?' + params, true);
+        xhr.open('GET', var_cache.webui_url + '?' + params, true);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
         xhr.onload = function() {
