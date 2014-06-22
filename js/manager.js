@@ -188,7 +188,11 @@ var manager = function () {
             dom_cache.fl_bottom.show();
             var_cache.fl_bottom_hide = false;
         }
-        var fl_body_height = window.innerHeight - 34 - 19;
+        var winHeight = _settings.window_height;
+        if (options.window_mode) {
+            winHeight = window.innerHeight;
+        }
+        var fl_body_height = winHeight - 34 - 19;
         var fl_table_height = fl_body_height - 34;
         var_cache.fl_height = fl_table_height;
         var_cache.fl_left = ((var_cache.body_width - width) / 2);
@@ -1733,6 +1737,7 @@ var manager = function () {
                     var_cache.onBootVars.cache = response.cache;
                     window._lang_arr = response.lang_arr;
                     window._settings = response.settings;
+                    mono.sendMessage({action: 'resize', height: _settings.window_height}, undefined, 'service');
                     var_cache.tr_colums = response.getColums;
                     var_cache.fl_colums = response.getFlColums;
                     manager.start();
@@ -1764,6 +1769,13 @@ var manager = function () {
                 drop_layer: $('div.drop_layer')
             };
             writeLanguage();
+
+            if (isFF) {
+                dom_cache.up_speed.append( $('<div>', {class: 'btn setup', title: _lang_arr.setup}).on('click', function(e) {
+                    e.preventDefault();
+                    window.location = "options.html";
+                }) );
+            }
 
             if (options.tr_word_wrap) {
                 dom_cache.body.append($('<style>', {text: 'div.torrent-list-layer td div {white-space: normal;word-wrap: break-word;}'}));

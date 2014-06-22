@@ -73,6 +73,7 @@ var get_lang = function(lang) {
         120: 'Add link',
         121: 'Enter URL',
         122: ['Can\'t download file', 'File is too large'],
+        setup: "Settings",
         status: ['Checked', 'Paused', 'Seeding', 'Downloading', 'Error!', 'Queued Seed', 'Queued', 'Finished', 'Stopped'],
         "settings": {
             1: "uTorrent",
@@ -223,6 +224,7 @@ var get_lang = function(lang) {
         120: 'Ouvrir URL',
         121: 'Entrez l\'URL',
         122: ['Vous ne pouvez pas télécharger le fichier', 'Le fichier est trop gros'],
+        setup: "Configuration",
         status: ['Vérifié', 'Suspendu', 'Partage', 'Téléchargement', 'Erreur!', 'Partage en attente', 'En attente', 'Terminé', 'Arrêté'],
         "settings": {
             1: "uTorrent",
@@ -373,6 +375,7 @@ var get_lang = function(lang) {
         120: 'Добавить ссылку',
         121: 'Введите URL',
         122: ['Не могу загрузить торрент-файл', 'Файл больше 10 мб'],
+        setup: "Настройки",
         status: ['Проверено', 'Пауза', 'Раздается', 'Загружается', 'Ошибка!', 'Ожидает раздачи', 'В очереди', 'Загружен', 'Остановлен'],
         "settings": {
             1: "uTorrent",

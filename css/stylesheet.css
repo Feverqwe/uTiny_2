@@ -646,3 +646,14 @@ div.drop_layer {
 div.drop_layer.dropped {
     background-color: transparent;
 }
+div.btn.setup {
+    display: inline-block;
+    float: right;
+    width: 16px;
+    height: 16px;
+    background-image: url(../images/settings.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    margin-right: 2px;
+}

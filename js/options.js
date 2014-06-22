@@ -356,6 +356,7 @@ var options = function() {
     };
     return {
         boot: function() {
+            mono.sendMessage({action: 'resize', height: 600}, undefined, 'service');
             mono.storage.get('lang', function(data) {
                 currentLanguage = data.lang || currentLanguage;
                 mono.sendMessage(['def_settings'], function(data) {

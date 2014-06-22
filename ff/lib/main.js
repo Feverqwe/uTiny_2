@@ -23,7 +23,7 @@ var button = ToggleButton({
 
 var popup = panels.Panel({
     width: 800,
-    height: 300,
+    height: 350,
     contentURL: self.data.url("./manager.html"),
     onHide: function () {
         button.state('window', {checked: false});
