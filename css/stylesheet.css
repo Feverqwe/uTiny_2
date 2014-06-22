@@ -4,6 +4,8 @@ body {
     font-size: 0.84em;
     min-width: 723px;
     -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
 }
 ul {
     padding: 0;
