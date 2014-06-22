@@ -187,6 +187,9 @@ div.torrent-list-layer tr:nth-child(even) {
 table.torrent-table-head {
     position: fixed;
     z-index: 2;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
 }
 table.torrent-table-body thead {
     visibility: hidden;
@@ -309,6 +312,9 @@ div.fl-layer {
 table.fl-table-head {
     position: fixed;
     z-index: 2;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
 }
 div.file-list {
     display: none;
