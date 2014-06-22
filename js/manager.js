@@ -1002,16 +1002,25 @@ var manager = function () {
             var time_calc = Math.round(parseInt(str_w) / parseInt(size) * 3.5);
             var move_name = 'moveble' + '_' + size + '_' + str_w;
             if (dom_cache.body.children('style.' + move_name).length === 0) {
-                styles.push($('<style>', {'class': move_name, text: '@-webkit-keyframes a_' + move_name
+                var kf_style = ''
                     + '{'
                     + '0%{margin-left:2px;}'
                     + '50%{margin-left:-' + (str_w - size) + 'px;}'
                     + '90%{margin-left:6px;}'
                     + '100%{margin-left:2px;}'
-                    + '}'
+                    + '}';
+                styles.push($('<style>', {'class': move_name, text: ''
+                    + '@-webkit-keyframes a_' + move_name
+                    + kf_style
+                    + '@keyframes a_' + move_name
+                    + kf_style
+                    + '@-moz-keyframes a_' + move_name
+                    + kf_style
                     + 'div.' + move_name + ':hover > span {'
                     + 'overflow: visible;'
                     + '-webkit-animation:a_' + move_name + ' ' + time_calc + 's;'
+                    + '-moz-animation:a_' + move_name + ' ' + time_calc + 's;'
+                    + 'animation:a_' + move_name + ' ' + time_calc + 's;'
                     + '}'}));
             }
             item.parent().attr('class', classname + ' ' + move_name);
