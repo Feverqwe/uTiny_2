@@ -1794,7 +1794,7 @@ var manager = function () {
                 dom_cache.body.append($('<style>', {text: 'div.fl-layer td div {white-space: normal;word-wrap: break-word;}'}));
             }
 
-            if (window.chrome !== undefined) {
+            if (isChrome) {
                 manager.isMe = 1;
                 $.each(chrome.extension.getViews({type: 'popup'}), function (n, window) {
                     if (window.manager !== undefined && window.manager.isMe === 1) {
@@ -2289,10 +2289,13 @@ var manager = function () {
                                 if (sid === undefined) {
                                     continue;
                                 }
-                                if (window.chrome !== undefined) {
+                                var fileUrl = webUi_url + 'proxy?sid=' + sid + '&file=' + item + '&disposition=ATTACHMENT&service=DOWNLOAD&qos=0';
+                                if (isChrome) {
                                     chrome.tabs.create({
-                                        url: webUi_url + 'proxy?sid=' + sid + '&file=' + item + '&disposition=ATTACHMENT&service=DOWNLOAD&qos=0'
+                                        url: fileUrl
                                     });
+                                } else {
+                                    mono.sendMessage({action: 'openTab', url: fileUrl}, undefined, 'service');
                                 }
                             }
                             fl_unckeckCkecked();

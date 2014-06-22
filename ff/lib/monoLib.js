@@ -48,6 +48,7 @@ var monoStorage = function() {
 }();
 
 var init = function(pageList, scope) {
+    var tabs = require("sdk/tabs");
     var defaultId = 'monoScope';
     var routing = {};
     var monoStorageFrom = 'monoStorage';
@@ -109,6 +110,10 @@ var init = function(pageList, scope) {
                     page.height = msg.height;
                 }
             });
+        }
+
+        if (msg.action === 'openTab') {
+            return tabs.open(msg.url);
         }
     };
 
