@@ -800,37 +800,101 @@ var engine = function () {
         sendFile(link, dir, label);
     };
     var createCtxMenu = function () {
-        if (!isChrome) {
+        if (isFF) {
+            var contentScript = function() {
+                self.on("click", function(node) {
+                    var href = node.href;
+                    if (!href) {
+                        return;
+                    }
+                    if (href.substr(0, 7).toLowerCase() === 'magnet:') {
+                        return self.postMessage(node.href);
+                    }
+                    var downloadFile = function (url, cb) {
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('GET', url, true);
+                        xhr.responseType = 'blob';
+                        xhr.onprogress = function (e) {
+                            if (e.total > 1048576 * 10 || e.loaded > 1048576 * 10) {
+                                xhr.abort();
+                            }
+                        };
+                        xhr.onload = function () {
+                            cb( URL.createObjectURL(xhr.response) );
+                        };
+                        xhr.send();
+                    };
+                    downloadFile(href, self.postMessage);
+                });
+            };
+            contentScript = contentScript.toString();
+            var n_pos = contentScript.indexOf('\n')+1;
+            contentScript = contentScript.substr(n_pos, contentScript.length - 1 - n_pos).trim();
+            var cm = require("sdk/context-menu");
+            if (var_cache.topLevel) {
+                var_cache.topLevel.parentMenu.removeItem(var_cache.topLevel);
+            }
+            if (settings.folders_array.length === 0) {
+                var_cache.topLevel = cm.Item({
+                    label: lang_arr[104],
+                    context: cm.SelectorContext("a"),
+                    image: self.data.url('./icons/icon-16.png'),
+                    contentScript: contentScript,
+                    onMessage: function (node) {
+                        sendFile(node);
+                    }
+                });
+            } else {
+                var onMessage = function(url) {
+                    onCtxMenuCall({
+                        linkUrl: url,
+                        menuItemId: this.data
+                    });
+                };
+                var items = [];
+                for (var i = 0, item; item = settings.folders_array[i]; i++) {
+                    items.push( cm.Item({ label: item[1], data: String(i), onMessage: onMessage, contentScript: contentScript }) );
+                }
+                var_cache.topLevel = cm.Menu({
+                    label: lang_arr[104],
+                    context: cm.SelectorContext("a"),
+                    image: self.data.url('./icons/icon-16.png'),
+                    items: items
+                });
+            }
             return;
         }
-        /**
-         * @namespace chrome.contextMenus.removeAll
-         * @namespace chrome.contextMenus.create
-         */
-        chrome.contextMenus.removeAll(function () {
-            if (!settings.context_menu_trigger) {
-                return;
-            }
-            chrome.contextMenus.create({
-                id: 'main',
-                title: lang_arr[104],
-                contexts: ["link"],
-                onclick: onCtxMenuCall
-            }, function () {
-                if (settings.folders_array.length === 0) {
+        if (isChrome) {
+            /**
+             * @namespace chrome.contextMenus.removeAll
+             * @namespace chrome.contextMenus.create
+             */
+            chrome.contextMenus.removeAll(function () {
+                if (!settings.context_menu_trigger) {
                     return;
                 }
-                for (var i = 0, item; item = settings.folders_array[i]; i++) {
-                    chrome.contextMenus.create({
-                        id: String(i),
-                        parentId: 'main',
-                        title: item[1],
-                        contexts: ["link"],
-                        onclick: onCtxMenuCall
-                    });
-                }
+                chrome.contextMenus.create({
+                    id: 'main',
+                    title: lang_arr[104],
+                    contexts: ["link"],
+                    onclick: onCtxMenuCall
+                }, function () {
+                    if (settings.folders_array.length === 0) {
+                        return;
+                    }
+                    for (var i = 0, item; item = settings.folders_array[i]; i++) {
+                        chrome.contextMenus.create({
+                            id: String(i),
+                            parentId: 'main',
+                            title: item[1],
+                            contexts: ["link"],
+                            onclick: onCtxMenuCall
+                        });
+                    }
+                });
             });
-        });
+            return;
+        }
     };
     var clone_obj = function (obj) {
         return jQ.extend(true, {}, obj);

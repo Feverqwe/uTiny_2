@@ -22,6 +22,15 @@
         if (message.action === 'setLabel') {
             return manager.setLabel(message.data);
         }
+        if (message === 'sleep') {
+            manager.mgTimer.sleep = true;
+            return;
+        }
+        if (message === 'wake') {
+            manager.mgTimer.sleep = false;
+            manager.mgTimer.start(1);
+            return;
+        }
         mono('>', message);
     };
     mono.onMessage(function(message, response) {
@@ -50,6 +59,8 @@
     });
 })();
 var manager = function () {
+    var isFF = window.chrome === undefined;
+    var isChrome = !isFF;
     var var_cache = {
         status: null,
         //кэшироованный список торрентов
@@ -1007,9 +1018,15 @@ var manager = function () {
     };
     var mgTimer = function () {
         var timer;
-        var start = function () {
+        var start = function (now) {
+            if (now !== undefined) {
+                getTorrentList();
+            }
             clearInterval(timer);
             timer = setInterval(function () {
+                if (mgTimer.sleep === true) {
+                    return mgTimer.stop();
+                }
                 getTorrentList();
             }, _settings.mgr_update_interval);
             mgTimer.isStart = true;
@@ -1024,7 +1041,8 @@ var manager = function () {
         return {
             isStart: false,
             start: start,
-            stop: stop
+            stop: stop,
+            sleep: false
         };
     }();
     var getTorrentList = function () {
@@ -1697,6 +1715,9 @@ var manager = function () {
     };
     return {
         boot: function() {
+            if (isFF) {
+                mgTimer.sleep = true;
+            }
             mono.storage.get([
                 'login', 'password',
                 'tr_sort_colum', 'tr_sort_by',
@@ -2395,6 +2416,7 @@ var manager = function () {
             }
 
         },
-        setStatus: setStatus
+        setStatus: setStatus,
+        mgTimer: mgTimer
     };
 }();

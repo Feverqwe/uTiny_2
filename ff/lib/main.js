@@ -27,6 +27,18 @@ var popup = panels.Panel({
     contentURL: self.data.url("./manager.html"),
     onHide: function () {
         button.state('window', {checked: false});
+        popup.port.emit('mgr', {
+            data: 'sleep',
+            monoTo: 'mgr',
+            monoFrom: 'system'
+        });
+    },
+    onShow: function() {
+        popup.port.emit('mgr', {
+            data: 'wake',
+            monoTo: 'mgr',
+            monoFrom: 'system'
+        });
     }
 });
 
