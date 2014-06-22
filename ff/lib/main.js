@@ -21,11 +21,13 @@ var button = ToggleButton({
     }
 });
 
+var displayState = false;
 var popup = panels.Panel({
     width: 800,
     height: 350,
     contentURL: self.data.url("./manager.html"),
     onHide: function () {
+        displayState = false;
         button.state('window', {checked: false});
         popup.port.emit('mgr', {
             data: 'sleep',
@@ -34,11 +36,21 @@ var popup = panels.Panel({
         });
     },
     onShow: function() {
+        displayState = true;
         popup.port.emit('mgr', {
             data: 'wake',
             monoTo: 'mgr',
             monoFrom: 'system'
         });
+    },
+    onMessage: function(msg) {
+        if (msg === 'show' && displayState) {
+            popup.port.emit('mgr', {
+                data: 'wake',
+                monoTo: 'mgr',
+                monoFrom: 'system'
+            });
+        }
     }
 });
 

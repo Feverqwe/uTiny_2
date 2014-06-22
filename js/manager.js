@@ -1721,6 +1721,7 @@ var manager = function () {
         boot: function() {
             if (isFF) {
                 mgTimer.sleep = true;
+                addon.postMessage('show');
             }
             mono.storage.get([
                 'login', 'password',
