@@ -47,11 +47,11 @@ var monoStorage = function() {
     }
 }();
 
-var init = function(pageList, scope) {
+var init = function(route) {
     var tabs = require("sdk/tabs");
     var defaultId = 'monoScope';
-    var routing = {};
     var monoStorageFrom = 'monoStorage';
+    var routing = {};
 
     var monoStorageMsg = function(message) {
         var response;
@@ -117,41 +117,25 @@ var init = function(pageList, scope) {
         }
     };
 
-    pageList.forEach(function(item) {
-        if (typeof item.id === 'string') {
-            item.id = [item.id];
+    routing[defaultId] = [];
+    for (var key in route) {
+        var page = route[key];
+        routing[key] = [page];
+        if (routing[defaultId].indexOf(page) !== -1) {
+            continue;
         }
-        item.id.forEach(function(id) {
-            if (routing[id] === undefined) {
-                routing[id] = [];
-            }
-            routing[id].push(item.page);
-        });
-        if (routing[defaultId] === undefined) {
-            routing[defaultId] = [];
-        }
-        routing[defaultId].push(item.page);
-    });
-
-    pageList.forEach(function(item) {
-        item.page.port.on(monoStorageFrom, function(message) {
+        routing[defaultId].push(page);
+        page.port.on(monoStorageFrom, function(message) {
             monoStorageMsg(message);
         });
-        item.page.port.on(defaultId, function(message) {
+        page.port.on(defaultId, function(message) {
             routing[defaultId].forEach(function(page){
                 page.port.emit(defaultId, message);
             });
         });
-        item.page.port.on(serviceMsgFrom, function(message) {
+        page.port.on(serviceMsgFrom, function(message) {
             serviceMsg(message);
         });
-        scope.forEach(function(sc) {
-            item.page.port.on(sc, function(message) {
-                routing[sc].forEach(function(page){
-                    page.port.emit(sc, message);
-                });
-            });
-        });
-    });
+    }
 };
 exports.inti = init;

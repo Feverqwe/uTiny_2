@@ -59,8 +59,6 @@
     });
 })();
 var manager = function () {
-    var isFF = window.chrome === undefined;
-    var isChrome = !isFF;
     var var_cache = {
         status: null,
         //кэшироованный список торрентов
@@ -1731,7 +1729,7 @@ var manager = function () {
     };
     return {
         boot: function() {
-            if (isFF) {
+            if (mono.isFF && !mono.isModule) {
                 mgTimer.sleep = true;
                 addon.postMessage('show');
             }
@@ -1783,7 +1781,7 @@ var manager = function () {
             };
             writeLanguage();
 
-            if (isFF) {
+            if (mono.isFF) {
                 dom_cache.up_speed.append( $('<div>', {class: 'btn setup', title: _lang_arr.setup}).on('click', function(e) {
                     e.preventDefault();
                     window.location = "options.html";
@@ -1797,7 +1795,7 @@ var manager = function () {
                 dom_cache.body.append($('<style>', {text: 'div.fl-layer td div {white-space: normal;word-wrap: break-word;}'}));
             }
 
-            if (isChrome) {
+            if (mono.isChrome) {
                 manager.isMe = 1;
                 $.each(chrome.extension.getViews({type: 'popup'}), function (n, window) {
                     if (window.manager !== undefined && window.manager.isMe === 1) {
@@ -2293,7 +2291,7 @@ var manager = function () {
                                     continue;
                                 }
                                 var fileUrl = webUi_url + 'proxy?sid=' + sid + '&file=' + item + '&disposition=ATTACHMENT&service=DOWNLOAD&qos=0';
-                                if (isChrome) {
+                                if (mono.isChrome) {
                                     chrome.tabs.create({
                                         url: fileUrl
                                     });

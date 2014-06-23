@@ -55,8 +55,9 @@ var popup = panels.Panel({
     }
 });
 
-const {xhr} = require('sdk/net/xhr');
-var bg = require("./background.js");
-bg.init(popup, lang, xhr);
+var route = {'mgr': popup, 'opt': popup};
 
-mono.inti([{id: ['mgr', 'opt'], page: popup}], ['mgr', 'opt']);
+var bg = require("./background.js");
+bg.init(route, lang);
+
+mono.inti(route);

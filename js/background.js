@@ -1,15 +1,13 @@
-var isFF = typeof window === 'undefined';
-var isChrome = !isFF;
 var timers;
-
-if (isFF) {
-    var mono;
+var lang_arr;
+if (typeof window === 'undefined') {
+    var mono = require("./mono.js");
     var self = require("sdk/self");
-    var monoModule = require('./monoModule.js');
     var window = require("sdk/window/utils").getMostRecentBrowserWindow();
     timers = require("sdk/timers");
     window.Notifications = require("sdk/notifications");
-    var XMLHttpRequest;
+    const {XMLHttpRequest} = require('sdk/net/xhr');
+    window.isModule = true;
 } else {
     timers = window;
 }
@@ -49,74 +47,69 @@ var jQ = {
             itemsList.push(encodeURIComponent(key)+'='+encodeURIComponent(obj[key]));
         }
         return itemsList.join('&');
-    }
-};
-jQ.extend = function() {
-    var options, name, src, copy, copyIsArray, clone,
-        target = arguments[0] || {},
-        i = 1,
-        length = arguments.length,
-        deep = false;
-    // Handle a deep copy situation
-    if ( typeof target === "boolean" ) {
-        deep = target;
+    },
+    extend: function() {
+        var options, name, src, copy, copyIsArray, clone,
+            target = arguments[0] || {},
+            i = 1,
+            length = arguments.length,
+            deep = false;
+        // Handle a deep copy situation
+        if ( typeof target === "boolean" ) {
+            deep = target;
 
-        // skip the boolean and the target
-        target = arguments[ i ] || {};
-        i++;
-    }
-    // Handle case when target is a string or something (possible in deep copy)
-    if ( typeof target !== "object" && !typeof target === "function" ) {
-        target = {};
-    }
-    // extend jQuery itself if only one argument is passed
-    if ( i === length ) {
-        target = this;
-        i--;
-    }
-    for ( ; i < length; i++ ) {
-        // Only deal with non-null/undefined values
-        if ( (options = arguments[ i ]) != null ) {
-            // Extend the base object
-            for ( name in options ) {
-                src = target[ name ];
-                copy = options[ name ];
+            // skip the boolean and the target
+            target = arguments[ i ] || {};
+            i++;
+        }
+        // Handle case when target is a string or something (possible in deep copy)
+        if ( typeof target !== "object" && !typeof target === "function" ) {
+            target = {};
+        }
+        // extend jQuery itself if only one argument is passed
+        if ( i === length ) {
+            target = this;
+            i--;
+        }
+        for ( ; i < length; i++ ) {
+            // Only deal with non-null/undefined values
+            if ( (options = arguments[ i ]) != null ) {
+                // Extend the base object
+                for ( name in options ) {
+                    src = target[ name ];
+                    copy = options[ name ];
 
-                // Prevent never-ending loop
-                if ( target === copy ) {
-                    continue;
-                }
-                // Recurse if we're merging plain objects or arrays
-                if ( deep && copy && ( jQ.isPlainObject(copy) || (copyIsArray = Array.isArray(copy)) ) ) {
-                    if ( copyIsArray ) {
-                        copyIsArray = false;
-                        clone = src && Array.isArray(src) ? src : [];
-                    } else {
-                        clone = src && jQ.isPlainObject(src) ? src : {};
+                    // Prevent never-ending loop
+                    if ( target === copy ) {
+                        continue;
                     }
-                    // Never move original objects, clone them
-                    target[ name ] = jQ.extend( deep, clone, copy );
-                    // Don't bring in undefined values
-                } else if ( copy !== undefined ) {
-                    target[ name ] = copy;
+                    // Recurse if we're merging plain objects or arrays
+                    if ( deep && copy && ( jQ.isPlainObject(copy) || (copyIsArray = Array.isArray(copy)) ) ) {
+                        if ( copyIsArray ) {
+                            copyIsArray = false;
+                            clone = src && Array.isArray(src) ? src : [];
+                        } else {
+                            clone = src && jQ.isPlainObject(src) ? src : {};
+                        }
+                        // Never move original objects, clone them
+                        target[ name ] = jQ.extend( deep, clone, copy );
+                        // Don't bring in undefined values
+                    } else if ( copy !== undefined ) {
+                        target[ name ] = copy;
+                    }
                 }
             }
         }
+        // Return the modified object
+        return target;
     }
-    // Return the modified object
-    return target;
 };
 
-var init = function(addon, lang, xhr) {
-    if (isFF) {
+var init = function(env, lang) {
+    if (window.isModule) {
         window.get_lang = lang.get_lang;
-        mono = monoModule.init(addon);
-        XMLHttpRequest = xhr;
+        mono = mono.init(env);
     }
-    /**
-     * @namespace Promise
-     * @namespace Promise.all
-     */
 
     mono.pageId = 'bg';
     var actionReader = function(message, cb) {
@@ -205,8 +198,7 @@ var init = function(addon, lang, xhr) {
         engine.boot();
     });
 };
-
-if (isFF) {
+if (window.isModule) {
     exports.init = init;
 } else {
     init();
@@ -216,11 +208,6 @@ var engine = function () {
     var complete_icon = 'images/notification_done.png';
     var add_icon = 'images/notification_add.png';
     var error_icon = 'images/notification_error.png';
-    if (isFF) {
-        complete_icon = self.data.url(complete_icon);
-        add_icon = self.data.url(add_icon);
-        error_icon = self.data.url(error_icon);
-    }
     var var_cache = {
         client: {},
         traffic: [{name:'download', values: []}, {name:'upload', values: []}],
@@ -334,7 +321,7 @@ var engine = function () {
         };
     }();
     var showNotifi = function (icon, title, text, one) {
-        if (isFF) {
+        if (mono.isModule) {
             if (title === 0) {
                 title = text;
                 text = undefined;
@@ -342,7 +329,7 @@ var engine = function () {
             window.Notifications.notify({title: title, text: text, iconURL: icon });
             return;
         }
-        if (isChrome && chrome.notifications !== undefined) {
+        if (mono.isChrome && chrome.notifications !== undefined) {
             var note_id = 'showNotifi';
             if (one !== undefined) {
                 note_id += '_' + one;
@@ -674,7 +661,7 @@ var engine = function () {
         }
     };
     var showActiveCount = function (arr) {
-        if (!isChrome) {
+        if (!mono.isChrome) {
             return;
         }
         if (!settings.show_active_tr_on_icon) {
@@ -802,7 +789,7 @@ var engine = function () {
         sendFile(link, dir, label);
     };
     var createCtxMenu = function () {
-        if (isFF) {
+        if (mono.isModule) {
             var contentScript = function() {
                 self.on("click", function(node) {
                     var href = node.href;
@@ -866,7 +853,7 @@ var engine = function () {
             }
             return;
         }
-        if (isChrome) {
+        if (mono.isChrome) {
             /**
              * @namespace chrome.contextMenus.removeAll
              * @namespace chrome.contextMenus.create
@@ -950,11 +937,16 @@ var engine = function () {
     }();
     return {
         boot: function() {
+            if (mono.isModule) {
+                complete_icon = self.data.url(complete_icon);
+                add_icon = self.data.url(add_icon);
+                error_icon = self.data.url(error_icon);
+            }
             engine.loadSettings(function() {
                 engine.createCtxMenu();
                 engine.bgTimer.start();
             });
-            if (isChrome) {
+            if (mono.isChrome) {
                 /**
                  * @namespace chrome.browserAction.setBadgeBackgroundColor
                  */
