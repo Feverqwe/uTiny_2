@@ -462,5 +462,6 @@ var get_lang = function(lang) {
     }
 };
 if (typeof window === 'undefined') {
+    // firefox module
     exports.get_lang = get_lang;
 }

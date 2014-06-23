@@ -2,6 +2,7 @@ var { ToggleButton } = require('sdk/ui/button/toggle');
 var panels = require("sdk/panel");
 var self = require("sdk/self");
 var mono = require("./monoLib.js");
+var lang = require("./lang.js");
 
 var button = ToggleButton({
     id: "uTinyOpenBtn",
@@ -54,7 +55,8 @@ var popup = panels.Panel({
     }
 });
 
+const {xhr} = require('sdk/net/xhr');
 var bg = require("./background.js");
-bg.init(popup);
+bg.init(popup, lang, xhr);
 
 mono.inti([{id: ['mgr', 'opt'], page: popup}], ['mgr', 'opt']);

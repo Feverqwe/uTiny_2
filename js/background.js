@@ -1,16 +1,15 @@
 var isFF = typeof window === 'undefined';
 var isChrome = !isFF;
 var timers;
+
 if (isFF) {
     var mono;
     var self = require("sdk/self");
     var monoModule = require('./monoModule.js');
-    var langModule = require('./langModule.js');
     var window = require("sdk/window/utils").getMostRecentBrowserWindow();
     timers = require("sdk/timers");
-    window.get_lang = langModule.get_lang;
     window.Notifications = require("sdk/notifications");
-    // const {XMLHttpRequest} = require('sdk/net/xhr');
+    var XMLHttpRequest;
 } else {
     timers = window;
 }
@@ -108,9 +107,11 @@ jQ.extend = function() {
     return target;
 };
 
-var init = function(addon) {
+var init = function(addon, lang, xhr) {
     if (isFF) {
+        window.get_lang = lang.get_lang;
         mono = monoModule.init(addon);
+        XMLHttpRequest = xhr;
     }
     /**
      * @namespace Promise
