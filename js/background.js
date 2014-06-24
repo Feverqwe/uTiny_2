@@ -856,7 +856,7 @@ var engine = function () {
                 };
                 var items = [];
                 for (var i = 0, item; item = settings.folders_array[i]; i++) {
-                    items.push( cm.Item({ label: item[1], data: String(i), onMessage: onMessage, contentScript: contentScript }) );
+                    items.push( cm.Item({ label: item[1], data: String(i), context: cm.SelectorContext("a"), onMessage: onMessage, contentScript: contentScript }) );
                 }
                 var_cache.topLevel = cm.Menu({
                     label: lang_arr[104],
