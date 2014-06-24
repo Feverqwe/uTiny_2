@@ -106,7 +106,7 @@ var jQ = {
 };
 
 var init = function(env, lang) {
-    if (window.isModule) {
+    if (env !== undefined) {
         window.get_lang = lang.get_lang;
         mono = mono.init(env);
     }
