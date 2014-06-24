@@ -26,10 +26,11 @@ var monoStorage = function() {
                     key = src[i];
                     obj[key] = ss.storage[key];
                 }
-            } else
+            } else {
                 for (key in src) {
                     obj[key] = ss.storage[key];
                 }
+            }
             cb(obj);
         },
         set: function (obj, cb) {

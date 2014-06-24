@@ -62,10 +62,11 @@ var mono = function (env) {
                     key = src[i];
                     obj[key] = localStorage[key];
                 }
-            } else
+            } else {
                 for (key in src) {
                     obj[key] = localStorage[key];
                 }
+            }
             cb(obj);
         },
         set: function (obj, cb) {
