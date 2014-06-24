@@ -821,7 +821,11 @@ var engine = function () {
                     var list = str.split('\n');
                     var newList = [];
                     list.forEach(function(line) {
-                        newList.push(line.trim());
+                        var line = line.trim();
+                        if (line.substr(0,2) === '//') {
+                            return 1;
+                        }
+                        newList.push(line);
                     });
                     return newList.join('');
                 };
