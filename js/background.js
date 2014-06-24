@@ -790,38 +790,52 @@ var engine = function () {
     };
     var createCtxMenu = function () {
         if (mono.isModule) {
-            var contentScript = function() {
-                self.on("click", function(node) {
-                    var href = node.href;
-                    if (!href) {
-                        return;
-                    }
-                    if (href.substr(0, 7).toLowerCase() === 'magnet:') {
-                        return self.postMessage(node.href);
-                    }
-                    var downloadFile = function (url, cb) {
-                        var xhr = new XMLHttpRequest();
-                        xhr.open('GET', url, true);
-                        xhr.responseType = 'blob';
-                        xhr.onprogress = function (e) {
-                            if (e.total > 1048576 * 10 || e.loaded > 1048576 * 10) {
-                                xhr.abort();
-                            }
+            var contentScript = (function() {
+                var onClick = function() {
+                    self.on("click", function(node) {
+                        var href = node.href;
+                        if (!href) {
+                            return;
+                        }
+                        if (href.substr(0, 7).toLowerCase() === 'magnet:') {
+                            return self.postMessage(node.href);
+                        }
+                        var downloadFile = function (url, cb) {
+                            var xhr = new XMLHttpRequest();
+                            xhr.open('GET', url, true);
+                            xhr.responseType = 'blob';
+                            xhr.onprogress = function (e) {
+                                if (e.total > 1048576 * 10 || e.loaded > 1048576 * 10) {
+                                    xhr.abort();
+                                }
+                            };
+                            xhr.onload = function () {
+                                cb( URL.createObjectURL(xhr.response) );
+                            };
+                            xhr.send();
                         };
-                        xhr.onload = function () {
-                            cb( URL.createObjectURL(xhr.response) );
-                        };
-                        xhr.send();
-                    };
-                    downloadFile(href, self.postMessage);
-                });
-            };
-            contentScript = contentScript.toString();
-            var n_pos = contentScript.indexOf('\n')+1;
-            contentScript = contentScript.substr(n_pos, contentScript.length - 1 - n_pos).trim();
+                        downloadFile(href, self.postMessage);
+                    });
+                };
+                var minifi = function(str) {
+                    var list = str.split('\n');
+                    var newList = [];
+                    list.forEach(function(line) {
+                        newList.push(line.trim());
+                    });
+                    return newList.join('');
+                };
+                var onClickString = onClick.toString();
+                var n_pos =  onClickString.indexOf('\n')+1;
+                onClickString = onClickString.substr(n_pos, onClickString.length - 1 - n_pos).trim();
+                return minifi(onClickString);
+            })();
             var cm = require("sdk/context-menu");
             if (var_cache.topLevel) {
                 var_cache.topLevel.parentMenu.removeItem(var_cache.topLevel);
+            }
+            if (!settings.context_menu_trigger) {
+                return;
             }
             if (settings.folders_array.length === 0) {
                 var_cache.topLevel = cm.Item({
