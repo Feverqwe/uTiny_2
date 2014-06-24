@@ -183,6 +183,9 @@ var mono = function (env) {
             }
             if (addon[message.monoTo] !== undefined) {
                 addon[message.monoTo].port.emit(message.monoTo, message);
+            } else
+            if (message.monoTo === defaultId) {
+                addon[0].port.emit(message.monoTo, message);
             } else {
                 var pageList = [];
                 for (var key in addon) {
