@@ -795,7 +795,7 @@ var engine = function () {
                     self.on("click", function(node) {
                         var href = node.href;
                         if (!href) {
-                            return;
+                            return cb({error: 0});
                         }
                         if (href.substr(0, 7).toLowerCase() === 'magnet:') {
                             return self.postMessage(node.href);
@@ -807,10 +807,18 @@ var engine = function () {
                             xhr.onprogress = function (e) {
                                 if (e.total > 1048576 * 10 || e.loaded > 1048576 * 10) {
                                     xhr.abort();
+                                    cb({error: 0});
                                 }
                             };
                             xhr.onload = function () {
                                 cb( URL.createObjectURL(xhr.response) );
+                            };
+                            xhr.onerror = function () {
+                                if (xhr.status === 0) {
+                                    cb({error: 1, status: xhr.status});
+                                } else {
+                                    cb({error: 1, status: xhr.status, statusText: xhr.statusText});
+                                }
                             };
                             xhr.send();
                         };
@@ -843,14 +851,36 @@ var engine = function () {
                     context: cm.SelectorContext("a"),
                     image: self.data.url('./icons/icon-16.png'),
                     contentScript: contentScript,
-                    onMessage: function (node) {
-                        sendFile(node);
+                    onMessage: function (data) {
+                        if (typeof data === 'object') {
+                            if (data.error === 0) {
+                                return showNotifi(error_icon, lang_arr[122][0],  lang_arr[122][1], 'addFile');
+                            }
+                            if (data.error === 1) {
+                                return showNotifi(error_icon, data.status, lang_arr[103], 'addFile');
+                            }
+                            if (data.error === 2) {
+                                return showNotifi(error_icon, data.status, data.statusText, 'addFile');
+                            }
+                        }
+                        sendFile(data);
                     }
                 });
             } else {
-                var onMessage = function(url) {
+                var onMessage = function(data) {
+                    if (typeof data === 'object') {
+                        if (data.error === 0) {
+                            return showNotifi(error_icon, lang_arr[122][0],  lang_arr[122][1], 'addFile');
+                        }
+                        if (data.error === 1) {
+                            return showNotifi(error_icon, data.status, lang_arr[103], 'addFile');
+                        }
+                        if (data.error === 2) {
+                            return showNotifi(error_icon, data.status, data.statusText, 'addFile');
+                        }
+                    }
                     onCtxMenuCall({
-                        linkUrl: url,
+                        linkUrl: data,
                         menuItemId: this.data
                     });
                 };
