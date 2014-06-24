@@ -180,7 +180,7 @@ var mono = function (env) {
                 message.monoCallbackId = id;
                 cbList[id] = cb;
             }
-            if (addon[message.monoTo] !== undefined && false) {
+            if (addon[message.monoTo] !== undefined) {
                 addon[message.monoTo].port.emit(message.monoTo, message);
             } else {
                 var pageList = [];
