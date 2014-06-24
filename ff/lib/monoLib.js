@@ -132,8 +132,11 @@ var init = function(route) {
             monoStorageMsg(message);
         });
         page.port.on(defaultId, function(message) {
-            routing[defaultId].forEach(function(page){
-                page.port.emit(defaultId, message);
+            routing[defaultId].forEach(function(_page){
+                if (_page === page) {
+                    return 1;
+                }
+                _page.port.emit(defaultId, message);
             });
         });
         page.port.on(serviceMsgFrom, function(message) {

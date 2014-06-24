@@ -207,7 +207,7 @@ var mono = function (env) {
                     continue;
                 }
                 pageList.push(page);
-                page.port.on(pageId, function(message) {
+                var onMessage = function(message) {
                     if (message.monoTo !== pageId && message.monoTo !== defaultId) {
                         return;
                     }
@@ -233,7 +233,9 @@ var mono = function (env) {
                         }
                     }
                     cb(message.data, response);
-                });
+                };
+                page.port.on(pageId, onMessage);
+                page.port.on(defaultId, onMessage);
             }
         };
         return {
