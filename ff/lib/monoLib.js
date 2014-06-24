@@ -1,5 +1,7 @@
 /**
  * Created by Anton on 21.06.2014.
+ *
+ * Mono cross-browser engine. Firefox lib.
  */
 
 var monoStorage = function() {
