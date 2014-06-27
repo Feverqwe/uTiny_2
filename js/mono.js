@@ -12,21 +12,19 @@ var mono = function (env) {
     };
 
     var defaultId = 'monoScope';
-    var ff_addon = undefined;
+    var addon;
     if (typeof window === 'undefined') {
         mono.isModule = true;
         mono.isFF = true;
-        ff_addon = env;
+        addon = env;
     } else {
         if (window.chrome !== undefined) {
             mono.isChrome = true;
-        } else
-        if (window.navigator.userAgent.indexOf('Opera')) {
-            mono.isOpera = true;
         } else {
-            ff_addon = [window.addon || window.self];
-            if (ff_addon[0] !== undefined) {
+            addon = [window.addon || window.self];
+            if (addon[0] !== undefined) {
                 mono.isFF = true;
+
             }
         }
     }
@@ -183,15 +181,15 @@ var mono = function (env) {
                 message.monoCallbackId = id;
                 cbList[id] = cb;
             }
-            if (ff_addon[message.monoTo] !== undefined) {
-                ff_addon[message.monoTo].port.emit(message.monoTo, message);
+            if (addon[message.monoTo] !== undefined) {
+                addon[message.monoTo].port.emit(message.monoTo, message);
             } else
             if (message.monoTo === defaultId) {
-                ff_addon[0].port.emit(message.monoTo, message);
+                addon[0].port.emit(message.monoTo, message);
             } else {
                 var pageList = [];
-                for (var key in ff_addon) {
-                    var page = ff_addon[key];
+                for (var key in addon) {
+                    var page = addon[key];
                     if (pageList.indexOf(page) !== -1) {
                         continue;
                     }
@@ -203,8 +201,8 @@ var mono = function (env) {
         var _on = function(cb) {
             var pageId = mono.pageId;
             var pageList = [];
-            for (var key in ff_addon) {
-                var page = ff_addon[key];
+            for (var key in addon) {
+                var page = addon[key];
                 if (pageList.indexOf(page) !== -1) {
                     continue;
                 }
@@ -274,9 +272,6 @@ var mono = function (env) {
                 }
                 var response;
                 if (message.monoResponseId) {
-                    if (cbList[message.monoResponseId] === undefined) {
-                        return mono(pageId+':','Message response not found!', message);
-                    }
                     cbList[message.monoResponseId](message.data);
                     delete cbList[message.monoResponseId];
                     cbCount--;
