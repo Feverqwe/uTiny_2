@@ -876,6 +876,7 @@ var engine = function () {
                 });
             } else {
                 var onMessage = function(data) {
+                    var _this = this;
                     if (typeof data === 'object') {
                         if (data.error === 0) {
                             return showNotifi(error_icon, lang_arr[122][0],  lang_arr[122][1], 'addFile');
@@ -885,7 +886,7 @@ var engine = function () {
                                 return downloadFile(data.url, function(data) {
                                     onCtxMenuCall({
                                         linkUrl: data,
-                                        menuItemId: this.data
+                                        menuItemId: _this.data
                                     }, data.referer);
                                 });
                             }
