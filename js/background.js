@@ -707,10 +707,13 @@ var engine = function () {
             var_cache.newFileListener = undefined;
         };
     };
-    var downloadFile = function (url, cb) {
+    var downloadFile = function (url, cb, referer) {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         xhr.responseType = 'blob';
+        if (referer !== undefined) {
+            xhr.setRequestHeader('Referer', referer);
+        }
         xhr.onprogress = function (e) {
             /**
              * @namespace e.total
@@ -815,7 +818,7 @@ var engine = function () {
                             };
                             xhr.onerror = function () {
                                 if (xhr.status === 0) {
-                                    cb({error: 1, status: xhr.status});
+                                    cb({error: 1, url: url, referer: window.location.href});
                                 } else {
                                     cb({error: 1, status: xhr.status, statusText: xhr.statusText});
                                 }
@@ -857,6 +860,11 @@ var engine = function () {
                                 return showNotifi(error_icon, lang_arr[122][0],  lang_arr[122][1], 'addFile');
                             }
                             if (data.error === 1) {
+                                if (data.url) {
+                                    return downloadFile(data.url, function(data) {
+                                        sendFile(data);
+                                    }, data.referer);
+                                }
                                 return showNotifi(error_icon, data.status, lang_arr[103], 'addFile');
                             }
                             if (data.error === 2) {
@@ -873,6 +881,14 @@ var engine = function () {
                             return showNotifi(error_icon, lang_arr[122][0],  lang_arr[122][1], 'addFile');
                         }
                         if (data.error === 1) {
+                            if (data.url) {
+                                return downloadFile(data.url, function(data) {
+                                    onCtxMenuCall({
+                                        linkUrl: data,
+                                        menuItemId: this.data
+                                    }, data.referer);
+                                });
+                            }
                             return showNotifi(error_icon, data.status, lang_arr[103], 'addFile');
                         }
                         if (data.error === 2) {
