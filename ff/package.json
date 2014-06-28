@@ -8,5 +8,7 @@
   "version": "0.1",
   "permissions": {
     "cross-domain-content": ["http://*", "https://*"]
-  }
+  },
+  "icon": "data/icons/icon-48.png",
+  "icon64": "data/icons/icon-64.png"
 }
