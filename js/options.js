@@ -4,6 +4,10 @@
         if (message.action === 'setDirList') {
             return options.setDirList(message.data);
         }
+        if (message === 'sleep') {
+            window.location = 'sleep.html';
+            return;
+        }
         mono('>', message);
     };
     mono.onMessage(function(message, response) {
@@ -32,8 +36,6 @@
     });
 })();
 var options = function() {
-    var isFF = window.chrome === undefined;
-    var isChrome = !isFF;
     var var_cache = {};
     var dom_cache = {};
     var currentLanguage = navigator.language.substr(0,2);
@@ -358,7 +360,8 @@ var options = function() {
     };
     return {
         boot: function() {
-            if (isFF) {
+            if (mono.isFF) {
+                addon.postMessage('isShow');
                 $('input[name="show_active_tr_on_icon"]').parent().parent().parent().hide();
                 $('input[name="notify_visbl_interval"]').parent().parent().parent().hide();
             }

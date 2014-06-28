@@ -20,11 +20,13 @@ var mono = function (env) {
     } else {
         if (window.chrome !== undefined) {
             mono.isChrome = true;
+        } else
+        if (window.navigator && navigator.userAgent.indexOf('Opera') !== -1) {
+            mono.isOpera = true;
         } else {
-            addon = [window.addon || window.self];
-            if (addon[0] !== undefined) {
+            addon = window.addon || window.self;
+            if (addon !== undefined) {
                 mono.isFF = true;
-
             }
         }
     }
@@ -167,76 +169,55 @@ var mono = function (env) {
     mono.storage.sync = storage_fn('sync');
 
     var ffMessaging = function() {
-        var cbList = mono.debug.messagCbList = {};
-        var cbCount = 0;
+        var cbObj = {};
+        var cbList = [];
         var id = 0;
         var _send = function(message, cb) {
             if (cb !== undefined) {
-                if (cbCount > 10) {
-                    cbList = mono.debug.messagCbList = {};
-                    cbCount = 0;
-                }
                 id++;
-                cbCount++;
-                message.monoCallbackId = id;
-                cbList[id] = cb;
-            }
-            if (addon[message.monoTo] !== undefined) {
-                addon[message.monoTo].port.emit(message.monoTo, message);
-            } else
-            if (message.monoTo === defaultId) {
-                addon[0].port.emit(message.monoTo, message);
-            } else {
-                var pageList = [];
-                for (var key in addon) {
-                    var page = addon[key];
-                    if (pageList.indexOf(page) !== -1) {
-                        continue;
-                    }
-                    pageList.push(page);
-                    page.port.emit(message.monoTo, message);
+                if (cbList.length > 10) {
+                    delete cbObj[cbList[0]];
+                    cbList.splice(0, 1);
                 }
+                message.monoCallbackId = id;
+                cbObj[id] = cb;
+                cb.monoIndex = cbList.length;
+                cbList.push(cb);
             }
+            addon.port.emit(message.monoTo, message);
         };
         var _on = function(cb) {
             var pageId = mono.pageId;
-            var pageList = [];
-            for (var key in addon) {
-                var page = addon[key];
-                if (pageList.indexOf(page) !== -1) {
-                    continue;
+            var onMessage = function(message) {
+                if (message.monoTo !== pageId && message.monoTo !== defaultId) {
+                    return;
                 }
-                pageList.push(page);
-                var onMessage = function(message) {
-                    if (message.monoTo !== pageId && message.monoTo !== defaultId) {
-                        return;
+                var response;
+                if (message.monoResponseId) {
+                    if (cbObj[message.monoResponseId] === undefined) {
+                        return mono(pageId+':','Message response not found!', message);
                     }
-                    var response;
-                    if (message.monoResponseId) {
-                        if (cbList[message.monoResponseId] === undefined) {
-                            return mono(pageId+':','Message response not found!', message);
-                        }
-                        cbList[message.monoResponseId](message.data);
-                        delete cbList[message.monoResponseId];
-                        cbCount--;
-                        return;
+                    var cbFunction = cbObj[message.monoResponseId];
+                    cbFunction(message.data);
+                    cbList.splice(cbFunction.monoIndex, 1);
+                    delete cbObj[message.monoResponseId];
+                    return;
+                }
+                if (message.monoCallbackId !== undefined) {
+                    response = function(responseMessage) {
+                        responseMessage = {
+                            data: responseMessage,
+                            monoResponseId: message.monoCallbackId,
+                            monoTo: message.monoFrom,
+                            monoFrom: pageId
+                        };
+                        _send(responseMessage);
                     }
-                    if (message.monoCallbackId !== undefined) {
-                        response = function(responseMessage) {
-                            responseMessage = {
-                                data: responseMessage,
-                                monoResponseId: message.monoCallbackId,
-                                monoTo: message.monoFrom,
-                                monoFrom: pageId
-                            };
-                            _send(responseMessage);
-                        }
-                    }
-                    cb(message.data, response);
-                };
-                page.port.on(pageId, onMessage);
-                page.port.on(defaultId, onMessage);
-            }
+                }
+                cb(message.data, response);
+            };
+            addon.port.on(pageId, onMessage);
+            addon.port.on(defaultId, onMessage);
         };
         return {
             send: _send,
@@ -248,19 +229,20 @@ var mono = function (env) {
     }
 
     var chMessaging = function() {
-        var cbList = mono.debug.messagCbList = {};
-        var cbCount = 0;
+        var cbObj = {};
+        var cbList = [];
         var id = 0;
         var _send = function(message, cb) {
             if (cb !== undefined) {
-                if (cbCount > 10) {
-                    cbList = mono.debug.messagCbList = {};
-                    cbCount = 0;
-                }
                 id++;
-                cbCount++;
+                if (cbList.length > 10) {
+                    delete cbObj[cbList[0]];
+                    cbList.splice(0, 1);
+                }
                 message.monoCallbackId = id;
-                cbList[id] = cb;
+                cbObj[id] = cb;
+                cb.monoIndex = cbList.length;
+                cbList.push(cb);
             }
             chrome.runtime.sendMessage(message);
         };
@@ -272,9 +254,13 @@ var mono = function (env) {
                 }
                 var response;
                 if (message.monoResponseId) {
-                    cbList[message.monoResponseId](message.data);
-                    delete cbList[message.monoResponseId];
-                    cbCount--;
+                    if (cbObj[message.monoResponseId] === undefined) {
+                        return mono(pageId+':','Message response not found!', message);
+                    }
+                    var cbFunction = cbObj[message.monoResponseId];
+                    cbFunction(message.data);
+                    cbList.splice(cbFunction.monoIndex, 1);
+                    delete cbObj[message.monoResponseId];
                     return;
                 }
                 if (message.monoCallbackId !== undefined) {

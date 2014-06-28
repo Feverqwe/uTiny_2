@@ -23,12 +23,7 @@
             return manager.setLabel(message.data);
         }
         if (message === 'sleep') {
-            manager.mgTimer.sleep = true;
-            return;
-        }
-        if (message === 'wake') {
-            manager.mgTimer.sleep = false;
-            manager.mgTimer.start(1);
+            window.location = 'sleep.html';
             return;
         }
         mono('>', message);
@@ -1038,9 +1033,6 @@ var manager = function () {
                 return;
             }
             timer = setInterval(function () {
-                if (mgTimer.sleep === true) {
-                    return mgTimer.stop();
-                }
                 getTorrentList();
             }, _settings.mgr_update_interval);
             mgTimer.isStart = true;
@@ -1055,8 +1047,7 @@ var manager = function () {
         return {
             isStart: false,
             start: start,
-            stop: stop,
-            sleep: false
+            stop: stop
         };
     }();
     var getTorrentList = function () {
@@ -1729,9 +1720,8 @@ var manager = function () {
     };
     return {
         boot: function() {
-            if (mono.isFF && !mono.isModule) {
-                mgTimer.sleep = true;
-                addon.postMessage('show');
+            if (mono.isFF) {
+                addon.postMessage('isShow');
             }
             mono.storage.get([
                 'login', 'password',

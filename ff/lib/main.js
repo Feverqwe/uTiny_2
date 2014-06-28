@@ -1,7 +1,7 @@
 var { ToggleButton } = require('sdk/ui/button/toggle');
 var panels = require("sdk/panel");
 var self = require("sdk/self");
-var mono = require("./monoLib.js");
+var monoLib = require("./monoLib.js");
 var lang = require("./lang.js");
 
 var button = ToggleButton({
@@ -28,29 +28,34 @@ var popup = panels.Panel({
     height: 350,
     contentURL: self.data.url("./manager.html"),
     onHide: function () {
-        displayState = false;
         button.state('window', {checked: false});
-        popup.port.emit('mgr', {
+        displayState = false;
+        console.log('> sleep');
+        popup.port.emit('monoScope', {
             data: 'sleep',
-            monoTo: 'mgr',
+            monoTo: 'monoScope',
             monoFrom: 'system'
         });
     },
     onShow: function() {
         displayState = true;
-        popup.port.emit('mgr', {
+        console.log('> wake');
+        popup.port.emit('monoScope', {
             data: 'wake',
-            monoTo: 'mgr',
+            monoTo: 'monoScope',
             monoFrom: 'system'
         });
     },
     onMessage: function(msg) {
-        if (msg === 'show' && displayState) {
-            popup.port.emit('mgr', {
-                data: 'wake',
-                monoTo: 'mgr',
-                monoFrom: 'system'
-            });
+        if (msg === 'isShow') {
+            if (!displayState) {
+                console.log('> sleep');
+                popup.port.emit('monoScope', {
+                    data: 'sleep',
+                    monoTo: 'monoScope',
+                    monoFrom: 'system'
+                });
+            }
         }
     }
 });
@@ -58,6 +63,8 @@ var popup = panels.Panel({
 var route = {'mgr': popup, 'opt': popup};
 
 var bg = require("./background.js");
-bg.init(route, lang);
+var bg_addon = monoLib.virtualAddon('bg');
+route['bg'] = bg_addon;
+monoLib.addPages(route);
 
-mono.inti(route);
+bg.init(bg_addon, lang);
