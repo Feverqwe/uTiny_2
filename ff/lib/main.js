@@ -30,7 +30,6 @@ var popup = panels.Panel({
     onHide: function () {
         button.state('window', {checked: false});
         displayState = false;
-        console.log('> sleep');
         popup.port.emit('monoScope', {
             data: 'sleep',
             monoTo: 'monoScope',
@@ -39,7 +38,6 @@ var popup = panels.Panel({
     },
     onShow: function() {
         displayState = true;
-        console.log('> wake');
         popup.port.emit('monoScope', {
             data: 'wake',
             monoTo: 'monoScope',
@@ -49,7 +47,6 @@ var popup = panels.Panel({
     onMessage: function(msg) {
         if (msg === 'isShow') {
             if (!displayState) {
-                console.log('> sleep');
                 popup.port.emit('monoScope', {
                     data: 'sleep',
                     monoTo: 'monoScope',
