@@ -5,7 +5,6 @@
             window.location = 'manager.html';
             return;
         }
-        mono('>', message);
     };
     mono.onMessage(function(message, response) {
         if (Array.isArray(message)) {
