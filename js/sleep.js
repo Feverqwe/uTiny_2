@@ -1,10 +1,10 @@
 (function () {
-    mono.pageId = 'mgr';
     var actionReader = function(message, cb) {
         if (message === 'wake') {
             window.location = 'manager.html';
             return;
         }
+        mono('>', message);
     };
     mono.onMessage(function(message, response) {
         if (Array.isArray(message)) {

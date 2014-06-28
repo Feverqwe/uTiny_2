@@ -216,7 +216,9 @@ var mono = function (env) {
                 }
                 cb(message.data, response);
             };
-            addon.port.on(pageId, onMessage);
+            if (pageId !== defaultId) {
+                addon.port.on(pageId, onMessage);
+            }
             addon.port.on(defaultId, onMessage);
         };
         return {
