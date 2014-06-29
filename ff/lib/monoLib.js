@@ -2,6 +2,9 @@
  * Created by Anton on 21.06.2014.
  *
  * Mono cross-browser engine. Firefox lib.
+ *
+ * @namespace require
+ * @namespace exports
  */
 (function() {
     var tabs = require("sdk/tabs");
