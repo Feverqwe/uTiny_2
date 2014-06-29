@@ -4,7 +4,10 @@
  * Mono cross-browser engine. Firefox lib.
  */
 (function() {
+    var tabs = require("sdk/tabs");
     var defaultId = 'monoScope';
+    var serviceList = {};
+    var route = {};
 
     var monoStorage = function() {
         var ss = require("sdk/simple-storage");
@@ -52,25 +55,22 @@
         }
     }();
 
-    var routing = {};
-    routing[defaultId] = [];
-    var monoStorageFrom = 'monoStorage';
-
-    var monoStorageMsg = function(message) {
-        var response;
+    serviceList['monoStorage'] = function(message) {
         var to = message.monoFrom;
+        if (route[to] === undefined) {
+            return console.log('monoStorage', 'Not found page!', to);
+        }
         var msg = message.data;
+        var response;
         if (message.monoCallbackId !== undefined) {
             response = function(responseMessage) {
                 responseMessage = {
                     data: responseMessage,
                     monoTo: to,
-                    monoFrom: monoStorageFrom,
+                    monoFrom: 'monoStorage',
                     monoResponseId: message.monoCallbackId
                 };
-                routing[to].forEach(function(page) {
-                    page.port.emit(to, responseMessage);
-                });
+                route[to].port.emit(to, responseMessage);
             }
         }
         if (msg.action === 'get') {
@@ -84,35 +84,34 @@
         }
     };
 
-    var tabs = require("sdk/tabs");
-    var serviceMsgFrom = 'service';
-    var serviceMsg = function(message) {
-        var response;
+    serviceList['service'] = function(message) {
         var to = message.monoFrom;
+        if (route[to] === undefined) {
+            return console.log('service', 'Not found page!', to);
+        }
         var msg = message.data;
+        /*
+        var response;
         if (message.monoCallbackId !== undefined) {
             response = function(responseMessage) {
                 responseMessage = {
                     data: responseMessage,
                     monoTo: to,
-                    monoFrom: serviceMsgFrom,
+                    monoFrom: 'service',
                     monoResponseId: message.monoCallbackId
                 };
-                routing[to].forEach(function(page) {
-                    page.port.emit(to, responseMessage);
-                });
+                route[to].port.emit(to, responseMessage);
             }
         }
-
+        */
         if (msg.action === 'resize') {
-            return routing[to].forEach(function(page) {
-                if (msg.width) {
-                    page.width = msg.width;
-                }
-                if (msg.height) {
-                    page.height = msg.height;
-                }
-            });
+            if (msg.width) {
+                route[to].width = msg.width;
+            }
+            if (msg.height) {
+                route[to].height = msg.height;
+            }
+            return;
         }
 
         if (msg.action === 'openTab') {
@@ -120,73 +119,68 @@
         }
     };
 
-    var virtualAddons = {};
-    var monoVirtualAddon = function(pageId) {
+    var virtualPageList = {};
+    var monoVirtualPage = function(pageId) {
         var subscribList = {};
-        var gotMessage = function(to, message) {
-            subscribList[to].forEach(function(item) {
-                item(message);
-            });
-        };
-        var emit = function(to, message) {
-            routing[to].forEach(function(page) {
-                page.port.emit(to, message);
-            });
-        };
-        var on = function(to, cb) {
-            if (subscribList[to] === undefined) {
-                subscribList[to] = [];
-            }
-            subscribList[to].push(cb);
-        };
         var obj = {
             port: {
-                on: on,
-                emit: emit
+                on: function(to, cb) {
+                    if (subscribList[to] === undefined) {
+                        subscribList[to] = [];
+                    }
+                    subscribList[to].push(cb);
+                },
+                emit: function(to, message) {
+                    if (route[to] !== undefined) {
+                        return route[to].port.emit(to, message);
+                    }
+                    for (var serviceName in serviceList) {
+                        if (serviceName === to) {
+                            return serviceList[to](message);
+                        }
+                    }
+                    console.log('VirtualPage','emit', 'Not found page!', serviceName);
+                }
             },
-            gotMessage: gotMessage
+            gotMessage: function(to, message) {
+                subscribList[to].forEach(function(item) {
+                    item(message);
+                });
+            }
         };
-        virtualAddons[pageId] = obj;
+        virtualPageList[pageId] = obj;
         return obj;
     };
-    exports.virtualAddon = monoVirtualAddon;
+    exports.virtualAddon = monoVirtualPage;
 
-    var addPages = function(route) {
-        var pageList = [];
-        for (var key in route) {
-            var page = route[key];
-            routing[key] = [page];
-            if (pageList.indexOf(page) !== -1) {
-                continue;
+    var sendTo = function(pageList, message) {
+        pageList.forEach(function(pageId) {
+            if (route[pageId] === undefined) {
+                return console.log('sendTo','emit', 'Not found page!', sendTo);
             }
-            pageList.push(page);
-            routing[defaultId].push(page);
-            page.port.on(defaultId, function(message) {
-                routing[defaultId].forEach(function(_page){
-                    if (_page === page) {
-                        return 1;
-                    }
-                    _page.port.emit(defaultId, message);
-                });
-            });
-            page.port.on(monoStorageFrom, function(message) {
-                monoStorageMsg(message);
-            });
-            page.port.on(serviceMsgFrom, function(message) {
-                serviceMsg(message);
-            });
-        }
-        pageList.forEach(function(page) {
-            for (var key in virtualAddons) {
-                var vpage = virtualAddons[key];
-                if (page === vpage) {
-                    continue;
-                }
-                page.port.on(key, function(message) {
-                    vpage.gotMessage(key, message);
-                });
-            }
+            route[pageId].port.emit(pageId, message);
         });
     };
-    exports.addPages = addPages;
+    exports.sendTo = sendTo;
+
+    var unicPageList = [];
+    var addPage = function(pageId, page) {
+        route[pageId] = page;
+        if (unicPageList.indexOf(page) !== -1) {
+            return;
+        }
+        unicPageList.push(page);
+        for (var serviceName in serviceList) {
+            page.port.on(serviceName, serviceList[serviceName]);
+        }
+        for (var virtualPageName in virtualPageList) {
+            if (virtualPageName === pageId) {
+                continue;
+            }
+            page.port.on(virtualPageName, function(message) {
+                virtualPageList[virtualPageName].gotMessage(virtualPageName, message);
+            });
+        }
+    };
+    exports.addPage = addPage;
 })();

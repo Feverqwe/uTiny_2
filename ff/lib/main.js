@@ -30,7 +30,7 @@ var popup = panels.Panel({
     onHide: function () {
         button.state('window', {checked: false});
         displayState = false;
-        popup.port.emit('monoScope', {
+        monoLib.sendTo(['mgr', 'opt'], {
             data: 'sleep',
             monoTo: 'monoScope',
             monoFrom: 'system'
@@ -38,7 +38,7 @@ var popup = panels.Panel({
     },
     onShow: function() {
         displayState = true;
-        popup.port.emit('monoScope', {
+        monoLib.sendTo(['mgr', 'opt'], {
             data: 'wake',
             monoTo: 'monoScope',
             monoFrom: 'system'
@@ -47,7 +47,7 @@ var popup = panels.Panel({
     onMessage: function(msg) {
         if (msg === 'isShow') {
             if (!displayState) {
-                popup.port.emit('monoScope', {
+                monoLib.sendTo(['mgr', 'opt'], {
                     data: 'sleep',
                     monoTo: 'monoScope',
                     monoFrom: 'system'
@@ -57,11 +57,12 @@ var popup = panels.Panel({
     }
 });
 
-var route = {'mgr': popup, 'opt': popup};
 
 var bg = require("./background.js");
 var bg_addon = monoLib.virtualAddon('bg');
-route['bg'] = bg_addon;
-monoLib.addPages(route);
+
+monoLib.addPage('mgr', popup);
+monoLib.addPage('opt', popup);
+monoLib.addPage('bg', bg_addon);
 
 bg.init(bg_addon, lang);

@@ -215,10 +215,7 @@ var mono = function (env) {
                 }
                 cb(message.data, response);
             };
-            if (pageId !== defaultId) {
-                addon.port.on(pageId, onMessage);
-            }
-            addon.port.on(defaultId, onMessage);
+            addon.port.on(pageId, onMessage);
         };
         return {
             send: _send,
