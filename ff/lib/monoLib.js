@@ -63,11 +63,10 @@
             page[type].emit(defaultId, message);
             return;
         }
-
-        route[to].forEach(function(page) {
+        for (var i = 0, page; page = route[to][i]; i++) {
             var type = page.isVirtual?'lib':'port';
             page[type].emit(to, message);
-        });
+        }
     };
 
     serviceList['monoStorage'] = function(message) {
@@ -101,9 +100,6 @@
         var msg = message.data;
         if (msg.action === 'resize') {
             return route[to].forEach(function(page) {
-                if (page.isVirtual) {
-                    return;
-                }
                 if (msg.width) {
                     page.width = msg.width;
                 }
@@ -160,12 +156,12 @@
     exports.virtualAddon = monoVirtualPage;
 
     var sendAll = function(message, exPage) {
-        route[defaultId].forEach(function(page) {
+        for (var i = 0, page; page = route[defaultId][i]; i++) {
             if (page === exPage) {
-                return 1;
+                continue;
             }
             sendTo(page, message);
-        });
+        }
     };
     exports.sendAll = sendAll;
 
