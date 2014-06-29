@@ -63,7 +63,7 @@
             page[type].emit(defaultId, message);
             return;
         }
-        
+
         route[to].forEach(function(page) {
             var type = page.isVirtual?'lib':'port';
             page[type].emit(to, message);
@@ -159,9 +159,9 @@
     };
     exports.virtualAddon = monoVirtualPage;
 
-    var sendAll = function(message, from) {
+    var sendAll = function(message, exPage) {
         route[defaultId].forEach(function(page) {
-            if (page.monoId.indexOf(from) !== -1) {
+            if (page === exPage) {
                 return 1;
             }
             sendTo(page, message);
@@ -169,29 +169,27 @@
     };
     exports.sendAll = sendAll;
 
-    var unicPages = [];
     exports.addPage = function(pageId, page) {
         if (route[pageId] === undefined) {
             route[pageId] = [];
         }
+
         route[pageId].push(page);
-        if (page.monoId === undefined) {
-            page.monoId = [];
-        }
-        page.monoId.push(pageId);
-        if (unicPages.indexOf(page) !== -1) {
+        if (route[defaultId].indexOf(page) !== -1) {
             return;
         }
-        unicPages.push(page);
         route[defaultId].push(page);
 
         var type = page.isVirtual?'lib':'port';
+
         page[type].on(defaultId, function(message) {
-            sendAll(message, pageId);
+            sendAll(message, page);
         });
+
         for (var serviceName in serviceList) {
             page[type].on(serviceName, serviceList[serviceName]);
         }
+
         for (var virtualPageName in virtualPageList) {
             if (virtualPageName === pageId) {
                 continue;
