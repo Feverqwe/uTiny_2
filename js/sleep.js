@@ -1,5 +1,4 @@
 (function () {
-    mono.pageId = 'mgr';
     var actionReader = function(message, cb) {
         if (message === 'wake') {
             window.location = 'manager.html';

@@ -5,9 +5,10 @@
  */
 (function() {
     var tabs = require("sdk/tabs");
-    var defaultId = 'monoScope';
     var serviceList = {};
     var route = {};
+    var defaultId = 'monoScope';
+    route[defaultId] = [];
 
     var monoStorage = function() {
         var ss = require("sdk/simple-storage");
@@ -55,11 +56,22 @@
         }
     }();
 
+    var sendTo = function(to, message) {
+        if (typeof to !== "string") {
+            var page = to;
+            var type = page.isVirtual?'lib':'port';
+            page[type].emit(defaultId, message);
+            return;
+        }
+        
+        route[to].forEach(function(page) {
+            var type = page.isVirtual?'lib':'port';
+            page[type].emit(to, message);
+        });
+    };
+
     serviceList['monoStorage'] = function(message) {
         var to = message.monoFrom;
-        if (route[to] === undefined) {
-            return console.log('monoStorage', 'Not found page!', to);
-        }
         var msg = message.data;
         var response;
         if (message.monoCallbackId !== undefined) {
@@ -70,7 +82,7 @@
                     monoFrom: 'monoStorage',
                     monoResponseId: message.monoCallbackId
                 };
-                route[to].port.emit(to, responseMessage);
+                sendTo(to, responseMessage);
             }
         }
         if (msg.action === 'get') {
@@ -86,34 +98,20 @@
 
     serviceList['service'] = function(message) {
         var to = message.monoFrom;
-        if (route[to] === undefined) {
-            return console.log('service', 'Not found page!', to);
-        }
         var msg = message.data;
-        /*
-        var response;
-        if (message.monoCallbackId !== undefined) {
-            response = function(responseMessage) {
-                responseMessage = {
-                    data: responseMessage,
-                    monoTo: to,
-                    monoFrom: 'service',
-                    monoResponseId: message.monoCallbackId
-                };
-                route[to].port.emit(to, responseMessage);
-            }
-        }
-        */
         if (msg.action === 'resize') {
-            if (msg.width) {
-                route[to].width = msg.width;
-            }
-            if (msg.height) {
-                route[to].height = msg.height;
-            }
-            return;
+            return route[to].forEach(function(page) {
+                if (page.isVirtual) {
+                    return;
+                }
+                if (msg.width) {
+                    page.width = msg.width;
+                }
+                if (msg.height) {
+                    page.height = msg.height;
+                }
+            });
         }
-
         if (msg.action === 'openTab') {
             return tabs.open(msg.url);
         }
@@ -121,66 +119,86 @@
 
     var virtualPageList = {};
     var monoVirtualPage = function(pageId) {
-        var subscribList = {};
+        var subscribClientList = {};
+        var subscribServerList = {};
         var obj = {
             port: {
                 on: function(to, cb) {
-                    if (subscribList[to] === undefined) {
-                        subscribList[to] = [];
+                    if (subscribClientList[to] === undefined) {
+                        subscribClientList[to] = [];
                     }
-                    subscribList[to].push(cb);
+                    subscribClientList[to].push(cb);
                 },
                 emit: function(to, message) {
                     if (route[to] !== undefined) {
-                        return route[to].port.emit(to, message);
+                        sendTo(to, message);
+                        return;
                     }
-                    for (var serviceName in serviceList) {
-                        if (serviceName === to) {
-                            return serviceList[to](message);
-                        }
-                    }
-                    console.log('VirtualPage','emit', 'Not found page!', serviceName);
+                    subscribServerList[to].forEach(function(item) {
+                        item(message);
+                    });
                 }
             },
-            gotMessage: function(to, message) {
-                subscribList[to].forEach(function(item) {
-                    item(message);
-                });
-            }
+            lib: {
+                emit: function(to, message) {
+                    subscribClientList[to].forEach(function(item) {
+                        item(message);
+                    });
+                },
+                on: function(to, cb) {
+                    if (subscribServerList[to] === undefined) {
+                        subscribServerList[to] = [];
+                    }
+                    subscribServerList[to].push(cb);
+                }
+            },
+            isVirtual: true
         };
         virtualPageList[pageId] = obj;
         return obj;
     };
     exports.virtualAddon = monoVirtualPage;
 
-    var sendTo = function(pageList, message) {
-        pageList.forEach(function(pageId) {
-            if (route[pageId] === undefined) {
-                return console.log('sendTo','emit', 'Not found page!', sendTo);
+    var sendAll = function(message, from) {
+        route[defaultId].forEach(function(page) {
+            if (page.monoId.indexOf(from) !== -1) {
+                return 1;
             }
-            route[pageId].port.emit(pageId, message);
+            sendTo(page, message);
         });
     };
-    exports.sendTo = sendTo;
+    exports.sendAll = sendAll;
 
-    var unicPageList = [];
-    var addPage = function(pageId, page) {
-        route[pageId] = page;
-        if (unicPageList.indexOf(page) !== -1) {
+    var unicPages = [];
+    exports.addPage = function(pageId, page) {
+        if (route[pageId] === undefined) {
+            route[pageId] = [];
+        }
+        route[pageId].push(page);
+        if (page.monoId === undefined) {
+            page.monoId = [];
+        }
+        page.monoId.push(pageId);
+        if (unicPages.indexOf(page) !== -1) {
             return;
         }
-        unicPageList.push(page);
+        unicPages.push(page);
+        route[defaultId].push(page);
+
+        var type = page.isVirtual?'lib':'port';
+        page[type].on(defaultId, function(message) {
+            sendAll(message, pageId);
+        });
         for (var serviceName in serviceList) {
-            page.port.on(serviceName, serviceList[serviceName]);
+            page[type].on(serviceName, serviceList[serviceName]);
         }
         for (var virtualPageName in virtualPageList) {
             if (virtualPageName === pageId) {
                 continue;
             }
             page.port.on(virtualPageName, function(message) {
-                virtualPageList[virtualPageName].gotMessage(virtualPageName, message);
+                virtualPageList[virtualPageName].lib.emit(virtualPageName, message);
             });
         }
-    };
-    exports.addPage = addPage;
+    }
 })();
