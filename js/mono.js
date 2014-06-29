@@ -181,7 +181,6 @@ var mono = function (env) {
                 }
                 message.monoCallbackId = id;
                 cbObj[id] = cb;
-                cb.monoIndex = cbList.length;
                 cbList.push(cb);
             }
             addon.port.emit(message.monoTo, message);
@@ -199,7 +198,7 @@ var mono = function (env) {
                     }
                     var cbFunction = cbObj[message.monoResponseId];
                     cbFunction(message.data);
-                    cbList.splice(cbFunction.monoIndex, 1);
+                    cbList.splice(cbList.indexOf(cbFunction), 1);
                     delete cbObj[message.monoResponseId];
                     return;
                 }
@@ -243,7 +242,6 @@ var mono = function (env) {
                 }
                 message.monoCallbackId = id;
                 cbObj[id] = cb;
-                cb.monoIndex = cbList.length;
                 cbList.push(cb);
             }
             chrome.runtime.sendMessage(message);
@@ -261,7 +259,7 @@ var mono = function (env) {
                     }
                     var cbFunction = cbObj[message.monoResponseId];
                     cbFunction(message.data);
-                    cbList.splice(cbFunction.monoIndex, 1);
+                    cbList.splice(cbList.indexOf(cbFunction), 1);
                     delete cbObj[message.monoResponseId];
                     return;
                 }
