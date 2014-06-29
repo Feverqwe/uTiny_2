@@ -26,6 +26,15 @@
             return manager.setLabel(message.data);
         }
         if (message === 'sleep') {
+            if (manager.noSleep) {
+                setTimeout(function(){
+                    if (manager.noSleep) {
+                        delete manager.noSleep;
+                        mono.addon.postMessage('isShow');
+                    }
+                }, 60*1000);
+                return;
+            }
             window.location = 'sleep.html';
             return;
         }
@@ -1718,13 +1727,14 @@ var manager = function () {
                 for (var i = 0, len = files.length; i < len; i++) {
                     sendFile(URL.createObjectURL(files[i]), folder, label);
                 }
+                delete manager.noSleep;
             }
         );
     };
     return {
         boot: function() {
             if (mono.isFF) {
-                addon.postMessage('isShow');
+                mono.addon.postMessage('isShow');
             }
             mono.storage.get([
                 'login', 'password',
@@ -1912,6 +1922,7 @@ var manager = function () {
 
             dom_cache.menu.on('click', 'a.add_file', function (e) {
                 e.preventDefault();
+                manager.noSleep = true;
                 $('<input class="file-select" type="file" multiple accept="application/x-bittorrent"/>').on('change',function () {
                     var files = this.files;
                     onGetFiles(files);

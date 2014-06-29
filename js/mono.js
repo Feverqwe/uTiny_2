@@ -30,6 +30,7 @@ var mono = function (env) {
             }
         }
     }
+    mono.addon = addon;
     mono.pageId = defaultId;
     mono.debug = {};
 
