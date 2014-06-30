@@ -494,6 +494,9 @@ var engine = function () {
         xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
         xhr.onload = function() {
             var data = xhr.responseText;
+            if (data.length === 0) {
+                return;
+            }
             try {
                 if (settings.fix_cirilic === 1) {
                     data = fixCirilic(data);
