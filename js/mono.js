@@ -144,8 +144,7 @@ var mono = function (env) {
             _clear = externalStorage.clear;
         } else
         if (mono.isChrome &&
-            chrome.storage !== undefined &&
-            chrome.storage[mode] !== undefined) {
+            chrome.storage !== undefined) {
             _get = function(obj, cb) {
                 chrome.storage[mode].get(obj, cb);
             };
