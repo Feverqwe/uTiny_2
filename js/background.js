@@ -408,7 +408,7 @@ var engine = function () {
         xhr.onload = function() {
             setStatus('getToken', [200]);
             var token = xhr.responseText.match(/>([\d\w_-]+)</);
-            if (token.length > 1) {
+            if (token && token.length > 1) {
                 token = token[1];
             } else {
                 token = '';
