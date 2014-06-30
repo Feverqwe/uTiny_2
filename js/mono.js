@@ -21,7 +21,7 @@ var mono = function (env) {
         if (window.chrome !== undefined) {
             mono.isChrome = true;
         } else
-        if (window.navigator && navigator.userAgent.indexOf('Opera') !== -1) {
+        if (window.opera !== undefined) {
             mono.isOpera = true;
         } else {
             addon = window.addon || window.self;
@@ -143,7 +143,9 @@ var mono = function (env) {
             _set = externalStorage.set;
             _clear = externalStorage.clear;
         } else
-        if (mono.isChrome && chrome.storage !== undefined) {
+        if (mono.isChrome &&
+            chrome.storage !== undefined &&
+            chrome.storage[mode] !== undefined) {
             _get = function(obj, cb) {
                 chrome.storage[mode].get(obj, cb);
             };
@@ -225,9 +227,6 @@ var mono = function (env) {
             on: _on
         }
     };
-    if (mono.isFF) {
-        ffMessaging = ffMessaging();
-    }
 
     var chMessaging = function() {
         var cbObj = {};
@@ -281,9 +280,59 @@ var mono = function (env) {
             on: _on
         }
     };
-    if (mono.isChrome) {
-        chMessaging = chMessaging();
-    }
+
+    var opMessaging = function() {
+        var cbObj = {};
+        var cbCount = 0;
+        var id = 0;
+        var _send = function(message, cb) {
+            if (cb !== undefined) {
+                id++;
+                if (cbCount > 10) {
+                    cbObj = {};
+                    cbCount = 0;
+                }
+                message.monoCallbackId = id;
+                cbObj[id] = cb;
+                cbCount++;
+            }
+            opera.extension.postMessage(message);
+        };
+        var _on = function(cb) {
+            var pageId = mono.pageId;
+            opera.extension.onmessage = function(message) {
+                if (message.monoTo !== pageId && message.monoTo !== defaultId) {
+                    return;
+                }
+                var response;
+                if (message.monoResponseId) {
+                    if (cbObj[message.monoResponseId] === undefined) {
+                        return mono(pageId+':','Message response not found!', message);
+                    }
+                    cbObj[message.monoResponseId](message.data);
+                    delete cbObj[message.monoResponseId];
+                    cbCount--;
+                    return;
+                }
+                if (message.monoCallbackId !== undefined) {
+                    response = function(responseMessage) {
+                        responseMessage = {
+                            data: responseMessage,
+                            monoResponseId: message.monoCallbackId,
+                            monoTo: message.monoFrom,
+                            monoFrom: pageId
+                        };
+                        _send(responseMessage);
+                    }
+                }
+                cb(message.data, response);
+            };
+        };
+        return {
+            send: _send,
+            on: _on
+        }
+    };
 
     mono.sendMessage = function(message, cb, to) {
         message = {
@@ -293,32 +342,23 @@ var mono = function (env) {
         };
         mono.sendMessage.send(message, cb);
     };
-    // sendMessage init
+
     if (mono.isChrome) {
-        /*
-            mono.sendMessage.send = chrome.runtime.sendMessage;
-        */
+        chMessaging = chMessaging();
         mono.sendMessage.send = chMessaging.send;
+        mono.onMessage = chMessaging.on;
     } else
     if (mono.isFF) {
+        ffMessaging = ffMessaging();
         mono.sendMessage.send = ffMessaging.send;
+        mono.onMessage = ffMessaging.on;
+    } else
+    if (mono.isOpera) {
+        opMessaging = opMessaging();
+        mono.sendMessage.send = opMessaging.send;
+        mono.onMessage = opMessaging.on;
     }
 
-    mono.onMessage = function(cb) {
-        if (mono.isChrome) {
-            /*
-            chrome.runtime.onMessage.addListener(function(message, sender, response) {
-                if (message.monoTo !== mono.pageId && message.monoTo !== defaultId) {
-                    return;
-                }
-                cb(message.data, response);
-            });*/
-            chMessaging.on(cb);
-        } else
-        if (mono.isFF) {
-            ffMessaging.on(cb);
-        }
-    };
 
     if (!mono.isModule) {
         window.mono = mono;
