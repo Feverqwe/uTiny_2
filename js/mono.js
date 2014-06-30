@@ -170,39 +170,32 @@ var mono = function (env) {
     mono.storage.local = mono.storage;
     mono.storage.sync = storage_fn('sync');
 
-    var ffMessaging = function() {
+    var msgTools = function() {
         var cbObj = {};
-        var cbCount = 0;
+        var cbStack = [];
         var id = 0;
-        var _send = function(message, cb) {
-            if (cb !== undefined) {
-                if (cbCount > 10) {
-                    cbObj = {};
-                    cbCount = 0;
-                }
-                id++;
-                message.monoCallbackId = id;
-                cbObj[id] = cb;
-                cbCount++;
-            }
-            addon.port.emit(message.monoTo, message);
-        };
-        var _on = function(cb) {
-            var pageId = mono.pageId;
-            var onMessage = function(message) {
-                if (message.monoTo !== pageId && message.monoTo !== defaultId) {
-                    return;
-                }
-                var response;
-                if (message.monoResponseId) {
-                    if (cbObj[message.monoResponseId] === undefined) {
-                        return mono(pageId+':','Message response not found!', message);
+        return {
+            cbCollector: function (message, cb) {
+                if (cb !== undefined) {
+                    if (cbStack.length > 10) {
+                        delete cbObj[cbStack.shift()];
                     }
-                    cbObj[message.monoResponseId](message.data);
-                    delete cbObj[message.monoResponseId];
-                    cbCount--;
-                    return;
+                    id++;
+                    message.monoCallbackId = id;
+                    cbObj[id] = cb;
+                    cbStack.push(id);
                 }
+            },
+            cbCaller: function(message, pageId) {
+                if (cbObj[message.monoResponseId] === undefined) {
+                    return mono(pageId+':','Message response not found!', message);
+                }
+                cbObj[message.monoResponseId](message.data);
+                delete cbObj[message.monoResponseId];
+                cbStack.splice(cbStack.indexOf(message.monoResponseId), 1);
+            },
+            mkResponse: function(message, pageId) {
+                var response;
                 if (message.monoCallbackId !== undefined) {
                     response = function(responseMessage) {
                         responseMessage = {
@@ -211,125 +204,75 @@ var mono = function (env) {
                             monoTo: message.monoFrom,
                             monoFrom: pageId
                         };
-                        _send(responseMessage);
+                        mono.sendMessage.send(responseMessage);
                     }
                 }
+                return response;
+            }
+        }
+    }();
+
+    var ffMessaging = {
+        send: function(message, cb) {
+            msgTools.cbCollector(message, cb);
+            addon.port.emit(message.monoTo, message);
+        },
+        on: function(cb) {
+            var pageId = mono.pageId;
+            var onMessage = function(message) {
+                if (message.monoTo !== pageId && message.monoTo !== defaultId) {
+                    return;
+                }
+                if (message.monoResponseId) {
+                    return msgTools.cbCaller(message, pageId);
+                }
+                var response = msgTools.mkResponse(message, pageId);
                 cb(message.data, response);
             };
             if (pageId !== defaultId) {
                 addon.port.on(pageId, onMessage);
             }
             addon.port.on(defaultId, onMessage);
-        };
-        return {
-            send: _send,
-            on: _on
         }
     };
 
-    var chMessaging = function() {
-        var cbObj = {};
-        var cbCount = 0;
-        var id = 0;
-        var _send = function(message, cb) {
-            if (cb !== undefined) {
-                id++;
-                if (cbCount > 10) {
-                    cbObj = {};
-                    cbCount = 0;
-                }
-                message.monoCallbackId = id;
-                cbObj[id] = cb;
-                cbCount++;
-            }
+    var chMessaging = {
+        send: function(message, cb) {
+            msgTools.cbCollector(message, cb);
             chrome.runtime.sendMessage(message);
-        };
-        var _on = function(cb) {
+        },
+        on: function(cb) {
             var pageId = mono.pageId;
             chrome.runtime.onMessage.addListener(function(message) {
                 if (message.monoTo !== pageId && message.monoTo !== defaultId) {
                     return;
                 }
-                var response;
                 if (message.monoResponseId) {
-                    if (cbObj[message.monoResponseId] === undefined) {
-                        return mono(pageId+':','Message response not found!', message);
-                    }
-                    cbObj[message.monoResponseId](message.data);
-                    delete cbObj[message.monoResponseId];
-                    cbCount--;
-                    return;
+                    return msgTools.cbCaller(message, pageId);
                 }
-                if (message.monoCallbackId !== undefined) {
-                    response = function(responseMessage) {
-                        responseMessage = {
-                            data: responseMessage,
-                            monoResponseId: message.monoCallbackId,
-                            monoTo: message.monoFrom,
-                            monoFrom: pageId
-                        };
-                        _send(responseMessage);
-                    }
-                }
+                var response = msgTools.mkResponse(message, pageId);
                 cb(message.data, response);
             });
-        };
-        return {
-            send: _send,
-            on: _on
         }
     };
 
-    var opMessaging = function() {
-        var cbObj = {};
-        var cbCount = 0;
-        var id = 0;
-        var _send = function(message, cb) {
-            if (cb !== undefined) {
-                id++;
-                if (cbCount > 10) {
-                    cbObj = {};
-                    cbCount = 0;
-                }
-                message.monoCallbackId = id;
-                cbObj[id] = cb;
-                cbCount++;
-            }
+    var opMessaging = {
+        send: function(message, cb) {
+            msgTools.cbCollector(message, cb);
             opera.extension.postMessage(message);
-        };
-        var _on = function(cb) {
+        },
+        on: function(cb) {
             var pageId = mono.pageId;
             opera.extension.onmessage = function(message) {
                 if (message.monoTo !== pageId && message.monoTo !== defaultId) {
                     return;
                 }
-                var response;
                 if (message.monoResponseId) {
-                    if (cbObj[message.monoResponseId] === undefined) {
-                        return mono(pageId+':','Message response not found!', message);
-                    }
-                    cbObj[message.monoResponseId](message.data);
-                    delete cbObj[message.monoResponseId];
-                    cbCount--;
-                    return;
+                    return msgTools.cbCaller(message, pageId);
                 }
-                if (message.monoCallbackId !== undefined) {
-                    response = function(responseMessage) {
-                        responseMessage = {
-                            data: responseMessage,
-                            monoResponseId: message.monoCallbackId,
-                            monoTo: message.monoFrom,
-                            monoFrom: pageId
-                        };
-                        _send(responseMessage);
-                    }
-                }
+                var response = msgTools.mkResponse(message, pageId);
                 cb(message.data, response);
             };
-        };
-        return {
-            send: _send,
-            on: _on
         }
     };
 
@@ -343,17 +286,14 @@ var mono = function (env) {
     };
 
     if (mono.isChrome) {
-        chMessaging = chMessaging();
         mono.sendMessage.send = chMessaging.send;
         mono.onMessage = chMessaging.on;
     } else
     if (mono.isFF) {
-        ffMessaging = ffMessaging();
         mono.sendMessage.send = ffMessaging.send;
         mono.onMessage = ffMessaging.on;
     } else
     if (mono.isOpera) {
-        opMessaging = opMessaging();
         mono.sendMessage.send = opMessaging.send;
         mono.onMessage = opMessaging.on;
     }
