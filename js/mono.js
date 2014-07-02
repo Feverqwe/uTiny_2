@@ -129,42 +129,23 @@ var mono = function (env) {
         }
     };
     var storage_fn = function(mode) {
-        var _get, _set, _clear;
         if (mono.isModule) {
             if (monoStorage.get === undefined) {
                 monoStorage = monoStorage();
             }
-            _get = monoStorage.get;
-            _set = monoStorage.set;
-            _clear = monoStorage.clear;
+            return monoStorage;
         } else
         if (mono.isFF) {
-            _get = externalStorage.get;
-            _set = externalStorage.set;
-            _clear = externalStorage.clear;
+            return externalStorage;
         } else
         if (mono.isChrome &&
             chrome.storage !== undefined) {
-            _get = function(obj, cb) {
-                chrome.storage[mode].get(obj, cb);
-            };
-            _set = function(obj, cb) {
-                chrome.storage[mode].set(obj, cb);
-            };
-            _clear = function(cb) {
-                chrome.storage[mode].clear(cb);
-            }
+            return chrome.storage[mode];
         } else
         if (window.localStorage !== undefined) {
-            _get = localStorageMode.get;
-            _set = localStorageMode.set;
-            _clear = localStorageMode.clear;
+            return localStorageMode;
         }
-        return {
-            get: _get, // obj, cb
-            set: _set, // obj, cb
-            clear: _clear // obj, cb
-        }
+        return {};
     };
     mono.storage = storage_fn('local');
     mono.storage.local = mono.storage;
