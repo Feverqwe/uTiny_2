@@ -410,21 +410,32 @@ var engine = function () {
         xhr.open("GET", url, true);
         xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
         xhr.onload = function() {
-            setStatus('getToken', [200]);
-            var token = xhr.responseText.match(/>([\d\w_-]+)</);
-            if (token && token.length > 1) {
-                token = token[1];
-            } else {
-                token = '';
+            if (xhr.status === 200 || xhr.status < 400) {
+                setStatus('getToken', [200]);
+                var token = xhr.responseText.match(/>([\d\w_-]+)</);
+                if (token && token.length > 1) {
+                    token = token[1];
+                } else {
+                    token = '';
+                }
+                engine.cache = var_cache.client = {
+                    status: var_cache.client.status,
+                    token: token
+                };
+                if (onload !== undefined) {
+                    onload();
+                }
+                bgTimer.start();
+                return;
             }
-            engine.cache = var_cache.client = {
-                status: var_cache.client.status,
-                token: token
-            };
-            if (onload !== undefined) {
-                onload();
+            setStatus('getToken', [xhr.status, xhr.statusText]);
+            if (onerror !== undefined) {
+                onerror();
             }
-            bgTimer.start();
+            if (var_cache.client.getToken_error > 10) {
+                bgTimer.stop();
+            }
+            var_cache.client.getToken_error = (var_cache.client.getToken_error === undefined) ? 1 : var_cache.client.getToken_error + 1;
         };
         xhr.onerror = function() {
             setStatus('getToken', [xhr.status, xhr.statusText]);
