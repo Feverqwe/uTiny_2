@@ -10,6 +10,7 @@
     var tabs = require("sdk/tabs");
     var serviceList = {};
     var route = {};
+    var stateList = {};
     var defaultId = 'monoScope';
     route[defaultId] = [];
 
@@ -66,7 +67,11 @@
             page[type].emit(defaultId, message);
             return;
         }
+        if (stateList[to] === false) {
+            return;
+        }
         for (var i = 0, page; page = route[to][i]; i++) {
+
             var type = page.isVirtual?'lib':'port';
             page[type].emit(to, message);
         }
@@ -179,7 +184,26 @@
         }
         route[defaultId].push(page);
 
-        var type = page.isVirtual?'lib':'port';
+        stateList[pageId] = true;
+
+        var type;
+        if (page.isVirtual) {
+            type = 'lib';
+        } else {
+            type = 'port';
+            page.on('pageshow', function() {
+                stateList[pageId] = true;
+            });
+            page.on('pagehide', function() {
+                stateList[pageId] = false;
+            });
+            page.on('attach', function() {
+                stateList[pageId] = true;
+            });
+            page.on('detach', function() {
+                stateList[pageId] = false;
+            });
+        }
 
         page[type].on(defaultId, function(message) {
             sendAll(message, page);
