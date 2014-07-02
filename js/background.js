@@ -1,15 +1,18 @@
-var timers;
 var lang_arr;
 if (typeof window === 'undefined') {
     var mono = require("./mono.js");
     var self = require("sdk/self");
     var window = require("sdk/window/utils").getMostRecentBrowserWindow();
-    timers = require("sdk/timers");
-    window.Notifications = require("sdk/notifications");
     var XMLHttpRequest = require('sdk/net/xhr').XMLHttpRequest;
+
+    var sdk_timers = require("sdk/timers");
+    var setTimeout = sdk_timers.setTimeout;
+    var clearTimeout = sdk_timers.clearTimeout;
+    var setInterval = sdk_timers.setInterval;
+    var clearInterval = sdk_timers.clearInterval;
+
+    window.Notifications = require("sdk/notifications");
     window.isModule = true;
-} else {
-    timers = window;
 }
 var jQ = {
     isPlainObject: function( obj ) {
@@ -301,8 +304,8 @@ var engine = function () {
             if (bgTimer.isStart || (settings.show_active_tr_on_icon === 0 && settings.notify_on_dl_comp === 0)) {
                 return;
             }
-            timers.clearInterval(timer);
-            timer = timers.setInterval(function () {
+            clearInterval(timer);
+            timer = setInterval(function () {
                 sendAction({list: 1});
             }, settings.bg_update_interval);
             bgTimer.isStart = true;
@@ -311,7 +314,7 @@ var engine = function () {
             if (!bgTimer.isStart) {
                 return;
             }
-            timers.clearInterval(timer);
+            clearInterval(timer);
             bgTimer.isStart = false;
         };
         return {
@@ -339,7 +342,7 @@ var engine = function () {
             var timer = note_id + '_timer';
             if (one !== undefined && var_cache[note_id] !== undefined) {
                 var_cache[note_id] = undefined;
-                timers.clearTimeout(var_cache[timer]);
+                clearTimeout(var_cache[timer]);
                 chrome.notifications.clear(note_id, function() {});
             }
             /**
@@ -360,7 +363,7 @@ var engine = function () {
                 }
             );
             if (settings.notify_visbl_interval > 0) {
-                var_cache[timer] = timers.setTimeout(function () {
+                var_cache[timer] = setTimeout(function () {
                     var_cache[note_id] = undefined;
                     chrome.notifications.clear(note_id, function() {});
                 }, settings.notify_visbl_interval);
