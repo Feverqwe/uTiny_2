@@ -145,9 +145,15 @@ var mono = function (env) {
         } else
         if (mono.isChrome &&
             chrome.storage !== undefined) {
-            _get = chrome.storage[mode].get;
-            _set = chrome.storage[mode].set;
-            _clear = chrome.storage[mode].clear;
+            _get = function(obj, cb) {
+                chrome.storage[mode].get(obj, cb);
+            };
+            _set = function(obj, cb) {
+                chrome.storage[mode].set(obj, cb);
+            };
+            _clear = function(cb) {
+                chrome.storage[mode].clear(cb);
+            }
         } else
         if (window.localStorage !== undefined) {
             _get = localStorageMode.get;
