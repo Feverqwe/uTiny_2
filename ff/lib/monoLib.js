@@ -178,12 +178,6 @@
             route[pageId] = [];
         }
 
-        route[pageId].push(page);
-        if (route[defaultId].indexOf(page) !== -1) {
-            return;
-        }
-        route[defaultId].push(page);
-
         stateList[pageId] = true;
 
         var type;
@@ -204,6 +198,12 @@
                 stateList[pageId] = false;
             });
         }
+
+        route[pageId].push(page);
+        if (route[defaultId].indexOf(page) !== -1) {
+            return;
+        }
+        route[defaultId].push(page);
 
         page[type].on(defaultId, function(message) {
             sendAll(message, page);
