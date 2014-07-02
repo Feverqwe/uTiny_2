@@ -409,44 +409,40 @@ var engine = function () {
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
         xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
+        var onready = function() {
+            setStatus('getToken', [200]);
+            var token = xhr.responseText.match(/>([\d\w_-]+)</);
+            if (token && token.length > 1) {
+                token = token[1];
+            } else {
+                token = '';
+            }
+            engine.cache = var_cache.client = {
+                status: var_cache.client.status,
+                token: token
+            };
+            if (onload !== undefined) {
+                onload();
+            }
+            bgTimer.start();
+        };
+        var onerror = function() {
+            setStatus('getToken', [xhr.status, xhr.statusText]);
+            if (onerror !== undefined) {
+                onerror();
+            }
+            if (var_cache.client.getToken_error > 10) {
+                bgTimer.stop();
+            }
+            var_cache.client.getToken_error = (var_cache.client.getToken_error === undefined) ? 1 : var_cache.client.getToken_error + 1;
+        };
         xhr.onload = function() {
-            if (xhr.status === 200 || xhr.status < 400) {
-                setStatus('getToken', [200]);
-                var token = xhr.responseText.match(/>([\d\w_-]+)</);
-                if (token && token.length > 1) {
-                    token = token[1];
-                } else {
-                    token = '';
-                }
-                engine.cache = var_cache.client = {
-                    status: var_cache.client.status,
-                    token: token
-                };
-                if (onload !== undefined) {
-                    onload();
-                }
-                bgTimer.start();
-                return;
+            if (xhr.status !== 200 && xhr.status !== 204) {
+                return onerror();
             }
-            setStatus('getToken', [xhr.status, xhr.statusText]);
-            if (onerror !== undefined) {
-                onerror();
-            }
-            if (var_cache.client.getToken_error > 10) {
-                bgTimer.stop();
-            }
-            var_cache.client.getToken_error = (var_cache.client.getToken_error === undefined) ? 1 : var_cache.client.getToken_error + 1;
+            onready();
         };
-        xhr.onerror = function() {
-            setStatus('getToken', [xhr.status, xhr.statusText]);
-            if (onerror !== undefined) {
-                onerror();
-            }
-            if (var_cache.client.getToken_error > 10) {
-                bgTimer.stop();
-            }
-            var_cache.client.getToken_error = (var_cache.client.getToken_error === undefined) ? 1 : var_cache.client.getToken_error + 1;
-        };
+        xhr.onerror = onerror;
         xhr.send();
     };
     var sendAction = function (data, onload) {
@@ -462,6 +458,7 @@ var engine = function () {
         } else {
             _data = jQ.extend({token: var_cache.client.token, cid: var_cache.client.cid}, data);
         }
+        var onerror, onready;
         if (_data.torrent_file !== undefined) {
             var form_data = new window.FormData();
             var file = _data.torrent_file;
@@ -470,7 +467,7 @@ var engine = function () {
             delete _data.torrent_file;
             xhr.open("POST", var_cache.webui_url + '?' + jQ.param(_data), true);
             xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
-            xhr.onload = function () {
+            onready = function () {
                 var_cache.get_token_count = 0;
                 var data;
                 try {
@@ -488,7 +485,7 @@ var engine = function () {
                 }
                 readResponse(data);
             };
-            xhr.onerror = function () {
+            onerror = function () {
                 showNotifi(error_icon, xhr.status, xhr.statusText, 'addFile');
                 setStatus('sendFile', [xhr.status, xhr.statusText, _data]);
                 //400 - invalid request, когда token протухает
@@ -499,6 +496,13 @@ var engine = function () {
                 }
                 var_cache.client.sendAction_error = (var_cache.client.sendAction_error === undefined) ? 1 : var_cache.client.sendAction_error + 1;
             };
+            xhr.onload = function() {
+                if (xhr.status !== 200 && xhr.status !== 204) {
+                    return onerror();
+                }
+                onready();
+            };
+            xhr.onerror = onerror;
             xhr.send(form_data);
             return;
         }
@@ -507,7 +511,7 @@ var engine = function () {
         xhr.open('GET', var_cache.webui_url + '?' + jQ.param(_data), true);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
-        xhr.onload = function() {
+        onready = function() {
             var data = xhr.responseText;
             if (data.length === 0) {
                 return;
@@ -528,7 +532,7 @@ var engine = function () {
             }
             readResponse(data);
         };
-        xhr.onerror = function() {
+        onerror = function() {
             setStatus('sendAction', [xhr.status, xhr.statusText, _data]);
             if (var_cache.client.sendAction_error > 3 || xhr.status === 400) {
                 var_cache.client.token = undefined;
@@ -537,6 +541,13 @@ var engine = function () {
             }
             var_cache.client.sendAction_error = (var_cache.client.sendAction_error === undefined) ? 1 : var_cache.client.sendAction_error + 1;
         };
+        xhr.onload = function() {
+            if (xhr.status !== 200 && xhr.status !== 204) {
+                return onerror();
+            }
+            onready();
+        };
+        xhr.onerror = onerror;
         xhr.send();
     };
     var readResponse = function (data) {
