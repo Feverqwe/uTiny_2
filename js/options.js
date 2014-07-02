@@ -193,7 +193,7 @@ var options = function() {
         }
         mono.storage.set(changes, function() {
             write_language(rst.lang || currentLanguage);
-            mono.sendMessage({action: 'updateSettings', data: lang_arr}, function() {
+            mono.sendMessage({action: 'updateSettings', data: lang_arr.t}, function() {
                 set_place_holder();
                 $('a[data-page="setup"]').trigger('click');
                 chk_settings();
@@ -440,7 +440,7 @@ var options = function() {
             $('input[name="save"]').on('click', function() {
                 $('div.page.save > div.status').css('background', 'url(images/loading.gif) center center no-repeat').text('');
                 saveAll(function() {
-                    mono.sendMessage({action: 'updateSettings', data: lang_arr}, function() {
+                    mono.sendMessage({action: 'updateSettings', data: lang_arr.t}, function() {
                         chk_settings();
                     }, 'bg');
                 });

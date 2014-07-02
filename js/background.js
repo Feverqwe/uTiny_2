@@ -1060,9 +1060,9 @@ var engine = function () {
         setTrColums: function (a) {
             mono.storage.set({ colums: JSON.stringify(a) });
         },
-        updateSettings: function (lang, cb) {
-            if (lang) {
-                lang_arr = lang;
+        updateSettings: function (lang_type, cb) {
+            if (lang_type) {
+                lang_arr = window.get_lang(lang_type);
             }
             loadSettings(function() {
                 engine.bgTimer.stop();
