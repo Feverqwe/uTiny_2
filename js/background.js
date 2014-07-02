@@ -6,7 +6,7 @@ if (typeof window === 'undefined') {
     var window = require("sdk/window/utils").getMostRecentBrowserWindow();
     timers = require("sdk/timers");
     window.Notifications = require("sdk/notifications");
-    const {XMLHttpRequest} = require('sdk/net/xhr');
+    var XMLHttpRequest = require('sdk/net/xhr').XMLHttpRequest;
     window.isModule = true;
 } else {
     timers = window;
