@@ -409,7 +409,7 @@ var engine = function () {
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
         xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
-        var onready = function() {
+        var _onready = function() {
             setStatus('getToken', [200]);
             var token = xhr.responseText.match(/>([\d\w_-]+)</);
             if (token && token.length > 1) {
@@ -426,7 +426,7 @@ var engine = function () {
             }
             bgTimer.start();
         };
-        var onerror = function() {
+        var _onerror = function() {
             setStatus('getToken', [xhr.status, xhr.statusText]);
             if (onerror !== undefined) {
                 onerror();
@@ -438,11 +438,11 @@ var engine = function () {
         };
         xhr.onload = function() {
             if (xhr.status !== 200 && xhr.status !== 204) {
-                return onerror();
+                return _onerror();
             }
-            onready();
+            _onready();
         };
-        xhr.onerror = onerror;
+        xhr.onerror = _onerror;
         xhr.send();
     };
     var sendAction = function (data, onload) {
