@@ -113,9 +113,7 @@ var manager = function () {
         //триггер на случай если меню файл-листа скрыто
         fl_bottom_hide: false,
         //
-        drag_timeout: undefined,
-        // vars for boot mgr
-        onBootVars: {}
+        drag_timeout: undefined
     };
     var dom_cache = {};
     var options = {
@@ -144,6 +142,9 @@ var manager = function () {
         width = width + options.scroll_width;
         if (width > 800) {
             width = 800;
+        }
+        if (width < 723) {
+            width = 723;
         }
         var style = $('<style>', {'class': 'torrent-style', text: style_text});
         dom_cache.body.children('style.torrent-style').remove();
@@ -1748,17 +1749,18 @@ var manager = function () {
                 mono.sendMessage(['lang_arr', 'settings',
                     'getColums', 'getFlColums',
                     'cache'], function(response) {
-                    var_cache.onBootVars.cache = response.cache;
+                    var onBootVars = {};
+                    onBootVars.cache = response.cache;
                     window._lang_arr = response.lang_arr;
                     window._settings = response.settings;
                     mono.sendMessage({action: 'resize', height: _settings.window_height}, undefined, 'service');
                     var_cache.tr_colums = response.getColums;
                     var_cache.fl_colums = response.getFlColums;
-                    manager.start();
+                    manager.start(onBootVars);
                 }, 'bg');
             });
         },
-        start: function () {
+        start: function (onBootVars) {
             dom_cache = {
                 body: $('body'),
                 menu: $('ul.menu'),
@@ -1857,7 +1859,7 @@ var manager = function () {
                 dom_cache.tr_table_fixed.css('left', -this.scrollLeft);
             });
 
-            setLabels(var_cache.onBootVars.cache.labels || []);
+            setLabels(onBootVars.cache.labels || []);
             var selected_label = var_cache.onBootOptions.selected_label;
             if (selected_label !== undefined) {
                 var selected_label = JSON.parse(selected_label);
@@ -1867,8 +1869,8 @@ var manager = function () {
                 }
             }
 
-            setStatus(var_cache.onBootVars.cache.status);
-            tr_list(var_cache.onBootVars.cache.torrents || []);
+            setStatus(onBootVars.cache.status);
+            tr_list(onBootVars.cache.torrents || []);
             sendAction({list: 1});
 
             dom_cache.tr_body.on('dblclick', 'tr', function () {
@@ -1882,7 +1884,7 @@ var manager = function () {
                 fl_select_all_checkbox();
             });
 
-            setSpeedLimit(var_cache.onBootVars.cache.settings || []);
+            setSpeedLimit(onBootVars.cache.settings || []);
             sendAction({action: 'getsettings'});
 
             dom_cache.fl_fixed_head.on('click', 'th', function (e) {
