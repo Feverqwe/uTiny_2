@@ -88,12 +88,13 @@ var graph = function () {
         x.domain([start, end]);
         y.domain([min,max]);
         svg.selectAll("path").transition().ease('quad').attr("d", function (d) {
-            data.forEach(function(line) {
-                if (line.name === d.name) {
-                    d.values = line.values;
-                    return;
+            for (var i = 0, item; item = data[i]; i++) {
+                if (item.name !== d.name) {
+                    continue;
                 }
-            });
+                d.values = item.values;
+                break;
+            }
             return line(d.values);
         });
     };

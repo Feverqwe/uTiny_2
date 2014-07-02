@@ -1037,10 +1037,7 @@ var manager = function () {
     };
     var mgTimer = function () {
         var timer;
-        var start = function (now) {
-            if (now !== undefined) {
-                getTorrentList();
-            }
+        var start = function () {
             clearInterval(timer);
             if (window._settings === undefined) {
                 return;
