@@ -1,15 +1,15 @@
 var lang_arr;
 if (typeof window === 'undefined') {
-    var mono = require("./mono.js");
-    var self = require("sdk/self");
-    var window = require("sdk/window/utils").getMostRecentBrowserWindow();
-    var XMLHttpRequest = require('sdk/net/xhr').XMLHttpRequest;
+    mono = require("./mono.js");
+    self = require("sdk/self");
+    window = require("sdk/window/utils").getMostRecentBrowserWindow();
+    XMLHttpRequest = require('sdk/net/xhr').XMLHttpRequest;
 
-    var sdk_timers = require("sdk/timers");
-    var setTimeout = sdk_timers.setTimeout;
-    var clearTimeout = sdk_timers.clearTimeout;
-    var setInterval = sdk_timers.setInterval;
-    var clearInterval = sdk_timers.clearInterval;
+    sdk_timers = require("sdk/timers");
+    setTimeout = sdk_timers.setTimeout;
+    clearTimeout = sdk_timers.clearTimeout;
+    setInterval = sdk_timers.setInterval;
+    clearInterval = sdk_timers.clearInterval;
 
     window.Notifications = require("sdk/notifications");
     window.isModule = true;
@@ -212,6 +212,7 @@ var engine = function () {
     var add_icon = 'images/notification_add.png';
     var error_icon = 'images/notification_error.png';
     var var_cache = {
+        startTime: parseInt(Date.now()/1000),
         client: {},
         traffic: [{name:'download', values: []}, {name:'upload', values: []}],
         //лимит на кол-во получений токена, сбрасывается при первом успешном sendAction
@@ -650,7 +651,7 @@ var engine = function () {
             dl_sum += item[9];
             up_sum += item[8];
         }
-        var time = parseInt(Date.now()/1000);
+        var time = parseInt(Date.now()/1000) - var_cache.startTime;
         var traf0 = var_cache.traffic[0];
         var traf1 = var_cache.traffic[1];
         var values_len = traf0.values.length;
@@ -1011,7 +1012,7 @@ var engine = function () {
             }
             engine.loadSettings(function() {
                 engine.createCtxMenu();
-                engine.bgTimer.start();
+                bgTimer.start();
             });
             if (mono.isChrome) {
                 /**
