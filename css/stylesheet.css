@@ -262,6 +262,8 @@ table.status-panel td {
 }
 table.status-panel td.status {
     width: 50%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 table.status-panel td.status img {
     margin-bottom: -4px;
