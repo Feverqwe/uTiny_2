@@ -414,7 +414,7 @@ var engine = function () {
         xhr.setRequestHeader("Authorization", "Basic " + window.btoa(settings.login + ":" + settings.password));
         var _onready = function() {
             setStatus('getToken', [200]);
-            var token = xhr.responseText.match(/>([\d\w_-]+)</);
+            var token = xhr.responseText.match(/>([^<]+)</);
             if (token && token.length > 1) {
                 token = token[1];
             } else {
