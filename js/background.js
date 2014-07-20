@@ -3,6 +3,7 @@ if (typeof window === 'undefined') {
     mono = require("./mono.js");
     self = require("sdk/self");
     window = require("sdk/window/utils").getMostRecentBrowserWindow();
+    window.get_lang = require("./lang.js").get_lang;
     XMLHttpRequest = require('sdk/net/xhr').XMLHttpRequest;
 
     sdk_timers = require("sdk/timers");
@@ -109,9 +110,8 @@ var jQ = {
     }
 };
 
-var init = function(env, lang, button) {
+var init = function(env, button) {
     if (env !== undefined) {
-        window.get_lang = lang.get_lang;
         mono = mono.init(env);
         ffButton = button;
     }
@@ -952,8 +952,12 @@ var engine = function () {
                 return minifi(onClickString);
             })();
             var cm = require("sdk/context-menu");
-            if (var_cache.topLevel && var_cache.topLevel.parentMenu) {
-                var_cache.topLevel.parentMenu.removeItem(var_cache.topLevel);
+            try {
+                if (var_cache.topLevel && var_cache.topLevel.parentMenu) {
+                    var_cache.topLevel.parentMenu.removeItem(var_cache.topLevel);
+                }
+            } catch (e) {
+                var_cache.topLevel = undefined;
             }
             if (!settings.context_menu_trigger) {
                 return;
@@ -1137,6 +1141,26 @@ var engine = function () {
             window.location.reload();
         });
     };
+    var emptyIconText = function() {
+        if (mono.isChrome) {
+            chrome.browserAction.setBadgeText({
+                text: ''
+            });
+        }
+        if (mono.isFF) {
+            mkFFIconWithText(16, 0, function(url16, count) {
+                mkFFIconWithText(32, count, function(url32) {
+                    mkFFIconWithText(64, count, function(url64) {
+                        ffButton.icon = {
+                            "16": url16,
+                            "32": url32,
+                            "64": url64
+                        };
+                    });
+                });
+            });
+        }
+    };
     return {
         boot: function() {
             if (mono.isChrome) {
@@ -1160,9 +1184,7 @@ var engine = function () {
                 chrome.browserAction.setBadgeBackgroundColor({
                     color: [0, 0, 0, 40]
                 });
-                chrome.browserAction.setBadgeText({
-                    text: ''
-                });
+                emptyIconText();
             }
         },
         bgTimer: bgTimer,
@@ -1206,6 +1228,9 @@ var engine = function () {
         },
         updateSettings: function (lang_type, cb) {
             if (lang_type) {
+                if (mono.isFF) {
+                    window.get_lang = require("./lang.js").get_lang;
+                }
                 lang_arr = window.get_lang(lang_type);
             }
             loadSettings(function() {
@@ -1216,6 +1241,7 @@ var engine = function () {
                 var_cache.traffic[0].values = [];
                 var_cache.traffic[1].values = [];
                 createCtxMenu();
+                emptyIconText();
                 cb && cb();
             });
         },
