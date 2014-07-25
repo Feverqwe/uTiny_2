@@ -75,6 +75,8 @@ var get_lang = function(lang) {
         122: ['Can\'t download file', 'File is too large'],
         setup: "Settings",
         status: ['Checked', 'Paused', 'Seeding', 'Downloading', 'Error!', 'Queued Seed', 'Queued', 'Finished', 'Stopped'],
+        cmDf: 'Default directory',
+        cmCf: 'Current directory',
         "settings": {
             1: "uTorrent",
             2: "Notifications",
@@ -100,7 +102,7 @@ var get_lang = function(lang) {
             22: "Delete selected",
             23: "Subdirectory",
             24: "Directory",
-            25: "Automatically switch to the \"Downloading\" section after adding a torrent file successfully",
+            25: "Switch to the \"Downloading\" section after adding a torrent file",
             26: "Enable context menu",
             27: "Reset settings",
             28: "Reset settings",
@@ -110,7 +112,7 @@ var get_lang = function(lang) {
             32: "Show speed chart",
             33: "Hide all seeding torrents",
             34: "Hide all downloaded, non-seeding torrents",
-            35: "Automatically hide notification after",
+            35: "Hide notification after",
             36: "Update torrent list in background every",
             37: "seconds",
             38: "seconds, 0 - don't hide",
@@ -144,10 +146,11 @@ var get_lang = function(lang) {
             66: 'Check the box "Alternative listening port", enter port number 8080',
             67: 'Now enter "Username". "Password", "IP-address" and "Port". If you do not know your "IP-address" try enter 127.0.0.1',
             68: 'Press the button "Save all"',
-            69: 'Replace the directories on the label (with the addition of the label will be assigned)',
+            69: 'Label instead of a directory',
             70: 'Down',
             71: 'Up',
-            72: 'To correct Cyrillic encoding (for version 3.4.30660, only Russian language)'
+            72: 'To correct Cyrillic encoding (for version 3.4.30660, only Russian language)',
+            73: 'Tree context menu'
         }
     };
     var lang_arr_fr = {
@@ -226,6 +229,8 @@ var get_lang = function(lang) {
         122: ['Vous ne pouvez pas télécharger le fichier', 'Le fichier est trop gros'],
         setup: "Configuration",
         status: ['Vérifié', 'Suspendu', 'Partage', 'Téléchargement', 'Erreur!', 'Partage en attente', 'En attente', 'Terminé', 'Arrêté'],
+        cmDf: 'Répertoire par défaut',
+        cmCf: 'Répertoire courant.',
         "settings": {
             1: "uTorrent",
             2: "Notifications",
@@ -298,7 +303,8 @@ var get_lang = function(lang) {
             69: 'Remplacez les répertoires sur l\'étiquette (avec l\'ajout de l\'étiquette va être affecté)',
             70: 'Vers le bas',
             71: 'Vers le haut',
-            72: 'Corriger cyrillique l\'encodage (pour la version 3.4.30660, seulement pour le russe)'
+            72: 'Corriger cyrillique l\'encodage (pour la version 3.4.30660, seulement pour le russe)',
+            73: 'Arbre menu contextuel'
         }
     };
     var lang_arr_ru = {
@@ -377,6 +383,8 @@ var get_lang = function(lang) {
         122: ['Не могу загрузить торрент-файл', 'Файл больше 10 мб'],
         setup: "Настройки",
         status: ['Проверено', 'Пауза', 'Раздается', 'Загружается', 'Ошибка!', 'Ожидает раздачи', 'В очереди', 'Загружен', 'Остановлен'],
+        cmDf: 'Директория по умолчанию',
+        cmCf: 'Текущая директория',
         "settings": {
             1: "uTorrent",
             2: "Уведомления",
@@ -449,7 +457,8 @@ var get_lang = function(lang) {
             69: 'Заменить каталоги на метки (при добавлении будет присваиваться метка)',
             70: 'Вниз',
             71: 'Вверх',
-            72: 'Исправить кириллическую кодировку (для версии 3.4.30660, только для русского языка)'
+            72: 'Исправить кириллическую кодировку (для версии 3.4.30660, только для русского языка)',
+            73: 'Древовидное контекстное меню'
         }
     };
     if (lang === 'ru') {

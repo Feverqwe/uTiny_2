@@ -243,7 +243,8 @@ var engine = function () {
         context_menu_trigger: {v: 1, t: "checkbox"},
         folders_array: {v: [], t: "array"},
         context_labels: {v: 0, t: "checkbox"},
-        fix_cirilic: {v: 0, t: "checkbox"}
+        fix_cirilic: {v: 0, t: "checkbox"},
+        tree_view_menu: {v: 0, t: "checkbox"}
     };
     var settings = {};
     var loadSettings = function (cb) {
@@ -892,7 +893,7 @@ var engine = function () {
             return;
         }
         var dir, label;
-        var item = settings.folders_array[id];
+        var item = var_cache.folders_array[id];
         if (settings.context_labels) {
             label = item[1];
         } else {
@@ -901,6 +902,7 @@ var engine = function () {
         sendFile(link, dir, label);
     };
     var createCtxMenu = function () {
+        var_cache.folders_array = settings.folders_array.slice(0);
         if (mono.isModule) {
             var contentScript = (function() {
                 var onClick = function() {
@@ -961,7 +963,7 @@ var engine = function () {
             if (!settings.context_menu_trigger) {
                 return;
             }
-            if (settings.folders_array.length === 0) {
+            if (var_cache.folders_array.length === 0) {
                 var_cache.topLevel = cm.Item({
                     label: lang_arr[104],
                     context: cm.SelectorContext("a"),
@@ -1015,7 +1017,7 @@ var engine = function () {
                     });
                 };
                 var items = [];
-                for (var i = 0, item; item = settings.folders_array[i]; i++) {
+                for (var i = 0, item; item = var_cache.folders_array[i]; i++) {
                     items.push( cm.Item({ label: item[1], data: String(i), context: cm.SelectorContext("a"), onMessage: onMessage, contentScript: contentScript }) );
                 }
                 var_cache.topLevel = cm.Menu({
@@ -1042,10 +1044,127 @@ var engine = function () {
                     contexts: ["link"],
                     onclick: onCtxMenuCall
                 }, function () {
-                    if (settings.folders_array.length === 0) {
+                    if (var_cache.folders_array.length === 0) {
                         return;
                     }
-                    for (var i = 0, item; item = settings.folders_array[i]; i++) {
+                    if (settings.tree_view_menu) {
+                        var tmp_folders_array = [];
+                        var tree = {};
+                        var sepType;
+                        var treeLen = 0;
+                        for (var i = 0, item; item = var_cache.folders_array[i]; i++) {
+                            var path = item[1];
+                            if (sepType === undefined) {
+                                sepType = path.indexOf('/') === -1 ? path.indexOf('\\') === -1 ? undefined : '\\' : '/';
+                            } else {
+                                break;
+                            }
+                        }
+                        if (sepType === undefined) {
+                            sepType = '';
+                        }
+                        for (var i = 0, item; item = var_cache.folders_array[i]; i++) {
+                            var _disk = item[0];
+                            var path = item[1];
+                            var splitedPath = [];
+                            if ( sepType === '\\' ) {
+                                var disk = path.split(':\\\\');
+                                if (disk.length === 2) {
+                                    disk[0] += ':\\\\';
+                                    splitedPath.push(disk[0]);
+                                    path = disk[1];
+                                }
+                            }
+                            var pathList = path.split(sepType);
+                            /*for (var n = 0, len = pathList.length; n < len; n++) {
+                                pathList[n] += sepType;
+                            }*/
+
+                            splitedPath = splitedPath.concat(pathList);
+
+                            if (splitedPath.slice(-1)[0] === '') {
+                                splitedPath.splice(-1);
+                            }
+
+                            var lastDir = undefined;
+                            var folderPath = undefined;
+                            for (var m = 0, len = splitedPath.length; m < len; m++) {
+                                var cPath = (lastDir !== undefined)?lastDir:tree;
+                                var jPath = splitedPath[m];
+                                if (folderPath === undefined) {
+                                    folderPath = jPath;
+                                } else {
+                                    folderPath += sepType + jPath;
+                                }
+
+                                lastDir = cPath[ jPath ];
+                                if (lastDir === undefined) {
+                                    if (cPath === tree) {
+                                        treeLen++;
+                                    }
+                                    lastDir = cPath[ jPath ] = {
+                                        arrayIndex: tmp_folders_array.length,
+                                        currentPath: jPath
+                                    };
+                                    tmp_folders_array.push([ _disk , folderPath ]);
+                                }
+                            }
+                            if (lastDir) {
+                                lastDir.end = true;
+                            }
+                        }
+                        var createSubMenu = function(parentId, itemList) {
+                            var childList = [];
+                            for (var subPath in itemList) {
+                                var item = itemList[subPath];
+                                if (item.currentPath !== undefined) {
+                                    childList.push(item);
+                                }
+                            }
+                            var childListLen = childList.length;
+                            if (childListLen === 1 && itemList.end === undefined) {
+                                childList[0].currentPath = itemList.currentPath + childList[0].currentPath;
+                                createSubMenu(parentId, childList[0]);
+                                return;
+                            }
+                            var hasChild = childListLen !== 0;
+                            var id = (hasChild) ? 'p'+String(itemList.arrayIndex) : String(itemList.arrayIndex);
+                            if (itemList.currentPath) {
+                                chrome.contextMenus.create({
+                                    id: id,
+                                    parentId: parentId,
+                                    title: itemList.currentPath,
+                                    contexts: ["link"],
+                                    onclick: onCtxMenuCall
+                                });
+                                if (hasChild) {
+                                    chrome.contextMenus.create({
+                                        id: id.substr(1),
+                                        parentId: id,
+                                        title: lang_arr.cmCf,
+                                        contexts: ["link"],
+                                        onclick: onCtxMenuCall
+                                    });
+                                }
+                            }
+                            childList.forEach(function(item) {
+                                createSubMenu('p'+String(itemList.arrayIndex), item);
+                            });
+                        };
+                        for (var item in tree) {
+                            createSubMenu('main', tree[item]);
+                        }
+                        chrome.contextMenus.create({
+                            id: 'default',
+                            parentId: 'main',
+                            title: lang_arr.cmDf,
+                            contexts: ["link"],
+                            onclick: onCtxMenuCall
+                        });
+                        var_cache.folders_array = tmp_folders_array;
+                        return;
+                    }
+                    for (var i = 0, item; item = var_cache.folders_array[i]; i++) {
                         chrome.contextMenus.create({
                             id: String(i),
                             parentId: 'main',
