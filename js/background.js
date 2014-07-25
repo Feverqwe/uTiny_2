@@ -888,7 +888,7 @@ var engine = function () {
          */
         var link = e.linkUrl;
         var id = e.menuItemId;
-        if (id === 'main') {
+        if (id === 'main' || id === 'default') {
             sendFile(link);
             return;
         }
