@@ -332,7 +332,10 @@ var options = function() {
     };
     var popup = function() {
         var isPopup = false;
-        if (!window.chrome) {
+        if (mono.isFF) {
+            if (mono.noAddon) {
+                return false;
+            }
             return true;
         }
         var windows = chrome.extension.getViews({type: 'popup'});
@@ -361,7 +364,9 @@ var options = function() {
     return {
         boot: function() {
             if (mono.isFF) {
-                addon.postMessage('isShow');
+                if (!mono.noAddon) {
+                    addon.postMessage('isShow');
+                }
                 $('input[name="notify_visbl_interval"]').parent().parent().parent().hide();
             }
             mono.sendMessage({action: 'resize', height: 600}, undefined, 'service');
@@ -447,7 +452,7 @@ var options = function() {
             dom_cache.ctx_labels.on('click', function() {
                 dom_cache.inp_add_folder[0].disabled = !this.checked;
             });
-            if (window.chrome !== undefined && chrome.storage) {
+            if (mono.isChrome && chrome.storage) {
                 $('input[name="save_in_cloud"]').on('click', function() {
                     var _this = this;
                     mono.storage.get(undefined, function(data) {

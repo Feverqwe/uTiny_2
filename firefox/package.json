@@ -1,15 +1,23 @@
 {
-  "name": "utorrent_easy_client",
-  "title": "uTorrent easy client",
-  "id": "jid1-xJrt4U23zkSdbA",
-  "description": "uTorrent webUi",
-  "author": "Anton V.",
-  "license": "MPL 2.0",
-  "version": "2.2.51",
-  "permissions": {
-    "cross-domain-content": ["http://*", "https://*"],
-    "private-browsing": true
-  },
-  "icon": "data/icons/icon-48.png",
-  "icon64": "data/icons/icon-64.png"
+    "name": "utorrent_easy_client",
+    "title": "uTorrent easy client",
+    "id": "jid1-xJrt4U23zkSdbA",
+    "description": "uTorrent webUi",
+    "preferences": [
+        {
+            "type": "control",
+            "label": "Settings",
+            "name": "settingsBtn",
+            "title": ""
+        }
+    ],
+    "author": "Anton V.",
+    "license": "MPL 2.0",
+    "version": "2.2.51",
+    "permissions": {
+        "cross-domain-content": ["http://*", "https://*"],
+        "private-browsing": true
+    },
+    "icon": "data/icons/icon-48.png",
+    "icon64": "data/icons/icon-64.png"
 }
