@@ -5,7 +5,7 @@
   "description": "uTorrent webUi",
   "author": "Anton V.",
   "license": "MPL 2.0",
-  "version": "2.2.50",
+  "version": "2.2.51",
   "permissions": {
     "cross-domain-content": ["http://*", "https://*"],
     "private-browsing": true

@@ -888,6 +888,18 @@ var engine = function () {
          */
         var link = e.linkUrl;
         var id = e.menuItemId;
+        var updateMenu = false;
+        if (id === 'new') {
+            var path = prompt(lang_arr.cmNewPathDialog, var_cache.folders_array[0][1]);
+            if (!path) {
+                return;
+            }
+            var download_dir = var_cache.folders_array[0][0];
+            id = var_cache.folders_array.length;
+            var_cache.folders_array.push([download_dir, path]);
+            settings.folders_array.push([download_dir, path]);
+            updateMenu = true;
+        }
         if (id === 'main' || id === 'default') {
             sendFile(link);
             return;
@@ -898,6 +910,11 @@ var engine = function () {
             label = item[1];
         } else {
             dir = {download_dir: item[0], path: item[1]};
+        }
+        if (updateMenu) {
+            mono.storage.set({ folders_array: JSON.stringify(settings.folders_array) }, function() {
+                createCtxMenu();
+            });
         }
         sendFile(link, dir, label);
     };
@@ -1066,11 +1083,15 @@ var engine = function () {
                         for (var i = 0, item; item = var_cache.folders_array[i]; i++) {
                             var _disk = item[0];
                             var path = item[1];
+                            if (!path) {
+                                continue;
+                            }
                             var splitedPath = [];
-                            if ( sepType === '\\' ) {
-                                var disk = path.split(':\\\\');
+                            if (path.search(/[a-zA-Z]{1}:(\/\/|\\\\)/) === 0) {
+                                var dblSep = sepType+sepType;
+                                var disk = path.split(':'+dblSep);
                                 if (disk.length === 2) {
-                                    disk[0] += ':\\\\';
+                                    disk[0] += ':'+dblSep;
                                     splitedPath.push(disk[0]);
                                     path = disk[1];
                                 }
@@ -1094,7 +1115,11 @@ var engine = function () {
                                 if (folderPath === undefined) {
                                     folderPath = jPath;
                                 } else {
-                                    folderPath += sepType + jPath;
+                                    if (m === 1 && folderPath.slice(-1) === sepType) {
+                                        folderPath += jPath;
+                                    } else {
+                                        folderPath += sepType + jPath;
+                                    }
                                 }
 
                                 lastDir = cPath[ jPath ];
@@ -1123,7 +1148,11 @@ var engine = function () {
                             }
                             var childListLen = childList.length;
                             if (childListLen === 1 && itemList.end === undefined) {
-                                childList[0].currentPath = itemList.currentPath + childList[0].currentPath;
+                                var cPath = itemList.currentPath;
+                                if (itemList.currentPath.slice(-1) !== sepType) {
+                                    cPath += sepType;
+                                }
+                                childList[0].currentPath = cPath + childList[0].currentPath;
                                 createSubMenu(parentId, childList[0]);
                                 return;
                             }
@@ -1148,31 +1177,38 @@ var engine = function () {
                                 }
                             }
                             childList.forEach(function(item) {
-                                createSubMenu('p'+String(itemList.arrayIndex), item);
+                                createSubMenu(id, item);
                             });
                         };
                         for (var item in tree) {
                             createSubMenu('main', tree[item]);
                         }
-                        chrome.contextMenus.create({
-                            id: 'default',
-                            parentId: 'main',
-                            title: lang_arr.cmDf,
-                            contexts: ["link"],
-                            onclick: onCtxMenuCall
-                        });
                         var_cache.folders_array = tmp_folders_array;
-                        return;
+                    } else {
+                        for (var i = 0, item; item = var_cache.folders_array[i]; i++) {
+                            chrome.contextMenus.create({
+                                id: String(i),
+                                parentId: 'main',
+                                title: item[1],
+                                contexts: ["link"],
+                                onclick: onCtxMenuCall
+                            });
+                        }
                     }
-                    for (var i = 0, item; item = var_cache.folders_array[i]; i++) {
-                        chrome.contextMenus.create({
-                            id: String(i),
-                            parentId: 'main',
-                            title: item[1],
-                            contexts: ["link"],
-                            onclick: onCtxMenuCall
-                        });
-                    }
+                    chrome.contextMenus.create({
+                        id: 'default',
+                        parentId: 'main',
+                        title: lang_arr.cmDf,
+                        contexts: ["link"],
+                        onclick: onCtxMenuCall
+                    });
+                    chrome.contextMenus.create({
+                        id: 'new',
+                        parentId: 'main',
+                        title: lang_arr.cmCreateItem,
+                        contexts: ["link"],
+                        onclick: onCtxMenuCall
+                    });
                 });
             });
             return;

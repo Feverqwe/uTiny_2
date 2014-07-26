@@ -11,7 +11,7 @@ var get_lang = function(lang) {
         7: 'Remove and',
         8: 'Delete torrent',
         9: 'Delete data',
-        10: 'Delete data + torrent',
+        10: 'Del data + torrent',
         11: 'Label',
         12: 'Remove label',
         13: ['Name', 'Name'],
@@ -77,6 +77,8 @@ var get_lang = function(lang) {
         status: ['Checked', 'Paused', 'Seeding', 'Downloading', 'Error!', 'Queued Seed', 'Queued', 'Finished', 'Stopped'],
         cmDf: 'Default directory',
         cmCf: 'Current directory',
+        cmNewPathDialog: 'Enter new path',
+        cmCreateItem: 'Add directory',
         "settings": {
             1: "uTorrent",
             2: "Notifications",
@@ -230,7 +232,9 @@ var get_lang = function(lang) {
         setup: "Configuration",
         status: ['Vérifié', 'Suspendu', 'Partage', 'Téléchargement', 'Erreur!', 'Partage en attente', 'En attente', 'Terminé', 'Arrêté'],
         cmDf: 'Répertoire par défaut',
-        cmCf: 'Répertoire courant.',
+        cmCf: 'Répertoire courant',
+        cmNewPathDialog: 'Entrez le nouveau chemin',
+        cmCreateItem: 'Ajouter le répertoire',
         "settings": {
             1: "uTorrent",
             2: "Notifications",
@@ -385,6 +389,8 @@ var get_lang = function(lang) {
         status: ['Проверено', 'Пауза', 'Раздается', 'Загружается', 'Ошибка!', 'Ожидает раздачи', 'В очереди', 'Загружен', 'Остановлен'],
         cmDf: 'Директория по умолчанию',
         cmCf: 'Текущая директория',
+        cmNewPathDialog: 'Введите путь к новой дирректории',
+        cmCreateItem: 'Добавить директорию',
         "settings": {
             1: "uTorrent",
             2: "Уведомления",
