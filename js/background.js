@@ -918,6 +918,81 @@ var engine = function () {
         }
         sendFile(link, dir, label);
     };
+
+    var dirListToTree = function() {
+        var tmp_folders_array = [];
+        var tree = {};
+        var sepType;
+        var treeLen = 0;
+        for (var i = 0, item; item = var_cache.folders_array[i]; i++) {
+            var path = item[1];
+            if (sepType === undefined) {
+                sepType = path.indexOf('/') === -1 ? path.indexOf('\\') === -1 ? undefined : '\\' : '/';
+            } else {
+                break;
+            }
+        }
+        if (sepType === undefined) {
+            sepType = '';
+        }
+        for (var i = 0, item; item = var_cache.folders_array[i]; i++) {
+            var _disk = item[0];
+            var path = item[1];
+            if (!path) {
+                continue;
+            }
+            var splitedPath = [];
+            if (path.search(/[a-zA-Z]{1}:(\/\/|\\\\)/) === 0) {
+                var dblSep = sepType+sepType;
+                var disk = path.split(':'+dblSep);
+                if (disk.length === 2) {
+                    disk[0] += ':'+dblSep;
+                    splitedPath.push(disk[0]);
+                    path = disk[1];
+                }
+            }
+            var pathList = path.split(sepType);
+
+            splitedPath = splitedPath.concat(pathList);
+
+            if (splitedPath.slice(-1)[0] === '') {
+                splitedPath.splice(-1);
+            }
+
+            var lastDir = undefined;
+            var folderPath = undefined;
+            for (var m = 0, len = splitedPath.length; m < len; m++) {
+                var cPath = (lastDir !== undefined)?lastDir:tree;
+                var jPath = splitedPath[m];
+                if (folderPath === undefined) {
+                    folderPath = jPath;
+                } else {
+                    if (m === 1 && folderPath.slice(-1) === sepType) {
+                        folderPath += jPath;
+                    } else {
+                        folderPath += sepType + jPath;
+                    }
+                }
+
+                lastDir = cPath[ jPath ];
+                if (lastDir === undefined) {
+                    if (cPath === tree) {
+                        treeLen++;
+                    }
+                    lastDir = cPath[ jPath ] = {
+                        arrayIndex: tmp_folders_array.length,
+                        currentPath: jPath
+                    };
+                    tmp_folders_array.push([ _disk , folderPath ]);
+                }
+            }
+            if (lastDir) {
+                lastDir.end = true;
+            }
+        }
+        return {tree: tree, list: tmp_folders_array};
+    };
+
     var createCtxMenu = function () {
         var_cache.folders_array = settings.folders_array.slice(0);
         if (mono.isModule) {
@@ -1044,8 +1119,7 @@ var engine = function () {
                     items: items
                 });
             }
-            return;
-        }
+        } else
         if (mono.isChrome) {
             /**
              * @namespace chrome.contextMenus.removeAll
@@ -1065,79 +1139,7 @@ var engine = function () {
                         return;
                     }
                     if (settings.tree_view_menu) {
-                        var tmp_folders_array = [];
-                        var tree = {};
-                        var sepType;
-                        var treeLen = 0;
-                        for (var i = 0, item; item = var_cache.folders_array[i]; i++) {
-                            var path = item[1];
-                            if (sepType === undefined) {
-                                sepType = path.indexOf('/') === -1 ? path.indexOf('\\') === -1 ? undefined : '\\' : '/';
-                            } else {
-                                break;
-                            }
-                        }
-                        if (sepType === undefined) {
-                            sepType = '';
-                        }
-                        for (var i = 0, item; item = var_cache.folders_array[i]; i++) {
-                            var _disk = item[0];
-                            var path = item[1];
-                            if (!path) {
-                                continue;
-                            }
-                            var splitedPath = [];
-                            if (path.search(/[a-zA-Z]{1}:(\/\/|\\\\)/) === 0) {
-                                var dblSep = sepType+sepType;
-                                var disk = path.split(':'+dblSep);
-                                if (disk.length === 2) {
-                                    disk[0] += ':'+dblSep;
-                                    splitedPath.push(disk[0]);
-                                    path = disk[1];
-                                }
-                            }
-                            var pathList = path.split(sepType);
-                            /*for (var n = 0, len = pathList.length; n < len; n++) {
-                                pathList[n] += sepType;
-                            }*/
-
-                            splitedPath = splitedPath.concat(pathList);
-
-                            if (splitedPath.slice(-1)[0] === '') {
-                                splitedPath.splice(-1);
-                            }
-
-                            var lastDir = undefined;
-                            var folderPath = undefined;
-                            for (var m = 0, len = splitedPath.length; m < len; m++) {
-                                var cPath = (lastDir !== undefined)?lastDir:tree;
-                                var jPath = splitedPath[m];
-                                if (folderPath === undefined) {
-                                    folderPath = jPath;
-                                } else {
-                                    if (m === 1 && folderPath.slice(-1) === sepType) {
-                                        folderPath += jPath;
-                                    } else {
-                                        folderPath += sepType + jPath;
-                                    }
-                                }
-
-                                lastDir = cPath[ jPath ];
-                                if (lastDir === undefined) {
-                                    if (cPath === tree) {
-                                        treeLen++;
-                                    }
-                                    lastDir = cPath[ jPath ] = {
-                                        arrayIndex: tmp_folders_array.length,
-                                        currentPath: jPath
-                                    };
-                                    tmp_folders_array.push([ _disk , folderPath ]);
-                                }
-                            }
-                            if (lastDir) {
-                                lastDir.end = true;
-                            }
-                        }
+                        var out = dirListToTree();
                         var createSubMenu = function(parentId, itemList) {
                             var childList = [];
                             for (var subPath in itemList) {
@@ -1180,10 +1182,10 @@ var engine = function () {
                                 createSubMenu(id, item);
                             });
                         };
-                        for (var item in tree) {
-                            createSubMenu('main', tree[item]);
+                        for (var item in out.tree) {
+                            createSubMenu('main', out.tree[item]);
                         }
-                        var_cache.folders_array = tmp_folders_array;
+                        var_cache.folders_array = out.list;
                     } else {
                         for (var i = 0, item; item = var_cache.folders_array[i]; i++) {
                             chrome.contextMenus.create({
@@ -1211,7 +1213,6 @@ var engine = function () {
                     });
                 });
             });
-            return;
         }
     };
     var clone_obj = function (obj) {
