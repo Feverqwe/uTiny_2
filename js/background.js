@@ -955,7 +955,13 @@ var engine = function () {
                     path = disk[1];
                 }
             }
-            var pathList = path.split(sepType);
+
+            var pathList;
+            if (sepType.length !== 0) {
+                pathList = path.split(sepType);
+            } else {
+                pathList = [path];
+            }
 
             splitedPath = splitedPath.concat(pathList);
 
