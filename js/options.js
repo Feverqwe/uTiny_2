@@ -368,7 +368,6 @@ var options = function() {
                     addon.postMessage('isShow');
                 }
                 $('input[name="notify_visbl_interval"]').parent().parent().parent().hide();
-                $('input[name="tree_view_menu"]').parent().parent().parent().hide();
             }
             mono.sendMessage({action: 'resize', height: 600}, undefined, 'service');
             mono.storage.get('lang', function(data) {
