@@ -30,7 +30,9 @@
                 setTimeout(function(){
                     if (manager.noSleep) {
                         delete manager.noSleep;
-                        mono.addon.postMessage('isShow');
+                        if (!mono.noAddon) {
+                            mono.addon.postMessage('isShow');
+                        }
                     }
                 }, 60*1000);
                 return;
@@ -1731,7 +1733,7 @@ var manager = function () {
     };
     return {
         boot: function() {
-            if (mono.isFF) {
+            if (mono.isFF && !mono.noAddon) {
                 mono.addon.postMessage('isShow');
             }
             mono.storage.get([
