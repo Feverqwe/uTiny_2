@@ -78,7 +78,7 @@ var get_lang = function(lang) {
         cmDf: 'Default directory',
         cmCf: 'Current directory',
         cmNewPathDialog: 'Enter new path',
-        cmCreateItem: 'Add directory',
+        cmCreateItem: 'Add item',
         "settings": {
             1: "uTorrent",
             2: "Notifications",
@@ -152,7 +152,8 @@ var get_lang = function(lang) {
             70: 'Down',
             71: 'Up',
             72: 'To correct Cyrillic encoding (for version 3.4.30660, only Russian language)',
-            73: 'Tree context menu'
+            73: 'Tree context menu',
+            74: 'Display the default directory'
         }
     };
     var lang_arr_fr = {
@@ -234,7 +235,7 @@ var get_lang = function(lang) {
         cmDf: 'Répertoire par défaut',
         cmCf: 'Répertoire courant',
         cmNewPathDialog: 'Entrez le nouveau chemin',
-        cmCreateItem: 'Ajouter le répertoire',
+        cmCreateItem: 'Ajouter...',
         "settings": {
             1: "uTorrent",
             2: "Notifications",
@@ -308,7 +309,8 @@ var get_lang = function(lang) {
             70: 'Vers le bas',
             71: 'Vers le haut',
             72: 'Corriger cyrillique l\'encodage (pour la version 3.4.30660, seulement pour le russe)',
-            73: 'Arbre menu contextuel'
+            73: 'Arbre menu contextuel',
+            74: 'Afficher le répertoire par défaut'
         }
     };
     var lang_arr_ru = {
@@ -390,7 +392,7 @@ var get_lang = function(lang) {
         cmDf: 'Путь по умолчанию',
         cmCf: 'Текущая директория',
         cmNewPathDialog: 'Введите путь к новой дирректории',
-        cmCreateItem: 'Добавить путь',
+        cmCreateItem: 'Добавить...',
         "settings": {
             1: "uTorrent",
             2: "Уведомления",
@@ -464,7 +466,8 @@ var get_lang = function(lang) {
             70: 'Вниз',
             71: 'Вверх',
             72: 'Исправить кириллическую кодировку (для версии 3.4.30660, только для русского языка)',
-            73: 'Древовидное контекстное меню'
+            73: 'Древовидное контекстное меню',
+            74: 'Отображать директорию по умолчанию'
         }
     };
     if (lang === 'ru') {
