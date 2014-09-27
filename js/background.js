@@ -49,7 +49,12 @@ var jQ = {
             if (obj[key] === undefined) {
                 obj[key] = '';
             }
-            itemsList.push(encodeURIComponent(key)+'='+encodeURIComponent(obj[key]));
+            if (engine.settings.fix_cirilic_path === 1 &&
+                key === 'path' && obj.hasOwnProperty('download_dir')) {
+                itemsList.push(encodeURIComponent(key) + '=' + engine.in_cp1251(obj[key]));
+            } else {
+                itemsList.push(encodeURIComponent(key) + '=' + encodeURIComponent(obj[key]));
+            }
         }
         return itemsList.join('&');
     },
@@ -245,7 +250,8 @@ var engine = function () {
         context_labels: {v: 0, t: "checkbox"},
         fix_cirilic: {v: 0, t: "checkbox"},
         tree_view_menu: {v: 0, t: "checkbox"},
-        show_default_dir: {v: 0, t: "checkbox"}
+        show_default_dir: {v: 0, t: "checkbox"},
+        fix_cirilic_path: {v: 0, t: "checkbox"}
     };
     var settings = {};
     var loadSettings = function (cb) {
@@ -1326,6 +1332,39 @@ var engine = function () {
             return data;
         };
     }();
+    var in_cp1251 = function(sValue) {
+        var text = "", Ucode, ExitValue, s;
+        for (var i = 0, sValue_len = sValue.length; i < sValue_len; i++) {
+            s = sValue.charAt(i);
+            Ucode = s.charCodeAt(0);
+            var Acode = Ucode;
+            if (Ucode > 1039 && Ucode < 1104) {
+                Acode -= 848;
+                ExitValue = "%" + Acode.toString(16);
+            }
+            else if (Ucode === 1025) {
+                Acode = 168;
+                ExitValue = "%" + Acode.toString(16);
+            }
+            else if (Ucode === 1105) {
+                Acode = 184;
+                ExitValue = "%" + Acode.toString(16);
+            }
+            else if (Ucode === 32) {
+                Acode = 32;
+                ExitValue = "%" + Acode.toString(16);
+            }
+            else if (Ucode === 10) {
+                Acode = 10;
+                ExitValue = "%0A";
+            }
+            else {
+                ExitValue = s;
+            }
+            text = text + ExitValue;
+        }
+        return text;
+    };
     var fastMigration = function(lStorage) {
         var settings = {};
         for (var key in def_settings) {
@@ -1462,6 +1501,7 @@ var engine = function () {
             });
         },
         sendFile: sendFile,
-        createCtxMenu: createCtxMenu
+        createCtxMenu: createCtxMenu,
+        in_cp1251: in_cp1251
     };
 }();

@@ -151,9 +151,10 @@ var get_lang = function(lang) {
             69: 'Label instead of a directory',
             70: 'Down',
             71: 'Up',
-            72: 'To correct Cyrillic encoding (for version 3.4.30660, only Russian language)',
+            72: 'Fix Cyrillic encoding (for version 3.4.30660, only Russian language)',
             73: 'Tree context menu',
-            74: 'Display the default directory'
+            74: 'Display the default directory',
+            75: 'Fix Cyrillic encoding directories'
         }
     };
     var lang_arr_fr = {
@@ -310,7 +311,8 @@ var get_lang = function(lang) {
             71: 'Vers le haut',
             72: 'Corriger cyrillique l\'encodage (pour la version 3.4.30660, seulement pour le russe)',
             73: 'Arbre menu contextuel',
-            74: 'Afficher le répertoire par défaut'
+            74: 'Afficher le répertoire par défaut',
+            75: 'Corriger cyrillique l\'encodage des répertoires'
         }
     };
     var lang_arr_ru = {
@@ -467,7 +469,8 @@ var get_lang = function(lang) {
             71: 'Вверх',
             72: 'Исправить кириллическую кодировку (для версии 3.4.30660, только для русского языка)',
             73: 'Древовидное контекстное меню',
-            74: 'Отображать директорию по умолчанию'
+            74: 'Отображать директорию по умолчанию',
+            75: 'Исправить кириллическую кодировку директорий'
         }
     };
     if (lang === 'ru') {
