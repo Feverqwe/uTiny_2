@@ -289,7 +289,7 @@ var engine = function () {
                     settings[key] = JSON.parse(value);
                 }
             });
-            
+
             var_cache.webui_url = ((settings.ssl) ? 'https' : 'http') + "://" + settings.ut_ip + ':' + settings.ut_port + '/' + settings.ut_path;
             cb && cb();
         });
