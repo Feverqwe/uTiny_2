@@ -176,7 +176,9 @@ var init = function(env, button) {
             return cb(engine.traffic);
         }
         if (message.action === 'sendAction') {
-            return engine.sendAction(message.data);
+            return engine.sendAction(message.data, function() {
+                cb();
+            });
         }
         if (message.action === 'setTrColums') {
             return engine.setTrColums(message.data);
