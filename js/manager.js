@@ -2,7 +2,9 @@
     /**
      * @namespace $
      */
-    mono.pageId = 'mgr';
+    mono.sendHook.opt = function(){};
+    mono.sendHook.bg = function(){};
+
     var actionReader = function(message, cb) {
         if (message.action === 'setStatus') {
             return manager.setStatus(message.data);
@@ -40,7 +42,6 @@
             window.location = 'sleep.html';
             return;
         }
-        mono('>', message);
     };
     mono.onMessage(function(message, response) {
         if (Array.isArray(message)) {
@@ -148,7 +149,7 @@ var manager = function () {
         dom_cache.body.children('style.torrent-style').remove();
         dom_cache.body.append(style);
         dom_cache.body.css('width', width);
-        mono.sendMessage({action: 'resize', width: width}, undefined, 'service');
+        mono.isFF && mono.sendMessage({action: 'resize', width: width}, undefined, 'service');
         var_cache.body_width = dom_cache.body.width();
         dom_cache.tr_fixed_head.html(head);
         dom_cache.tr_head.html(head.clone());
@@ -222,7 +223,7 @@ var manager = function () {
     };
     var sendFile = function(url, folder, label) {
         mono.sendMessage({action: 'sendFile', url: url, folder: folder, label: label}, undefined, 'bg');
-    }
+    };
     var writeLanguage = function () {
         var webUi_url = ((_settings.ssl) ? 'https' : 'http') + "://" + _settings.login + ":" + _settings.password + "@" +
             _settings.ut_ip + ":" + _settings.ut_port + "/" + _settings.ut_path;
@@ -1844,7 +1845,7 @@ var manager = function () {
                     onBootVars.cache = response.cache;
                     window._lang_arr = response.lang_arr;
                     window._settings = response.settings;
-                    mono.sendMessage({action: 'resize', height: _settings.window_height}, undefined, 'service');
+                    mono.isFF && mono.sendMessage({action: 'resize', height: _settings.window_height}, undefined, 'service');
                     var_cache.tr_colums = response.getColums;
                     var_cache.fl_colums = response.getFlColums;
                     manager.start(onBootVars);

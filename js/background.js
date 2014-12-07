@@ -2,44 +2,46 @@
  * @namespace require
  */
 var lang_arr;
-if (typeof window === 'undefined') {
-    self = require("sdk/self");
-    var ffLoader = require('toolkit/loader');
-    var ffDataLoader = ffLoader.Loader({
+(function() {
+    if (typeof window !== 'undefined') return;
+
+    var self = require('sdk/self');
+    window = require('sdk/window/utils').getMostRecentBrowserWindow();
+    window.ffLoader = require('toolkit/loader');
+    window.ffDataLoader = window.ffLoader.Loader({
         paths: {
             'data/': self.data.url('js/')
         },
         name: self.name,
-        prefixURI: 'resource://'+self.id.slice(1, -1)+'/',
+        prefixURI: self.data.url().match(/([^:]+:\/\/[^/]+\/)/)[1],
         globals: {
             console: console,
             _require: function(path) {
                 switch (path) {
-                    case 'sdk/timers':
-                        return require('sdk/timers');
                     case 'sdk/simple-storage':
                         return require('sdk/simple-storage');
+                    case 'sdk/window/utils':
+                        return require('sdk/window/utils');
+                    case 'sdk/self':
+                        return require('sdk/self');
                     default:
                         console.log('Module not found!', path);
                 }
             }
         }
     });
-    mono = ffLoader.main(ffDataLoader, "data/mono");
-    window = require("sdk/window/utils").getMostRecentBrowserWindow();
-    window.get_lang = ffLoader.main(ffDataLoader, "data/lang").get_lang;
+    mono = window.ffLoader.main(window.ffDataLoader, "data/mono");
+    window.get_lang = window.ffLoader.main(window.ffDataLoader, "data/lang").get_lang;
+    window.isModule = true;
+    window.ffButton = undefined;
+    window.Notifications = require("sdk/notifications");
     XMLHttpRequest = require('sdk/net/xhr').XMLHttpRequest;
-
-    sdk_timers = require("sdk/timers");
+    var sdk_timers = require("sdk/timers");
     setTimeout = sdk_timers.setTimeout;
     clearTimeout = sdk_timers.clearTimeout;
     setInterval = sdk_timers.setInterval;
     clearInterval = sdk_timers.clearInterval;
-
-    window.Notifications = require("sdk/notifications");
-    window.isModule = true;
-    var ffButton = undefined;
-}
+})();
 var jQ = {
     isPlainObject: function( obj ) {
         var class2type = {};
@@ -142,10 +144,12 @@ var jQ = {
 var init = function(env, button) {
     if (env !== undefined) {
         mono = mono.init(env);
-        ffButton = button;
+        window.ffButton = button;
     }
 
-    mono.pageId = 'bg';
+    mono.sendHook.opt = function(){};
+    mono.sendHook.mgr = function(){};
+
     var actionReader = function(message, cb) {
         if (message === 'lang_arr') {
             return cb(lang_arr);
@@ -172,14 +176,7 @@ var init = function(env, button) {
             return cb(engine.traffic);
         }
         if (message.action === 'sendAction') {
-            if (cb) {
-                engine.sendAction(message.data, function() {
-                    cb();
-                });
-            } else {
-                engine.sendAction(message.data);
-            }
-            return;
+            return engine.sendAction(message.data);
         }
         if (message.action === 'setTrColums') {
             return engine.setTrColums(message.data);
@@ -206,7 +203,6 @@ var init = function(env, button) {
         if (message === 'getDefFlColums') {
             return cb(engine.getDefFlColums());
         }
-        mono('>', message);
     };
     mono.onMessage(function(message, response) {
         if (Array.isArray(message)) {
@@ -728,6 +724,7 @@ var engine = function () {
     };
 
     var mkFFIconWithText = function(size, count, cb) {
+        var self = require('sdk/self');
         var xhr = new XMLHttpRequest();
         var url = self.data.url('./icons/icon-'+size+'.png');
         if (count === 0) {
@@ -807,7 +804,7 @@ var engine = function () {
             mkFFIconWithText(16, active, function(url16, count) {
                 mkFFIconWithText(32, count, function(url32) {
                     mkFFIconWithText(64, count, function(url64) {
-                        ffButton.icon = {
+                        window.ffButton.icon = {
                             "16": url16,
                             "32": url32,
                             "64": url64
@@ -1090,6 +1087,7 @@ var engine = function () {
     var createCtxMenu = function () {
         var_cache.folders_array = settings.folders_array.slice(0);
         if (mono.isModule) {
+            var self = require('sdk/self');
             var contentScript = (function() {
                 var onClick = function() {
                     self.on("click", function(node) {
@@ -1431,7 +1429,7 @@ var engine = function () {
             mkFFIconWithText(16, 0, function(url16, count) {
                 mkFFIconWithText(32, count, function(url32) {
                     mkFFIconWithText(64, count, function(url64) {
-                        ffButton.icon = {
+                        window.ffButton.icon = {
                             "16": url16,
                             "32": url32,
                             "64": url64
@@ -1449,6 +1447,7 @@ var engine = function () {
                 }
             }
             if (mono.isModule) {
+                var self = require('sdk/self');
                 complete_icon = self.data.url(complete_icon);
                 add_icon = self.data.url(add_icon);
                 error_icon = self.data.url(error_icon);
@@ -1509,7 +1508,7 @@ var engine = function () {
         updateSettings: function (lang_type, cb) {
             if (lang_type) {
                 if (mono.isFF) {
-                    window.get_lang = ffLoader.main(ffDataLoader, "data/lang").get_lang;
+                    window.get_lang = window.ffLoader.main(window.ffDataLoader, "data/lang").get_lang;
                 }
                 lang_arr = window.get_lang(lang_type);
             }
