@@ -5,6 +5,8 @@
     var monoLib = require("./monoLib.js");
     var pageMod = require("sdk/page-mod");
 
+    monoLib.flags.enableLocalScope = true;
+
     var button = ToggleButton({
         id: "uTinyOpenBtn",
         label: "uTorrent easy client",
