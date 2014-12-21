@@ -176,11 +176,14 @@
       var type = (mPage.page.isVirtual !== undefined) ? 'lib' : 'port';
       return mPage.page[type].emit('mono', message);
     }
+
+    var fmPage = map[message.from];
     for (var i = 0, item; item = virtualPageList[i]; i++) {
+      if (fmPage.page === item) continue;
       item.lib.emit('mono', message);
     }
+
     if (flags.enableLocalScope && message.from !== undefined) {
-      var fmPage = map[message.from];
       if (fmPage !== undefined && (fmPage.isLocal || fmPage.page.isVirtual)) {
         for (var index in map) {
           var mPage = map[index];
@@ -296,7 +299,7 @@ sendHook.monoStorage = function(message) {
  * @namespace monoOnMessage {function}
  * @namespace map {array}
  */
-var serviceList = {
+var serviceList = exports.serviceList = {
   resize: function(message) {
     var mPage = map[message.from];
     if (!mPage || mPage.active === false) {

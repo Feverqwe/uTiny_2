@@ -202,7 +202,13 @@ var mono = (typeof mono === 'undefined') ? undefined : mono;
       chrome.tabs.sendMessage(tabId, message);
     },
     onMessage: function(message, sender) {
-      if (sender.tab && mono.isChromeBgPage !== 1) {
+      if (mono.isChromeBgPage === 1) {
+        if (message.fromBgPage === 1) {
+          // block msg's from bg page to bg page.
+          return;
+        }
+      } else if (message.toBgPage === 1) {
+        // block msg to bg page not in bg page.
         return;
       }
       var response = chromeMsg.mkResponse(sender);
@@ -226,6 +232,11 @@ var mono = (typeof mono === 'undefined') ? undefined : mono;
       });
     },
     send: function(message) {
+      if (mono.isChromeBgPage) {
+        message.fromBgPage = 1;
+      } else {
+        message.toBgPage = 1;
+      }
       chrome.runtime.sendMessage(message);
     }
   };
@@ -355,6 +366,15 @@ var mono = (typeof mono === 'undefined') ? undefined : mono;
       });
     },
     onMessage: function(message, sender, _response) {
+      if (mono.isChromeBgPage === 1) {
+        if (message.fromBgPage === 1) {
+          // block msg's from bg page to bg page.
+          return;
+        }
+      } else if (message.toBgPage === 1) {
+        // block msg to bg page not in bg page.
+        return;
+      }
       var response = chromeMsg.mkResponse(sender, _response);
       for (var i = 0, cb; cb = chromeMsg.cbList[i]; i++) {
         cb(message, response);
@@ -376,6 +396,11 @@ var mono = (typeof mono === 'undefined') ? undefined : mono;
       });
     },
     send: function(message) {
+      if (mono.isChromeBgPage) {
+        message.fromBgPage = 1;
+      } else {
+        message.toBgPage = 1;
+      }
       chrome.extension.sendRequest(message, function(message) {
         if (message.responseId !== undefined) {
           return msgTools.callCb(message);
@@ -384,6 +409,22 @@ var mono = (typeof mono === 'undefined') ? undefined : mono;
     }
   };
 
+  (function() {
+    try {
+      if (chrome.runtime.getBackgroundPage === undefined) return;
+    } catch (e) {
+      return;
+    }
+
+    mono.isChromeBgPage = 1;
+
+    chrome.runtime.getBackgroundPage(function(bgWin) {
+      if (bgWin !== window) {
+        delete  mono.isChromeBgPage;
+      }
+    });
+  })();
+
   mono.onMessage.on = chromeMsg.on;
   mono.sendMessage.send = chromeMsg.send;
   mono.sendMessage.sendToActiveTab = chromeMsg.sendToActiveTab;
@@ -391,6 +432,12 @@ var mono = (typeof mono === 'undefined') ? undefined : mono;
 
 (function() {
   if (!mono.isSafari) return;
+
+  var localUrl, localUrlLen;
+  if (mono.isSafariBgPage && window.location && window.location.href) {
+    localUrl = window.location.href.substr(0, window.location.href.indexOf('/', 19));
+    localUrlLen = localUrl.length;
+  }
 
   var safariMsg = {
     cbList: [],
@@ -445,9 +492,23 @@ var mono = (typeof mono === 'undefined') ? undefined : mono;
         }
       });
     } : mono.isSafariBgPage ? function(message) {
+      for (var p = 0, popup; popup = safari.extension.popovers[p]; p++) {
+        popup.contentWindow.mono.safariDirectOnMessage({
+          message: mono.cloneObj(message),
+          target: {
+            page: {
+              dispatchMessage: function(name, message) {
+                mono.safariDirectOnMessage({message: mono.cloneObj(message)});
+              }
+            }
+          }
+        });
+      }
       for (var w = 0, window; window = safari.application.browserWindows[w]; w++) {
         for (var t = 0, tab; tab = window.tabs[t]; t++) {
-          safariMsg.sendTo(message, tab);
+          if (tab.url && tab.url.substr(0, localUrlLen) === localUrl) {
+            safariMsg.sendTo(message, tab);
+          }
         }
       }
     } : function(message) {
@@ -462,6 +523,8 @@ var mono = (typeof mono === 'undefined') ? undefined : mono;
 
 (function() {
   if (!mono.isOpera) return;
+
+  var inLocalScope = window.location && window.location.href && window.location.href.substr(0, 9) === 'widget://';
 
   var operaMsg = {
     cbList: [],
@@ -482,6 +545,7 @@ var mono = (typeof mono === 'undefined') ? undefined : mono;
       }
       opera.extension.onmessage = function(event) {
         var message = event.data;
+        if (message.toLocalScope === 1 && inLocalScope === false) return;
         var response = operaMsg.mkResponse(event.source);
         for (var i = 0, cb; cb = operaMsg.cbList[i]; i++) {
           cb(message, response);
@@ -495,6 +559,7 @@ var mono = (typeof mono === 'undefined') ? undefined : mono;
     send: mono.isOperaInject ? function(message) {
       operaMsg.sendTo(message, opera.extension);
     } : function(message) {
+      message.toLocalScope = 1;
       opera.extension.broadcastMessage(message);
     }
   };
