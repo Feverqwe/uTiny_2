@@ -1,4 +1,5 @@
-var mono = mono || undefined;
+var mono = (typeof mono !== 'undefined') ? mono : undefined;
+var require = (typeof require !== 'undefined') ? require : undefined;
 
 (function() {
     if (typeof window !== 'undefined') return;
@@ -399,9 +400,9 @@ var engine = {
         };
 
         var lang = getLang();
-        var m = lang.match(/\(([^)]+)\)/);
-        if (m !== null) {
-            lang = m[1];
+        var match = lang.match(/\(([^)]+)\)/);
+        if (match !== null) {
+            lang = match[1];
         }
 
         var tPos = lang.indexOf('-');
@@ -429,9 +430,11 @@ var engine = {
     },
     getLanguage: function(cb, force) {
         var lang = force || engine.checkAvailableLanguage((engine.settings.language || engine.detectLanguage()));
+        var url = '_locales/' + lang;
         if (mono.isFF) {
             try {
-                engine.language = JSON.parse(self.data.load('_locales/' + lang));
+                engine.language = JSON.parse(self.data.load(url));
+                cb();
             } catch (e) {
                 if (lang !== 'en') {
                     return engine.getLanguage(cb, 'en');
@@ -441,7 +444,7 @@ var engine = {
             return;
         }
         engine.ajax({
-            url: '_locales/' + lang,
+            url: url,
             dataType: 'JSON',
             success: function(data) {
                 engine.language = data;
@@ -458,12 +461,47 @@ var engine = {
     run: function() {
         engine.loadSettings(function() {
             engine.getLanguage(function() {
+                engine.var_cache.isReady = 1;
+
+                var msg;
+                while ( msg = engine.var_cache.msgStack.shift() ) {
+                    engine.onMessage.apply(engine, msg);
+                }
+
                 engine.updateTrackerList();
             });
         });
     },
+    onMessage: function(msgList, response) {
+        if (engine.var_cache.isReady !== 1) {
+            return engine.var_cache.msgStack.push([msgList, response]);
+        }
+        if (Array.isArray(msgList)) {
+            var c_wait = msgList.length;
+            var c_ready = 0;
+            var resultList = {};
+            var ready = function(key, data) {
+                c_ready++;
+                resultList[key] = data;
+                if (c_wait === c_ready) {
+                    response(resultList);
+                }
+            };
+            msgList.forEach(function(message) {
+                var fn = engine.actionList[message.action];
+                fn && fn(message, function(response) {
+                    ready(message.action, response);
+                });
+            });
+            return;
+        }
+        var fn = engine.actionList[msgList.action];
+        fn && fn(msgList, response);
+    },
     actionList: {
-
+        getLanguage: function(message, response) {
+            response(engine.language);
+        }
     }
 };
 
@@ -486,29 +524,9 @@ var engine = {
             engine.ajax.xhr = XMLHttpRequest;
         }
 
-        mono.onMessage(function(msgList, response) {
-            if (Array.isArray(msgList)) {
-                var c_wait = msgList.length;
-                var c_ready = 0;
-                var resultList = {};
-                var ready = function(key, data) {
-                    c_ready++;
-                    resultList[key] = data;
-                    if (c_wait === c_ready) {
-                        response(resultList);
-                    }
-                };
-                msgList.forEach(function(message) {
-                    var fn = engine.actionList[message.action];
-                    fn && fn(message, function(response) {
-                        ready(message.action, response);
-                    });
-                });
-                return;
-            }
-            var fn = engine.actionList[msgList.action];
-            fn && fn(msgList, response);
-        });
+        engine.var_cache.msgStack = [];
+
+        mono.onMessage(engine.onMessage);
 
         engine.run();
     };
