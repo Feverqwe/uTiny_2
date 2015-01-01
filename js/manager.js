@@ -117,11 +117,11 @@ var manager = {
         currentFilter: {label: 'all', custom: 1},
         torrentListColumnList: {},
         trListItems: {},
-        trSortColum: 'name',
+        trSortColumn: 'name',
         trSortBy: 1,
         trSortList: [],
         fileListColumnList: {},
-        flSortColum: 'name',
+        flSortColumn: 'name',
         flSortBy: 1,
         // filelist layer pos
         flWidth: 0,
@@ -149,7 +149,7 @@ var manager = {
                     if (!value.display) {
                         continue;
                     }
-                    var orderClass = (manager.varCache.trSortColum !== key) ? undefined : (manager.varCache.trSortBy === 1) ? 'sortDown' : 'sortUp';
+                    var orderClass = (manager.varCache.trSortColumn !== key) ? undefined : (manager.varCache.trSortBy === 1) ? 'sortDown' : 'sortUp';
                     thList.push(mono.create('th', {
                         class: [key, orderClass],
                         title: manager.language[value.lang+'_TITLE'],
@@ -213,7 +213,7 @@ var manager = {
                     if (!value.display) {
                         continue;
                     }
-                    var orderClass = (manager.varCache.flSortColum !== key) ? undefined : (manager.varCache.flSortBy === 1) ? 'sortDown' : 'sortUp';
+                    var orderClass = (manager.varCache.flSortColumn !== key) ? undefined : (manager.varCache.flSortBy === 1) ? 'sortDown' : 'sortUp';
                     thList.push(mono.create('th', {
                         class: [key, orderClass],
                         title: manager.language[value.lang+'_TITLE'],
@@ -352,7 +352,7 @@ var manager = {
     },
     trChangeFilterByLabelBox: function() {
         var selectedIndex = manager.domCache.labelBox.selectedIndex;
-        var currentLabel = manager.currentFilter = manager.varCache.labels[selectedIndex];
+        var currentLabel = manager.varCache.currentFilter = manager.varCache.labels[selectedIndex];
 
         mono.storage.set({selectedLabel: currentLabel});
 
@@ -513,18 +513,17 @@ var manager = {
             var node = mono.create('td', {
                 class: key,
                 append: div = mono.create('div', {
-                    title: api[2],
-                    append: span = mono.create('span', {
-                        text: api[2]
-                    })
+                    append: span = mono.create('span')
                 })
             });
+            var update = function(api) {
+                div.title = api[2];
+                span.textContent = api[2];
+            };
+            update(api);
             return {
                 node: node,
-                update: function(api) {
-                    div.title = api[2];
-                    span.textContent = api[2];
-                }
+                update: update
             };
         },
         order: function(key, api) {
@@ -883,7 +882,7 @@ var manager = {
                 for (var columnName in manager.varCache.torrentListColumnList) {
                     var column = manager.varCache.torrentListColumnList[columnName];
                     if (column.display) {
-                        var cell = manager.trCreateCell[columnName](className, item.api);
+                        var cell = manager.trCreateCell[columnName](columnName, item.api);
                         item.cell[columnName] = cell.update;
                         tdList.push(cell.node);
                     }
@@ -891,11 +890,11 @@ var manager = {
                 return tdList;
             }())
         });
-        item.node.display = true;
+        item.display = true;
 
         if (manager.trItemIsInFilter(item)) {
             item.node.classList.add('filtered');
-            item.node.display = false;
+            item.display = false;
         }
     },
     getApiDiff: function(oldArr, newArray) {
@@ -1019,6 +1018,9 @@ var manager = {
             manager.apiIndexToChanges[index](changes);
         }
         for (var columnName in changes) {
+            if (!changes[columnName]) {
+                continue;
+            }
             var fn = item.cell[columnName];
             if (fn !== undefined) {
                 fn(item.api);
@@ -1031,10 +1033,161 @@ var manager = {
         }
     },
     trSkipItem: function(api) {
-        if (manager.settings.hide_seeding && api[4] === 1000 && api[1] === 201 ||
-            manager.settings.hide_finished && api[4] === 1000 && api[1] === 136) {
+        if (manager.settings.hideSeedStatusItem && api[4] === 1000 && api[1] === 201 ||
+            manager.settings.hideFnishStatusItem && api[4] === 1000 && api[1] === 136) {
             return true;
         }
+    },
+    columnToApiIndex: {
+        name:        2,
+        order:       17,
+        size:        3,
+        remaining:   'remaining',
+        done:        4,
+        status:      1,
+        seeds:       15,
+        peers:       13,
+        seeds_peers: 14,
+        downspd:     9,
+        upspd:       8,
+        eta:         10,
+        upped:       6,
+        downloaded:  5,
+        shared:      7,
+        avail:       16,
+        label:       11,
+        added:       23,
+        completed:   24,
+        actions:     undefined
+    },
+    trOnSort: function(index, by, A, B) {
+        var apiA = A.api;
+        var apiB = B.api;
+        var a;
+        var b;
+        if (typeof index === 'string') {
+            if (index === 'remaining') {
+                a = apiA[3] - apiA[5];
+                b = apiB[3] - apiB[5];
+            } else {
+                return 0;
+            }
+        } else {
+            a = apiA[index];
+            b = apiB[index];
+        }
+        if (index === 1) {
+            if (a === 201 && apiA[4] < 1000) {
+                a += 50;
+            }
+            if (b === 201 && apiB[4] < 1000) {
+                b += 50;
+            }
+        }
+        if (index === 24 && (a === 0 || b === 0)) {
+            if (a === b) {
+                return 0;
+            } else if (a < b) {
+                return (by === 1) ? 1 : -1;
+            } else if (a > b) {
+                return (by === 1) ? -1 : 1;
+            }
+        }
+        if (a === b) {
+            return 0;
+        } else if (a < b) {
+            return (by === 1) ? -1 : 1;
+        } else if (a > b) {
+            return (by === 1) ? 1 : -1;
+        }
+    },
+    trSortInsertList: function(sortedList, currentList) {
+        var newPaste = [];
+        var fromIndex = undefined;
+        var elList = null;
+
+        for (var i = 0, item; item = sortedList[i]; i++) {
+            if (currentList[i] === item) {
+                continue;
+            }
+            fromIndex = i;
+
+            elList = document.createDocumentFragment();
+            while (sortedList[i] !== undefined && sortedList[i] !== currentList[i]) {
+                var pos = currentList.indexOf(sortedList[i], i);
+                if (pos !== -1) {
+                    currentList.splice(pos, 1);
+                }
+                currentList.splice(i, 0, sortedList[i]);
+
+                elList.appendChild(sortedList[i].node);
+                i++;
+            }
+
+            newPaste.push({
+                pos: fromIndex,
+                list: elList
+            });
+        }
+
+        var table = manager.domCache.trBody;
+        for (i = 0, item; item = newPaste[i]; i++) {
+            if (item.pos === 0) {
+                var firstChild = table.firstChild;
+                if (firstChild === null) {
+                    table.appendChild(item.list);
+                } else {
+                    table.insertBefore(item.list, firstChild)
+                }
+            } else
+            if (table.childNodes[item.pos] !== undefined) {
+                table.insertBefore(item.list, table.childNodes[item.pos]);
+            } else {
+                table.appendChild(item.list);
+            }
+        }
+
+        manager.varCache.trSortList = currentList;
+    },
+    trSort: function(column, by) {
+        if (column === undefined) {
+            column = manager.varCache.trSortColumn;
+        }
+        if (by === undefined) {
+            by = manager.varCache.trSortBy;
+        }
+        manager.varCache.trSortColumn = column;
+        manager.varCache.trSortBy = by;
+
+        var columnIndex = manager.columnToApiIndex[column];
+        if (columnIndex === undefined) {
+            return;
+        }
+
+        var sortedList = manager.varCache.trSortList.slice(0);
+        sortedList.sort(manager.trOnSort.bind(undefined, columnIndex, by));
+        manager.trSortInsertList(sortedList, manager.varCache.trSortList);
+    },
+    setDownSpd: function(value) {
+        value = manager.bytesToText(value, '-', 1);
+        if (!manager.domCache.dlSpd) {
+            return manager.domCache.dlSpeed.appendChild(manager.domCache.dlSpd = mono.create('span', {
+                class: 'sum dl',
+                text: value
+            }));
+        }
+        manager.domCache.dlSpd.textContent = value;
+    },
+    setUpSpd: function(value) {
+        value = manager.bytesToText(value, '-', 1);
+        if (!manager.domCache.upSpd) {
+            return manager.domCache.upSpeed.appendChild(manager.domCache.upSpd = mono.create('span', {
+                class: 'sum up',
+                text: value
+            }));
+        }
+        manager.domCache.upSpd.textContent = value;
+
     },
     writeTrList: function(list) {
         var downspd = 0;
@@ -1054,7 +1207,7 @@ var manager = {
                 item = manager.varCache.trListItems[hash] = {};
                 item.api = api;
                 manager.trItemCreate(item);
-                manager.varCache.trSortList.appendChild(item.node);
+                manager.varCache.trSortList.push(item);
             } else {
                 var diffList = manager.getApiDiff(item.api, api);
                 if (diffList.length === 0) {
@@ -1064,12 +1217,17 @@ var manager = {
                 manager.trItemUpdate(diffList, item);
             }
         }
+
+        manager.setDownSpd(downspd);
+        manager.setUpSpd(upspd);
+
+        manager.trSort();
     },
     run: function() {
         mono.storage.get([
-            'trSortColum',
+            'trSortColumn',
             'trSortBy',
-            'flSortColum',
+            'flSortColumn',
             'flSortBy',
             'selectedLabel'], function(storage) {
             mono.sendMessage([
@@ -1100,9 +1258,9 @@ var manager = {
                     }));
                 }
 
-                manager.varCache.trSortColum = storage.trSortColum || [];
+                manager.varCache.trSortColumn = storage.trSortColumn || manager.varCache.trSortColumn;
                 manager.varCache.trSortBy = storage.trSortBy === undefined ? 1 : storage.trSortBy;
-                manager.varCache.flSortColum = storage.flSortColum || [];
+                manager.varCache.flSortColumn = storage.flSortColumn || manager.varCache.flSortColumn;
                 manager.varCache.flSortBy = storage.flSortBy === undefined ? 1 : storage.flSortBy;
 
                 manager.varCache.torrentListColumnList = data.getTorrentListColumnList;
@@ -1118,6 +1276,12 @@ var manager = {
                 });
 
                 manager.setStatus(data.getPublicStatus);
+
+                if (!manager.settings.hideSeedStatusItem && !manager.settings.hideFnishStatusItem) {
+                    manager.trSkipItem = function(){
+                        return false;
+                    };
+                }
 
                 manager.writeTrList(data.getRemoteTorrentList);
             });

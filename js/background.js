@@ -437,6 +437,13 @@ var engine = {
     } : function() {
         return engine.getLocale();
     },
+    readChromeLocale: function(lang) {
+        var language = {};
+        for (var key in lang) {
+            language[key] = lang[key].message;
+        }
+        return language;
+    },
     getLanguage: function(cb, force) {
         var lang = force || engine.checkAvailableLanguage((engine.settings.language || engine.detectLanguage()));
 
@@ -445,7 +452,7 @@ var engine = {
         var url = '_locales/' + lang + '/messages.json';
         if (mono.isFF) {
             try {
-                engine.language = JSON.parse(self.data.load(url));
+                engine.language = engine.readChromeLocale(JSON.parse(self.data.load(url)));
                 cb();
             } catch (e) {
                 if (lang !== 'en') {
@@ -459,7 +466,7 @@ var engine = {
             url: url,
             dataType: 'JSON',
             success: function(data) {
-                engine.language = data;
+                engine.language = engine.readChromeLocale(data);
                 cb();
             },
             error: function() {
