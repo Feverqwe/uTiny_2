@@ -31,7 +31,7 @@ var require = (typeof require !== 'undefined') ? require : undefined;
 var engine = {
     settings: {},
     defaultSettings: {
-        useSSL: {value: true, lang: 'useSSL'},
+        useSSL: {value: false, lang: 'useSSL'},
         ip: {value: "127.0.0.1", lang: 'PRS_COL_IP'},
         port: {value: 8080, lang: 'PRS_COL_PORT'},
         path: {value: "gui/", lang: 'apiPath'},
@@ -40,8 +40,10 @@ var engine = {
         notificationTimeout: {value: 5000, lang: 'notificationTimeout'},
         backgroundUpdateInterval: {value: 120000, lang: 'backgroundUpdateInterval'},
         popupUpdateInterval: {value: 1000, lang: 'popupUpdateInterval'},
+
         login: {value: undefined, lang: 'DLG_SETTINGS_9_WEBUI_03'},
         password: {value: undefined, lang: 'DLG_SETTINGS_9_WEBUI_05'},
+
         hideSeedStatusItem: {value: false, lang: 'hideSeedStatusItem'},
         hideFnishStatusItem: {value: false, lang: 'hideFnishStatusItem'},
         showSpeedGraph: {value: true, lang: 'showSpeedGraph'},
@@ -57,8 +59,8 @@ var engine = {
         fixCirilic: {value: false, lang: 'fixCirilic'},
         fixCirilicTorrentPath: {value: false, lang: 'fixCirilicTorrentPath'}
     },
-    trackrListColumnList: {},
-    defaultTrackrListColumnList: {
+    torrentListColumnList: {},
+    defaultTorrentListColumnList: {
         name:        {display: 1, order: 1, width: 200, lang: 'OV_COL_NAME'},
         order:       {display: 0, order: 1, width: 20,  lang: 'OV_COL_ORDER'},
         size:        {display: 1, order: 1, width: 60,  lang: 'OV_COL_SIZE'},
@@ -97,27 +99,15 @@ var engine = {
     capitalize: function(string) {
         return string.substr(0, 1).toUpperCase()+string.substr(1);
     },
-    var_cache: {
+    varCache: {
         webUiUrl: undefined,
         token: undefined,
         cid: undefined,
-        torrents: {},
+        torrents: [],
         labels: [],
-        settings: {}
-    },
-    timer: {
-        clearInterval: typeof clearInterval !== 'undefined' ? clearInterval : undefined,
-        setInterval: typeof setInterval !== 'undefined' ? setInterval : undefined,
-        timer: null,
-        start: function() {
-            this.clearInterval(this.timer);
-            this.timer = this.setInterval(function() {
-                engine.updateTrackerList();
-            }, engine.settings.backgroundUpdateInterval);
-        },
-        stop: function() {
-            this.clearInterval(this.timer);
-        }
+        settings: {},
+        trListItems: {},
+        lastPublicStatus: 'Sleep'
     },
     param: function(params) {
         if (typeof params === 'string') return params;
@@ -133,6 +123,9 @@ var engine = {
         return args.join('&');
     },
     publicStatus: function(statusText) {
+        if (engine.varCache.lastPublicStatus === statusText) return;
+
+        engine.varCache.lastPublicStatus = statusText;
         mono.sendMessage({setStatus: statusText});
     },
     ajax: function(obj) {
@@ -212,11 +205,25 @@ var engine = {
 
         return xhr;
     },
+    timer: {
+        clearInterval: typeof clearInterval !== 'undefined' ? clearInterval.bind() : undefined,
+        setInterval: typeof setInterval !== 'undefined' ? setInterval.bind() : undefined,
+        timer: null,
+        start: function() {
+            this.clearInterval(this.timer);
+            this.timer = this.setInterval(function() {
+                engine.updateTrackerList();
+            }, engine.settings.backgroundUpdateInterval);
+        },
+        stop: function() {
+            this.clearInterval(this.timer);
+        }
+    },
     getToken: function(onReady, onError, force) {
         engine.publicStatus('Try get token!' + (force ? ' Retry: ' + force : ''));
 
         engine.ajax({
-            url: engine.var_cache.webUiUrl + 'token.html',
+            url: engine.varCache.webUiUrl + 'token.html',
             headers: {
                 Authorization: 'Basic ' + window.btoa(engine.settings.login + ":" + engine.settings.password)
             },
@@ -228,7 +235,8 @@ var engine = {
                 } else {
                     engine.publicStatus('Token not found!');
                 }
-                engine.var_cache.token = token;
+                engine.varCache.token = token;
+                engine.publicStatus('Connected');
                 onReady && onReady();
             },
             error: function(xhr) {
@@ -245,17 +253,17 @@ var engine = {
         });
     },
     sendAction: function(data, onLoad, onError, force) {
-        if (engine.var_cache.token === undefined) {
+        if (engine.varCache.token === undefined) {
             return engine.getToken(function onGetToken() {
                 engine.sendAction.call(engine, data, onLoad, onError, force || 1);
             });
         }
 
-        data.token = engine.var_cache.token;
-        data.cid = engine.var_cache.cid;
+        data.token = engine.varCache.token;
+        data.cid = engine.varCache.cid;
 
         var type = 'GET';
-        var url = engine.var_cache.webUiUrl;
+        var url = engine.varCache.webUiUrl;
 
         engine.ajax({
             type: type,
@@ -271,6 +279,7 @@ var engine = {
                 } catch (err) {
                     return engine.publicStatus('Data parse error!');
                 }
+                engine.publicStatus('Connected');
                 onLoad && onLoad(data);
                 engine.readResponse(data);
             },
@@ -280,7 +289,7 @@ var engine = {
                         force = 0;
                     }
                     force++;
-                    engine.var_cache.token = undefined;
+                    engine.varCache.token = undefined;
                     if (force < 2) {
                         return engine.sendAction.call(engine, data, onLoad, onError, force);
                     }
@@ -292,11 +301,11 @@ var engine = {
     readResponse: function(data) {
         if (data.torrentc !== undefined) {
             // CID
-            engine.var_cache.cid = data.torrentc;
+            engine.varCache.cid = data.torrentc;
         }
         if (data.torrentm !== undefined) {
             // Removed torrents
-            var list = engine.var_cache.torrents || [];
+            var list = engine.varCache.torrents;
             for (var i = 0, item_m; item_m = data.torrentm[i]; i++) {
                 for (var n = 0, item_s; item_s = list[n]; n++) {
                     if (item_s[0] === item_m) {
@@ -309,11 +318,11 @@ var engine = {
 
         if (data.torrents !== undefined) {
             //Full torrent list
-            engine.var_cache.torrents = data.torrents;
+            engine.varCache.torrents = data.torrents;
         } else
         if (data.torrentp !== undefined) {
             // Updated torrent list with CID
-            var list = engine.var_cache.torrents;
+            var list = engine.varCache.torrents;
             var new_item = [];
             for (var i = 0, item_p; item_p = data.torrentp[i]; i++) {
                 var found = false;
@@ -334,12 +343,12 @@ var engine = {
 
         if (data.label !== undefined) {
             // Labels
-            engine.var_cache.labels = data.label;
+            engine.varCache.labels = data.label;
         }
 
         if (data.settings !== undefined) {
             // Settings
-            engine.var_cache.settings = data.settings;
+            engine.varCache.settings = data.settings;
         }
     },
     updateTrackerList: function() {
@@ -356,7 +365,7 @@ var engine = {
             optionsList.push(item);
         }
 
-        var columnList = ['fileListColumnList', 'trackrListColumnList'];
+        var columnList = ['fileListColumnList', 'torrentListColumnList'];
         columnList.forEach(function(item) {
             optionsList.push(item);
         });
@@ -378,7 +387,7 @@ var engine = {
                 engine[item] = storage.hasOwnProperty(item) ? storage[item] : engine['default'+engine.capitalize(item)];
             });
 
-            engine.var_cache.webUiUrl = (settings.useSSL ? 'https://' : 'http://') + settings.ip + ':' + settings.port + '/' + settings.path;
+            engine.varCache.webUiUrl = (settings.useSSL ? 'https://' : 'http://') + settings.ip + ':' + settings.port + '/' + settings.path;
 
             return cb();
         });
@@ -430,7 +439,10 @@ var engine = {
     },
     getLanguage: function(cb, force) {
         var lang = force || engine.checkAvailableLanguage((engine.settings.language || engine.detectLanguage()));
-        var url = '_locales/' + lang;
+
+        engine.settings.lang = engine.settings.lang || lang;
+
+        var url = '_locales/' + lang + '/messages.json';
         if (mono.isFF) {
             try {
                 engine.language = JSON.parse(self.data.load(url));
@@ -461,20 +473,22 @@ var engine = {
     run: function() {
         engine.loadSettings(function() {
             engine.getLanguage(function() {
-                engine.var_cache.isReady = 1;
+                engine.varCache.isReady = 1;
 
                 var msg;
-                while ( msg = engine.var_cache.msgStack.shift() ) {
+                while ( msg = engine.varCache.msgStack.shift() ) {
                     engine.onMessage.apply(engine, msg);
                 }
 
                 engine.updateTrackerList();
+
+                engine.timer.start();
             });
         });
     },
     onMessage: function(msgList, response) {
-        if (engine.var_cache.isReady !== 1) {
-            return engine.var_cache.msgStack.push([msgList, response]);
+        if (engine.varCache.isReady !== 1) {
+            return engine.varCache.msgStack.push([msgList, response]);
         }
         if (Array.isArray(msgList)) {
             var c_wait = msgList.length;
@@ -501,6 +515,27 @@ var engine = {
     actionList: {
         getLanguage: function(message, response) {
             response(engine.language);
+        },
+        getSettings: function(message, response) {
+            response(engine.settings);
+        },
+        getTorrentListColumnList: function(message, response) {
+            response(engine.torrentListColumnList);
+        },
+        getFileListColumnList: function(message, response) {
+            response(engine.fileListColumnList);
+        },
+        getRemoteTorrentList: function(message, response) {
+            response(engine.varCache.torrents);
+        },
+        getRemoteLabels: function(message, response) {
+            response(engine.varCache.labels);
+        },
+        getRemoteSettings: function(message, response) {
+            response(engine.varCache.settings);
+        },
+        getPublicStatus: function(message, responose) {
+            responose(engine.varCache.lastPublicStatus);
         }
     }
 };
@@ -524,13 +559,13 @@ var engine = {
             engine.ajax.xhr = XMLHttpRequest;
         }
 
-        engine.var_cache.msgStack = [];
+        engine.varCache.msgStack = [];
 
         mono.onMessage(engine.onMessage);
 
         engine.run();
     };
-    if (typeof window !== 'undefined') {
+    if (typeof window === 'undefined') {
         exports.init = init;
     } else {
         init();

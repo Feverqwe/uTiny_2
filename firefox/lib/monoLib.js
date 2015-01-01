@@ -16,7 +16,7 @@
    */
 
   /**
-   * type {function}
+   * Response id for page
    * @returns {number}
    */
   var getPageId = function() {
@@ -26,6 +26,11 @@
     return ++getPageId.value;
   };
 
+  /**
+   * Get mono page from map
+   * @param page
+   * @returns {object}
+   */
   var getMonoPage = function(page) {
     for (var index in map) {
       if (map[index].page === page) {
@@ -36,11 +41,20 @@
   };
 
   var virtualPageList = [];
+  /**
+   * Virtual port for background page
+   * @returns {{port: {emit: Function, on: Function}, lib: {emit: Function, on: Function}, isVirtual: boolean}}
+   */
   exports.virtualAddon = function() {
     var subscribClientList = {};
     var subscribServerList = {};
     var obj = {
       port: {
+        /**
+         * Send message from bg page
+         * @param {number} to
+         * @param message
+         */
         emit: function(to, message) {
           var list = subscribServerList[to];
           if (list === undefined) {
@@ -50,6 +64,11 @@
             item(message);
           }
         },
+        /**
+         * Listener for background page
+         * @param {number} to
+         * @param {function} cb - Callback function
+         */
         on: function(to, cb) {
           if (subscribClientList[to] === undefined) {
             subscribClientList[to] = [];
@@ -58,6 +77,11 @@
         }
       },
       lib: {
+        /**
+         * Send message to bg page
+         * @param {number} to
+         * @param message
+         */
         emit: function(to, message) {
           var list = subscribClientList[to];
           if (list === undefined) {
@@ -67,6 +91,11 @@
             item(message);
           }
         },
+        /**
+         * Listener for monoLib
+         * @param {number} to
+         * @param {function} cb - Callback function
+         */
         on: function(to, cb) {
           if (subscribServerList[to] === undefined) {
             subscribServerList[to] = [];
@@ -80,6 +109,9 @@
     return obj;
   };
 
+  /**
+   * Virtual port function for pages without addon, but with mono.js work like bridge
+   */
   exports.virtualPort = function() {
     window.addEventListener('message', function(e) {
       if (e.data[0] !== '>') {
@@ -183,13 +215,11 @@
       item.lib.emit('mono', message);
     }
 
-    if (flags.enableLocalScope && message.from !== undefined) {
-      if (fmPage !== undefined && (fmPage.isLocal || fmPage.page.isVirtual)) {
-        for (var index in map) {
-          var mPage = map[index];
-          if (fmPage === mPage || mPage.isLocal === false || mPage.active === false) continue;
-          mPage.page.port.emit('mono', message);
-        }
+    if (flags.enableLocalScope && fmPage !== undefined && fmPage.page.isVirtual && message.from !== undefined) {
+      for (var index in map) {
+        var mPage = map[index];
+        if (fmPage === mPage || mPage.isLocal === false || mPage.active === false) continue;
+        mPage.page.port.emit('mono', message);
       }
     }
   };
