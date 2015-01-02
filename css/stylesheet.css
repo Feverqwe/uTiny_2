@@ -90,6 +90,7 @@ ul.menu a.btn:hover {
 .torrent-list-layer {
     overflow: auto;
     border-top: 1px #c0c0c0 solid;
+    max-width: 800px;
 }
 
 table thead {

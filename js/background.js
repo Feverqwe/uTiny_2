@@ -60,37 +60,37 @@ var engine = {
         fixCirilicTorrentPath: {value: false, lang: 'fixCirilicTorrentPath'}
     },
     torrentListColumnList: {},
-    defaultTorrentListColumnList: {
-        name:        {display: 1, order: 1, width: 200, lang: 'OV_COL_NAME'},
-        order:       {display: 0, order: 1, width: 20,  lang: 'OV_COL_ORDER'},
-        size:        {display: 1, order: 1, width: 60,  lang: 'OV_COL_SIZE'},
-        remaining:   {display: 0, order: 1, width: 60,  lang: 'OV_COL_REMAINING'},
-        done:        {display: 1, order: 1, width: 70,  lang: 'OV_COL_DONE'},
-        status:      {display: 1, order: 1, width: 70,  lang: 'OV_COL_STATUS'},
-        seeds:       {display: 0, order: 1, width: 30,  lang: 'OV_COL_SEEDS'},
-        peers:       {display: 0, order: 1, width: 30,  lang: 'OV_COL_PEERS'},
-        seeds_peers: {display: 1, order: 1, width: 40,  lang: 'OV_COL_SEEDS_PEERS'},
-        downspd:     {display: 1, order: 1, width: 60,  lang: 'OV_COL_DOWNSPD'},
-        upspd:       {display: 1, order: 1, width: 60,  lang: 'OV_COL_UPSPD'},
-        eta:         {display: 1, order: 1, width: 70,  lang: 'OV_COL_ETA'},
-        upped:       {display: 0, order: 1, width: 60,  lang: 'OV_COL_UPPED'},
-        downloaded:  {display: 0, order: 1, width: 60,  lang: 'OV_COL_DOWNLOADED'},
-        shared:      {display: 0, order: 1, width: 60,  lang: 'OV_COL_SHARED'},
-        avail:       {display: 0, order: 1, width: 60,  lang: 'OV_COL_AVAIL'},
-        label:       {display: 0, order: 1, width: 100, lang: 'OV_COL_LABEL'},
-        added:       {display: 0, order: 1, width: 120, lang: 'OV_COL_DATE_ADDED'},
-        completed:   {display: 0, order: 1, width: 120, lang: 'OV_COL_DATE_COMPLETED'},
-        actions:     {display: 1, order: 0, width: 57,  lang: 'Actions'}
-    },
+    defaultTorrentListColumnList: [
+         {column: 'name',        display: 1, order: 1, width: 200, lang: 'OV_COL_NAME'},
+         {column: 'order',       display: 0, order: 1, width: 20,  lang: 'OV_COL_ORDER'},
+         {column: 'size',        display: 1, order: 1, width: 60,  lang: 'OV_COL_SIZE'},
+         {column: 'remaining',   display: 0, order: 1, width: 60,  lang: 'OV_COL_REMAINING'},
+         {column: 'done',        display: 1, order: 1, width: 70,  lang: 'OV_COL_DONE'},
+         {column: 'status',      display: 1, order: 1, width: 70,  lang: 'OV_COL_STATUS'},
+         {column: 'seeds',       display: 0, order: 1, width: 30,  lang: 'OV_COL_SEEDS'},
+         {column: 'peers',       display: 0, order: 1, width: 30,  lang: 'OV_COL_PEERS'},
+         {column: 'seeds_peers', display: 1, order: 1, width: 40,  lang: 'OV_COL_SEEDS_PEERS'},
+         {column: 'downspd',     display: 1, order: 1, width: 60,  lang: 'OV_COL_DOWNSPD'},
+         {column: 'upspd',       display: 1, order: 1, width: 60,  lang: 'OV_COL_UPSPD'},
+         {column: 'eta',         display: 1, order: 1, width: 70,  lang: 'OV_COL_ETA'},
+         {column: 'upped',       display: 0, order: 1, width: 60,  lang: 'OV_COL_UPPED'},
+         {column: 'downloaded',  display: 0, order: 1, width: 60,  lang: 'OV_COL_DOWNLOADED'},
+         {column: 'shared',      display: 0, order: 1, width: 60,  lang: 'OV_COL_SHARED'},
+         {column: 'avail',       display: 0, order: 1, width: 60,  lang: 'OV_COL_AVAIL'},
+         {column: 'label',       display: 0, order: 1, width: 100, lang: 'OV_COL_LABEL'},
+         {column: 'added',       display: 0, order: 1, width: 120, lang: 'OV_COL_DATE_ADDED'},
+         {column: 'completed',   display: 0, order: 1, width: 120, lang: 'OV_COL_DATE_COMPLETED'},
+         {column: 'actions',     display: 1, order: 0, width: 57,  lang: 'Actions'}
+    ],
     fileListColumnList: {},
-    defaultFileListColumnList: {
-        checkbox:   {display: 1, order: 0, width: 19,  lang: ''},
-        name:       {display: 1, order: 1, width: 300, lang: 'FI_COL_NAME'},
-        size:       {display: 1, order: 1, width: 60,  lang: 'FI_COL_SIZE'},
-        downloaded: {display: 1, order: 1, width: 60,  lang: 'OV_COL_DOWNLOADED'},
-        pcnt:       {display: 1, order: 1, width: 70,  lang: 'FI_COL_PCNT'},
-        prio:       {display: 1, order: 1, width: 74,  lang: 'FI_COL_PRIO'}
-    },
+    defaultFileListColumnList: [
+         {column: 'checkbox',   display: 1, order: 0, width: 19,  lang: ''},
+         {column: 'name',       display: 1, order: 1, width: 300, lang: 'FI_COL_NAME'},
+         {column: 'size',       display: 1, order: 1, width: 60,  lang: 'FI_COL_SIZE'},
+         {column: 'downloaded', display: 1, order: 1, width: 60,  lang: 'OV_COL_DOWNLOADED'},
+         {column: 'pcnt',       display: 1, order: 1, width: 70,  lang: 'FI_COL_PCNT'},
+         {column: 'prio',       display: 1, order: 1, width: 74,  lang: 'FI_COL_PRIO'}
+    ],
     icons: {
         complete: 'images/notification_done.png',
         add:      'images/notification_add.png',
@@ -546,6 +546,14 @@ var engine = {
         },
         api: function(message, response) {
             engine.sendAction(message.data, response);
+        },
+        setTrColumnList: function(message) {
+            engine.torrentListColumnList = message.data;
+            mono.storage.set({torrentListColumnList: message.data});
+        },
+        setFlColumnList: function(message) {
+            engine.fileListColumnList = message.data;
+            mono.storage.set({fileListColumnList: message.data});
         }
     }
 };

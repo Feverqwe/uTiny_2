@@ -205,7 +205,7 @@ var manager = {
         if (width < 723) {
             width = 723;
         }
-        document.body.style.width = width;
+        document.body.style.width = width+'px';
         mono.isFF && mono.sendMessage({action: 'resize', width: width}, undefined, 'service');
 
         manager.domCache.trFixedHead.appendChild(head);
@@ -1773,6 +1773,9 @@ var manager = {
 
         manager.trWriteHead();
     },
+    capitalize: function(string) {
+        return string.substr(0, 1).toUpperCase()+string.substr(1);
+    },
     tableResize: {
         enable: false,
         start: function(e) {
@@ -1799,8 +1802,8 @@ var manager = {
                 'min-width: {size}px;' +
             '}';
 
-            var styleEl;
-            document.body.appendChild(styleEl = mono.create('style'));
+            var styleEl = mono.create('style');
+            document.body.appendChild(styleEl);
 
             document.body.style.width = document.body.clientWidth+'px';
 
@@ -1825,10 +1828,18 @@ var manager = {
                 document.body.style.width = 'initial';
 
                 manager.varCache[type+'ColumnList'][columnName].width = newSize;
-                manager[type+'UpdateHead']();
+                mono.sendMessage({action: 'set'+manager.capitalize(type)+'ColumnList', data: manager.varCache[type+'ColumnArray']});
 
+                manager[type+'UpdateHead']();
             });
         }
+    },
+    prepareColumnList: function(columnList) {
+        var obj = {};
+        for (var n = 0, item; item = columnList[n]; n++) {
+            obj[item.column] = item;
+        }
+        return obj;
     },
     run: function() {
         mono.storage.get([
@@ -1876,8 +1887,10 @@ var manager = {
                 manager.varCache.flSortColumn = storage.flSortColumn || manager.varCache.flSortColumn;
                 manager.varCache.flSortBy = storage.flSortBy === undefined ? 1 : storage.flSortBy;
 
-                manager.varCache.trColumnList = data.getTrColumnList;
-                manager.varCache.flColumnList = data.getFlColumnList;
+                manager.varCache.trColumnList = manager.prepareColumnList(data.getTrColumnList);
+                manager.varCache.flColumnList = manager.prepareColumnList(data.getFlColumnList);
+                manager.varCache.trColumnArray = data.getTrColumnList;
+                manager.varCache.flColumnArray = data.getFlColumnList;
 
                 manager.domCache.trLayer.addEventListener('scroll', function() {
                     manager.domCache.trTableFixed.style.left = (-this.scrollLeft)+'px';
@@ -1955,8 +1968,6 @@ var manager = {
                 };
                 manager.domCache.trFixedHead.addEventListener('click', onColumntClick);
                 manager.domCache.flFixedHead.addEventListener('click', onColumntClick);
-
-
             });
         });
     }
