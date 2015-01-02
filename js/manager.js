@@ -97,6 +97,7 @@ var manager = {
         dlSpeed: document.querySelector('.status-panel td.speed.download'),
         upSpeed: document.querySelector('.status-panel td.speed.upload'),
         status: document.querySelector('.status-panel td.status'),
+        statusPanel: document.querySelector('.status-panel'),
         labelBox: document.querySelector('ul.menu li.select select'),
         trLayer: document.querySelector('.torrent-list-layer'),
         trTableMain: document.querySelector('.torrent-table-body'),
@@ -106,11 +107,11 @@ var manager = {
         trFixedHead: document.querySelector('.torrent-table-head > thead'),
         fl: document.querySelector(".file-list"),
         flLayer: document.querySelector('.file-list > .fl-layer'),
-        flTable_main: document.querySelector('.fl-table-body'),
-        flTable_fixed: document.querySelector('.fl-table-head'),
+        flTableMain: document.querySelector('.fl-table-body'),
+        flTableFixed: document.querySelector('.fl-table-head'),
         flBody: document.querySelector('.fl-table-body > tbody'),
         flHead: document.querySelector('.fl-table-body > thead'),
-        flFixed_head: document.querySelector('.fl-table-head > thead'),
+        flFixedHead: document.querySelector('.fl-table-head > thead'),
         flBottom: document.querySelector('.file-list ul.bottom-menu'),
         dropLayer: document.querySelector('div.drop_layer')
     },
@@ -122,6 +123,7 @@ var manager = {
         trSortBy: 1,
         trSortList: [],
         fileListColumnList: {},
+        flListItems: {},
         flSortColumn: 'name',
         flSortBy: 1,
         // filelist layer pos
@@ -222,7 +224,7 @@ var manager = {
                             type: key
                         },
                         append: [
-                            (key === 'select') ? mono.create('div', {
+                            (key === 'checkbox') ? mono.create('div', {
                                 append: mono.create('input', {
                                     type: 'checkbox'
                                 })
@@ -247,9 +249,10 @@ var manager = {
         width += manager.options.scrollWidth;
         manager.varCache.flWidth = width;
 
-        if (width > document.body.clientWidth) {
-            width = document.body.clientWidth;
-            styleBody += 'div.file-list {max-width:' + document.body.clientWidth + 'px; border-radius: 0;}';
+        var windowWidth = document.body.clientWidth;
+        if (width > windowWidth) {
+            width = windowWidth;
+            styleBody += 'div.file-list {max-width:' + windowWidth + 'px; border-radius: 0;}';
         }
         if (width < 100) {
             manager.domCache.flBottom.style.display = 'none';
@@ -261,10 +264,10 @@ var manager = {
         }
         var popupHeight = manager.settings.popupHeight;
 
-        var flBodyHeight = popupHeight - 34 - 19;
-        var flTableHeight = flBodyHeight - 34;
-        manager.varCache.flHeight = flTableHeight;
-        manager.varCache.flLeft = (document.body.clientHeight - width) / 2;
+        var flBodyHeight = popupHeight - manager.domCache.menu.clientHeight - 1 - manager.domCache.statusPanel.clientHeight - 2;
+        var flTableHeight = flBodyHeight - manager.domCache.menu.clientHeight;
+        manager.varCache.flHeight = flBodyHeight;
+        manager.varCache.flLeft = (windowWidth - width) / 2;
         styleBody += 'div.file-list {' +
             'left: ' + manager.varCache.flLeft + 'px;' +
             'height: ' + manager.varCache.flHeight + 'px;' +
@@ -284,7 +287,7 @@ var manager = {
             text: styleBody
         }));
 
-        manager.domCache.flFixed_head.appendChild(head);
+        manager.domCache.flFixedHead.appendChild(head);
         manager.domCache.flHead.appendChild(head.cloneNode(true));
     },
     getLabelOptionNode: function(item, isCustom) {
@@ -906,7 +909,7 @@ var manager = {
             item.display = false;
         }
     },
-    getApiDiff: function(oldArr, newArray) {
+    trGetApiDiff: function(oldArr, newArray) {
         var first = oldArr;
         var second = newArray;
         if (first.length < second.length) {
@@ -915,7 +918,7 @@ var manager = {
         }
         var diff = [];
         for (var i = 0, lenA = first.length; i < lenA; i++) {
-            if (manager.apiIndexToChanges[i] === undefined) {
+            if (manager.trApiIndexToChanges[i] === undefined) {
                 continue;
             }
             var itemA = first[i];
@@ -926,7 +929,7 @@ var manager = {
         }
         return diff;
     },
-    apiIndexToChanges: {
+    trApiIndexToChanges: {
         1: function(changes) {
             changes.status = manager.varCache.torrentListColumnList.status.display;
             changes.done = manager.varCache.torrentListColumnList.done.display;
@@ -1024,7 +1027,7 @@ var manager = {
         var changes = {};
         for (var i = 0, len = diff.length; i < len; i++) {
             var index = diff[i];
-            manager.apiIndexToChanges[index](changes);
+            manager.trApiIndexToChanges[index](changes);
         }
         for (var columnName in changes) {
             if (!changes[columnName]) {
@@ -1263,7 +1266,7 @@ var manager = {
                 manager.trItemCreate(item);
                 newItems.push(item);
             } else {
-                var diffList = manager.getApiDiff(item.api, api);
+                var diffList = manager.trGetApiDiff(item.api, api);
                 if (diffList.length === 0) {
                     continue;
                 }
@@ -1277,21 +1280,125 @@ var manager = {
 
         manager.trSort(undefined, undefined, newItems);
     },
-    updateTrackerList: function() {
+    updateTrackerList: function(onReady) {
+        manager.timer.wait = true;
         mono.sendMessage({action: 'api', data: {list: 1}}, function(data) {
+            manager.timer.wait = false;
+            onReady && onReady();
             manager.writeTrList(data);
         });
     },
     timer: {
         timer: undefined,
+        wait: false,
         start: function() {
+            var _this = this;
+            this.wait = false;
             clearInterval(this.timer);
             this.timer = setInterval(function() {
+                if (_this.wait) {
+                    return;
+                }
                 manager.updateTrackerList();
             }, manager.settings.popupUpdateInterval);
         },
         stop: function() {
             clearInterval(this.timer);
+        }
+    },
+    writeFlList: function(data) {
+        if (!data.files) {
+            return;
+        }
+
+        var flListLayer = manager.varCache.flListLayer;
+        var hash = data.files[0];
+        if (hash !== flListLayer.hash) {
+            return;
+        }
+
+        var fileList = data.files[1];
+        if (fileList.length === 0) {
+            // if magnet is loading
+            return;
+        }
+
+        var newItems = [];
+        for (var index = 0, api; api = fileList[index]; index++) {
+            var item = manager.varCache.flListItems[index];
+            if (item === undefined) {
+                item = manager.varCache.flListItems[index] = {};
+                item.api = api;
+                manager.flItemCreate(item);
+                newItems.push(item);
+            } else {
+                var diffList = manager.flGetApiDiff(item.api, api);
+                if (diffList.length === 0) {
+                    continue;
+                }
+                item.api = api;
+                manager.flItemUpdate(diffList, item);
+            }
+        }
+
+        manager.flSort(undefined, undefined, newItems);
+    },
+    flListShow: function(hash) {
+        var flListLayer = manager.varCache.flListLayer = {};
+        flListLayer.hash = hash;
+        var requestData = {action: 'getfiles', hash: hash};
+
+        var trItem = manager.varCache.trListItems[hash];
+        var trNode = trItem.node;
+        trNode.classList.add('selected');
+
+        document.body.appendChild(flListLayer.closeLayer = mono.create('div', {
+            class: 'file-list-layer-temp',
+            on: ['mousedown', function() {
+                flListLayer.close();
+            }]
+        }));
+
+        manager.writeFlHead();
+        manager.domCache.flLayer.appendChild(flListLayer.loading = mono.create('div', {
+            class: 'file-list-loading',
+            style: {
+                top: (manager.varCache.flHeight / 2 - 15)+'px',
+                left: (manager.varCache.flWidth / 2 - 15)+'px'
+            }
+        }));
+
+        var folderEl = manager.domCache.flBottom.querySelector('li.path > input');
+        var folder = trItem.api[26];
+        mono.create(folderEl, {
+            title: folder,
+            value: folder,
+            onCreate: function(el) {
+                el.focus();
+            }
+        });
+
+        mono.sendMessage({action: 'api', data: requestData}, function(data) {
+            flListLayer.param = requestData;
+            manager.writeFlList(data);
+        });
+
+        manager.domCache.fl.style.display = 'block';
+
+        flListLayer.close = function() {
+            manager.varCache.flListLayer = {};
+            manager.domCache.fl.style.display = 'none';
+            flListLayer.closeLayer.parentNode.removeChild(flListLayer.closeLayer);
+            trNode.classList.remove('selected');
+
+            manager.domCache.flFixedHead.removeChild(manager.domCache.flFixedHead.firstChild);
+            manager.domCache.flHead.removeChild(manager.domCache.flHead.firstChild);
+
+            manager.domCache.flBody.textContent = '';
+            if (flListLayer.loading) {
+                flListLayer.loading.parentNode.removeChild(flListLayer.loading);
+                delete flListLayer.loading;
+            }
         }
     },
     run: function() {
@@ -1330,8 +1437,9 @@ var manager = {
                 }
 
                 if (manager.settings.popupHeight > 0) {
-                    manager.domCache.trLayer.style.maxHeight = manager.settings.popupHeight + 'px';
-                    manager.domCache.trLayer.style.minHeight = manager.settings.popupHeight + 'px';
+                    var panelsHeight = 54;
+                    manager.domCache.trLayer.style.maxHeight = (manager.settings.popupHeight - panelsHeight) + 'px';
+                    manager.domCache.trLayer.style.minHeight = (manager.settings.popupHeight - panelsHeight) + 'px';
                 }
 
                 manager.varCache.trSortColumn = storage.trSortColumn || manager.varCache.trSortColumn;
@@ -1364,9 +1472,8 @@ var manager = {
                 }
 
                 manager.writeTrList({torrents: data.getRemoteTorrentList});
-                mono.sendMessage({action: 'api', data: {list: 1}}, function(data) {
+                manager.updateTrackerList(function() {
                     manager.timer.start();
-                    return manager.writeTrList(data);
                 });
                 mono.sendMessage({action: 'api', data: {action: 'getsettings'}}, function(data) {
                     console.log(data);
@@ -1374,7 +1481,23 @@ var manager = {
 
                 manager.domCache.menu.querySelector('a.btn.refresh').addEventListener('click', function(e) {
                     e.preventDefault();
-                    manager.updateTrackerList();
+                    manager.updateTrackerList(function() {
+                        manager.timer.start();
+                    });
+                });
+
+                manager.domCache.trBody.addEventListener('dblclick', function(e) {
+                    var parent = e.target;
+                    while (parent !== this) {
+                        parent = parent.parentNode;
+                        if (parent.tagName === 'TR') {
+                            break;
+                        }
+                    }
+                    var hash = parent.id;
+                    if (!hash) return;
+
+                    manager.flListShow(hash);
                 });
             });
         });
