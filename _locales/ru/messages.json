@@ -145,5 +145,17 @@
     },
     "OV_FL_STOPPED": {
         "message": "Остановлен"
+    },
+    "MF_DONT": {
+        "message":"Не загружать"
+    },
+    "MF_HIGH": {
+        "message":"Высокий приоритет"
+    },
+    "MF_LOW": {
+        "message":"Низкий приоритет"
+    },
+    "MF_NORMAL": {
+        "message":"Нормальный приоритет"
     }
 }

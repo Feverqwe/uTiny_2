@@ -123,9 +123,11 @@ var manager = {
         trSortBy: 1,
         trSortList: [],
         fileListColumnList: {},
+        flListLayer: {},
         flListItems: {},
         flSortColumn: 'name',
         flSortBy: 1,
+        flSortList: [],
         // filelist layer pos
         flWidth: 0,
         flHeight: 0,
@@ -893,11 +895,12 @@ var manager = {
                 var tdList = [];
                 for (var columnName in manager.varCache.torrentListColumnList) {
                     var column = manager.varCache.torrentListColumnList[columnName];
-                    if (column.display) {
-                        var cell = manager.trCreateCell[columnName](columnName, item.api);
-                        item.cell[columnName] = cell.update;
-                        tdList.push(cell.node);
+                    if (!column.display) {
+                        continue;
                     }
+                    var cell = manager.trCreateCell[columnName](columnName, item.api);
+                    item.cell[columnName] = cell.update;
+                    tdList.push(cell.node);
                 }
                 return tdList;
             }())
@@ -1050,7 +1053,7 @@ var manager = {
             return true;
         }
     },
-    columnToApiIndex: {
+    trColumnToApiIndex: {
         name:        2,
         order:       17,
         size:        3,
@@ -1174,7 +1177,7 @@ var manager = {
         manager.varCache.trSortColumn = column;
         manager.varCache.trSortBy = by;
 
-        var columnIndex = manager.columnToApiIndex[column];
+        var columnIndex = manager.trColumnToApiIndex[column];
         if (columnIndex === undefined) {
             return;
         }
@@ -1280,9 +1283,20 @@ var manager = {
 
         manager.trSort(undefined, undefined, newItems);
     },
+    extend: function(objA, objB) {
+        for (var key in objB) {
+            objA[key] = objB[key];
+        }
+    },
     updateTrackerList: function(onReady) {
         manager.timer.wait = true;
-        mono.sendMessage({action: 'api', data: {list: 1}}, function(data) {
+
+        var data = {list: 1};
+        if (manager.varCache.flListLayer.param !== undefined) {
+            manager.extend(data, manager.varCache.flListLayer.param);
+        }
+
+        mono.sendMessage({action: 'api', data: data}, function(data) {
             manager.timer.wait = false;
             onReady && onReady();
             manager.writeTrList(data);
@@ -1305,6 +1319,287 @@ var manager = {
         stop: function() {
             clearInterval(this.timer);
         }
+    },
+    flCreateCell: {
+        checkbox: function(columnName, api) {
+            var node = mono.create('td', {
+                class: columnName,
+                append: mono.create('input', {
+                    type: 'checkbox'
+                })
+            });
+            return {
+                node: node
+            }
+        },
+        name: function(columnName, api) {
+            var span;
+            var node = mono.create('td', {
+                class: columnName,
+                append: mono.create('div', {
+                    append: [
+                        span = mono.create('span')
+                    ]
+                })
+            });
+            var update = function(api) {
+                node.title = api[0];
+                span.textContent = api[0];
+            };
+            update(api);
+            return {
+                node: node,
+                update: update
+            }
+        },
+        size: function(columnName, api) {
+            var node = mono.create('td', {
+                class: columnName,
+                append: mono.create('div', {
+                    text: manager.bytesToText(api[1], '0')
+                })
+            });
+            return {
+                node: node
+            }
+        },
+        downloaded: function(columnName, api) {
+            var div;
+            var node = mono.create('td', {
+                class: columnName,
+                append: div = mono.create('div')
+            });
+            var update = function(api) {
+                div.textContent = manager.bytesToText(api[2], '0');
+            };
+            update(api);
+            return {
+                node: node,
+                update: update
+            }
+        },
+        pcnt: function(columnName, api) {
+            var div1, div2;
+            var node = mono.create('td', {
+                class: columnName,
+                append: mono.create('div', {
+                    class: 'progress_b',
+                    append: [
+                        div1 = mono.create('div', {
+                            class: 'val'
+                        }),
+                        div2 = mono.create('div', {
+                            class: 'progress_b_i'
+                        })
+                    ]
+                })
+            });
+            var update = function(api) {
+                var color = (api[1] === api[2] && api[3] !== 0) ? '#41B541' : '#3687ED';
+                var progress = Math.round((api[2] * 100 / api[1]) * 10) / 10;
+                div1.textContent = progress + '%';
+                div2.style.width = Math.round(progress) + '%';
+                div2.style.backgroundColor = color;
+            };
+            update(api);
+            return {
+                node: node,
+                update: update
+            }
+        },
+        prio: function(columnName, api) {
+            var priorityList = ['MF_DONT', 'MF_LOW', 'MF_NORMAL', 'MF_HIGH'];
+            var div;
+            var node = mono.create('td', {
+                class: columnName,
+                append: div = mono.create('div')
+            });
+            var update = function(api) {
+                var priority = manager.language[priorityList[api[3]]];
+                node.title = priority;
+                div.textContent = priority;
+            };
+            update(api);
+            return {
+                node: node,
+                update: update
+            }
+        }
+    },
+    flItemCreate: function(item) {
+        item.cell = {};
+        item.node = mono.create('tr', {
+            data: {
+                index: item.index
+            },
+            append: (function() {
+                var tdList = [];
+                for (var columnName in manager.varCache.fileListColumnList) {
+                    var column = manager.varCache.fileListColumnList[columnName];
+                    if (!column.display) {
+                        continue;
+                    }
+                    var cell = manager.flCreateCell[columnName](columnName, item.api);
+                    item.cell[columnName] = cell.update;
+                    tdList.push(cell.node);
+                }
+                return tdList;
+            }())
+        });
+    },
+    flApiIndexToChanges: {
+        0: function(changes) {
+            changes.name = manager.varCache.fileListColumnList.name.display === 1;
+        },
+        1: function(changes) {
+            changes.size = manager.varCache.fileListColumnList.size.display === 1;
+        },
+        2: function(changes) {
+            changes.downloaded = manager.varCache.fileListColumnList.downloaded.display === 1;
+            changes.pcnt = manager.varCache.fileListColumnList.pcnt.display === 1;
+        },
+        3: function(changes) {
+            changes.prio = manager.varCache.fileListColumnList.prio.display === 1;
+            changes.pcnt = manager.varCache.fileListColumnList.pcnt.display === 1;
+        }
+    },
+    flGetApiDiff: function(oldArr, newArray) {
+        var first = oldArr;
+        var second = newArray;
+        if (first.length < second.length) {
+            second = first;
+            first = newArray;
+        }
+        var diff = [];
+        for (var i = 0, lenA = first.length; i < lenA; i++) {
+            if (manager.flApiIndexToChanges[i] === undefined) {
+                continue;
+            }
+            var itemA = first[i];
+            var itemB = second[i];
+            if (itemA !== itemB) {
+                diff.push(i);
+            }
+        }
+        return diff;
+    },
+    flItemUpdate: function(diff, item) {
+        var changes = {};
+        for (var i = 0, len = diff.length; i < len; i++) {
+            var index = diff[i];
+            manager.flApiIndexToChanges[index](changes);
+        }
+        for (var columnName in changes) {
+            if (!changes[columnName]) {
+                continue;
+            }
+            var fn = item.cell[columnName];
+            if (fn !== undefined) {
+                fn(item.api);
+            }
+        }
+    },
+    flColumnToApiIndex: {
+        checkbox: undefined,
+        name: 0,
+        size: 1,
+        downloaded: 2,
+        pcnt: 'pcnt',
+        prio: 3
+    },
+    flOnSort: function(index, by, A, B) {
+        var apiA = A.api;
+        var apiB = B.api;
+        var a;
+        var b;
+        if (typeof index === 'string') {
+            if (index === 'pcnt') {
+                a = apiA[2] * 100 / apiA[1];
+                b = apiB[2] * 100 / apiB[1];
+            } else {
+                return 0;
+            }
+        } else {
+            a = apiA[index];
+            b = apiB[index];
+        }
+        if (a === b) {
+            return 0;
+        } else if (a < b) {
+            return (by === 1) ? -1 : 1;
+        } else if (a > b) {
+            return (by === 1) ? 1 : -1;
+        }
+    },
+    flSortInsertList: function(sortedList, currentList) {
+        var newPaste = [];
+        var fromIndex = null;
+        var elList = null;
+
+        for (var i = 0, item; item = sortedList[i]; i++) {
+            if (currentList[i] === item) {
+                continue;
+            }
+            fromIndex = i;
+
+            elList = document.createDocumentFragment();
+            while (sortedList[i] !== undefined && sortedList[i] !== currentList[i]) {
+                var pos = currentList.indexOf(sortedList[i], i);
+                if (pos !== -1) {
+                    currentList.splice(pos, 1);
+                }
+                currentList.splice(i, 0, sortedList[i]);
+
+                elList.appendChild(sortedList[i].node);
+                i++;
+            }
+
+            newPaste.push({
+                pos: fromIndex,
+                list: elList
+            });
+        }
+
+        var table = manager.domCache.flBody;
+        for (i = 0, item; item = newPaste[i]; i++) {
+            if (item.pos === 0) {
+                var firstChild = table.firstChild;
+                if (firstChild === null) {
+                    table.appendChild(item.list);
+                } else {
+                    table.insertBefore(item.list, firstChild)
+                }
+            } else
+            if (table.childNodes[item.pos] !== undefined) {
+                table.insertBefore(item.list, table.childNodes[item.pos]);
+            } else {
+                table.appendChild(item.list);
+            }
+        }
+
+        manager.varCache.flSortList = currentList;
+    },
+    flSort: function(column, by, newItems) {
+        if (newItems === undefined) {
+            newItems = [];
+        }
+        if (column === undefined) {
+            column = manager.varCache.flSortColumn;
+        }
+        if (by === undefined) {
+            by = manager.varCache.flSortBy;
+        }
+        manager.varCache.flSortColumn = column;
+        manager.varCache.flSortBy = by;
+
+        var columnIndex = manager.flColumnToApiIndex[column];
+        if (columnIndex === undefined) {
+            return;
+        }
+
+        var sortedList = Array.prototype.concat(manager.varCache.flSortList, newItems);
+        sortedList.sort(manager.flOnSort.bind(undefined, columnIndex, by));
+        manager.flSortInsertList(sortedList, manager.varCache.flSortList);
     },
     writeFlList: function(data) {
         if (!data.files) {
@@ -1329,6 +1624,7 @@ var manager = {
             if (item === undefined) {
                 item = manager.varCache.flListItems[index] = {};
                 item.api = api;
+                item.index = index;
                 manager.flItemCreate(item);
                 newItems.push(item);
             } else {
@@ -1339,6 +1635,11 @@ var manager = {
                 item.api = api;
                 manager.flItemUpdate(diffList, item);
             }
+        }
+
+        if (flListLayer.loading) {
+            flListLayer.loading.parentNode.removeChild(flListLayer.loading);
+            delete flListLayer.loading;
         }
 
         manager.flSort(undefined, undefined, newItems);
@@ -1379,8 +1680,8 @@ var manager = {
         });
 
         mono.sendMessage({action: 'api', data: requestData}, function(data) {
-            flListLayer.param = requestData;
             manager.writeFlList(data);
+            flListLayer.param = requestData;
         });
 
         manager.domCache.fl.style.display = 'block';
@@ -1394,7 +1695,10 @@ var manager = {
             manager.domCache.flFixedHead.removeChild(manager.domCache.flFixedHead.firstChild);
             manager.domCache.flHead.removeChild(manager.domCache.flHead.firstChild);
 
+            manager.varCache.flSortList = [];
+            manager.varCache.flListItems = {};
             manager.domCache.flBody.textContent = '';
+
             if (flListLayer.loading) {
                 flListLayer.loading.parentNode.removeChild(flListLayer.loading);
                 delete flListLayer.loading;
