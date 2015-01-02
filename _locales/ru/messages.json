@@ -157,5 +157,14 @@
     },
     "MF_NORMAL": {
         "message":"Нормальный приоритет"
+    },
+    "ML_START": {
+        "message":"Запустить"
+    },
+    "ML_PAUSE": {
+        "message":"Пауза"
+    },
+    "ML_STOP": {
+        "message":"Остановить"
     }
 }

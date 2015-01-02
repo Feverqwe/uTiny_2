@@ -526,10 +526,10 @@ var engine = {
         getSettings: function(message, response) {
             response(engine.settings);
         },
-        getTorrentListColumnList: function(message, response) {
+        getTrColumnList: function(message, response) {
             response(engine.torrentListColumnList);
         },
-        getFileListColumnList: function(message, response) {
+        getFlColumnList: function(message, response) {
             response(engine.fileListColumnList);
         },
         getRemoteTorrentList: function(message, response) {

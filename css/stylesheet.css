@@ -114,6 +114,7 @@ table tbody td {
 }
 table thead tr th {
     border-right: 1px solid #c0c0c0;
+    position: relative;
 }
 table thead tr th:last-child  {
     border-right: 0;
@@ -243,14 +244,14 @@ div.torrent-list-layer table td.controls div.btns > a {
     background-repeat: no-repeat;
     background-position: center center;
 }
-div.torrent-list-layer table td.controls div.btns > a.start { 
-    background-image: url('../images/play.png'); 
+div.torrent-list-layer table td.controls div.btns > a.start {
+    background-image: url('../images/play.png');
 }
-div.torrent-list-layer table td.controls div.btns > a.pause { 
-    background-image: url('../images/pause.png'); 
+div.torrent-list-layer table td.controls div.btns > a.pause {
+    background-image: url('../images/pause.png');
 }
-div.torrent-list-layer table td.controls div.btns > a.stop { 
-    background-image: url('../images/stop.png'); 
+div.torrent-list-layer table td.controls div.btns > a.stop {
+    background-image: url('../images/stop.png');
 }
 div.torrent-list-layer table td.controls div.btns > a:active {
     opacity: 0.7;
@@ -338,12 +339,12 @@ table.fl-table-body thead {
 div.fl-layer table.fl-table-body td.select {
     text-align: center;
 }
-div.fl-layer table .select input { 
-    margin-top: 2.5px; 
-    margin-bottom: 2.5px; 
+div.fl-layer table .select input {
+    margin-top: 2.5px;
+    margin-bottom: 2.5px;
 }
 div.fl-layer table .name > div {
-    text-align: left; 
+    text-align: left;
     text-overflow: ellipsis;
 }
 div.fl-layer table .size {
@@ -669,4 +670,15 @@ div.btn.setup {
     background-position: center;
     cursor: pointer;
     margin-right: 2px;
+}
+.resize-el {
+    float: right;
+    display: block;
+    height: 100%;
+    width: 12px;
+    cursor: col-resize;
+    right: 0;
+    top: 0;
+    position: absolute !important;
+    margin-right: -6px;
 }

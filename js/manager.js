@@ -117,12 +117,12 @@ var manager = {
     },
     varCache: {
         currentFilter: {label: 'all', custom: 1},
-        torrentListColumnList: {},
+        trColumnList: {},
         trListItems: {},
         trSortColumn: 'name',
         trSortBy: 1,
         trSortList: [],
-        fileListColumnList: {},
+        flColumnList: {},
         flListLayer: {},
         flListItems: {},
         flSortColumn: 'name',
@@ -143,14 +143,14 @@ var manager = {
         TrMovebleEnabled: true,
         windowMode: false
     },
-    writeTrHead: function() {
+    trWriteHead: function() {
         var styleBody = '';
         var width = 0;
         var head = mono.create('tr', {
             append: (function() {
                 var thList = [];
-                for (var key in manager.varCache.torrentListColumnList) {
-                    var value = manager.varCache.torrentListColumnList[key];
+                for (var key in manager.varCache.trColumnList) {
+                    var value = manager.varCache.trColumnList[key];
                     if (!value.display) {
                         continue;
                     }
@@ -159,11 +159,19 @@ var manager = {
                         class: [key, orderClass],
                         title: manager.language[value.lang+'_SHORT'] || manager.language[value.lang],
                         data: {
-                            type: key
+                            name: key,
+                            type: 'tr'
                         },
                         append: [
                             mono.create('div', {
                                 text: manager.language[value.lang+'_SHORT'] || manager.language[value.lang]
+                            }),
+                            mono.create('div', {
+                                class: 'resize-el',
+                                on: [
+                                    ['click', function(e){e.stopPropagation();}],
+                                    ['mousedown', manager.tableResize.start]
+                                ]
                             })
                         ]
                     }));
@@ -207,14 +215,14 @@ var manager = {
         var selectBox = document.querySelector('li.select');
         graph.style.width = selectBox.offsetLeft - graph.offsetLeft - 5;
     },
-    writeFlHead: function() {
+    flWriteHead: function() {
         var styleBody = '';
         var width = 0;
         var head = mono.create('tr', {
             append: (function() {
                 var thList = [];
-                for (var key in manager.varCache.fileListColumnList) {
-                    var value = manager.varCache.fileListColumnList[key];
+                for (var key in manager.varCache.flColumnList) {
+                    var value = manager.varCache.flColumnList[key];
                     if (!value.display) {
                         continue;
                     }
@@ -223,7 +231,8 @@ var manager = {
                         class: [key, orderClass],
                         title: manager.language[value.lang+'_SHORT'] || manager.language[value.lang],
                         data: {
-                            type: key
+                            name: key,
+                            type: 'fl'
                         },
                         append: [
                             (key === 'checkbox') ? mono.create('div', {
@@ -232,6 +241,13 @@ var manager = {
                                 })
                             }) : mono.create('div', {
                                 text: manager.language[value.lang+'_SHORT'] || manager.language[value.lang]
+                            }),
+                            mono.create('div', {
+                                class: 'resize-el',
+                                on: [
+                                    ['click', function(e){e.stopPropagation();}],
+                                    ['mousedown', manager.tableResize.start]
+                                ]
                             })
                         ]
                     }));
@@ -860,17 +876,17 @@ var manager = {
                     append: [
                         mono.create('a', {
                             href: '#start',
-                            title: manager.language['btnStart'],
+                            title: manager.language['ML_START'],
                             class: 'start'
                         }),
                         mono.create('a', {
                             href: '#pause',
-                            title: manager.language['btnPause'],
+                            title: manager.language['ML_PAUSE'],
                             class: 'pause'
                         }),
                         mono.create('a', {
                             href: '#stop',
-                            title: manager.language['btnStop'],
+                            title: manager.language['ML_STOP'],
                             class: 'stop'
                         })
                     ]
@@ -893,8 +909,8 @@ var manager = {
             },
             append: (function(){
                 var tdList = [];
-                for (var columnName in manager.varCache.torrentListColumnList) {
-                    var column = manager.varCache.torrentListColumnList[columnName];
+                for (var columnName in manager.varCache.trColumnList) {
+                    var column = manager.varCache.trColumnList[columnName];
                     if (!column.display) {
                         continue;
                     }
@@ -934,68 +950,68 @@ var manager = {
     },
     trApiIndexToChanges: {
         1: function(changes) {
-            changes.status = manager.varCache.torrentListColumnList.status.display;
-            changes.done = manager.varCache.torrentListColumnList.done.display;
+            changes.status = manager.varCache.trColumnList.status.display;
+            changes.done = manager.varCache.trColumnList.done.display;
         },
         2: function(changes) {
-            changes.name = manager.varCache.torrentListColumnList.name.display;
+            changes.name = manager.varCache.trColumnList.name.display;
         },
         3: function(changes) {
-            changes.size = manager.varCache.torrentListColumnList.size.display;
-            changes.remaining = manager.varCache.torrentListColumnList.remaining.display;
+            changes.size = manager.varCache.trColumnList.size.display;
+            changes.remaining = manager.varCache.trColumnList.remaining.display;
         },
         4: function(changes) {
-            changes.done = manager.varCache.torrentListColumnList.done.display;
+            changes.done = manager.varCache.trColumnList.done.display;
         },
         21: function(changes) {
-            changes.status = manager.varCache.torrentListColumnList.status.display;
+            changes.status = manager.varCache.trColumnList.status.display;
         },
         9: function(changes) {
-            changes.downspd = manager.varCache.torrentListColumnList.downspd.display;
-            changes.remaining = manager.varCache.torrentListColumnList.remaining.display;
+            changes.downspd = manager.varCache.trColumnList.downspd.display;
+            changes.remaining = manager.varCache.trColumnList.remaining.display;
         },
         8: function(changes) {
-            changes.upspd = manager.varCache.torrentListColumnList.upspd.display;
+            changes.upspd = manager.varCache.trColumnList.upspd.display;
         },
         12: function(changes) {
-            changes.seeds_peers = manager.varCache.torrentListColumnList.seeds_peers.display;
+            changes.seeds_peers = manager.varCache.trColumnList.seeds_peers.display;
         },
         14: function(changes) {
-            changes.seeds_peers = manager.varCache.torrentListColumnList.seeds_peers.display;
+            changes.seeds_peers = manager.varCache.trColumnList.seeds_peers.display;
         },
         17: function(changes) {
-            changes.order = manager.varCache.torrentListColumnList.order.display;
+            changes.order = manager.varCache.trColumnList.order.display;
         },
         15: function(changes) {
-            changes.seeds = manager.varCache.torrentListColumnList.seeds.display;
+            changes.seeds = manager.varCache.trColumnList.seeds.display;
         },
         13: function(changes) {
-            changes.peers = manager.varCache.torrentListColumnList.peers.display;
+            changes.peers = manager.varCache.trColumnList.peers.display;
         },
         10: function(changes) {
-            changes.eta = manager.varCache.torrentListColumnList.eta.display;
+            changes.eta = manager.varCache.trColumnList.eta.display;
         },
         6: function(changes) {
-            changes.upped = manager.varCache.torrentListColumnList.upped.display;
+            changes.upped = manager.varCache.trColumnList.upped.display;
         },
         5: function(changes) {
-            changes.downloaded = manager.varCache.torrentListColumnList.downloaded.display;
+            changes.downloaded = manager.varCache.trColumnList.downloaded.display;
         },
         7: function(changes) {
-            changes.shared = manager.varCache.torrentListColumnList.shared.display;
+            changes.shared = manager.varCache.trColumnList.shared.display;
         },
         16: function(changes) {
-            changes.avail = manager.varCache.torrentListColumnList.avail.display;
+            changes.avail = manager.varCache.trColumnList.avail.display;
         },
         11: function(changes) {
-            changes.label = manager.varCache.torrentListColumnList.label.display;
+            changes.label = manager.varCache.trColumnList.label.display;
             changes.data_label = 1;
         },
         23: function(changes) {
-            changes.added = manager.varCache.torrentListColumnList.added.display;
+            changes.added = manager.varCache.trColumnList.added.display;
         },
         24: function(changes) {
-            changes.completed = manager.varCache.torrentListColumnList.completed.display;
+            changes.completed = manager.varCache.trColumnList.completed.display;
         },
         22: function(changes) {
             changes.data_sid = 1;
@@ -1179,7 +1195,7 @@ var manager = {
 
         var columnIndex = manager.trColumnToApiIndex[column];
         if (columnIndex === undefined) {
-            return;
+            columnIndex = '';
         }
 
         var sortedList = Array.prototype.concat(manager.varCache.trSortList, newItems);
@@ -1282,6 +1298,10 @@ var manager = {
         manager.setUpSpd(upspd);
 
         manager.trSort(undefined, undefined, newItems);
+
+        if (data.files !== undefined) {
+            manager.writeFlList(data);
+        }
     },
     extend: function(objA, objB) {
         for (var key in objB) {
@@ -1434,8 +1454,8 @@ var manager = {
             },
             append: (function() {
                 var tdList = [];
-                for (var columnName in manager.varCache.fileListColumnList) {
-                    var column = manager.varCache.fileListColumnList[columnName];
+                for (var columnName in manager.varCache.flColumnList) {
+                    var column = manager.varCache.flColumnList[columnName];
                     if (!column.display) {
                         continue;
                     }
@@ -1449,18 +1469,18 @@ var manager = {
     },
     flApiIndexToChanges: {
         0: function(changes) {
-            changes.name = manager.varCache.fileListColumnList.name.display === 1;
+            changes.name = manager.varCache.flColumnList.name.display === 1;
         },
         1: function(changes) {
-            changes.size = manager.varCache.fileListColumnList.size.display === 1;
+            changes.size = manager.varCache.flColumnList.size.display === 1;
         },
         2: function(changes) {
-            changes.downloaded = manager.varCache.fileListColumnList.downloaded.display === 1;
-            changes.pcnt = manager.varCache.fileListColumnList.pcnt.display === 1;
+            changes.downloaded = manager.varCache.flColumnList.downloaded.display === 1;
+            changes.pcnt = manager.varCache.flColumnList.pcnt.display === 1;
         },
         3: function(changes) {
-            changes.prio = manager.varCache.fileListColumnList.prio.display === 1;
-            changes.pcnt = manager.varCache.fileListColumnList.pcnt.display === 1;
+            changes.prio = manager.varCache.flColumnList.prio.display === 1;
+            changes.pcnt = manager.varCache.flColumnList.pcnt.display === 1;
         }
     },
     flGetApiDiff: function(oldArr, newArray) {
@@ -1594,7 +1614,7 @@ var manager = {
 
         var columnIndex = manager.flColumnToApiIndex[column];
         if (columnIndex === undefined) {
-            return;
+            columnIndex = '';
         }
 
         var sortedList = Array.prototype.concat(manager.varCache.flSortList, newItems);
@@ -1660,7 +1680,7 @@ var manager = {
             }]
         }));
 
-        manager.writeFlHead();
+        manager.flWriteHead();
         manager.domCache.flLayer.appendChild(flListLayer.loading = mono.create('div', {
             class: 'file-list-loading',
             style: {
@@ -1705,6 +1725,111 @@ var manager = {
             }
         }
     },
+    setColumSort: function(node, columnName, by, type) {
+        var thList = manager.domCache[type+'FixedHead'].querySelectorAll(['.sortDown', '.sortUp']);
+        for (var i = 0, item; item = thList[i]; i++) {
+            item.classList.remove('sortDown');
+            item.classList.remove('sortUp');
+        }
+
+        if (by === undefined) {
+            by = manager.varCache[type+'SortBy'];
+        } else {
+            by = by ? 0 : 1;
+        }
+
+        var storage = {};
+        storage[type+'SortColumn'] = columnName;
+        storage[type+'SortBy'] = by;
+
+        manager.extend(manager.varCache, storage);
+
+        manager[type+'Sort']();
+
+        by && node.classList.add('sortDown');
+        !by && node.classList.add('sortUp');
+        mono.storage.set(storage);
+    },
+    flUpdateHead: function() {
+        var oldHead = manager.domCache.flFixedHead.firstChild;
+        if (oldHead) {
+            oldHead.parentNode.removeChild(oldHead);
+        }
+        oldHead = manager.domCache.flHead.firstChild;
+        if (oldHead) {
+            oldHead.parentNode.removeChild(oldHead);
+        }
+        manager.flWriteHead();
+    },
+    trUpdateHead: function() {
+        var oldHead = manager.domCache.trFixedHead.firstChild;
+        if (oldHead) {
+            oldHead.parentNode.removeChild(oldHead);
+        }
+        oldHead = manager.domCache.trHead.firstChild;
+        if (oldHead) {
+            oldHead.parentNode.removeChild(oldHead);
+        }
+
+        manager.trWriteHead();
+    },
+    tableResize: {
+        enable: false,
+        start: function(e) {
+            if (e.button !== 0) {
+                return;
+            }
+            var _this = manager.tableResize;
+            _this.enable = true;
+
+            var column = this.parentNode;
+            var type = column.dataset.type;
+            var columnName = column.dataset.name;
+
+
+            var currentSize = column.clientWidth;
+
+            var startXPos = e.clientX;
+            var delta = 0;
+
+            var styleType = type === 'tr' ? 'torrent' : 'fl';
+            var styleBody = '.'+styleType+'-list-layer th.' + columnName + ',' +
+            ' .'+styleType+'-list-layer td.' + columnName + ' {' +
+                'max-width: {size}px;' +
+                'min-width: {size}px;' +
+            '}';
+
+            var styleEl;
+            document.body.appendChild(styleEl = mono.create('style'));
+
+            document.body.style.width = document.body.clientWidth+'px';
+
+            var newSize = currentSize;
+            var onMouseMove = function(e) {
+                var xPos = e.x;
+                delta = xPos - startXPos - 6;
+                newSize = currentSize + delta;
+                if (newSize < 16) {
+                    newSize = 16;
+                }
+                styleEl.textContent = styleBody.replace(/\{size\}/g, newSize);
+            };
+            document.body.addEventListener('mousemove', onMouseMove);
+            document.body.addEventListener('mouseup', function onMouseDown(e) {
+                e.stopPropagation();
+                _this.enable = false;
+
+                document.body.removeEventListener('mousemove', onMouseMove);
+                document.body.removeEventListener('mouseup', onMouseDown);
+                styleEl.parentNode.removeChild(styleEl);
+                document.body.style.width = 'initial';
+
+                manager.varCache[type+'ColumnList'][columnName].width = newSize;
+                manager[type+'UpdateHead']();
+
+            });
+        }
+    },
     run: function() {
         mono.storage.get([
             'trSortColumn',
@@ -1715,8 +1840,8 @@ var manager = {
             mono.sendMessage([
                 {action: 'getLanguage'},
                 {action: 'getSettings'},
-                {action: 'getTorrentListColumnList'},
-                {action: 'getFileListColumnList'},
+                {action: 'getTrColumnList'},
+                {action: 'getFlColumnList'},
                 {action: 'getRemoteTorrentList'},
                 {action: 'getRemoteLabels'},
                 {action: 'getRemoteSettings'},
@@ -1751,14 +1876,14 @@ var manager = {
                 manager.varCache.flSortColumn = storage.flSortColumn || manager.varCache.flSortColumn;
                 manager.varCache.flSortBy = storage.flSortBy === undefined ? 1 : storage.flSortBy;
 
-                manager.varCache.torrentListColumnList = data.getTorrentListColumnList;
-                manager.varCache.fileListColumnList = data.getFileListColumnList;
+                manager.varCache.trColumnList = data.getTrColumnList;
+                manager.varCache.flColumnList = data.getFlColumnList;
 
                 manager.domCache.trLayer.addEventListener('scroll', function() {
                     manager.domCache.trTableFixed.style.left = (-this.scrollLeft)+'px';
                 });
 
-                manager.writeTrHead();
+                manager.trWriteHead();
 
                 manager.varCache.currentFilter = storage.selectedLabel || manager.varCache.currentFilter;
                 manager.setLabels(data.getRemoteLabels);
@@ -1803,6 +1928,28 @@ var manager = {
 
                     manager.flListShow(hash);
                 });
+
+                var onColumntClick = function(e) {
+                    var parent = e.target;
+                    while (parent !== this) {
+                        parent = parent.parentNode;
+                        if (parent.tagName === 'TH') {
+                            break;
+                        }
+                    }
+
+                    var sortBy = parent.classList.contains('sortDown') ? 1 : parent.classList.contains('sortUp') ? 0 : undefined;
+                    var columnName = parent.dataset.name;
+                    var type = parent.dataset.type;
+                    if (!type) {
+                        return;
+                    }
+                    manager.setColumSort(parent, columnName, sortBy, type);
+                };
+                manager.domCache.trFixedHead.addEventListener('click', onColumntClick);
+                manager.domCache.flFixedHead.addEventListener('click', onColumntClick);
+
+
             });
         });
     }
