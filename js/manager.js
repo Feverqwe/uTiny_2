@@ -1792,9 +1792,9 @@ var manager = {
             var startXPos = e.clientX;
             var delta = 0;
 
-            var styleType = type === 'tr' ? 'torrent' : 'fl';
-            var styleBody = '.'+styleType+'-list-layer th.' + columnName + ',' +
-            ' .'+styleType+'-list-layer td.' + columnName + ' {' +
+            var styleType = type === 'tr' ? 'torrent-list' : 'fl';
+            var styleBody = '.'+styleType+'-layer th.' + columnName + ',' +
+            ' .'+styleType+'-layer td.' + columnName + ' {' +
                 'max-width: {size}px;' +
                 'min-width: {size}px;' +
             '}';
@@ -1881,6 +1881,13 @@ var manager = {
 
                 manager.domCache.trLayer.addEventListener('scroll', function() {
                     manager.domCache.trTableFixed.style.left = (-this.scrollLeft)+'px';
+                });
+                manager.domCache.flLayer.addEventListener('scroll', function() {
+                    if (this.scrollLeft !== 0) {
+                        manager.domCache.flTableFixed.style.left = (-this.scrollLeft + manager.varCache.flLeft) + 'px';
+                    } else {
+                        manager.domCache.flTableFixed.style.left = 'auto';
+                    }
                 });
 
                 manager.trWriteHead();
