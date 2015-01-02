@@ -676,10 +676,9 @@ div.btn.setup {
     float: right;
     display: block;
     height: 100%;
-    width: 12px;
+    width: 6px;
     cursor: col-resize;
     right: 0;
     top: 0;
     position: absolute !important;
-    margin-right: -6px;
 }

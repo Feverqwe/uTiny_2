@@ -526,10 +526,10 @@ var engine = {
         getSettings: function(message, response) {
             response(engine.settings);
         },
-        getTrColumnList: function(message, response) {
+        getTrColumnArray: function(message, response) {
             response(engine.torrentListColumnList);
         },
-        getFlColumnList: function(message, response) {
+        getFlColumnArray: function(message, response) {
             response(engine.fileListColumnList);
         },
         getRemoteTorrentList: function(message, response) {
@@ -547,11 +547,11 @@ var engine = {
         api: function(message, response) {
             engine.sendAction(message.data, response);
         },
-        setTrColumnList: function(message) {
+        setTrColumnArray: function(message) {
             engine.torrentListColumnList = message.data;
             mono.storage.set({torrentListColumnList: message.data});
         },
-        setFlColumnList: function(message) {
+        setFlColumnArray: function(message) {
             engine.fileListColumnList = message.data;
             mono.storage.set({fileListColumnList: message.data});
         }

@@ -1828,7 +1828,7 @@ var manager = {
                 document.body.style.width = 'initial';
 
                 manager.varCache[type+'ColumnList'][columnName].width = newSize;
-                mono.sendMessage({action: 'set'+manager.capitalize(type)+'ColumnList', data: manager.varCache[type+'ColumnArray']});
+                mono.sendMessage({action: 'set'+manager.capitalize(type)+'ColumnArray', data: manager.varCache[type+'ColumnArray']});
 
                 manager[type+'UpdateHead']();
             });
@@ -1851,8 +1851,8 @@ var manager = {
             mono.sendMessage([
                 {action: 'getLanguage'},
                 {action: 'getSettings'},
-                {action: 'getTrColumnList'},
-                {action: 'getFlColumnList'},
+                {action: 'getTrColumnArray'},
+                {action: 'getFlColumnArray'},
                 {action: 'getRemoteTorrentList'},
                 {action: 'getRemoteLabels'},
                 {action: 'getRemoteSettings'},
@@ -1887,10 +1887,10 @@ var manager = {
                 manager.varCache.flSortColumn = storage.flSortColumn || manager.varCache.flSortColumn;
                 manager.varCache.flSortBy = storage.flSortBy === undefined ? 1 : storage.flSortBy;
 
-                manager.varCache.trColumnList = manager.prepareColumnList(data.getTrColumnList);
-                manager.varCache.flColumnList = manager.prepareColumnList(data.getFlColumnList);
-                manager.varCache.trColumnArray = data.getTrColumnList;
-                manager.varCache.flColumnArray = data.getFlColumnList;
+                manager.varCache.trColumnList = manager.prepareColumnList(data.getTrColumnArray);
+                manager.varCache.flColumnList = manager.prepareColumnList(data.getFlColumnArray);
+                manager.varCache.trColumnArray = data.getTrColumnArray;
+                manager.varCache.flColumnArray = data.getFlColumnArray;
 
                 manager.domCache.trLayer.addEventListener('scroll', function() {
                     manager.domCache.trTableFixed.style.left = (-this.scrollLeft)+'px';
