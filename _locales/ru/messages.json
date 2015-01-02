@@ -6,12 +6,117 @@
         "message": "ru"
     },
     "sizeList": {
-        "message": "[\"б\", \"Кб\", \"Мб\", \"Гб\", \"Тб\", \"Пб\", \"Eb\", \"Zb\", \"Yb\"]"
+        "message": "[\"б\", \"кб\", \"мб\", \"гб\", \"Тб\", \"Пб\", \"Эб\"]"
     },
     "sizePsList": {
-        "message": "[\"б/с\", \"Кб/с\", \"Мб/с\", \"Гб/с\", \"Тб/с\", \"Пб/с\", \"Eb/s\", \"Zb/s\", \"Yb/s\"]"
+        "message": "[\"б/сек.\", \"кб/сек.\", \"мб/сек.\", \"гб/сек.\", \"Тб/сек.\", \"Пб/сек.\", \"Эб/сек.\", \"Zb/sec.\", \"Yb/sec.\"]"
     },
     "timeOutList": {
-        "message": "[\"н\", \"д\", \"ч\", \"м\", \"с\"]"
+        "message": "[\"нед.\", \"дн.\", \"час.\", \"мин.\", \"сек.\"]"
+    },
+    "OV_COL_NAME": {
+        "message": "Имя торрента"
+    },
+    "OV_COL_ORDER": {
+        "message": "Позиция"
+    },
+    "OV_COL_SIZE": {
+        "message": "Размер"
+    },
+    "OV_COL_REMAINING": {
+        "message": "Осталось"
+    },
+    "OV_COL_DONE": {
+        "message": "%"
+    },
+    "OV_COL_STATUS": {
+        "message": "Статус"
+    },
+    "OV_COL_SEEDS": {
+        "message": "Сиды"
+    },
+    "OV_COL_PEERS": {
+        "message": "Пиры"
+    },
+    "OV_COL_SEEDS_PEERS": {
+        "message": "Сиды/Пиры"
+    },
+    "OV_COL_DOWNSPD": {
+        "message": "Скорость загрузки"
+    },
+    "OV_COL_DOWNSPD_SHORT": {
+        "message": "Загр. скор."
+    },
+    "OV_COL_UPSPD": {
+        "message": "Скорость отдачи"
+    },
+    "OV_COL_UPSPD_SHORT": {
+        "message": "Отд. скор."
+    },
+    "OV_COL_ETA": {
+        "message": "Время"
+    },
+    "OV_COL_UPPED": {
+        "message": "Отдано"
+    },
+    "OV_COL_DOWNLOADED": {
+        "message": "Получено"
+    },
+    "OV_COL_SHARED": {
+        "message": "Коэффициент"
+    },
+    "OV_COL_SHARED_SHORT": {
+        "message": "Коэфф."
+    },
+    "OV_COL_AVAIL": {
+        "message": "Доступность"
+    },
+    "OV_COL_AVAIL_SHORT": {
+        "message": "Доступ."
+    },
+    "OV_COL_LABEL": {
+        "message": "Метка"
+    },
+    "OV_COL_DATE_ADDED": {
+        "message": "Добавлен"
+    },
+    "OV_COL_DATE_COMPLETED": {
+        "message": "Завершён"
+    },
+    "Actions": {
+        "message": "Действия"
+    },
+    "FI_COL_NAME": {
+        "message": "Имя файла"
+    },
+    "FI_COL_SIZE": {
+        "message": "Размер"
+    },
+    "FI_COL_PCNT": {
+        "message": "%"
+    },
+    "FI_COL_PRIO": {
+        "message": "Приоритет"
+    },
+    "OV_FL_SEEDING": {
+        "message": "Раздается"
+    },
+    "OV_CAT_ACTIVE": {
+        "message": "Активные"
+    },
+    "OV_CAT_ALL": {
+        "message": "Все"
+    },
+    "OV_CAT_COMPL": {
+        "message": "Готовые"
+    },
+    "OV_CAT_DL": {
+        "message": "Загружаемые"
+    },
+    "OV_CAT_INACTIVE": {
+        "message": "Неактивные"
+    },
+    "OV_CAT_NOLABEL": {
+        "message": "Без метки"
     }
 }

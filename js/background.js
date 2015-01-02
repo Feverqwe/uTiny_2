@@ -80,7 +80,7 @@ var engine = {
         label:       {display: 0, order: 1, width: 100, lang: 'OV_COL_LABEL'},
         added:       {display: 0, order: 1, width: 120, lang: 'OV_COL_DATE_ADDED'},
         completed:   {display: 0, order: 1, width: 120, lang: 'OV_COL_DATE_COMPLETED'},
-        actions:     {display: 1, order: 0, width: 57,  lang: 'OV_COL_ACTIONS'}
+        actions:     {display: 1, order: 0, width: 57,  lang: 'Actions'}
     },
     fileListColumnList: {},
     defaultFileListColumnList: {
@@ -208,7 +208,7 @@ var engine = {
     timer: {
         clearInterval: typeof clearInterval !== 'undefined' ? clearInterval.bind() : undefined,
         setInterval: typeof setInterval !== 'undefined' ? setInterval.bind() : undefined,
-        timer: null,
+        timer: undefined,
         start: function() {
             this.clearInterval(this.timer);
             this.timer = this.setInterval(function() {
@@ -543,6 +543,9 @@ var engine = {
         },
         getPublicStatus: function(message, responose) {
             responose(engine.varCache.lastPublicStatus);
+        },
+        api: function(message, response) {
+            engine.sendAction(message.data, response);
         }
     }
 };

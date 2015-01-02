@@ -90,6 +90,7 @@ mono.spaceToUnderline = function(string) {
 
 var manager = {
     language: {},
+    settings: {},
     domCache: {
         body: document.body,
         menu: document.querySelector('ul.menu'),
@@ -152,13 +153,13 @@ var manager = {
                     var orderClass = (manager.varCache.trSortColumn !== key) ? undefined : (manager.varCache.trSortBy === 1) ? 'sortDown' : 'sortUp';
                     thList.push(mono.create('th', {
                         class: [key, orderClass],
-                        title: manager.language[value.lang+'_TITLE'],
+                        title: manager.language[value.lang+'_SHORT'] || manager.language[value.lang],
                         data: {
                             type: key
                         },
                         append: [
                             mono.create('div', {
-                                text: manager.language[value.lang+'_TEXT']
+                                text: manager.language[value.lang+'_SHORT'] || manager.language[value.lang]
                             })
                         ]
                     }));
@@ -216,7 +217,7 @@ var manager = {
                     var orderClass = (manager.varCache.flSortColumn !== key) ? undefined : (manager.varCache.flSortBy === 1) ? 'sortDown' : 'sortUp';
                     thList.push(mono.create('th', {
                         class: [key, orderClass],
-                        title: manager.language[value.lang+'_TITLE'],
+                        title: manager.language[value.lang+'_SHORT'] || manager.language[value.lang],
                         data: {
                             type: key
                         },
@@ -226,7 +227,7 @@ var manager = {
                                     type: 'checkbox'
                                 })
                             }) : mono.create('div', {
-                                text: manager.language[value.lang+'_TEXT']
+                                text: manager.language[value.lang+'_SHORT'] || manager.language[value.lang]
                             })
                         ]
                     }));
@@ -289,7 +290,7 @@ var manager = {
     getLabelOptionNode: function(item, isCustom) {
         return mono.create('option', {
             value: item,
-            text: isCustom ? manager.language['CUSTOM_LABEL_'+item.toUpperCase()] : item,
+            text: isCustom ? (item === 'SEEDING') ? manager.language['OV_FL_'+item.toUpperCase()] : manager.language['OV_CAT_'+item.toUpperCase()] : item,
             data: !isCustom ? undefined : {
                 image: item,
                 type: 'custom'
@@ -321,25 +322,25 @@ var manager = {
         manager.domCache.labelBox.selectedIndex = selectedIndex;
     },
     trCustomFilterObj: {
-        all: function() {
+        ALL: function() {
             return true;
         },
-        download: function(item) {
+        DL: function(item) {
             return item.api[4] !== 1000;
         },
-        seeding: function(item) {
+        SEEDING: function(item) {
             return item.api[1] === 201 && item.api[4] === 1000;
         },
-        complite: function(item) {
+        COMPL: function(item) {
             return item.api[4] === 1000;
         },
-        active: function(item) {
+        ACTIVE: function(item) {
             return item.api[9] !== 0 || item.api[8] !== 0;
         },
-        inacive: function(item) {
+        INACTIVE: function(item) {
             return item.api[9] === 0 && item.api[8] === 0;
         },
-        no_label: function(item) {
+        NOLABEL: function(item) {
             return item.api[11].length === 0;
         }
     },
@@ -361,7 +362,7 @@ var manager = {
         }
 
         if (!currentLabel.custom) {
-            return document.body.appendChild(mono.create('style', {
+            return document.body.appendChild(manager.varCache['style.tr-filter'] = mono.create('style', {
                 class: 'tr-filter',
                 text: '.torrent-table-body tbody > tr {' +
                     'display: none;' +
@@ -387,7 +388,7 @@ var manager = {
         }
         if (currentLabel.label === 'all') return;
 
-        document.body.appendChild(mono.create('style', {
+        document.body.appendChild(manager.varCache['style.tr-filter'] = mono.create('style', {
             class: 'tr-filter',
             text: '.torrent-table-body tbody > tr.filtered{' +
                 'display: none;' +
@@ -1189,10 +1190,51 @@ var manager = {
         manager.domCache.upSpd.textContent = value;
 
     },
-    writeTrList: function(list) {
+    trRemoveItem: function(hash) {
+        var item = manager.varCache.trListItems[hash];
+        if (!item) {
+            return;
+        }
+        manager.varCache.trSortList.splice(manager.varCache.trSortList.indexOf(item), 1);
+        item.node.parentNode.removeChild(item.node);
+        delete manager.varCache.trListItems[hash];
+    },
+    trFullUpdatePrepare: function(list) {
+        var rmList = [];
+        for (var n = 0, item; item = manager.varCache.trSortList[n]; n++) {
+            var itemHash = item.api[0];
+            var found = false;
+            for (var i = 0, apiNew; apiNew = list[i]; i++) {
+                if (apiNew[0] === itemHash) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                rmList.push(itemHash);
+            }
+        }
+        for (var i = 0, hash; hash = rmList[i]; i++) {
+            manager.trRemoveItem(hash);
+        }
+    },
+    writeTrList: function(data) {
         var downspd = 0;
         var upspd = 0;
 
+        if (data.torrentm !== undefined) {
+            // remove items from dom
+            for (var i = 0, hash; hash = data.torrentm[i]; i++) {
+                manager.trRemoveItem(hash);
+            }
+        }
+
+        if (data.torrents !== undefined) {
+            // remove old items
+            manager.trFullUpdatePrepare(data.torrents);
+        }
+
+        var list = data.torrents || data.torrentp || [];
         for (var i = 0, api; api = list[i]; i++) {
             downspd += api[9];
             upspd += api[8];
@@ -1222,6 +1264,23 @@ var manager = {
         manager.setUpSpd(upspd);
 
         manager.trSort();
+    },
+    updateTrackerList: function() {
+        mono.sendMessage({action: 'api', data: {list: 1}}, function(data) {
+            manager.writeTrList(data);
+        });
+    },
+    timer: {
+        timer: undefined,
+        start: function() {
+            clearInterval(this.timer);
+            this.timer = setInterval(function() {
+                manager.updateTrackerList();
+            }, manager.settings.popupUpdateInterval);
+        },
+        stop: function() {
+            clearInterval(this.timer);
+        }
     },
     run: function() {
         mono.storage.get([
@@ -1258,6 +1317,11 @@ var manager = {
                     }));
                 }
 
+                if (manager.settings.popupHeight > 0) {
+                    manager.domCache.trLayer.style.maxHeight = manager.settings.popupHeight + 'px';
+                    manager.domCache.trLayer.style.minHeight = manager.settings.popupHeight + 'px';
+                }
+
                 manager.varCache.trSortColumn = storage.trSortColumn || manager.varCache.trSortColumn;
                 manager.varCache.trSortBy = storage.trSortBy === undefined ? 1 : storage.trSortBy;
                 manager.varCache.flSortColumn = storage.flSortColumn || manager.varCache.flSortColumn;
@@ -1265,6 +1329,10 @@ var manager = {
 
                 manager.varCache.torrentListColumnList = data.getTorrentListColumnList;
                 manager.varCache.fileListColumnList = data.getFileListColumnList;
+
+                manager.domCache.trLayer.addEventListener('scroll', function() {
+                    manager.domCache.trTableFixed.style.left = (-this.scrollLeft)+'px';
+                });
 
                 manager.writeTrHead();
 
@@ -1283,7 +1351,19 @@ var manager = {
                     };
                 }
 
-                manager.writeTrList(data.getRemoteTorrentList);
+                manager.writeTrList({torrents: data.getRemoteTorrentList});
+                mono.sendMessage({action: 'api', data: {list: 1}}, function(data) {
+                    manager.timer.start();
+                    return manager.writeTrList(data);
+                });
+                mono.sendMessage({action: 'api', data: {action: 'getsettings'}}, function(data) {
+                    console.log(data);
+                });
+
+                manager.domCache.menu.querySelector('a.btn.refresh').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    manager.updateTrackerList();
+                });
             });
         });
     }
