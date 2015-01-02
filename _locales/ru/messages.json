@@ -118,5 +118,32 @@
     },
     "OV_CAT_NOLABEL": {
         "message": "Без метки"
+    },
+    "OV_FL_CHECKED": {
+        "message": "Проверено %:.1d%"
+    },
+    "OV_FL_DOWNLOADING": {
+        "message": "Загружается"
+    },
+    "OV_FL_ERROR": {
+        "message": "Ошибка!"
+    },
+    "OV_FL_FINISHED": {
+        "message": "Загружен"
+    },
+    "OV_FL_PAUSED": {
+        "message": "Пауза"
+    },
+    "OV_FL_QUEUED": {
+        "message": "В очереди"
+    },
+    "OV_FL_QUEUED_SEED": {
+        "message": "Ожидает раздачи"
+    },
+    "OV_FL_SEEDING": {
+        "message": "Раздается"
+    },
+    "OV_FL_STOPPED": {
+        "message": "Остановлен"
     }
 }

@@ -398,23 +398,32 @@ var manager = {
     setStatus: function(statusText) {
         manager.domCache.status.textContent = statusText;
     },
-    trGetStatusInfo: function(state, dune) {
+    apiGetDone: function(api, noRound) {
+        var value = api[4] / 10;
+        if (!noRound) {
+            value = Math.round(value);
+        }
+        return value + '%';
+    },
+    trGetStatusInfo: function(api) {
+        var state = api[1];
+        var done = api[4];
         if (state & 32) { // paused
             if (state & 2) {
                 //OV_FL_CHECKED //Progress
-                return _lang_arr.status[0];
+                return manager.language.OV_FL_CHECKED.replace('%:.1d%', manager.apiGetDone(api));
             } else {
                 //OV_FL_PAUSED
-                return _lang_arr.status[1];
+                return manager.language.OV_FL_PAUSED;
             }
         } else if (state & 1) { // started, seeding or leeching
             var status = '';
-            if (dune === 1000) {
+            if (done === 1000) {
                 //OV_FL_SEEDING
-                status = _lang_arr.status[2];
+                status = manager.language.OV_FL_SEEDING;
             } else {
                 //OV_FL_DOWNLOADING
-                status = _lang_arr.status[3];
+                status = manager.language.OV_FL_DOWNLOADING;
             }
             if (!(state & 64)) {
                 return "[F] " + status;
@@ -423,24 +432,24 @@ var manager = {
             }
         } else if (state & 2) { // checking
             //OV_FL_CHECKED //Progress
-            return _lang_arr.status[0];
+            return manager.language.OV_FL_CHECKED.replace('%:.1d%', manager.apiGetDone(api));
         } else if (state & 16) { // error
             //OV_FL_ERROR //Progress
-            return _lang_arr.status[4];
+            return api[21] || manager.language.OV_FL_ERROR;
         } else if (state & 64) { // queued
-            if (dune === 1000) {
+            if (done === 1000) {
                 //OV_FL_QUEUED_SEED
-                return _lang_arr.status[5];
+                return manager.language.OV_FL_QUEUED_SEED;
             } else {
                 //OV_FL_QUEUED
-                return _lang_arr.status[6];
+                return manager.language.OV_FL_QUEUED;
             }
-        } else if (dune == 1000) { // finished
+        } else if (done == 1000) { // finished
             //OV_FL_FINISHED
-            return _lang_arr.status[7];
+            return manager.language.OV_FL_FINISHED;
         } else { // stopped
             //OV_FL_STOPPED
-            return _lang_arr.status[8];
+            return manager.language.OV_FL_STOPPED;
         }
     },
     bytesToText: function(bytes, nan, ps) {
@@ -599,10 +608,9 @@ var manager = {
                 })
             });
             var update = function(api) {
-                var progress = api[4] / 10;
                 var color = (api[1] === 201 && api[4] === 1000) ? '#41B541' : '#3687ED';
-                div1.textContent = progress + '%';
-                div2.style.width = Math.round(progress) + '%';
+                div1.textContent = manager.apiGetDone(api, 1);
+                div2.style.width = manager.apiGetDone(api);
                 div2.style.backgroundColor = color;
             };
             update(api);
@@ -618,7 +626,7 @@ var manager = {
                 append: div = mono.create('div')
             });
             var update = function(api) {
-                var text = (api[21] !== undefined) ? api[21] : manager.trGetStatusInfo(api[1], api[4]);
+                var text = manager.trGetStatusInfo(api);
                 div.textContent = text;
                 div.title = text;
             };
@@ -921,7 +929,7 @@ var manager = {
     apiIndexToChanges: {
         1: function(changes) {
             changes.status = manager.varCache.torrentListColumnList.status.display;
-            changes.dune = manager.varCache.torrentListColumnList.dune.display;
+            changes.done = manager.varCache.torrentListColumnList.done.display;
         },
         2: function(changes) {
             changes.name = manager.varCache.torrentListColumnList.name.display;
@@ -931,7 +939,7 @@ var manager = {
             changes.remaining = manager.varCache.torrentListColumnList.remaining.display;
         },
         4: function(changes) {
-            changes.dune = manager.varCache.torrentListColumnList.dune.display;
+            changes.done = manager.varCache.torrentListColumnList.done.display;
         },
         21: function(changes) {
             changes.status = manager.varCache.torrentListColumnList.status.display;
@@ -1104,7 +1112,7 @@ var manager = {
     },
     trSortInsertList: function(sortedList, currentList) {
         var newPaste = [];
-        var fromIndex = undefined;
+        var fromIndex = null;
         var elList = null;
 
         for (var i = 0, item; item = sortedList[i]; i++) {
@@ -1150,7 +1158,10 @@ var manager = {
 
         manager.varCache.trSortList = currentList;
     },
-    trSort: function(column, by) {
+    trSort: function(column, by, newItems) {
+        if (newItems === undefined) {
+            newItems = [];
+        }
         if (column === undefined) {
             column = manager.varCache.trSortColumn;
         }
@@ -1165,7 +1176,7 @@ var manager = {
             return;
         }
 
-        var sortedList = manager.varCache.trSortList.slice(0);
+        var sortedList = Array.prototype.concat(manager.varCache.trSortList, newItems);
         sortedList.sort(manager.trOnSort.bind(undefined, columnIndex, by));
         manager.trSortInsertList(sortedList, manager.varCache.trSortList);
     },
@@ -1234,6 +1245,7 @@ var manager = {
             manager.trFullUpdatePrepare(data.torrents);
         }
 
+        var newItems = [];
         var list = data.torrents || data.torrentp || [];
         for (var i = 0, api; api = list[i]; i++) {
             downspd += api[9];
@@ -1249,7 +1261,7 @@ var manager = {
                 item = manager.varCache.trListItems[hash] = {};
                 item.api = api;
                 manager.trItemCreate(item);
-                manager.varCache.trSortList.push(item);
+                newItems.push(item);
             } else {
                 var diffList = manager.getApiDiff(item.api, api);
                 if (diffList.length === 0) {
@@ -1263,7 +1275,7 @@ var manager = {
         manager.setDownSpd(downspd);
         manager.setUpSpd(upspd);
 
-        manager.trSort();
+        manager.trSort(undefined, undefined, newItems);
     },
     updateTrackerList: function() {
         mono.sendMessage({action: 'api', data: {list: 1}}, function(data) {
