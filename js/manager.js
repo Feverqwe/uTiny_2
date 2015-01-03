@@ -1109,7 +1109,7 @@ var manager = {
         completed:   24,
         actions:     undefined
     },
-    trOnSort: function(index, by, A, B) {
+    onSort: function(type, index, by, A, B) {
         var apiA = A.api;
         var apiB = B.api;
         var a;
@@ -1118,28 +1118,34 @@ var manager = {
             if (index === 'remaining') {
                 a = apiA[3] - apiA[5];
                 b = apiB[3] - apiB[5];
-            } else {
+            } else
+            if (index === 'pcnt') {
+                a = apiA[2] * 100 / apiA[1];
+                b = apiB[2] * 100 / apiB[1];
+            }else {
                 return 0;
             }
         } else {
             a = apiA[index];
             b = apiB[index];
         }
-        if (index === 1) {
-            if (a === 201 && apiA[4] < 1000) {
-                a += 50;
+        if (type === 'tr') {
+            if (index === 1) {
+                if (a === 201 && apiA[4] < 1000) {
+                    a += 50;
+                }
+                if (b === 201 && apiB[4] < 1000) {
+                    b += 50;
+                }
             }
-            if (b === 201 && apiB[4] < 1000) {
-                b += 50;
-            }
-        }
-        if (index === 24 && (a === 0 || b === 0)) {
-            if (a === b) {
-                return 0;
-            } else if (a < b) {
-                return (by === 1) ? 1 : -1;
-            } else if (a > b) {
-                return (by === 1) ? -1 : 1;
+            if (index === 24 && (a === 0 || b === 0)) {
+                if (a === b) {
+                    return 0;
+                } else if (a < b) {
+                    return (by === 1) ? 1 : -1;
+                } else if (a > b) {
+                    return (by === 1) ? -1 : 1;
+                }
             }
         }
         if (a === b) {
@@ -1150,7 +1156,7 @@ var manager = {
             return (by === 1) ? 1 : -1;
         }
     },
-    trSortInsertList: function(sortedList, currentList) {
+    sortInsertList: function(type, sortedList, currentList) {
         var newPaste = [];
         var fromIndex = null;
         var elList = null;
@@ -1179,7 +1185,7 @@ var manager = {
             });
         }
 
-        var table = manager.domCache.trBody;
+        var table = manager.domCache[type+'Body'];
         for (i = 0, item; item = newPaste[i]; i++) {
             if (item.pos === 0) {
                 var firstChild = table.firstChild;
@@ -1196,32 +1202,29 @@ var manager = {
             }
         }
 
-        manager.varCache.trSortList = currentList;
+        manager.varCache[type+'SortList'] = currentList;
     },
-    trSort: function(column, by, newItems) {
+    sort: function(type, column, by) {
         if (column === undefined) {
-            column = manager.varCache.trSortColumn;
+            column = manager.varCache[type+'SortColumn'];
         }
         if (by === undefined) {
-            by = manager.varCache.trSortBy;
+            by = manager.varCache[type+'SortBy'];
         }
-        manager.varCache.trSortColumn = column;
-        manager.varCache.trSortBy = by;
+        manager.varCache[type+'SortColumn'] = column;
+        manager.varCache[type+'SortBy'] = by;
 
-        var columnIndex = manager.trColumnToApiIndex[column];
+        var columnIndex = manager[type+'ColumnToApiIndex'][column];
         if (columnIndex === undefined) {
             columnIndex = '';
         }
 
-        var sortedList = (function() {
-            var list = [];
-            for (var hash in manager.varCache.trListItems) {
-                list.push(manager.varCache.trListItems[hash]);
-            }
-            return list;
-        })();
-        sortedList.sort(manager.trOnSort.bind(undefined, columnIndex, by));
-        manager.trSortInsertList(sortedList, manager.varCache.trSortList);
+        var sortedList = [];
+        for (var hash in manager.varCache[type+'ListItems']) {
+            sortedList.push(manager.varCache[type+'ListItems'][hash]);
+        }
+        sortedList.sort(manager.onSort.bind(undefined, type, columnIndex, by));
+        manager.sortInsertList(type, sortedList, manager.varCache[type+'SortList']);
     },
     setDownSpd: function(value) {
         value = manager.bytesToText(value, '-', 1);
@@ -1316,7 +1319,7 @@ var manager = {
         manager.setDownSpd(downspd);
         manager.setUpSpd(upspd);
 
-        manager.trSort(undefined, undefined);
+        manager.sort('tr', undefined, undefined);
 
         if (data.files !== undefined) {
             manager.writeFlList(data);
@@ -1546,103 +1549,6 @@ var manager = {
         pcnt: 'pcnt',
         prio: 3
     },
-    flOnSort: function(index, by, A, B) {
-        var apiA = A.api;
-        var apiB = B.api;
-        var a;
-        var b;
-        if (typeof index === 'string') {
-            if (index === 'pcnt') {
-                a = apiA[2] * 100 / apiA[1];
-                b = apiB[2] * 100 / apiB[1];
-            } else {
-                return 0;
-            }
-        } else {
-            a = apiA[index];
-            b = apiB[index];
-        }
-        if (a === b) {
-            return 0;
-        } else if (a < b) {
-            return (by === 1) ? -1 : 1;
-        } else if (a > b) {
-            return (by === 1) ? 1 : -1;
-        }
-    },
-    flSortInsertList: function(sortedList, currentList) {
-        var newPaste = [];
-        var fromIndex = null;
-        var elList = null;
-
-        for (var i = 0, item; item = sortedList[i]; i++) {
-            if (currentList[i] === item) {
-                continue;
-            }
-            fromIndex = i;
-
-            elList = document.createDocumentFragment();
-            while (sortedList[i] !== undefined && sortedList[i] !== currentList[i]) {
-                var pos = currentList.indexOf(sortedList[i], i);
-                if (pos !== -1) {
-                    currentList.splice(pos, 1);
-                }
-                currentList.splice(i, 0, sortedList[i]);
-
-                elList.appendChild(sortedList[i].node);
-                i++;
-            }
-
-            newPaste.push({
-                pos: fromIndex,
-                list: elList
-            });
-        }
-
-        var table = manager.domCache.flBody;
-        for (i = 0, item; item = newPaste[i]; i++) {
-            if (item.pos === 0) {
-                var firstChild = table.firstChild;
-                if (firstChild === null) {
-                    table.appendChild(item.list);
-                } else {
-                    table.insertBefore(item.list, firstChild)
-                }
-            } else
-            if (table.childNodes[item.pos] !== undefined) {
-                table.insertBefore(item.list, table.childNodes[item.pos]);
-            } else {
-                table.appendChild(item.list);
-            }
-        }
-
-        manager.varCache.flSortList = currentList;
-    },
-    flSort: function(column, by) {
-        if (column === undefined) {
-            column = manager.varCache.flSortColumn;
-        }
-        if (by === undefined) {
-            by = manager.varCache.flSortBy;
-        }
-        manager.varCache.flSortColumn = column;
-        manager.varCache.flSortBy = by;
-
-        var columnIndex = manager.flColumnToApiIndex[column];
-        if (columnIndex === undefined) {
-            columnIndex = '';
-        }
-
-        var sortedList = (function() {
-            var list = [];
-            for (var index in manager.varCache.flListItems) {
-                list.push(manager.varCache.flListItems[index]);
-            }
-            return list;
-        })();
-        sortedList.sort(manager.flOnSort.bind(undefined, columnIndex, by));
-        manager.flSortInsertList(sortedList, manager.varCache.flSortList);
-    },
     writeFlList: function(data) {
         if (!data.files) {
             return;
@@ -1682,7 +1588,7 @@ var manager = {
             delete flListLayer.loading;
         }
 
-        manager.flSort(undefined, undefined);
+        manager.sort('fl', undefined, undefined);
     },
     flListShow: function(hash) {
         var flListLayer = manager.varCache.flListLayer = {};
@@ -1767,35 +1673,24 @@ var manager = {
         manager.varCache[type+'SortBy'] = by;
         manager.varCache[type+'SortColumn'] = columnName;
 
-        manager[type+'Sort']();
+        manager.sort(type);
 
         by && node.classList.add('sortDown');
         !by && node.classList.add('sortUp');
 
         mono.storage.set(storage);
     },
-    flUpdateHead: function() {
-        var oldHead = manager.domCache.flFixedHead.firstChild;
+    updateHead: function(type) {
+        var oldHead = manager.domCache[type+'FixedHead'].firstChild;
         if (oldHead) {
             oldHead.parentNode.removeChild(oldHead);
         }
-        oldHead = manager.domCache.flHead.firstChild;
-        if (oldHead) {
-            oldHead.parentNode.removeChild(oldHead);
-        }
-        manager.flWriteHead();
-    },
-    trUpdateHead: function() {
-        var oldHead = manager.domCache.trFixedHead.firstChild;
-        if (oldHead) {
-            oldHead.parentNode.removeChild(oldHead);
-        }
-        oldHead = manager.domCache.trHead.firstChild;
+        oldHead = manager.domCache[type+'Head'].firstChild;
         if (oldHead) {
             oldHead.parentNode.removeChild(oldHead);
         }
 
-        manager.trWriteHead();
+        manager[type+'WriteHead']();
     },
     capitalize: function(string) {
         return string.substr(0, 1).toUpperCase()+string.substr(1);
@@ -1854,7 +1749,7 @@ var manager = {
                 manager.varCache[type+'ColumnList'][columnName].width = newSize;
                 mono.sendMessage({action: 'set'+manager.capitalize(type)+'ColumnArray', data: manager.varCache[type+'ColumnArray']});
 
-                manager[type+'UpdateHead']();
+                manager.updateHead(type);
             });
         }
     },
