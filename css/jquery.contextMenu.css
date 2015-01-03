@@ -41,12 +41,16 @@
     border: 1px solid #fff;
 }
 
-.context-menu-item:first-child, .context-menu-item.first {
+.context-menu-item:not(.hidden) {
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
 }
+.context-menu-item:not(.hidden) ~ .context-menu-item:not(.hidden) {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
 
-.context-menu-item:last-child, .context-menu-item.last {
+.context-menu-item:last-child {
     border-bottom-right-radius: 4px;
     border-bottom-left-radius: 4px;
 }
@@ -163,4 +167,10 @@ li.context-menu-item ul.context-menu-list {
 
 .context-menu-accesskey {
     text-decoration: underline;
+}
+
+.context-menu-submenu .context-menu-list li {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

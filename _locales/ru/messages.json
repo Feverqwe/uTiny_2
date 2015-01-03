@@ -148,27 +148,57 @@
         "message": "Остановлен"
     },
     "MF_DONT": {
-        "message":"Не загружать"
+        "message": "Не загружать"
     },
     "MF_HIGH": {
-        "message":"Высокий",
+        "message": "Высокий",
         "modifed": 1
     },
     "MF_LOW": {
-        "message":"Низкий",
+        "message": "Низкий",
         "modifed": 1
     },
     "MF_NORMAL": {
-        "message":"Средний",
+        "message": "Средний",
         "modifed": 1
     },
     "ML_START": {
-        "message":"Запустить"
+        "message": "Запустить"
     },
     "ML_PAUSE": {
-        "message":"Пауза"
+        "message": "Пауза"
     },
     "ML_STOP": {
-        "message":"Остановить"
+        "message": "Остановить"
+    },
+    "OV_REMOVE_LABEL": {
+        "message": "Удалить метку"
+    },
+    "OV_NEW_LABEL": {
+        "message": "Создать новую метку..."
+    },
+    "ML_FORCE_START": {
+        "message": "Запустить принудительно"
+    },
+    "ML_FORCE_RECHECK": {
+        "message": "Перехешировать"
+    },
+    "ML_REMOVE": {
+        "message": "Удалить"
+    },
+    "ML_REMOVE_AND": {
+        "message": "Удалить и"
+    },
+    "ML_DELETE_TORRENT": {
+        "message": "только .torrent"
+    },
+    "ML_DELETE_DATA": {
+        "message": "Стереть загруженные файлы"
+    },
+    "ML_DELETE_DATATORRENT": {
+        "message": ".torrent и файл(ы)"
+    },
+    "showFileList": {
+        "message": "Список файлов"
     }
 }

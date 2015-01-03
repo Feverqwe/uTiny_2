@@ -393,7 +393,7 @@ var manager = {
         var selectedIndex = manager.domCache.labelBox.selectedIndex;
         var currentLabel = manager.varCache.currentFilter = manager.varCache.labels[selectedIndex];
 
-        mono.storage.set({selectedLabel: currentLabel});
+        mono.sendMessage({action: 'setSelectedLabel', value: currentLabel});
 
         if (manager.varCache['style.tr-filter']) {
             manager.varCache['style.tr-filter'].parentNode.removeChild(manager.varCache['style.tr-filter']);
@@ -1757,17 +1757,20 @@ var manager = {
             by = by ? 0 : 1;
         }
 
-        var storage = {};
-        storage[type+'SortColumn'] = columnName;
-        storage[type+'SortBy'] = by;
+        var storage = {
+            column: columnName,
+            by: by
+        };
 
-        manager.extend(manager.varCache, storage);
+        manager.varCache[type+'SortBy'] = by;
+        manager.varCache[type+'SortColumn'] = columnName;
 
         manager[type+'Sort']();
 
         by && node.classList.add('sortDown');
         !by && node.classList.add('sortUp');
-        mono.storage.set(storage);
+
+        mono.sendMessage({action: 'set'+manager.capitalize(type)+'SortOptions', value: storage});
     },
     flUpdateHead: function() {
         var oldHead = manager.domCache.flFixedHead.firstChild;
@@ -1860,155 +1863,485 @@ var manager = {
         }
         return obj;
     },
+    trReadStatus: function(api) {
+        var stat = api[1];
+        var loaded = !!(stat & 128);
+        var queued = !!(stat & 64);
+        var paused = !!(stat & 32);
+        var error = !!(stat & 16);
+        var checked = !!(stat & 8);
+        var start_after_check = !!(stat & 4);
+        var checking = !!(stat & 2);
+        var started = !!(stat & 1);
+
+        var actionList = {
+            recheck: !checking && !started && !queued,
+            stop: checking || started || queued,
+            unpause: (started || checking) && paused,
+            pause: !paused && (checking || started || queued),
+            start: !(queued || checking) || paused,
+            forcestart: (!started || queued || paused) && !checking
+        };
+        if (actionList.pause) {
+            actionList.unpause = false;
+        }
+
+        return actionList;
+    },
+    updateLabesCtx: function (trigger, hash) {
+        var ul = trigger.items.labels.$node.children('ul');
+        var current_label = manager.varCache.trListItems[hash].api[11];
+        var items = trigger.items.labels.items;
+        if (current_label) {
+            if (items.del_label === undefined) {
+                items.del_label = {
+                    name: manager.language.OV_REMOVE_LABEL,
+                    $node: $('<li>', {'class': 'context-menu-item'}).data({
+                        contextMenuKey: 'del_label',
+                        contextMenu: trigger.items.labels,
+                        contextMenuRoot: trigger
+                    }).append(
+                        $('<span>', {text: manager.language.OV_REMOVE_LABEL})
+                    )
+                };
+                items.del_label.$node.prependTo(trigger.items.labels.$node.children('ul'));
+                items.del_label.$node.on('click', function () {
+                    // sendAction({list: 1, action: 'setprops', s: 'label', hash: trigger.items.labels.id, v: ''});
+                    $('#context-menu-layer').trigger('mousedown');
+                });
+            }
+            if (items.add_label !== undefined) {
+                items.add_label.$node.remove();
+                delete items.add_label;
+            }
+        } else {
+            if (items.add_label === undefined) {
+                items.add_label = {
+                    name: manager.language.OV_NEW_LABEL,
+                    $node: $('<li>', {'class': 'context-menu-item'}).data({
+                        contextMenuKey: 'add_label',
+                        contextMenu: trigger.items.labels,
+                        contextMenuRoot: trigger
+                    }).append(
+                        $('<span>', {text: manager.language.OV_NEW_LABEL})
+                    )
+                };
+                items.add_label.$node.prependTo(trigger.items.labels.$node.children('ul'));
+                items.add_label.$node.on('click', function () {
+                    /*notify([
+                        {type: 'input', text: _lang_arr[115]}
+                    ], _lang_arr[116][0], _lang_arr[116][1], function (arr) {
+                        if (arr === undefined) {
+                            return;
+                        }
+                        var label = arr[0];
+                        if (label === undefined) {
+                            return;
+                        }
+                        sendAction({list: 1, action: 'setprops', s: 'label', hash: trigger.items.labels.id, v: label});
+                    });*/
+                    $('#context-menu-layer').trigger('mousedown');
+                });
+            }
+            if (items.del_label !== undefined) {
+                items.del_label.$node.remove();
+                delete items.del_label;
+            }
+        }
+        for (var i = 0, item; item = manager.varCache.labels[i]; i++) {
+            if (item.custom) continue;
+            var label = item.label;
+            if (items['_' + label] === undefined) {
+                items['_' + label] = {
+                    name: label,
+                    $node: $('<li>', {'class': 'context-menu-item'}).data({
+                        contextMenuKey: '_' + label,
+                        contextMenu: trigger.items.labels,
+                        contextMenuRoot: trigger
+                    }).append($('<span>', {text: label}))
+                };
+                items['_' + label].$node.appendTo(trigger.items.labels.$node.children('ul'));
+                items['_' + label].$node.on('click', function () {
+                    /*
+                    sendAction({list: 1, action: 'setprops', s: 'label', hash: trigger.items.labels.id, v: $(this).data('key')});
+                    */
+                    $('#context-menu-layer').trigger('mousedown');
+                });
+            }
+        }
+        if (manager.varCache.labels.length > 0 && items.s === undefined) {
+            items.s = {
+                name: '-',
+                display: false,
+                $node: $('<li>', {'class': 'context-menu-item  context-menu-separator not-selectable'}).data({
+                    contextMenuKey: 's',
+                    contextMenu: trigger.items.labels,
+                    contextMenuRoot: trigger
+                })
+            };
+            if (items.del_label !== undefined) {
+                items.del_label.$node.after(items.s.$node);
+            } else {
+                items.add_label.$node.after(items.s.$node);
+            }
+        } else if (items.s !== undefined) {
+            items.s.$node.remove();
+            delete items.s;
+        }
+        for (var key in items) {
+            var item = items[key];
+            if (key[0] !== '_') {
+                continue;
+            }
+            var found = false;
+            for (var i = 0, lItem; lItem = manager.varCache.labels[i]; i++) {
+                if (lItem.custom) continue;
+                if (lItem.label === item.name) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                item.$node.remove();
+                delete items[key];
+                continue;
+            }
+            if (item.name !== current_label && item.display) {
+                item.display = false;
+                item.$node.children('label').remove();
+            } else if (!item.display && item.name === current_label) {
+                item.display = true;
+                item.$node.prepend($('<label>', {text: '●'}));
+            }
+        }
+    },
     run: function() {
         console.time('manager ready');
-        console.time('storage data');
-        mono.storage.get([
-            'trSortColumn',
-            'trSortBy',
-            'flSortColumn',
-            'flSortBy',
-            'selectedLabel'], function(storage) {
-            console.timeEnd('storage data');
-            console.time('remote data');
-            mono.sendMessage([
-                {action: 'getLanguage'},
-                {action: 'getSettings'},
-                {action: 'getTrColumnArray'},
-                {action: 'getFlColumnArray'},
-                {action: 'getRemoteTorrentList'},
-                {action: 'getRemoteLabels'},
-                {action: 'getRemoteSettings'},
-                {action: 'getPublicStatus'}
-            ], function(data) {
-                console.timeEnd('remote data');
-                console.time('manager render');
+        console.time('remote data');
 
-                manager.language = data.getLanguage;
-                manager.settings = data.getSettings;
+        mono.sendMessage([
+            {action: 'getLanguage'},
+            {action: 'getSettings'},
+            {action: 'getTrColumnArray'},
+            {action: 'getFlColumnArray'},
+            {action: 'getRemoteTorrentList'},
+            {action: 'getRemoteLabels'},
+            {action: 'getRemoteSettings'},
+            {action: 'getPublicStatus'},
+            {action: 'getSelectedLabel'},
+            {action: 'getTrSortOptions'},
+            {action: 'getFlSortOptions'}
+        ], function(data) {
+            console.timeEnd('remote data');
+            console.time('manager render');
 
-                if (manager.options.trWordWrap) {
-                    document.body.appendChild(mono.create('style', {
-                        text: 'div.torrent-list-layer td div {' +
-                            'white-space: normal;word-wrap: break-word;' +
-                        '}'
-                    }));
+            manager.language = data.getLanguage;
+            manager.settings = data.getSettings;
+
+            if (manager.options.trWordWrap) {
+                document.body.appendChild(mono.create('style', {
+                    text: 'div.torrent-list-layer td div {' +
+                        'white-space: normal;word-wrap: break-word;' +
+                    '}'
+                }));
+            }
+            if (manager.options.flWordWrap) {
+                document.body.appendChild(mono.create('style', {
+                    text: 'div.fl-layer td div {' +
+                        'white-space: normal;word-wrap: break-word;' +
+                    '}'
+                }));
+            }
+
+            if (manager.settings.popupHeight > 0) {
+                var panelsHeight = 54;
+                manager.domCache.trLayer.style.maxHeight = (manager.settings.popupHeight - panelsHeight) + 'px';
+                manager.domCache.trLayer.style.minHeight = (manager.settings.popupHeight - panelsHeight) + 'px';
+            }
+
+            if (data.getTrSortOptions) {
+                manager.varCache.trSortColumn = data.getTrSortOptions.column;
+                manager.varCache.trSortBy = data.getTrSortOptions.by;
+            }
+            if (data.getFlSortOptions) {
+                manager.varCache.flSortColumn = data.getFlSortOptions.column;
+                manager.varCache.flSortBy = data.getTrSortOptions.by;
+            }
+
+            manager.varCache.trColumnList = manager.prepareColumnList(data.getTrColumnArray);
+            manager.varCache.flColumnList = manager.prepareColumnList(data.getFlColumnArray);
+            manager.varCache.trColumnArray = data.getTrColumnArray;
+            manager.varCache.flColumnArray = data.getFlColumnArray;
+
+            manager.domCache.trLayer.addEventListener('scroll', function() {
+                manager.domCache.trTableFixed.style.left = (-this.scrollLeft)+'px';
+            });
+            manager.domCache.flLayer.addEventListener('scroll', function() {
+                if (this.scrollLeft !== 0) {
+                    manager.domCache.flTableFixed.style.left = (-this.scrollLeft + manager.varCache.flLeft) + 'px';
+                } else {
+                    manager.domCache.flTableFixed.style.left = 'auto';
                 }
-                if (manager.options.flWordWrap) {
-                    document.body.appendChild(mono.create('style', {
-                        text: 'div.fl-layer td div {' +
-                            'white-space: normal;word-wrap: break-word;' +
-                        '}'
-                    }));
-                }
+            });
 
-                if (manager.settings.popupHeight > 0) {
-                    var panelsHeight = 54;
-                    manager.domCache.trLayer.style.maxHeight = (manager.settings.popupHeight - panelsHeight) + 'px';
-                    manager.domCache.trLayer.style.minHeight = (manager.settings.popupHeight - panelsHeight) + 'px';
-                }
+            manager.trWriteHead();
 
-                manager.varCache.trSortColumn = storage.trSortColumn || manager.varCache.trSortColumn;
-                manager.varCache.trSortBy = storage.trSortBy === undefined ? 1 : storage.trSortBy;
-                manager.varCache.flSortColumn = storage.flSortColumn || manager.varCache.flSortColumn;
-                manager.varCache.flSortBy = storage.flSortBy === undefined ? 1 : storage.flSortBy;
-
-                manager.varCache.trColumnList = manager.prepareColumnList(data.getTrColumnArray);
-                manager.varCache.flColumnList = manager.prepareColumnList(data.getFlColumnArray);
-                manager.varCache.trColumnArray = data.getTrColumnArray;
-                manager.varCache.flColumnArray = data.getFlColumnArray;
-
-                manager.domCache.trLayer.addEventListener('scroll', function() {
-                    manager.domCache.trTableFixed.style.left = (-this.scrollLeft)+'px';
-                });
-                manager.domCache.flLayer.addEventListener('scroll', function() {
-                    if (this.scrollLeft !== 0) {
-                        manager.domCache.flTableFixed.style.left = (-this.scrollLeft + manager.varCache.flLeft) + 'px';
-                    } else {
-                        manager.domCache.flTableFixed.style.left = 'auto';
-                    }
-                });
-
-                manager.trWriteHead();
-
-                manager.varCache.currentFilter = storage.selectedLabel || manager.varCache.currentFilter;
-                manager.setLabels(data.getRemoteLabels);
+            manager.varCache.currentFilter = data.getSelectedLabel || manager.varCache.currentFilter;
+            manager.setLabels(data.getRemoteLabels);
+            manager.trChangeFilterByLabelBox();
+            manager.domCache.labelBox.addEventListener('change', function() {
                 manager.trChangeFilterByLabelBox();
-                manager.domCache.labelBox.addEventListener('change', function() {
-                    manager.trChangeFilterByLabelBox();
-                });
+            });
 
-                manager.setStatus(data.getPublicStatus);
+            manager.setStatus(data.getPublicStatus);
 
-                if (!manager.settings.hideSeedStatusItem && !manager.settings.hideFnishStatusItem) {
-                    manager.trSkipItem = function(){
-                        return false;
-                    };
-                }
+            if (!manager.settings.hideSeedStatusItem && !manager.settings.hideFnishStatusItem) {
+                manager.trSkipItem = function(){
+                    return false;
+                };
+            }
 
-                manager.writeTrList({torrents: data.getRemoteTorrentList});
+            manager.writeTrList({torrents: data.getRemoteTorrentList});
+            manager.updateTrackerList(function() {
+                manager.timer.start();
+            });
+            mono.sendMessage({action: 'api', data: {action: 'getsettings'}}, function(data) {
+                console.log(data);
+            });
+
+            manager.domCache.menu.querySelector('a.btn.refresh').addEventListener('click', function(e) {
+                e.preventDefault();
                 manager.updateTrackerList(function() {
                     manager.timer.start();
                 });
-                mono.sendMessage({action: 'api', data: {action: 'getsettings'}}, function(data) {
-                    console.log(data);
-                });
+            });
 
-                manager.domCache.menu.querySelector('a.btn.refresh').addEventListener('click', function(e) {
-                    e.preventDefault();
-                    manager.updateTrackerList(function() {
-                        manager.timer.start();
-                    });
-                });
-
-                manager.domCache.trBody.addEventListener('dblclick', function(e) {
-                    var parent = e.target;
-                    while (parent !== this) {
-                        parent = parent.parentNode;
-                        if (parent.tagName === 'TR') {
-                            break;
-                        }
+            manager.domCache.trBody.addEventListener('dblclick', function(e) {
+                var parent = e.target;
+                while (parent !== this) {
+                    parent = parent.parentNode;
+                    if (parent.tagName === 'TR') {
+                        break;
                     }
-                    var hash = parent.id;
-                    if (!hash) return;
+                }
+                var hash = parent.id;
+                if (!hash) return;
 
-                    manager.flListShow(hash);
-                });
+                manager.flListShow(hash);
+            });
 
-                var onColumntClick = function(e) {
-                    var parent = e.target;
-                    while (parent !== this) {
-                        parent = parent.parentNode;
-                        if (parent.tagName === 'TH') {
-                            break;
-                        }
+            var onColumntClick = function(e) {
+                var parent = e.target;
+                while (parent !== this) {
+                    parent = parent.parentNode;
+                    if (parent.tagName === 'TH') {
+                        break;
                     }
+                }
 
-                    var sortBy = parent.classList.contains('sortDown') ? 1 : parent.classList.contains('sortUp') ? 0 : undefined;
-                    var columnName = parent.dataset.name;
-                    var type = parent.dataset.type;
-                    if (!type) {
-                        return;
-                    }
-                    manager.setColumSort(parent, columnName, sortBy, type);
-                };
-                manager.domCache.trFixedHead.addEventListener('click', onColumntClick);
-                manager.domCache.flFixedHead.addEventListener('click', onColumntClick);
+                var sortBy = parent.classList.contains('sortDown') ? 1 : parent.classList.contains('sortUp') ? 0 : undefined;
+                var columnName = parent.dataset.name;
+                var type = parent.dataset.type;
+                if (!type) {
+                    return;
+                }
+                manager.setColumSort(parent, columnName, sortBy, type);
+            };
+            manager.domCache.trFixedHead.addEventListener('click', onColumntClick);
+            manager.domCache.flFixedHead.addEventListener('click', onColumntClick);
 
-                manager.varCache.selectBox = selectBox.wrap(manager.domCache.labelBox);
+            manager.varCache.selectBox = selectBox.wrap(manager.domCache.labelBox);
 
-                console.timeEnd('manager render');
-                console.timeEnd('manager ready');
+            console.timeEnd('manager render');
+            console.timeEnd('manager ready');
 
-                setTimeout(function() {
-                    console.time('jquery ready');
-                    document.body.appendChild(mono.create('script', {src: 'js/jquery-2.1.3.min.js'}));
-                });
+            setTimeout(function() {
+                console.time('jquery ready');
+                document.body.appendChild(mono.create('script', {src: 'js/jquery-2.1.3.min.js'}));
             });
         });
     },
     onDefine: function() {
+        $.contextMenu.defaults.delay = 0;
+        $.contextMenu.defaults.animation.hide = 'hide';
+        $.contextMenu.defaults.animation.show = 'show';
+        $.contextMenu.defaults.animation.duration = 0;
+        $.contextMenu.defaults.positionSubmenu = function($menu) {
+            // determine contextMenu position
+            $menu.css({opacity: 0});
+            var menuHeight = $menu.height();
+            var parentMenuItem = this;
+            var parentMenu = parentMenuItem.parent();
+            var parentMenuLeft = parentMenu.offset().left;
+            var menuParentHeight = parentMenuItem.height() + 2;
+            var top = -parseInt((menuHeight - menuParentHeight) / 2);
+            var menuWidth = $menu.width();
+            var parentMenuWidth = parentMenu.width();
+            var docWitdh = document.body.clientWidth;
 
+            var left;
+            if (menuWidth + parentMenuWidth + parentMenuLeft > docWitdh) {
+                left = -menuWidth - 1;
+            } else {
+                left = this.outerWidth() - 1;
+            }
+
+            $menu.css({
+                top: top,
+                left: left,
+                opacity: 1
+            });
+            console.log();
+        };
+        $.contextMenu({
+            zIndex: 3,
+            selector: ".torrent-table-body tr",
+            className: "torrent",
+            events: {
+                show: function(trigger) {
+                    var hash = this[0].id;
+                    var api = manager.varCache.trListItems[hash].api;
+                    this.addClass('selected');
+                    var availActions = manager.trReadStatus(api);
+                    for (var action in trigger.items) {
+                        var item = trigger.items[action];
+                        var state = availActions[action];
+                        if (action === 'labels') {
+                            var lable = api[11];
+                            if (item.label === lable) {
+                                continue;
+                            }
+                            if (!lable) {
+                                item.labelNode && item.labelNode.remove();
+                                delete item.labelNode;
+                                delete item.label;
+                            } else {
+                                if (!item.labelNode) {
+                                    item.$node.children('span').append(item.labelNode = $('<i>', {text: lable}));
+                                } else {
+                                    item.labelNode.text(lable);
+                                }
+                                item.label = lable;
+                            }
+                            continue;
+                        }
+                        if (state !== undefined && item.state !== state) {
+                            item.display = state;
+                            if (state) {
+                                item.$node.removeClass('hidden').show();
+                            } else {
+                                item.$node.addClass('hidden').hide();
+                            }
+                        }
+                    }
+                    manager.updateLabesCtx(trigger, hash);
+                },
+                hide: function() {
+                    var hash = this[0].id;
+                    if (manager.varCache.flListLayer.hash !== hash) {
+                        this.removeClass('selected');
+                    }
+                }
+            },
+            items: {
+                start: {
+                    name: manager.language.ML_START,
+                    callback: function (key, trigger) {
+                        // sendAction({list: 1, action: 'start', hash: trigger.items[key].id });
+                    }
+                },
+                force_start: {
+                    name: manager.language.ML_FORCE_START,
+                    callback: function (key, trigger) {
+                        // sendAction({list: 1, action: 'forcestart', hash: trigger.items[key].id });
+                    }
+                },
+                pause: {
+                    name: manager.language.OV_FL_PAUSED,
+                    callback: function (key, trigger) {
+                        // sendAction({list: 1, action: 'pause', hash: trigger.items[key].id });
+                    }
+                },
+                unpause: {
+                    name: manager.language.ML_START,
+                    callback: function (key, trigger) {
+                        // sendAction({list: 1, action: 'unpause', hash: trigger.items[key].id });
+                    }
+                },
+                stop: {
+                    name: manager.language.ML_STOP,
+                    callback: function (key, trigger) {
+                        // sendAction({list: 1, action: 'stop', hash: trigger.items[key].id });
+                    }
+                },
+                s1: '-',
+                recheck: {
+                    name: manager.language.ML_FORCE_RECHECK,
+                    callback: function (key, trigger) {
+                        // sendAction({list: 1, action: 'recheck', hash: trigger.items[key].id });
+                    }
+                },
+                remove: {
+                    name: manager.language.ML_REMOVE,
+                    callback: function (key, trigger) {
+                        /*notify([
+                            {text: _lang_arr[73], type: 'note'}
+                        ], _lang_arr[110][0], _lang_arr[110][1], function (cb) {
+                            if (cb === undefined) {
+                                return;
+                            }
+                            sendAction({list: 1, action: 'remove', hash: trigger.items[key].id});
+                        });*/
+                    }
+                },
+                remove_with: {
+                    name: manager.language.ML_REMOVE_AND,
+                    items: {
+                        remove_torrent: {
+                            name: manager.language.ML_DELETE_TORRENT,
+                            callback: function (key, trigger) {
+                                /*var params = {list: 1, action: 'removetorrent', hash: trigger.items.remove.id };
+                                //для 2.xx проверяем версию по наличию статуса
+                                if (var_cache.tr_list[params.hash][21] === undefined) {
+                                    params.action = 'remove';
+                                }
+                                sendAction(params);*/
+                            }
+                        },
+                        remove_files: {
+                            name: manager.language.ML_DELETE_DATA,
+                            callback: function (key, trigger) {
+                                // sendAction({list: 1, action: 'removedata', hash: trigger.items.remove.id });
+                            }
+                        },
+                        remove_torrent_files: {
+                            name: manager.language.ML_DELETE_DATATORRENT,
+                            callback: function (key, trigger) {
+                                /*var params = {list: 1, action: 'removedatatorrent', hash: trigger.items.remove.id };
+                                //для 2.xx проверяем версию по наличию статуса
+                                if (var_cache.tr_list[params.hash][21] === undefined) {
+                                    params.action = 'removedata';
+                                }
+                                sendAction(params);*/
+                            }
+                        }
+                    }
+                },
+                's2': '-',
+                torrent_files: {
+                    name: manager.language.showFileList,
+                    callback: function (key, trigger) {
+                        manager.flListShow(this[0].id);
+                    }
+                },
+                labels: {
+                    name: manager.language.OV_COL_LABEL,
+                    className: "labels",
+                    label: '',
+                    items: {}
+                }
+            }
+        });
     }
 };
 
