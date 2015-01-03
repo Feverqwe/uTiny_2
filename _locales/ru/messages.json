@@ -206,5 +206,8 @@
     },
     "MENU_UNLIMITED": {
         "message": "неограниченно"
+    },
+    "selectAll": {
+        "message": "Выбрать всё"
     }
 }

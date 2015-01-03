@@ -84,7 +84,7 @@ var engine = {
     ],
     fileListColumnList: {},
     defaultFileListColumnList: [
-         {column: 'checkbox',   display: 1, order: 0, width: 19,  lang: ''},
+         {column: 'checkbox',   display: 1, order: 0, width: 19,  lang: 'selectAll'},
          {column: 'name',       display: 1, order: 1, width: 300, lang: 'FI_COL_NAME'},
          {column: 'size',       display: 1, order: 1, width: 60,  lang: 'FI_COL_SIZE'},
          {column: 'downloaded', display: 1, order: 1, width: 60,  lang: 'OV_COL_DOWNLOADED'},
@@ -105,7 +105,7 @@ var engine = {
         cid: undefined,
         torrents: [],
         labels: [],
-        settings: {},
+        settings: [],
         trListItems: {},
         lastPublicStatus: 'Sleep'
     },
@@ -548,13 +548,13 @@ var engine = {
         api: function(message, response) {
             engine.sendAction(message.data, response);
         },
-        setTrColumnArray: function(message) {
+        setTrColumnArray: function(message, response) {
             engine.torrentListColumnList = message.data;
-            mono.storage.set({torrentListColumnList: message.data});
+            mono.storage.set({torrentListColumnList: message.data}, response);
         },
-        setFlColumnArray: function(message) {
+        setFlColumnArray: function(message, response) {
             engine.fileListColumnList = message.data;
-            mono.storage.set({fileListColumnList: message.data});
+            mono.storage.set({fileListColumnList: message.data}, response);
         }
     }
 };

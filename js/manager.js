@@ -180,7 +180,7 @@ var manager = {
                                 class: 'resize-el',
                                 on: [
                                     ['click', function(e){e.stopPropagation();}],
-                                    ['mousedown', manager.tableResize.start]
+                                    ['mousedown', manager.tableResize]
                                 ]
                             })
                         ]
@@ -256,7 +256,7 @@ var manager = {
                                 class: 'resize-el',
                                 on: [
                                     ['click', function(e){e.stopPropagation();}],
-                                    ['mousedown', manager.tableResize.start]
+                                    ['mousedown', manager.tableResize]
                                 ]
                             })
                         ]
@@ -474,7 +474,15 @@ var manager = {
             return manager.language.OV_FL_CHECKED.replace('%:.1d%', manager.apiGetDone(api));
         } else if (state & 16) { // error
             //OV_FL_ERROR //Progress
-            return api[21] || manager.language.OV_FL_ERROR;
+            var error = api[21];
+            if (error && manager.language.lang !== 'en' && error.substr(0, 6) === 'Error:') {
+                var errMsg = manager.language.OV_FL_ERROR;
+                if (errMsg.slice(-1) === '!') {
+                    errMsg = errMsg.substr(0, errMsg.length -1);
+                }
+                error = errMsg+error.substr(5);
+            }
+            return error || manager.language.OV_FL_ERROR;
         } else if (state & 64) { // queued
             if (done === 1000) {
                 //OV_FL_QUEUED_SEED
@@ -1226,7 +1234,7 @@ var manager = {
         sortedList.sort(manager.onSort.bind(undefined, type, columnIndex, by));
         manager.sortInsertList(type, sortedList, manager.varCache[type+'SortList']);
     },
-    setDownSpd: function(value) {
+    setDlSpeed: function(value) {
         value = manager.bytesToText(value, '-', 1);
         if (!manager.domCache.dlSpd) {
             return manager.domCache.dlSpeed.appendChild(manager.domCache.dlSpd = mono.create('span', {
@@ -1236,7 +1244,7 @@ var manager = {
         }
         manager.domCache.dlSpd.textContent = value;
     },
-    setUpSpd: function(value) {
+    setUpSpeed: function(value) {
         value = manager.bytesToText(value, '-', 1);
         if (!manager.domCache.upSpd) {
             return manager.domCache.upSpeed.appendChild(manager.domCache.upSpd = mono.create('span', {
@@ -1276,8 +1284,8 @@ var manager = {
         }
     },
     writeTrList: function(data) {
-        var downspd = 0;
-        var upspd = 0;
+        var dlSpeed = 0;
+        var upSpeed = 0;
 
         if (data.torrentm !== undefined) {
             // remove items from dom
@@ -1293,8 +1301,8 @@ var manager = {
 
         var list = data.torrents || data.torrentp || [];
         for (var i = 0, api; api = list[i]; i++) {
-            downspd += api[9];
-            upspd += api[8];
+            dlSpeed += api[9];
+            upSpeed += api[8];
 
             if (manager.trSkipItem(api)) {
                 continue;
@@ -1316,10 +1324,10 @@ var manager = {
             }
         }
 
-        manager.setDownSpd(downspd);
-        manager.setUpSpd(upspd);
+        manager.setDlSpeed(dlSpeed);
+        manager.setUpSpeed(upSpeed);
 
-        manager.sort('tr', undefined, undefined);
+        manager.sort('tr');
 
         if (data.files !== undefined) {
             manager.writeFlList(data);
@@ -1549,6 +1557,11 @@ var manager = {
         pcnt: 'pcnt',
         prio: 3
     },
+    flClearList: function() {
+        manager.varCache.flSortList = [];
+        manager.varCache.flListItems = {};
+        manager.domCache.flBody.textContent = '';
+    },
     writeFlList: function(data) {
         if (!data.files) {
             return;
@@ -1588,7 +1601,7 @@ var manager = {
             delete flListLayer.loading;
         }
 
-        manager.sort('fl', undefined, undefined);
+        manager.sort('fl');
     },
     flListShow: function(hash) {
         var flListLayer = manager.varCache.flListLayer = {};
@@ -1695,63 +1708,60 @@ var manager = {
     capitalize: function(string) {
         return string.substr(0, 1).toUpperCase()+string.substr(1);
     },
-    tableResize: {
-        enable: false,
-        start: function(e) {
-            if (e.button !== 0) {
-                return;
-            }
-            var _this = manager.tableResize;
-            _this.enable = true;
-
-            var column = this.parentNode;
-            var type = column.dataset.type;
-            var columnName = column.dataset.name;
-
-
-            var currentSize = column.clientWidth;
-
-            var startXPos = e.clientX;
-            var delta = 0;
-
-            var styleType = type === 'tr' ? 'torrent-list' : 'fl';
-            var styleBody = '.'+styleType+'-layer th.' + columnName + ',' +
-            ' .'+styleType+'-layer td.' + columnName + ' {' +
-                'max-width: {size}px;' +
-                'min-width: {size}px;' +
-            '}';
-
-            var styleEl = mono.create('style');
-            document.body.appendChild(styleEl);
-
-            document.body.style.width = document.body.clientWidth+'px';
-
-            var newSize = currentSize;
-            var onMouseMove = function(e) {
-                var xPos = e.x;
-                delta = xPos - startXPos - 6;
-                newSize = currentSize + delta;
-                if (newSize < 16) {
-                    newSize = 16;
-                }
-                styleEl.textContent = styleBody.replace(/\{size\}/g, newSize);
-            };
-            document.body.addEventListener('mousemove', onMouseMove);
-            document.body.addEventListener('mouseup', function onMouseDown(e) {
-                e.stopPropagation();
-                _this.enable = false;
-
-                document.body.removeEventListener('mousemove', onMouseMove);
-                document.body.removeEventListener('mouseup', onMouseDown);
-                styleEl.parentNode.removeChild(styleEl);
-                document.body.style.width = 'initial';
-
-                manager.varCache[type+'ColumnList'][columnName].width = newSize;
-                mono.sendMessage({action: 'set'+manager.capitalize(type)+'ColumnArray', data: manager.varCache[type+'ColumnArray']});
-
-                manager.updateHead(type);
-            });
+    tableResize: function(e) {
+        if (e.button !== 0) {
+            return;
         }
+        var _this = manager.tableResize;
+        _this.enable = true;
+
+        var column = this.parentNode;
+        var type = column.dataset.type;
+        var columnName = column.dataset.name;
+
+
+        var currentSize = column.clientWidth;
+
+        var startXPos = e.clientX;
+        var delta = 0;
+
+        var styleType = type === 'tr' ? 'torrent-list' : 'fl';
+        var styleBody = '.'+styleType+'-layer th.' + columnName + ',' +
+        ' .'+styleType+'-layer td.' + columnName + ' {' +
+            'max-width: {size}px;' +
+            'min-width: {size}px;' +
+        '}';
+
+        var styleEl = mono.create('style');
+        document.body.appendChild(styleEl);
+
+        document.body.style.width = document.body.clientWidth+'px';
+
+        var newSize = currentSize;
+        var onMouseMove = function(e) {
+            var xPos = e.x;
+            delta = xPos - startXPos - 6;
+            newSize = currentSize + delta;
+            if (newSize < 16) {
+                newSize = 16;
+            }
+            styleEl.textContent = styleBody.replace(/\{size\}/g, newSize);
+        };
+        document.body.addEventListener('mousemove', onMouseMove);
+        document.body.addEventListener('mouseup', function onMouseDown(e) {
+            e.stopPropagation();
+            _this.enable = false;
+
+            document.body.removeEventListener('mousemove', onMouseMove);
+            document.body.removeEventListener('mouseup', onMouseDown);
+            styleEl.parentNode.removeChild(styleEl);
+            document.body.style.width = 'initial';
+
+            manager.varCache[type+'ColumnList'][columnName].width = newSize;
+            mono.sendMessage({action: 'set'+manager.capitalize(type)+'ColumnArray', data: manager.varCache[type+'ColumnArray']});
+
+            manager.updateHead(type);
+        });
     },
     prepareColumnList: function(columnList) {
         var obj = {};
@@ -1912,18 +1922,36 @@ var manager = {
             }
         }
     },
-    getSpeedArray: function (current_speed, count) {
-        if (current_speed === 0) {
-            current_speed = 512;
+    getSpeedArray: function (currentSpeed, count) {
+        if (currentSpeed === 0) {
+            currentSpeed = 512;
         }
-        if (current_speed < Math.round(count / 2)) {
-            current_speed = Math.round(count / 2);
+        if (currentSpeed < Math.round(count / 2)) {
+            currentSpeed = Math.round(count / 2);
         }
         var arr = new Array(count);
         for (var i = 0; i < count; i++) {
-            arr[i] = Math.round((i + 1) / Math.round(count / 2) * current_speed);
+            arr[i] = Math.round((i + 1) / Math.round(count / 2) * currentSpeed);
         }
         return arr;
+    },
+    setSpeedDom: function(type, speed) {
+        var speedNode = manager.varCache.speedLimit[type+'Node'];
+        if (speed === 0) {
+            if (!speedNode) {
+                return;
+            }
+            speedNode.parentNode.removeChild(speedNode);
+            delete manager.varCache.speedLimit[type+'Node'];
+            return;
+        }
+        var value = manager.bytesToText(speed * 1024, '-', 1);
+        if (speedNode === undefined) {
+            speedNode = manager.varCache.speedLimit[type+'Node'] = mono.create('span', {'class': 'limit '+type, text: value});
+            manager.domCache[type+'Speed'].appendChild(speedNode);
+            return;
+        }
+        speedNode.textContent = value;
     },
     updateSpeedCtxMenu: function() {
         var items = manager.varCache.speedLimit.ctxItems;
@@ -1948,14 +1976,67 @@ var manager = {
             if (value.type !== type) {
                 value.type = type;
             }
-            if (manager.varCache.speedLimit[type+'Speed'] !== value.speed && value.a === 1) {
+            if (manager.varCache.speedLimit[type+'Speed'] !== value.speed && value.display === 1) {
                 value.$node.children('label').remove();
                 value.display = 0;
-            } else if (manager.varCache.speedLimit[type+'Speed'] === value.speed && value.a !== 1) {
+            } else if (manager.varCache.speedLimit[type+'Speed'] === value.speed && value.display !== 1) {
                 value.display = 1;
                 value.$node.prepend($('<label>', {text: '●'}));
             }
         }
+    },
+    readSettings: function(data) {
+        for (var i = 0, item; item = data.settings[i]; i++) {
+            var key = item[0];
+            var value = item[2];
+            if (key === 'max_dl_rate') {
+                value = parseInt(value);
+                if (manager.varCache.speedLimit.dlSpeed !== value) {
+                    manager.varCache.speedLimit.dlSpeed = value;
+                    manager.setSpeedDom('dl', value);
+                }
+            }
+            if (key === 'max_ul_rate') {
+                value = parseInt(value);
+                if (manager.varCache.speedLimit.upSpeed !== value) {
+                    manager.varCache.speedLimit.upSpeed = value;
+                    manager.setSpeedDom('up', value);
+                }
+            }
+        }
+        manager.updateSpeedCtxMenu();
+    },
+    trToggleColum: function(column) {
+        manager.timer.stop();
+        var columnObj = manager.varCache.trColumnList[column];
+        columnObj.display = columnObj.display === 1 ? 0 : 1;
+        manager.updateHead('tr');
+        manager.trFullUpdatePrepare([]);
+        mono.sendMessage([
+            {action: 'getRemoteTorrentList'},
+            {action: 'setTrColumnArray', data: manager.varCache.trColumnArray}
+        ], function(data) {
+            manager.writeTrList({torrents: data.getRemoteTorrentList});
+            manager.timer.start();
+        });
+    },
+    flToggleColum: function(column) {
+        var flListLayer = manager.varCache.flListLayer;
+        if (!flListLayer.param) {
+            return;
+        }
+        manager.timer.stop();
+        var columnObj = manager.varCache.flColumnList[column];
+        columnObj.display = columnObj.display === 1 ? 0 : 1;
+        manager.updateHead('fl');
+        manager.flClearList();
+        mono.sendMessage([
+            {action: 'api', data: flListLayer.param},
+            {action: 'setFlColumnArray', data: manager.varCache.flColumnArray}
+        ], function(data) {
+            manager.writeFlList(data.api);
+            manager.timer.start();
+        });
     },
     run: function() {
         console.time('manager ready');
@@ -2049,8 +2130,10 @@ var manager = {
                 manager.updateTrackerList(function() {
                     manager.timer.start();
                 });
+
+                manager.readSettings({settings: data.getRemoteSettings});
                 mono.sendMessage({action: 'api', data: {action: 'getsettings'}}, function(data) {
-                    console.log(data);
+                    manager.readSettings(data);
                 });
 
                 manager.domCache.menu.querySelector('a.btn.refresh').addEventListener('click', function(e) {
@@ -2112,7 +2195,6 @@ var manager = {
         $.contextMenu.defaults.animation.show = 'show';
         $.contextMenu.defaults.animation.duration = 0;
         $.contextMenu.defaults.position = function(opt, x, y) {
-            var $this = this;
             var offset;
             // determine contextMenu position
             if (!x && !y) {
@@ -2460,7 +2542,7 @@ var manager = {
             events: {
                 show: function (trigger) {
                     manager.varCache.speedLimit.ctxItems = trigger.items;
-                    manager.varCache.speedLimit.type = this.hasClass('download') ? 1 : 0;
+                    manager.varCache.speedLimit.type = this.hasClass('download') ? 'dl' : 'up';
                     manager.updateSpeedCtxMenu();
                 }
             },
@@ -2527,7 +2609,7 @@ var manager = {
                         name: manager.language[value.lang],
                         display: undefined,
                         callback: function (key) {
-                            // trToggleColum(key);
+                            manager.trToggleColum(key);
                         }
                     };
                 });
@@ -2559,7 +2641,7 @@ var manager = {
                         name: manager.language[value.lang],
                         display: undefined,
                         callback: function (key) {
-                            // flToggleColum(key);
+                            manager.flToggleColum(key);
                         }
                     };
                 });
