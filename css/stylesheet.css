@@ -60,25 +60,59 @@ ul.menu a.btn:active {
     opacity: 0.7;
 }
 ul.menu a.refresh{
-    background-image: url("../images/refresh.png");
+    background-image: url("../images/refresh.svg");
+    background-size: 28px;
 }
 ul.menu a.wui{
     background-image: url("../images/wui.png");
+    background-size: 28px;
 }
 ul.menu a.start_all{
     background-image: url("../images/play_all.png");
+    background-size: 28px;
 }
 ul.menu a.pause_all{
     background-image: url("../images/pause_all.png");
+    background-size: 28px;
 }
 ul.menu a.add_file{
     background-image: url("../images/add.png");
+    background-size: 28px;
 }
 ul.menu a.add_magnet{
     background-image: url("../images/magnet.png");
+    background-size: 28px;
 }
 ul.menu a.btn:hover {
     border: 1px solid #a9acb1;
+}
+
+@media
+only screen and (-webkit-min-device-pixel-ratio: 2),
+only screen and (   min--moz-device-pixel-ratio: 2),
+only screen and (        min-device-pixel-ratio: 2),
+only screen and (                min-resolution: 192dpi),
+only screen and (                min-resolution: 2dppx) {
+    ul.menu a.wui{
+        background-image: url("../images/wui@2x.png");
+        background-size: 28px;
+    }
+    ul.menu a.start_all{
+        background-image: url("../images/play_all@2x.png");
+        background-size: 28px;
+    }
+    ul.menu a.pause_all{
+        background-image: url("../images/pause_all@2x.png");
+        background-size: 28px;
+    }
+    ul.menu a.add_file{
+        background-image: url("../images/add@2x.png");
+        background-size: 28px;
+    }
+    ul.menu a.add_magnet{
+        background-image: url("../images/magnet@2x.png");
+        background-size: 28px;
+    }
 }
 
 .torrent-list-layer {
@@ -376,7 +410,8 @@ div.file-list ul.bottom-menu a {
     border: 1px solid #fff;
 }
 div.file-list ul.bottom-menu a.update{
-    background-image: url('../images/refresh.png');
+    background-image: url("../images/refresh.svg");
+    background-size: 20px;
 }
 div.file-list ul.bottom-menu a.close{
     background-image: url('../images/close.png');

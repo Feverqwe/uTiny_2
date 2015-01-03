@@ -18,6 +18,9 @@ mono.create = function(tagName, obj) {
                 mono.create.hookList[attr](el, value);
                 continue;
             }
+            if (value === undefined || value === null) {
+                continue;
+            }
             el[attr] = value;
         }
     }
@@ -1195,9 +1198,6 @@ var manager = {
         manager.varCache.trSortList = currentList;
     },
     trSort: function(column, by, newItems) {
-        if (newItems === undefined) {
-            newItems = [];
-        }
         if (column === undefined) {
             column = manager.varCache.trSortColumn;
         }
@@ -1212,7 +1212,13 @@ var manager = {
             columnIndex = '';
         }
 
-        var sortedList = Array.prototype.concat(manager.varCache.trSortList, newItems);
+        var sortedList = (function() {
+            var list = [];
+            for (var hash in manager.varCache.trListItems) {
+                list.push(manager.varCache.trListItems[hash]);
+            }
+            return list;
+        })();
         sortedList.sort(manager.trOnSort.bind(undefined, columnIndex, by));
         manager.trSortInsertList(sortedList, manager.varCache.trSortList);
     },
@@ -1281,7 +1287,6 @@ var manager = {
             manager.trFullUpdatePrepare(data.torrents);
         }
 
-        var newItems = [];
         var list = data.torrents || data.torrentp || [];
         for (var i = 0, api; api = list[i]; i++) {
             downspd += api[9];
@@ -1297,7 +1302,6 @@ var manager = {
                 item = manager.varCache.trListItems[hash] = {};
                 item.api = api;
                 manager.trItemCreate(item);
-                newItems.push(item);
             } else {
                 var diffList = manager.trGetApiDiff(item.api, api);
                 if (diffList.length === 0) {
@@ -1311,7 +1315,7 @@ var manager = {
         manager.setDownSpd(downspd);
         manager.setUpSpd(upspd);
 
-        manager.trSort(undefined, undefined, newItems);
+        manager.trSort(undefined, undefined);
 
         if (data.files !== undefined) {
             manager.writeFlList(data);
@@ -1613,10 +1617,7 @@ var manager = {
 
         manager.varCache.flSortList = currentList;
     },
-    flSort: function(column, by, newItems) {
-        if (newItems === undefined) {
-            newItems = [];
-        }
+    flSort: function(column, by) {
         if (column === undefined) {
             column = manager.varCache.flSortColumn;
         }
@@ -1631,7 +1632,13 @@ var manager = {
             columnIndex = '';
         }
 
-        var sortedList = Array.prototype.concat(manager.varCache.flSortList, newItems);
+        var sortedList = (function() {
+            var list = [];
+            for (var index in manager.varCache.flListItems) {
+                list.push(manager.varCache.flListItems[index]);
+            }
+            return list;
+        })();
         sortedList.sort(manager.flOnSort.bind(undefined, columnIndex, by));
         manager.flSortInsertList(sortedList, manager.varCache.flSortList);
     },
@@ -1652,7 +1659,6 @@ var manager = {
             return;
         }
 
-        var newItems = [];
         for (var index = 0, api; api = fileList[index]; index++) {
             var item = manager.varCache.flListItems[index];
             if (item === undefined) {
@@ -1660,7 +1666,6 @@ var manager = {
                 item.api = api;
                 item.index = index;
                 manager.flItemCreate(item);
-                newItems.push(item);
             } else {
                 var diffList = manager.flGetApiDiff(item.api, api);
                 if (diffList.length === 0) {
@@ -1676,7 +1681,7 @@ var manager = {
             delete flListLayer.loading;
         }
 
-        manager.flSort(undefined, undefined, newItems);
+        manager.flSort(undefined, undefined);
     },
     flListShow: function(hash) {
         var flListLayer = manager.varCache.flListLayer = {};
@@ -1856,12 +1861,16 @@ var manager = {
         return obj;
     },
     run: function() {
+        console.time('manager ready');
+        console.time('storage data');
         mono.storage.get([
             'trSortColumn',
             'trSortBy',
             'flSortColumn',
             'flSortBy',
             'selectedLabel'], function(storage) {
+            console.timeEnd('storage data');
+            console.time('remote data');
             mono.sendMessage([
                 {action: 'getLanguage'},
                 {action: 'getSettings'},
@@ -1872,6 +1881,9 @@ var manager = {
                 {action: 'getRemoteSettings'},
                 {action: 'getPublicStatus'}
             ], function(data) {
+                console.timeEnd('remote data');
+                console.time('manager render');
+
                 manager.language = data.getLanguage;
                 manager.settings = data.getSettings;
 
@@ -1984,9 +1996,34 @@ var manager = {
                 manager.domCache.flFixedHead.addEventListener('click', onColumntClick);
 
                 manager.varCache.selectBox = selectBox.wrap(manager.domCache.labelBox);
+
+                console.timeEnd('manager render');
+                console.timeEnd('manager ready');
+
+                setTimeout(function() {
+                    console.time('jquery ready');
+                    document.body.appendChild(mono.create('script', {src: 'js/jquery-2.1.3.min.js'}));
+                });
             });
         });
+    },
+    onDefine: function() {
+
     }
 };
+
+var define = function(name) {
+    if (name === 'jquery') {
+        console.timeEnd('jquery ready');
+        console.time('contextMenu ready');
+        document.body.appendChild(mono.create('script', {src: 'js/notifer.js'}));
+        document.body.appendChild(mono.create('script', {src: 'js/jquery.contextMenu.js'}));
+    }
+    if (name === 'contextMenu') {
+        console.timeEnd('contextMenu ready');
+        manager.onDefine();
+    }
+};
+define.amd = {};
 
 manager.run();
