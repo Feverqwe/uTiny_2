@@ -143,7 +143,8 @@ var manager = {
         flLeft: 0,
         // show/hide filelist layer bottom
         flBottomIsHide: false,
-        labels: []
+        labels: [],
+        speedLimit: {}
     },
     options: {
         scrollWidth: 17,
@@ -393,7 +394,7 @@ var manager = {
         var selectedIndex = manager.domCache.labelBox.selectedIndex;
         var currentLabel = manager.varCache.currentFilter = manager.varCache.labels[selectedIndex];
 
-        mono.sendMessage({action: 'setSelectedLabel', value: currentLabel});
+        mono.storage.set({selectedLabel: currentLabel});
 
         if (manager.varCache['style.tr-filter']) {
             manager.varCache['style.tr-filter'].parentNode.removeChild(manager.varCache['style.tr-filter']);
@@ -1757,7 +1758,8 @@ var manager = {
             by = by ? 0 : 1;
         }
 
-        var storage = {
+        var storage = {};
+        storage[type+'SortOptions'] = {
             column: columnName,
             by: by
         };
@@ -1770,7 +1772,7 @@ var manager = {
         by && node.classList.add('sortDown');
         !by && node.classList.add('sortUp');
 
-        mono.sendMessage({action: 'set'+manager.capitalize(type)+'SortOptions', value: storage});
+        mono.storage.set(storage);
     },
     flUpdateHead: function() {
         var oldHead = manager.domCache.flFixedHead.firstChild;
@@ -2015,149 +2017,197 @@ var manager = {
             }
         }
     },
+    getSpeedArray: function (current_speed, count) {
+        if (current_speed === 0) {
+            current_speed = 512;
+        }
+        if (current_speed < Math.round(count / 2)) {
+            current_speed = Math.round(count / 2);
+        }
+        var arr = new Array(count);
+        for (var i = 0; i < count; i++) {
+            arr[i] = Math.round((i + 1) / Math.round(count / 2) * current_speed);
+        }
+        return arr;
+    },
+    updateSpeedCtxMenu: function() {
+        var items = manager.varCache.speedLimit.ctxItems;
+        var type = manager.varCache.speedLimit.type;
+        if (!items) {
+            return;
+        }
+        var speeds = manager.getSpeedArray(manager.varCache.speedLimit[type+'Speed'] || 0, manager.varCache.speedLimit.count);
+        var n = 0;
+        for (var key in items) {
+            var value = items[key];
+            if (value.name === undefined) {
+                continue;
+            }
+            if (key !== 'unlimited') {
+                if (value.speed !== speeds[n]) {
+                    value.speed = speeds[n];
+                    value.$node.children('span').text(manager.bytesToText(value.speed * 1024, undefined, 1));
+                }
+                n++;
+            }
+            if (value.type !== type) {
+                value.type = type;
+            }
+            if (manager.varCache.speedLimit[type+'Speed'] !== value.speed && value.a === 1) {
+                value.$node.children('label').remove();
+                value.display = 0;
+            } else if (manager.varCache.speedLimit[type+'Speed'] === value.speed && value.a !== 1) {
+                value.display = 1;
+                value.$node.prepend($('<label>', {text: '●'}));
+            }
+        }
+    },
     run: function() {
         console.time('manager ready');
         console.time('remote data');
 
-        mono.sendMessage([
-            {action: 'getLanguage'},
-            {action: 'getSettings'},
-            {action: 'getTrColumnArray'},
-            {action: 'getFlColumnArray'},
-            {action: 'getRemoteTorrentList'},
-            {action: 'getRemoteLabels'},
-            {action: 'getRemoteSettings'},
-            {action: 'getPublicStatus'},
-            {action: 'getSelectedLabel'},
-            {action: 'getTrSortOptions'},
-            {action: 'getFlSortOptions'}
-        ], function(data) {
-            console.timeEnd('remote data');
-            console.time('manager render');
+        mono.storage.get([
+            'trSortOptions',
+            'flSortOptions',
+            'selectedLabel'
+        ], function(storage) {
+            mono.sendMessage([
+                {action: 'getLanguage'},
+                {action: 'getSettings'},
+                {action: 'getTrColumnArray'},
+                {action: 'getFlColumnArray'},
+                {action: 'getRemoteTorrentList'},
+                {action: 'getRemoteLabels'},
+                {action: 'getRemoteSettings'},
+                {action: 'getPublicStatus'}
+            ], function(data) {
+                console.timeEnd('remote data');
+                console.time('manager render');
 
-            manager.language = data.getLanguage;
-            manager.settings = data.getSettings;
+                manager.language = data.getLanguage;
+                manager.settings = data.getSettings;
 
-            if (manager.options.trWordWrap) {
-                document.body.appendChild(mono.create('style', {
-                    text: 'div.torrent-list-layer td div {' +
-                        'white-space: normal;word-wrap: break-word;' +
-                    '}'
-                }));
-            }
-            if (manager.options.flWordWrap) {
-                document.body.appendChild(mono.create('style', {
-                    text: 'div.fl-layer td div {' +
-                        'white-space: normal;word-wrap: break-word;' +
-                    '}'
-                }));
-            }
-
-            if (manager.settings.popupHeight > 0) {
-                var panelsHeight = 54;
-                manager.domCache.trLayer.style.maxHeight = (manager.settings.popupHeight - panelsHeight) + 'px';
-                manager.domCache.trLayer.style.minHeight = (manager.settings.popupHeight - panelsHeight) + 'px';
-            }
-
-            if (data.getTrSortOptions) {
-                manager.varCache.trSortColumn = data.getTrSortOptions.column;
-                manager.varCache.trSortBy = data.getTrSortOptions.by;
-            }
-            if (data.getFlSortOptions) {
-                manager.varCache.flSortColumn = data.getFlSortOptions.column;
-                manager.varCache.flSortBy = data.getTrSortOptions.by;
-            }
-
-            manager.varCache.trColumnList = manager.prepareColumnList(data.getTrColumnArray);
-            manager.varCache.flColumnList = manager.prepareColumnList(data.getFlColumnArray);
-            manager.varCache.trColumnArray = data.getTrColumnArray;
-            manager.varCache.flColumnArray = data.getFlColumnArray;
-
-            manager.domCache.trLayer.addEventListener('scroll', function() {
-                manager.domCache.trTableFixed.style.left = (-this.scrollLeft)+'px';
-            });
-            manager.domCache.flLayer.addEventListener('scroll', function() {
-                if (this.scrollLeft !== 0) {
-                    manager.domCache.flTableFixed.style.left = (-this.scrollLeft + manager.varCache.flLeft) + 'px';
-                } else {
-                    manager.domCache.flTableFixed.style.left = 'auto';
+                if (manager.options.trWordWrap) {
+                    document.body.appendChild(mono.create('style', {
+                        text: 'div.torrent-list-layer td div {' +
+                            'white-space: normal;word-wrap: break-word;' +
+                        '}'
+                    }));
                 }
-            });
+                if (manager.options.flWordWrap) {
+                    document.body.appendChild(mono.create('style', {
+                        text: 'div.fl-layer td div {' +
+                            'white-space: normal;word-wrap: break-word;' +
+                        '}'
+                    }));
+                }
 
-            manager.trWriteHead();
+                if (manager.settings.popupHeight > 0) {
+                    var panelsHeight = 54;
+                    manager.domCache.trLayer.style.maxHeight = (manager.settings.popupHeight - panelsHeight) + 'px';
+                    manager.domCache.trLayer.style.minHeight = (manager.settings.popupHeight - panelsHeight) + 'px';
+                }
 
-            manager.varCache.currentFilter = data.getSelectedLabel || manager.varCache.currentFilter;
-            manager.setLabels(data.getRemoteLabels);
-            manager.trChangeFilterByLabelBox();
-            manager.domCache.labelBox.addEventListener('change', function() {
+                if (storage.trSortOptions) {
+                    manager.varCache.trSortColumn = storage.trSortOptions.column;
+                    manager.varCache.trSortBy = storage.trSortOptions.by;
+                }
+                if (storage.flSortOptions) {
+                    manager.varCache.flSortColumn = storage.flSortOptions.column;
+                    manager.varCache.flSortBy = storage.flSortOptions.by;
+                }
+
+                manager.varCache.trColumnList = manager.prepareColumnList(data.getTrColumnArray);
+                manager.varCache.flColumnList = manager.prepareColumnList(data.getFlColumnArray);
+                manager.varCache.trColumnArray = data.getTrColumnArray;
+                manager.varCache.flColumnArray = data.getFlColumnArray;
+
+                manager.domCache.trLayer.addEventListener('scroll', function() {
+                    manager.domCache.trTableFixed.style.left = (-this.scrollLeft)+'px';
+                });
+                manager.domCache.flLayer.addEventListener('scroll', function() {
+                    if (this.scrollLeft !== 0) {
+                        manager.domCache.flTableFixed.style.left = (-this.scrollLeft + manager.varCache.flLeft) + 'px';
+                    } else {
+                        manager.domCache.flTableFixed.style.left = 'auto';
+                    }
+                });
+
+                manager.trWriteHead();
+
+                manager.varCache.currentFilter = storage.selectedLabel || manager.varCache.currentFilter;
+                manager.setLabels(data.getRemoteLabels);
                 manager.trChangeFilterByLabelBox();
-            });
+                manager.domCache.labelBox.addEventListener('change', function() {
+                    manager.trChangeFilterByLabelBox();
+                });
 
-            manager.setStatus(data.getPublicStatus);
+                manager.setStatus(data.getPublicStatus);
 
-            if (!manager.settings.hideSeedStatusItem && !manager.settings.hideFnishStatusItem) {
-                manager.trSkipItem = function(){
-                    return false;
-                };
-            }
+                if (!manager.settings.hideSeedStatusItem && !manager.settings.hideFnishStatusItem) {
+                    manager.trSkipItem = function(){
+                        return false;
+                    };
+                }
 
-            manager.writeTrList({torrents: data.getRemoteTorrentList});
-            manager.updateTrackerList(function() {
-                manager.timer.start();
-            });
-            mono.sendMessage({action: 'api', data: {action: 'getsettings'}}, function(data) {
-                console.log(data);
-            });
-
-            manager.domCache.menu.querySelector('a.btn.refresh').addEventListener('click', function(e) {
-                e.preventDefault();
+                manager.writeTrList({torrents: data.getRemoteTorrentList});
                 manager.updateTrackerList(function() {
                     manager.timer.start();
                 });
-            });
+                mono.sendMessage({action: 'api', data: {action: 'getsettings'}}, function(data) {
+                    console.log(data);
+                });
 
-            manager.domCache.trBody.addEventListener('dblclick', function(e) {
-                var parent = e.target;
-                while (parent !== this) {
-                    parent = parent.parentNode;
-                    if (parent.tagName === 'TR') {
-                        break;
+                manager.domCache.menu.querySelector('a.btn.refresh').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    manager.updateTrackerList(function() {
+                        manager.timer.start();
+                    });
+                });
+
+                manager.domCache.trBody.addEventListener('dblclick', function(e) {
+                    var parent = e.target;
+                    while (parent !== this) {
+                        parent = parent.parentNode;
+                        if (parent.tagName === 'TR') {
+                            break;
+                        }
                     }
-                }
-                var hash = parent.id;
-                if (!hash) return;
+                    var hash = parent.id;
+                    if (!hash) return;
 
-                manager.flListShow(hash);
-            });
+                    manager.flListShow(hash);
+                });
 
-            var onColumntClick = function(e) {
-                var parent = e.target;
-                while (parent !== this) {
-                    parent = parent.parentNode;
-                    if (parent.tagName === 'TH') {
-                        break;
+                var onColumntClick = function(e) {
+                    var parent = e.target;
+                    while (parent !== this) {
+                        parent = parent.parentNode;
+                        if (parent.tagName === 'TH') {
+                            break;
+                        }
                     }
-                }
 
-                var sortBy = parent.classList.contains('sortDown') ? 1 : parent.classList.contains('sortUp') ? 0 : undefined;
-                var columnName = parent.dataset.name;
-                var type = parent.dataset.type;
-                if (!type) {
-                    return;
-                }
-                manager.setColumSort(parent, columnName, sortBy, type);
-            };
-            manager.domCache.trFixedHead.addEventListener('click', onColumntClick);
-            manager.domCache.flFixedHead.addEventListener('click', onColumntClick);
+                    var sortBy = parent.classList.contains('sortDown') ? 1 : parent.classList.contains('sortUp') ? 0 : undefined;
+                    var columnName = parent.dataset.name;
+                    var type = parent.dataset.type;
+                    if (!type) {
+                        return;
+                    }
+                    manager.setColumSort(parent, columnName, sortBy, type);
+                };
+                manager.domCache.trFixedHead.addEventListener('click', onColumntClick);
+                manager.domCache.flFixedHead.addEventListener('click', onColumntClick);
 
-            manager.varCache.selectBox = selectBox.wrap(manager.domCache.labelBox);
+                manager.varCache.selectBox = selectBox.wrap(manager.domCache.labelBox);
 
-            console.timeEnd('manager render');
-            console.timeEnd('manager ready');
+                console.timeEnd('manager render');
+                console.timeEnd('manager ready');
 
-            setTimeout(function() {
-                console.time('jquery ready');
-                document.body.appendChild(mono.create('script', {src: 'js/jquery-2.1.3.min.js'}));
+                setTimeout(function() {
+                    console.time('jquery ready');
+                    document.body.appendChild(mono.create('script', {src: 'js/jquery-2.1.3.min.js'}));
+                }, 0);
             });
         });
     },
@@ -2166,18 +2216,67 @@ var manager = {
         $.contextMenu.defaults.animation.hide = 'hide';
         $.contextMenu.defaults.animation.show = 'show';
         $.contextMenu.defaults.animation.duration = 0;
+        $.contextMenu.defaults.position = function(opt, x, y) {
+            var $this = this;
+            var offset;
+            // determine contextMenu position
+            if (!x && !y) {
+                opt.determinePosition.call(this, opt.$menu);
+                return;
+            } else
+            if (x === "maintain" && y === "maintain") {
+                // x and y must not be changed (after re-show on command click)
+                offset = opt.$menu.position();
+            } else {
+                // x and y are given (by mouse event)
+                offset = {top: y, left: x + 5};
+            }
+
+            var $win = $(window);
+            // correct offset if viewport demands it
+            var bottom = $win.scrollTop() + $win.height();
+            var right = $win.scrollLeft() + $win.width();
+            var height = opt.$menu.height();
+            var width = opt.$menu.width();
+
+            if (offset.top + height > bottom) {
+                offset.top -= height;
+            }
+
+            if (height + 2 >= bottom) {
+                offset.top = 1;
+                offset.height = bottom - 2;
+            }
+
+            if (offset.left + width > right) {
+                offset.left -= width;
+            }
+
+            opt.$menu.css(offset);
+        };
         $.contextMenu.defaults.positionSubmenu = function($menu) {
             // determine contextMenu position
+            var parentMenuItem = this;
+            var parentMenuItemHeight = parentMenuItem.height() + 2;
+            var parentMenuItemOffset = parentMenuItem.offset();
+            var parentMenuItemTop = parentMenuItemOffset.top;
+
+
+            var parentMenu = parentMenuItem.parent();
+            var parentMenuOffset = parentMenu.offset();
+            var parentMenuLeft = parentMenuOffset.left;
+            // var parentMenuTop = parentMenuOffset.top;
+
+            var parentMenuWidth = parentMenu.width();
+            // var parentMenuHeight = parentMenu.height();
+
+            var docWitdh = document.body.clientWidth;
+            var docHeight = document.body.clientHeight;
+
             $menu.css({opacity: 0});
             var menuHeight = $menu.height();
-            var parentMenuItem = this;
-            var parentMenu = parentMenuItem.parent();
-            var parentMenuLeft = parentMenu.offset().left;
-            var menuParentHeight = parentMenuItem.height() + 2;
-            var top = -parseInt((menuHeight - menuParentHeight) / 2);
+            var top = -parseInt((menuHeight - parentMenuItemHeight) / 2);
             var menuWidth = $menu.width();
-            var parentMenuWidth = parentMenu.width();
-            var docWitdh = document.body.clientWidth;
 
             var left;
             if (menuWidth + parentMenuWidth + parentMenuLeft > docWitdh) {
@@ -2186,13 +2285,20 @@ var manager = {
                 left = this.outerWidth() - 1;
             }
 
+            if (parentMenuItemTop + top + menuHeight < 0) {
+                top = -parentMenuItemTop;
+            } else
+            if (parentMenuItemTop + top + menuHeight > docHeight) {
+                top -= (parentMenuItemTop + top + menuHeight - docHeight);
+            }
+
             $menu.css({
                 top: top,
                 left: left,
                 opacity: 1
             });
-            console.log();
         };
+
         $.contextMenu({
             zIndex: 3,
             selector: ".torrent-table-body tr",
@@ -2341,6 +2447,229 @@ var manager = {
                     items: {}
                 }
             }
+        });
+
+        $.contextMenu({
+            selector: ".fl-table-body tr",
+            className: "filelist",
+            events: {
+                show: function (trigger) {
+                    var index = this[0].dataset.index;
+                    if (!this.hasClass('selected')) {
+                        this.addClass('selected');
+                        this.find('input').trigger('click');
+                    } else {
+                        this.addClass('selected force');
+                    }
+                    var priority = manager.varCache.flListItems[index].api[3];
+                    for (var action in trigger.items) {
+                        var item = trigger.items[action];
+                        if (item.priority === undefined) {
+                            continue;
+                        }
+                        if (item.priority !== priority && item.display === 1) {
+                            item.$node.children('label').remove();
+                            item.display = 0;
+                        }
+                        if (item.priority === priority && item.display !== 1) {
+                            item.$node.prepend($('<label>', {text: '●'}));
+                            item.display = 1;
+                        }
+                    }
+                    manager.varCache.flListLayer.ctxSelectArray = [];
+                    var itemList = manager.domCache.flBody.querySelector('input:checked');
+                    for (var i = 0, item; item = itemList[i]; i++) {
+                        manager.varCache.flListLayer.ctxSelectArray.push(item.parentNode.parentNode.dataset.index);
+                    }
+                },
+                hide: function () {
+                    if (this.hasClass('selected') && !this.hasClass('force')) {
+                        this.removeClass('selected');
+                        this.find('input').trigger('click');
+                    } else {
+                        this.removeClass('force');
+                    }
+                    manager.varCache.flListLayer.ctxSelectArray = [];
+                }
+            },
+            items: {
+                high: {
+                    className: 'p3',
+                    name: manager.language.MF_HIGH,
+                    priority: 3,
+                    callback: function (key, trigger) {
+                        /*sendAction($.param({action: 'setprio', p: 3}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
+                        fl_unckeckCkecked();*/
+                    }
+                },
+                normal: {
+                    className: 'p2',
+                    name: manager.language.MF_NORMAL,
+                    priority: 2,
+                    callback: function (key, trigger) {
+                        /*sendAction($.param({action: 'setprio', p: 2}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
+                        fl_unckeckCkecked();*/
+                    }
+                },
+                low: {
+                    className: 'p1',
+                    priority: 1,
+                    name: manager.language.MF_LOW,
+                    callback: function (key, trigger) {
+                        /*sendAction($.param({action: 'setprio', p: 1}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
+                        fl_unckeckCkecked();*/
+                    }
+                },
+                s: '-',
+                dntdownload: {
+                    className: 'p0',
+                    priority: 0,
+                    name: manager.language.MF_DONT,
+                    callback: function (key, trigger) {
+                        /*sendAction($.param({action: 'setprio', p: 0}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
+                        fl_unckeckCkecked();*/
+                    }
+                },
+                s1: '-',
+                download: {
+                    name: manager.language.DLG_RSSDOWNLOADER_24,
+                    callback: function (key, trigger) {
+                        /**
+                         * @namespace chrome.tabs.create
+                         */
+                        /*var webUi_url = ((_settings.ssl) ? 'https' : 'http') + "://" + _settings.login + ":" + _settings.password + "@" +
+                            _settings.ut_ip + ":" + _settings.ut_port + "/";
+                        for (var n = 0, item; item = var_cache.fl_list_ctx_sel_arr[n]; n++) {
+                            var sid = var_cache.tr_list[var_cache.fl_id][22];
+                            if (sid === undefined) {
+                                continue;
+                            }
+                            var fileUrl = webUi_url + 'proxy?sid=' + sid + '&file=' + item + '&disposition=ATTACHMENT&service=DOWNLOAD&qos=0';
+                            if (mono.isChrome) {
+                                chrome.tabs.create({
+                                    url: fileUrl
+                                });
+                            } else {
+                                mono.sendMessage({action: 'openTab', url: fileUrl}, undefined, 'service');
+                            }
+                        }
+                        fl_unckeckCkecked();*/
+                    }
+                }
+            }
+        });
+
+        $.contextMenu({
+            className: 'speed',
+            selector: 'table.status-panel td.speed',
+            events: {
+                show: function (trigger) {
+                    manager.varCache.speedLimit.ctxItems = trigger.items;
+                    manager.varCache.speedLimit.type = this.hasClass('download') ? 1 : 0;
+                    manager.updateSpeedCtxMenu();
+                }
+            },
+            items: function () {
+                //выстраивает внутренности контекстного меню для ограничения скорости
+                var items = {};
+                items.unlimited = {
+                    name: manager.capitalize(manager.language.MENU_UNLIMITED),
+                    display: 0,
+                    speed: 0,
+                    callback: function (key, toggle) {
+                        /*if (toggle.items[key].type === 'download') {
+                            setDlSpeed(0);
+                        } else {
+                            setUpSpeed(0);
+                        }*/
+                    }
+                };
+                items["s"] = '-';
+                var count = Math.round((manager.settings.popupHeight - 54) / 27);
+                if (count > 10) {
+                    count = 10;
+                }
+                manager.varCache.speedLimit.count = count;
+                for (var i = 0; i < count; i++) {
+                    items['s' + i] = {
+                        name: '-',
+                        display: undefined,
+                        speed: undefined,
+                        callback: function (key, toggle) {
+                            /*if (toggle.items[key].type === 'download') {
+                                setDlSpeed(toggle.items[key].speed);
+                            } else {
+                                setUpSpeed(toggle.items[key].speed);
+                            }*/
+                        }
+                    };
+                }
+                return items;
+            }()
+        });
+
+        $.contextMenu({
+            className: 'trColumSelect',
+            selector: 'table.torrent-table-head thead',
+            events: {
+                show: function (trigger) {
+                    $.each(manager.varCache.trColumnList, function (key, value) {
+                        if (!!value.display !== !!trigger.items[key].display) {
+                            trigger.items[key].display = !!value.display;
+                            if (!value.display) {
+                                trigger.items[key].$node.children('label').remove();
+                            } else {
+                                trigger.items[key].$node.prepend($('<label>', {text: '●'}));
+                            }
+                        }
+                    });
+                }
+            },
+            items: function () {
+                var items = {};
+                $.each(manager.varCache.trColumnList, function (key, value) {
+                    items[key] = {
+                        name: manager.language[value.lang],
+                        display: undefined,
+                        callback: function (key) {
+                            // trToggleColum(key);
+                        }
+                    };
+                });
+                return items;
+            }()
+        });
+
+        $.contextMenu({
+            className: 'flColumSelect',
+            selector: 'table.fl-table-head thead',
+            events: {
+                show: function (trigger) {
+                    $.each(manager.varCache.flColumnList, function (key, value) {
+                        if (!!value.display !== !!trigger.items[key].display) {
+                            trigger.items[key].display = !!value.display;
+                            if (!value.display) {
+                                trigger.items[key].$node.children('label').remove();
+                            } else {
+                                trigger.items[key].$node.prepend($('<label>', {text: '●'}));
+                            }
+                        }
+                    });
+                }
+            },
+            items: function () {
+                var items = {};
+                $.each(manager.varCache.flColumnList, function (key, value) {
+                    items[key] = {
+                        name: manager.language[value.lang],
+                        display: undefined,
+                        callback: function (key) {
+                            // flToggleColum(key);
+                        }
+                    };
+                });
+                return items;
+            }()
         });
     }
 };

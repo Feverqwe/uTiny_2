@@ -200,5 +200,11 @@
     },
     "showFileList": {
         "message": "Список файлов"
+    },
+    "DLG_RSSDOWNLOADER_24": {
+        "message": "Загрузить"
+    },
+    "MENU_UNLIMITED": {
+        "message": "неограниченно"
     }
 }

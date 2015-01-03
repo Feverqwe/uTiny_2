@@ -403,8 +403,8 @@ div.file-list ul.bottom-menu a {
     border: 1px solid #fff;
     background-repeat: no-repeat;
     background-position: center center;
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     display: inline-block;
     border-radius: 3px;
     border: 1px solid #fff;
@@ -631,4 +631,7 @@ div.btn.setup {
     right: 0;
     top: 0;
     position: absolute !important;
+}
+.trColumSelect {
+    overflow-x: auto;
 }

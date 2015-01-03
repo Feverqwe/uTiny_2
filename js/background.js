@@ -555,45 +555,6 @@ var engine = {
         setFlColumnArray: function(message) {
             engine.fileListColumnList = message.data;
             mono.storage.set({fileListColumnList: message.data});
-        },
-        setSelectedLabel: function(message, response) {
-            engine.storageCache.selectedLabel = message.value;
-            mono.storage.set({selectedLabel: message.value}, response);
-        },
-        getSelectedLabel: function(message, response) {
-            if (engine.storageCache.selectedLabel) {
-                return response(engine.storageCache.selectedLabel);
-            }
-            mono.storage.get('selectedLabel', function(storage) {
-                engine.storageCache.selectedLabel = storage.selectedLabel;
-                response(storage.selectedLabel);
-            });
-        },
-        setTrSortOptions: function(message, response) {
-            engine.storageCache.trSortOptions = message.value;
-            mono.storage.set({trSortOptions: message.value}, response);
-        },
-        getTrSortOptions: function(message, response) {
-            if (engine.storageCache.trSortOptions) {
-                return response(engine.storageCache.trSortOptions);
-            }
-            mono.storage.get('trSortOptions', function(storage) {
-                engine.storageCache.trSortOptions = storage.trSortOptions;
-                response(storage.trSortOptions);
-            });
-        },
-        setFlSortOptions: function(message, response) {
-            engine.storageCache.flSortOptions = message.value;
-            mono.storage.set({flSortOptions: message.value}, response);
-        },
-        getFlSortOptions: function(message, response) {
-            if (engine.storageCache.flSortOptions) {
-                return response(engine.storageCache.flSortOptions);
-            }
-            mono.storage.get('flSortOptions', function(storage) {
-                engine.storageCache.flSortOptions = storage.flSortOptions;
-                response(storage.flSortOptions);
-            });
         }
     }
 };
