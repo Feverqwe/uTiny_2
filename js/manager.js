@@ -1,3 +1,9 @@
+/**
+ * Create new element
+ * @param {string} tagName
+ * @param {object} obj
+ * @returns {Element}
+ */
 mono.create = function(tagName, obj) {
     var el;
     if ( typeof tagName === 'string') {
@@ -309,11 +315,18 @@ var manager = {
         manager.domCache.flHead.appendChild(head.cloneNode(true));
     },
     getLabelOptionNode: function(item, isCustom) {
+        var hasImage;
+        if (isCustom) {
+            hasImage = true;
+            if (item === 'NOLABEL') {
+                hasImage = false;
+            }
+        }
         return mono.create('option', {
             value: item,
             text: isCustom ? (item === 'SEEDING') ? manager.language['OV_FL_'+item.toUpperCase()] : manager.language['OV_CAT_'+item.toUpperCase()] : item,
             data: !isCustom ? undefined : {
-                image: item,
+                image: hasImage ? item : undefined,
                 type: 'custom'
             }
         })
@@ -341,6 +354,7 @@ var manager = {
         }
         manager.domCache.labelBox.appendChild(optionList);
         manager.domCache.labelBox.selectedIndex = selectedIndex;
+        manager.varCache.selectBox && manager.varCache.selectBox.update();
     },
     trCustomFilterObj: {
         ALL: function() {
@@ -1968,6 +1982,8 @@ var manager = {
                 };
                 manager.domCache.trFixedHead.addEventListener('click', onColumntClick);
                 manager.domCache.flFixedHead.addEventListener('click', onColumntClick);
+
+                manager.varCache.selectBox = selectBox.wrap(manager.domCache.labelBox);
             });
         });
     }

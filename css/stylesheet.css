@@ -40,12 +40,6 @@ ul.menu li.select {
     float: right;
     margin-right: 2px;
 }
-ul.menu li.select > a {
-    margin-top: 2px;
-    width: 110px !important;
-    float: right;
-    height: 24px !important;
-}
 ul.menu li.select {
     width: 152px;
     position: absolute;
@@ -459,116 +453,37 @@ li.context-menu-item label.context {
     right: 3px;
     margin-top: 1px;
 }
-li.select div[data-image],
-.selectBox-dropdown-menu div[data-image] {
+li.select div[data-image] .image,
+.simple-select-box-menu div[data-image] .image {
     background-repeat: no-repeat;
-    display: inline-block;
-    margin-right: 2px;
-    background-position-y: 1px;
 }
-li.select div[data-image=all],
-.selectBox-dropdown-menu div[data-image=all] {
-    width: 16px;
-    height: 16px;
-    margin-top: -2px;
+li.select div[data-image=ALL] .image,
+.simple-select-box-menu div[data-image=ALL] .image {
     background-image: url('../images/c_all.png');
 }
-li.select div[data-image=download],
-.selectBox-dropdown-menu div[data-image=download] {
-    width: 16px;
-    height: 16px;
-    margin-top: -2px;
+li.select div[data-image=DL] .image,
+.simple-select-box-menu div[data-image=DL] .image {
     background-image: url('../images/c_down.png');
 }
-li.select div[data-image=seeding],
-.selectBox-dropdown-menu div[data-image=seeding] {
-    width: 16px;
-    height: 16px;
-    margin-top: -2px;
+li.select div[data-image=SEEDING] .image,
+.simple-select-box-menu div[data-image=SEEDING] .image {
     background-image: url('../images/c_uplo.png');
 }
-li.select div[data-image=complite],
-.selectBox-dropdown-menu div[data-image=complite] {
-    width: 16px;
-    height: 16px;
-    margin-top: -2px;
+li.select div[data-image=COMPL] .image,
+.simple-select-box-menu div[data-image=COMPL] .image {
     background-image: url('../images/c_comp.png');
 }
-li.select div[data-image=active],
-.selectBox-dropdown-menu div[data-image=active] {
-    width: 16px;
-    height: 16px;
-    margin-top: -2px;
+li.select div[data-image=ACTIVE] .image,
+.simple-select-box-menu div[data-image=ACTIVE] .image {
     background-image: url('../images/c_active.png');
 }
-li.select div[data-image=inacive],
-.selectBox-dropdown-menu div[data-image=inacive] {
-    width: 16px;
-    height: 16px;
-    margin-top: -2px;
+li.select div[data-image=INACTIVE] .image,
+.simple-select-box-menu div[data-image=INACTIVE] .image {
     background-image: url('../images/c_iact.png');
 }
+
 .appriseOverlay {
     z-index: 3;
-}
-.selectBox [data-image="all"],
-.selectBox-dropdown-menu [data-image="all"] > a {
-    background: url('../images/c_all.png') left center no-repeat;
-    padding-left: 20px !important;
-    background-position-x: 3px;
-}
-.selectBox-dropdown-menu [data-image="all"] > a {
-    background-position-y: 1px;
-}
-
-.selectBox [data-image="download"],
-.selectBox-dropdown-menu [data-image="download"] > a {
-    background: url('../images/c_down.png') left center no-repeat;
-    padding-left: 20px !important;
-    background-position-x: 3px;
-}
-.selectBox-dropdown-menu [data-image="download"] > a {
-    background-position-y: 1px;
-}
-
-.selectBox [data-image="seeding"],
-.selectBox-dropdown-menu [data-image="seeding"] > a {
-    background: url('../images/c_uplo.png') left center no-repeat;
-    padding-left: 20px !important;
-    background-position-x: 3px;
-}
-.selectBox-dropdown-menu [data-image="seeding"] > a {
-    background-position-y: 1px;
-}
-
-.selectBox [data-image="complite"],
-.selectBox-dropdown-menu [data-image="complite"] > a {
-    background: url('../images/c_comp.png') left center no-repeat;
-    padding-left: 20px !important;
-    background-position-x: 3px;
-}
-.selectBox-dropdown-menu [data-image="complite"] > a {
-    background-position-y: 1px;
-}
-
-.selectBox [data-image="active"],
-.selectBox-dropdown-menu [data-image="active"] > a {
-    background: url('../images/c_active.png') left center no-repeat;
-    padding-left: 20px !important;
-    background-position-x: 3px;
-}
-.selectBox-dropdown-menu [data-image="active"] > a {
-    background-position-y: 1px;
-}
-
-.selectBox [data-image="inacive"],
-.selectBox-dropdown-menu [data-image="inacive"] > a {
-    background: url('../images/c_iact.png') left center no-repeat;
-    padding-left: 20px !important;
-    background-position-x: 3px;
-}
-.selectBox-dropdown-menu [data-image="inacive"] > a {
-    background-position-y: 1px;
 }
 
 .nf-layer {
