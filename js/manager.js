@@ -128,7 +128,7 @@ var manager = {
         dropLayer: document.querySelector('div.drop_layer')
     },
     varCache: {
-        currentFilter: {label: 'all', custom: 1},
+        currentFilter: {label: 'ALL', custom: 1},
         trColumnList: {},
         trListItems: {},
         trSortColumn: 'name',
@@ -149,7 +149,8 @@ var manager = {
         flBottomIsHide: 0,
         flSmartName: {},
         labels: [],
-        speedLimit: {}
+        speedLimit: {},
+        folderList: {}
     },
     options: {
         scrollWidth: 17,
@@ -157,6 +158,9 @@ var manager = {
         flWordWrap: true,
         TrMovebleEnabled: true,
         windowMode: false
+    },
+    api: function(data) {
+        mono.sendMessage({action: 'api', data: data}, manager.writeTrList);
     },
     trWriteHead: function() {
         var styleBody = '';
@@ -358,8 +362,9 @@ var manager = {
             labels.push({label: item});
             optionList.appendChild(manager.getLabelOptionNode(item, false));
             if (!manager.varCache.currentFilter.custom && manager.varCache.currentFilter.label === item) {
-                selectedIndex = i;
+                selectedIndex = cIndex;
             }
+            cIndex++;
         }
         manager.domCache.labelBox.appendChild(optionList);
         manager.domCache.labelBox.selectedIndex = selectedIndex;
@@ -1088,7 +1093,7 @@ var manager = {
             }
             fn = manager.trItemNodeUpdate[columnName];
             if (fn !== undefined) {
-                fn(item.api);
+                fn(item);
             }
         }
     },
@@ -1276,6 +1281,10 @@ var manager = {
         }
     },
     writeTrList: function(data) {
+        if (!data) {
+            return;
+        }
+
         var dlSpeed = 0;
         var upSpeed = 0;
 
@@ -1926,10 +1935,10 @@ var manager = {
                     )
                 };
                 items.delLabel.$node.prependTo(trigger.items.labels.$node.children('ul'));
-                items.delLabel.$node.on('click', function () {
-                    // sendAction({list: 1, action: 'setprops', s: 'label', hash: trigger.items.labels.id, v: ''});
-                    $('#context-menu-layer').trigger('mousedown');
-                });
+                trigger.callbacks.delLabel = function () {
+                    var hash = this[0].id;
+                    manager.api({list: 1, action: 'setprops', s: 'label', hash: hash, v: ''});
+                };
             }
             if (items.addLabel !== undefined) {
                 items.addLabel.$node.remove();
@@ -1948,21 +1957,25 @@ var manager = {
                     )
                 };
                 items.addLabel.$node.prependTo(trigger.items.labels.$node.children('ul'));
-                items.addLabel.$node.on('click', function () {
-                    /*notify([
-                        {type: 'input', text: _lang_arr[115]}
-                    ], _lang_arr[116][0], _lang_arr[116][1], function (arr) {
-                        if (arr === undefined) {
-                            return;
-                        }
-                        var label = arr[0];
-                        if (label === undefined) {
-                            return;
-                        }
-                        sendAction({list: 1, action: 'setprops', s: 'label', hash: trigger.items.labels.id, v: label});
-                    });*/
-                    $('#context-menu-layer').trigger('mousedown');
-                });
+                trigger.callbacks.addLabel = function () {
+                    var hash = this[0].id;
+                    showNotification([
+                        [{label: {text: manager.language.youShure}}],
+                        [{input: {type: 'text', name: 'label'}}],
+                        [
+                            {button: {text: manager.language.yes, name: 'yesBtn', on: ['click', function() {
+                                var formData = this.getFormData();
+                                this.close();
+                                var label = formData.label;
+                                if (!label) return;
+                                manager.api({list: 1, action: 'setprops', s: 'label', hash: hash, v: label});
+                            }]}},
+                            {button: {text: manager.language.no, name: 'noBtn', on: ['click', function() {
+                                this.close();
+                            }]}}
+                        ]
+                    ]);
+                };
             }
             if (items.delLabel !== undefined) {
                 items.delLabel.$node.remove();
@@ -1978,18 +1991,18 @@ var manager = {
                 items['_' + label] = {
                     name: label,
                     $node: $('<li>', {'class': 'context-menu-item'}).data({
+                        label: label,
                         contextMenuKey: '_' + label,
                         contextMenu: trigger.items.labels,
                         contextMenuRoot: trigger
                     }).append($('<span>', {text: label}))
                 };
                 items['_' + label].$node.appendTo(trigger.items.labels.$node.children('ul'));
-                items['_' + label].$node.on('click', function () {
-                    /*
-                    sendAction({list: 1, action: 'setprops', s: 'label', hash: trigger.items.labels.id, v: $(this).data('key')});
-                    */
-                    $('#context-menu-layer').trigger('mousedown');
-                });
+                trigger.callbacks['_' + label] = function (key, trigger) {
+                    var hash = this[0].id;
+                    var label = trigger.items.labels.items[key].name;
+                    manager.api({list: 1, action: 'setprops', s: 'label', hash: hash, v: label});
+                };
             }
         }
         if (userLabelLength > 0) {
@@ -2156,7 +2169,10 @@ var manager = {
         });
     },
     setSpeedLimit: function(type, speed) {
-        // todo: set setSpeedLimit
+        var action = type === 'dl' ? 'dl' : 'ul';
+        mono.sendMessage({action: 'api', data: {action: 'setsetting', s: 'max_'+action+'_rate', v: speed}});
+        manager.varCache.speedLimit[type+'Speed'] = speed;
+        manager.setSpeedDom(type, speed);
     },
     flGetCheckBoxList: function(isChecked, isVisible) {
         if (isChecked === 0) {
@@ -2195,8 +2211,8 @@ var manager = {
         }
         manager.domCache.flFixedHead.getElementsByTagName('input')[0].checked = checkedInputCount === checkBoxList.length;
     },
-    flUnCheckAll: function() {
-        var checkBoxList = manager.flGetCheckBoxList(1);
+    flUnCheckAll: function(onlyVisible) {
+        var checkBoxList = manager.flGetCheckBoxList(1, onlyVisible);
         for (var i = 0, el; el = checkBoxList[i]; i++) {
             el.checked = false;
             el.parentNode.parentNode.classList.remove('selected');
@@ -2348,52 +2364,67 @@ var manager = {
             items: {
                 start: {
                     name: manager.language.ML_START,
-                    callback: function (key, trigger) {
-                        // sendAction({list: 1, action: 'start', hash: trigger.items[key].id });
+                    callback: function () {
+                        var hash = this[0].id;
+                        manager.api({list: 1, action: 'start', hash: hash});
                     }
                 },
                 force_start: {
                     name: manager.language.ML_FORCE_START,
-                    callback: function (key, trigger) {
-                        // sendAction({list: 1, action: 'forcestart', hash: trigger.items[key].id });
+                    callback: function () {
+                        var hash = this[0].id;
+                        manager.api({list: 1, action: 'forcestart', hash: hash});
                     }
                 },
                 pause: {
                     name: manager.language.OV_FL_PAUSED,
-                    callback: function (key, trigger) {
-                        // sendAction({list: 1, action: 'pause', hash: trigger.items[key].id });
+                    callback: function () {
+                        var hash = this[0].id;
+                        manager.api({list: 1, action: 'pause', hash: hash});
                     }
                 },
                 unpause: {
                     name: manager.language.ML_START,
-                    callback: function (key, trigger) {
-                        // sendAction({list: 1, action: 'unpause', hash: trigger.items[key].id });
+                    callback: function () {
+                        var hash = this[0].id;
+                        manager.api({list: 1, action: 'unpause', hash: hash});
                     }
                 },
                 stop: {
                     name: manager.language.ML_STOP,
-                    callback: function (key, trigger) {
-                        // sendAction({list: 1, action: 'stop', hash: trigger.items[key].id });
+                    callback: function () {
+                        var hash = this[0].id;
+                        manager.api({list: 1, action: 'stop', hash: hash});
                     }
                 },
                 s1: '-',
                 recheck: {
                     name: manager.language.ML_FORCE_RECHECK,
-                    callback: function (key, trigger) {
-                        // sendAction({list: 1, action: 'recheck', hash: trigger.items[key].id });
+                    callback: function () {
+                        var hash = this[0].id;
+                        manager.api({list: 1, action: 'recheck', hash: hash});
                     }
                 },
                 remove: {
                     name: manager.language.ML_REMOVE,
-                    callback: function (key, trigger) {
-                        /*notify([
-                         {text: _lang_arr[73], type: 'note'}
-                         ], _lang_arr[110][0], _lang_arr[110][1], function (cb) {
-                         if (cb === undefined) {
-                         return;
-                         }
-                         sendAction({list: 1, action: 'remove', hash: trigger.items[key].id});
-                         });*/
+                    callback: function () {
+                        var hash = this[0].id;
+                        showNotification([
+                            [{label: {text: manager.language.areYouSure}}],
+                            [
+                                {button: {text: manager.language.yes, on: [
+                                    ['click', function() {
+                                        this.close();
+                                        manager.api({list: 1, action: 'remove', hash: hash});
+                                    }]
+                                ]}},
+                                {button: {text: manager.language.no, on: [
+                                    ['click', function() {
+                                        this.close();
+                                    }]
+                                ]}}
+                            ]
+                        ]);
                     }
                 },
                 remove_with: {
@@ -2401,30 +2432,33 @@ var manager = {
                     items: {
                         remove_torrent: {
                             name: manager.language.ML_DELETE_TORRENT,
-                            callback: function (key, trigger) {
-                                /*var params = {list: 1, action: 'removetorrent', hash: trigger.items.remove.id };
+                            callback: function () {
+                                var hash = this[0].id;
+                                var params = {list: 1, action: 'removetorrent', hash: hash};
                                  //для 2.xx проверяем версию по наличию статуса
-                                 if (var_cache.tr_list[params.hash][21] === undefined) {
-                                 params.action = 'remove';
-                                 }
-                                 sendAction(params);*/
+                                if (manager.varCache.trListItems[params.hash].api[21] === undefined) {
+                                    params.action = 'remove';
+                                }
+                                manager.api(params);
                             }
                         },
                         remove_files: {
                             name: manager.language.ML_DELETE_DATA,
-                            callback: function (key, trigger) {
-                                // sendAction({list: 1, action: 'removedata', hash: trigger.items.remove.id });
+                            callback: function () {
+                                var hash = this[0].id;
+                                manager.api({list: 1, action: 'removedata', hash: hash});
                             }
                         },
                         remove_torrent_files: {
                             name: manager.language.ML_DELETE_DATATORRENT,
-                            callback: function (key, trigger) {
-                                /*var params = {list: 1, action: 'removedatatorrent', hash: trigger.items.remove.id };
-                                 //для 2.xx проверяем версию по наличию статуса
-                                 if (var_cache.tr_list[params.hash][21] === undefined) {
-                                 params.action = 'removedata';
-                                 }
-                                 sendAction(params);*/
+                            callback: function () {
+                                var hash = this[0].id;
+                                var params = {list: 1, action: 'removedatatorrent', hash: hash};
+                                //для 2.xx проверяем версию по наличию статуса
+                                if (manager.varCache.trListItems[params.hash].api[21] === undefined) {
+                                    params.action = 'removedata';
+                                }
+                                manager.api(params);
                             }
                         }
                     }
@@ -2432,7 +2466,7 @@ var manager = {
                 's2': '-',
                 torrent_files: {
                     name: manager.language.showFileList,
-                    callback: function (key, trigger) {
+                    callback: function () {
                         manager.flListShow(this[0].id);
                     }
                 },
@@ -2472,7 +2506,7 @@ var manager = {
                         }
                     }
                     manager.varCache.flListLayer.ctxSelectArray = [];
-                    var itemList = manager.domCache.flBody.querySelector('input:checked');
+                    var itemList = manager.flGetCheckBoxList(1, 1);
                     for (var i = 0, item; item = itemList[i]; i++) {
                         manager.varCache.flListLayer.ctxSelectArray.push(item.parentNode.parentNode.dataset.index);
                     }
@@ -2492,27 +2526,30 @@ var manager = {
                     className: 'p3',
                     name: manager.language.MF_HIGH,
                     priority: 3,
-                    callback: function (key, trigger) {
-                        /*sendAction($.param({action: 'setprio', p: 3}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
-                         fl_unckeckCkecked();*/
+                    callback: function () {
+                        var hash = manager.varCache.flListLayer.hash;
+                        manager.api($.param({action: 'setprio', p: 3}) + '&' + $.param({hash: hash, f: manager.varCache.flListLayer.ctxSelectArray}, true));
+                        manager.flUnCheckAll(1);
                     }
                 },
                 normal: {
                     className: 'p2',
                     name: manager.language.MF_NORMAL,
                     priority: 2,
-                    callback: function (key, trigger) {
-                        /*sendAction($.param({action: 'setprio', p: 2}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
-                         fl_unckeckCkecked();*/
+                    callback: function () {
+                        var hash = manager.varCache.flListLayer.hash;
+                        manager.api($.param({action: 'setprio', p: 2}) + '&' + $.param({hash: hash, f: manager.varCache.flListLayer.ctxSelectArray}, true));
+                        manager.flUnCheckAll(1);
                     }
                 },
                 low: {
                     className: 'p1',
                     priority: 1,
                     name: manager.language.MF_LOW,
-                    callback: function (key, trigger) {
-                        /*sendAction($.param({action: 'setprio', p: 1}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
-                         fl_unckeckCkecked();*/
+                    callback: function () {
+                        var hash = manager.varCache.flListLayer.hash;
+                        manager.api($.param({action: 'setprio', p: 1}) + '&' + $.param({hash: hash, f: manager.varCache.flListLayer.ctxSelectArray}, true));
+                        manager.flUnCheckAll(1);
                     }
                 },
                 s: '-',
@@ -2520,35 +2557,40 @@ var manager = {
                     className: 'p0',
                     priority: 0,
                     name: manager.language.MF_DONT,
-                    callback: function (key, trigger) {
-                        /*sendAction($.param({action: 'setprio', p: 0}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
-                         fl_unckeckCkecked();*/
+                    callback: function () {
+                        var hash = manager.varCache.flListLayer.hash;
+                        manager.api($.param({action: 'setprio', p: 0}) + '&' + $.param({hash: hash, f: manager.varCache.flListLayer.ctxSelectArray}, true));
+                        manager.flUnCheckAll(1);
                     }
                 },
                 s1: '-',
                 download: {
                     name: manager.language.DLG_RSSDOWNLOADER_24,
                     callback: function (key, trigger) {
+                        var hash = manager.varCache.flListLayer.hash;
+                        var index = this[0].dataset.index;
                         /**
                          * @namespace chrome.tabs.create
                          */
-                        /*var webUi_url = ((_settings.ssl) ? 'https' : 'http') + "://" + _settings.login + ":" + _settings.password + "@" +
-                         _settings.ut_ip + ":" + _settings.ut_port + "/";
-                         for (var n = 0, item; item = var_cache.fl_list_ctx_sel_arr[n]; n++) {
-                         var sid = var_cache.tr_list[var_cache.fl_id][22];
-                         if (sid === undefined) {
-                         continue;
-                         }
-                         var fileUrl = webUi_url + 'proxy?sid=' + sid + '&file=' + item + '&disposition=ATTACHMENT&service=DOWNLOAD&qos=0';
-                         if (mono.isChrome) {
-                         chrome.tabs.create({
-                         url: fileUrl
-                         });
-                         } else {
-                         mono.sendMessage({action: 'openTab', url: fileUrl}, undefined, 'service');
-                         }
-                         }
-                         fl_unckeckCkecked();*/
+                        var settings = manager.settings;
+                        var webUiUrl = (settings.useSSL ? 'https://' : 'http://') + settings.login + ':' + settings.password + '@' + settings.ip + ':' + settings.port + '/';
+                        var ctxSelectArray = manager.varCache.flListLayer.ctxSelectArray;
+                        for (var n = 0, len = ctxSelectArray.length; n < len; n++) {
+                            var item = ctxSelectArray[n];
+                            var sid = manager.varCache.trListItems[hash].api[22];
+                            if (sid === undefined) {
+                                continue;
+                            }
+                            var fileUrl = webUiUrl + 'proxy?sid=' + sid + '&file=' + item + '&disposition=ATTACHMENT&service=DOWNLOAD&qos=0';
+                            if (mono.isChrome) {
+                                chrome.tabs.create({
+                                    url: fileUrl
+                                });
+                            } else {
+                                mono.sendMessage({action: 'openTab', url: fileUrl}, undefined, 'service');
+                            }
+                        }
+                        manager.flUnCheckAll(1);
                     }
                 }
             }
@@ -2663,6 +2705,10 @@ var manager = {
             }()
         });
     },
+    onFileSelected: function() {
+        // todo: fix
+        console.log('hm...');
+    },
     run: function() {
         console.time('manager');
         console.time('remote data');
@@ -2670,7 +2716,8 @@ var manager = {
         mono.storage.get([
             'trSortOptions',
             'flSortOptions',
-            'selectedLabel'
+            'selectedLabel',
+            'folderList'
         ], function(storage) {
             mono.sendMessage([
                 {action: 'getLanguage'},
@@ -2708,6 +2755,8 @@ var manager = {
                     manager.domCache.trLayer.style.maxHeight = (manager.settings.popupHeight - panelsHeight) + 'px';
                     manager.domCache.trLayer.style.minHeight = (manager.settings.popupHeight - panelsHeight) + 'px';
                 }
+
+                manager.varCache.folderList = storage.folderList || manager.varCache.folderList;
 
                 if (storage.trSortOptions) {
                     manager.varCache.trSortColumn = storage.trSortOptions.column;
@@ -2769,19 +2818,21 @@ var manager = {
 
                     if (el.classList.contains('start_all')) {
                         e.preventDefault();
-                        /*var hash_list = [];
-                        $.each(var_cache.tr_list, function (key, value) {
-                            if (value[1] !== 233 || var_cache.tr_list_display[key] === false) {
-                                return 1;
+                        var hashList = [];
+                        for (var hash in manager.varCache.trListItems) {
+                            var item = manager.varCache.trColumnList[hash];
+                            if (item.api[1] !== 233 || item.display !== 1) {
+                                continue;
                             }
-                            if (var_cache.current_filter.custom === 0 && value[11] !== var_cache.current_filter.label) {
-                                return 1;
+                            if (manager.varCache.currentFilter.custom === 0 && item.api[11] !== manager.varCache.currentFilter.label) {
+                                continue;
                             }
-                            hash_list.push(key);
-                        });
-                        if (hash_list.length > 0) {
-                            sendAction($.param({list: 1, action: 'unpause', hash: hash_list}, true));
-                        }*/
+                            hashList.push(hash);
+                        }
+                        if (hashList.length === 0) {
+                            return;
+                        }
+                        manager.api($.param({list: 1, action: 'unpause', hash: hashList}, true));
                         return;
                     }
                     if (el.classList.contains('refresh')) {
@@ -2793,67 +2844,67 @@ var manager = {
                     }
                     if (el.classList.contains('pause_all')) {
                         e.preventDefault();
-                        /*var hash_list = [];
-                        $.each(var_cache.tr_list, function (key, value) {
-                            if (value[1] !== 201 || var_cache.tr_list_display[key] === false) {
-                                return 1;
+                        var hashList = [];
+                        for (var hash in manager.varCache.trListItems) {
+                            var item = manager.varCache.trColumnList[hash];
+                            if (item.api[1] !== 201 || item.display !== 1) {
+                                continue;
                             }
-                            if (var_cache.current_filter.custom === 0 && value[11] !== var_cache.current_filter.label) {
-                                return 1;
+                            if (manager.varCache.currentFilter.custom === 0 && item.api[11] !== manager.varCache.currentFilter.label) {
+                                continue;
                             }
-                            hash_list.push(key);
-                        });
-                        if (hash_list.length > 0) {
-                            sendAction($.param({list: 1, action: 'pause', hash: hash_list}, true));
-                        }*/
-                        return;
-                    }
-                    if (el.classList.contains('refresh')) {
-                        e.preventDefault();
-
+                            hashList.push(hash);
+                        }
+                        if (hashList.length === 0) {
+                            return;
+                        }
+                        manager.api($.param({list: 1, action: 'pause', hash: hashList}, true));
                         return;
                     }
                     if (el.classList.contains('add_file')) {
                         e.preventDefault();
-                        /*manager.noSleep = true;
-                        $('<input class="file-select" type="file" multiple accept="application/x-bittorrent"/>').on('change',function () {
-                            var files = this.files;
-                            onGetFiles(files);
-                        }).trigger('click');*/
+                        mono.sendMessage({action: 'selectFile'}, manager.onFileSelected);
                         return;
                     }
                     if (el.classList.contains('add_magnet')) {
                         e.preventDefault();
-                        /*notify([
-                                {type: 'input', text: _lang_arr[121]},
-                                {type: 'select', options: var_cache.labels, empty: true, text: _lang_arr[82][0]},
-                                {type: 'select', options: _settings.folders_array, o: 'folders', text: _lang_arr[117]}
+                        showNotification([
+                            [
+                                {label: {text: manager.language.insertLink}},
+                                {input: {type: 'text', name: 'link'}}
                             ],
-                            _lang_arr[119][0], _lang_arr[119][1],
-                            function (out) {
-                                if (out === undefined) {
-                                    return;
-                                }
-                                var url = out[0];
-                                if (url === undefined) {
-                                    return;
-                                }
-                                var label = out[1];
-                                if (label !== undefined) {
-                                    label = var_cache.labels[label];
-                                }
-                                var folder = out[2];
-                                if (folder !== undefined) {
-                                    folder = {download_dir: _settings.folders_array[out[2]][0],
-                                        path: _settings.folders_array[out[2]][1]};
-                                    if (_settings.context_labels === 1 && label === undefined) {
-                                        label = folder.path;
-                                        folder = undefined;
+                            [
+                                {label: {text: manager.language.selectLable}},
+                                {select: {options: (function(){
+                                    var options = [
+                                        $('<option>', {text: '', value: ''})
+                                    ];
+                                    for (var i = 0, item; item = manager.varCache.labels[i]; i++) {
+                                        if (item.custom) continue;
+                                        options.push($('<option>', {text: item.label, value: item.label}));
                                     }
-                                }
-                                sendFile(url, folder, label);
-                            }
-                        );*/
+                                    return options;
+                                })(), name: 'label'}}
+                            ],
+                            [
+                                {label: {text: manager.language.selectFolder}},
+                                {select: {options: [], name: 'folder'}}
+                            ],
+                            [
+                                {button: {text: manager.language.yes, on: [
+                                    ['click', function() {
+                                        var dataForm = this.getFormData();
+                                        this.close();
+                                        mono.sendMessage({action: 'openLink', url: dataForm.link, folder: dataForm.folder, label: dataForm.label}, undefined, 'bg');
+                                    }]
+                                ]}},
+                                {button: {text: manager.language.no, on: [
+                                    ['click', function() {
+                                        this.close();
+                                    }]
+                                ]}}
+                            ]
+                        ]);
                         return;
                     }
                 });
@@ -2908,6 +2959,9 @@ var manager = {
 
                     if (el.classList.contains('start')) {
                         e.preventDefault();
+                        // todo: fix
+                        var hash = this.parentNode.parentNode.parentNode.id;
+                        console.log(hash);
                         /*
                         var hash = $(this).parents().eq(2).attr('id');
                         sendAction({list: 1, action: 'start', hash: hash});
@@ -2944,9 +2998,7 @@ var manager = {
                     if (el.tagName !== 'A') return;
                     if (el.classList.contains('update')) {
                         e.preventDefault();
-                        /*
-                        sendAction({action: 'getfiles', hash: var_cache.fl_id});
-                         */
+                        manager.api({action: 'getfiles', hash: manager.varCache.flListLayer.hash});
                         return;
                     }
                     if (el.classList.contains('close')) {
@@ -2975,6 +3027,7 @@ var manager = {
                      */
                     manager.domCache.dropLayer.classList.add('dropped');
                     var files = e.originalEvent.dataTransfer.files;
+                    // todo: fix
                     // onGetFiles(files);
                 });
 

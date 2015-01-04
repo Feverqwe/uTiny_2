@@ -259,8 +259,12 @@ var engine = {
             });
         }
 
-        data.token = engine.varCache.token;
-        data.cid = engine.varCache.cid;
+        if (typeof data === "string") {
+            data = 'token='+engine.varCache.token+'&cid='+engine.varCache.cid+'&'+data;
+        } else {
+            data.token = engine.varCache.token;
+            data.cid = engine.varCache.cid;
+        }
 
         var type = 'GET';
         var url = engine.varCache.webUiUrl;
