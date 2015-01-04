@@ -206,5 +206,8 @@
     },
     "selectAll": {
         "message": "Выбрать всё"
+    },
+    "resume": {
+        "message": "Возобновить"
     }
 }

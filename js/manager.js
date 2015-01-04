@@ -149,6 +149,7 @@ var manager = {
         flBottomIsHide: 0,
         flSmartName: {},
         labels: [],
+        remoteLabels: [],
         speedLimit: {},
         folderList: {}
     },
@@ -366,6 +367,7 @@ var manager = {
             }
             cIndex++;
         }
+        manager.domCache.labelBox.textContent = '';
         manager.domCache.labelBox.appendChild(optionList);
         manager.domCache.labelBox.selectedIndex = selectedIndex;
         manager.varCache.selectBox && manager.varCache.selectBox.update();
@@ -1280,6 +1282,20 @@ var manager = {
             manager.trRemoveItem(hash);
         }
     },
+    labelsEqual: function(arr1, arr2) {
+        var arr1Len = arr1.length;
+        if (arr1Len !== arr2.length) {
+            return false;
+        }
+
+        for (var i = arr1Len; i--;) {
+            if(arr1[i][0] !== arr2[i][0]) {
+                return false;
+            }
+        }
+
+        return true;
+    },
     writeTrList: function(data) {
         if (!data) {
             return;
@@ -1332,6 +1348,13 @@ var manager = {
 
         if (data.files !== undefined) {
             manager.writeFlList(data);
+        }
+
+        if (data.label) {
+            if (!manager.labelsEqual(data.label, manager.varCache.remoteLabels)) {
+                manager.varCache.remoteLabels = data.label;
+                manager.setLabels(data.label);
+            }
         }
     },
     extend: function(objA, objB) {
@@ -2219,6 +2242,17 @@ var manager = {
         }
         manager.flSelectAllCheckBox();
     },
+    flForceSetFilePriority: function(priority, fileIndexList) {
+        for (var i = 0, len = fileIndexList.length; i < len; i++) {
+            var index = fileIndexList[i];
+            var item = manager.varCache.flListItems[index];
+            var fn = item.cell.prio;
+            if (fn) {
+                item.api[3] = priority;
+                fn(item.api);
+            }
+        }
+    },
     onDefine: function() {
         $.contextMenu.defaults.delay = 0;
         $.contextMenu.defaults.animation.hide = 'hide';
@@ -2369,7 +2403,7 @@ var manager = {
                         manager.api({list: 1, action: 'start', hash: hash});
                     }
                 },
-                force_start: {
+                forcestart: {
                     name: manager.language.ML_FORCE_START,
                     callback: function () {
                         var hash = this[0].id;
@@ -2384,7 +2418,7 @@ var manager = {
                     }
                 },
                 unpause: {
-                    name: manager.language.ML_START,
+                    name: manager.language.resume,
                     callback: function () {
                         var hash = this[0].id;
                         manager.api({list: 1, action: 'unpause', hash: hash});
@@ -2528,7 +2562,10 @@ var manager = {
                     priority: 3,
                     callback: function () {
                         var hash = manager.varCache.flListLayer.hash;
-                        manager.api($.param({action: 'setprio', p: 3}) + '&' + $.param({hash: hash, f: manager.varCache.flListLayer.ctxSelectArray}, true));
+                        var fileIndexList = manager.varCache.flListLayer.ctxSelectArray.slice(0);
+                        mono.sendMessage({action: 'api', data: $.param({action: 'setprio', p: 3}) + '&' + $.param({hash: hash, f: manager.varCache.flListLayer.ctxSelectArray}, true)}, function() {
+                            manager.flForceSetFilePriority(3, fileIndexList);
+                        });
                         manager.flUnCheckAll(1);
                     }
                 },
@@ -2538,7 +2575,10 @@ var manager = {
                     priority: 2,
                     callback: function () {
                         var hash = manager.varCache.flListLayer.hash;
-                        manager.api($.param({action: 'setprio', p: 2}) + '&' + $.param({hash: hash, f: manager.varCache.flListLayer.ctxSelectArray}, true));
+                        var fileIndexList = manager.varCache.flListLayer.ctxSelectArray.slice(0);
+                        mono.sendMessage({action: 'api', data: $.param({action: 'setprio', p: 2}) + '&' + $.param({hash: hash, f: manager.varCache.flListLayer.ctxSelectArray}, true)}, function() {
+                            manager.flForceSetFilePriority(2, fileIndexList);
+                        });
                         manager.flUnCheckAll(1);
                     }
                 },
@@ -2548,7 +2588,10 @@ var manager = {
                     name: manager.language.MF_LOW,
                     callback: function () {
                         var hash = manager.varCache.flListLayer.hash;
-                        manager.api($.param({action: 'setprio', p: 1}) + '&' + $.param({hash: hash, f: manager.varCache.flListLayer.ctxSelectArray}, true));
+                        var fileIndexList = manager.varCache.flListLayer.ctxSelectArray.slice(0);
+                        mono.sendMessage({action: 'api', data: $.param({action: 'setprio', p: 1}) + '&' + $.param({hash: hash, f: manager.varCache.flListLayer.ctxSelectArray}, true)}, function() {
+                            manager.flForceSetFilePriority(1, fileIndexList);
+                        });
                         manager.flUnCheckAll(1);
                     }
                 },
@@ -2559,7 +2602,10 @@ var manager = {
                     name: manager.language.MF_DONT,
                     callback: function () {
                         var hash = manager.varCache.flListLayer.hash;
-                        manager.api($.param({action: 'setprio', p: 0}) + '&' + $.param({hash: hash, f: manager.varCache.flListLayer.ctxSelectArray}, true));
+                        var fileIndexList = manager.varCache.flListLayer.ctxSelectArray.slice(0);
+                        mono.sendMessage({action: 'api', data: $.param({action: 'setprio', p: 0}) + '&' + $.param({hash: hash, f: manager.varCache.flListLayer.ctxSelectArray}, true)}, function() {
+                            manager.flForceSetFilePriority(0, fileIndexList);
+                        });
                         manager.flUnCheckAll(1);
                     }
                 },
@@ -2786,7 +2832,7 @@ var manager = {
                 manager.trWriteHead();
 
                 manager.varCache.currentFilter = storage.selectedLabel || manager.varCache.currentFilter;
-                manager.setLabels(data.getRemoteLabels);
+                manager.setLabels(manager.varCache.remoteLabels = data.getRemoteLabels);
                 manager.trChangeFilterByLabelBox();
                 manager.domCache.labelBox.addEventListener('change', function() {
                     manager.trChangeFilterByLabelBox();
@@ -2820,7 +2866,7 @@ var manager = {
                         e.preventDefault();
                         var hashList = [];
                         for (var hash in manager.varCache.trListItems) {
-                            var item = manager.varCache.trColumnList[hash];
+                            var item = manager.varCache.trListItems[hash];
                             if (item.api[1] !== 233 || item.display !== 1) {
                                 continue;
                             }
@@ -2846,7 +2892,7 @@ var manager = {
                         e.preventDefault();
                         var hashList = [];
                         for (var hash in manager.varCache.trListItems) {
-                            var item = manager.varCache.trColumnList[hash];
+                            var item = manager.varCache.trListItems[hash];
                             if (item.api[1] !== 201 || item.display !== 1) {
                                 continue;
                             }
