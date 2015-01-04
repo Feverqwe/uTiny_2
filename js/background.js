@@ -88,7 +88,7 @@ var engine = {
          {column: 'name',       display: 1, order: 1, width: 300, lang: 'FI_COL_NAME'},
          {column: 'size',       display: 1, order: 1, width: 60,  lang: 'FI_COL_SIZE'},
          {column: 'downloaded', display: 1, order: 1, width: 60,  lang: 'OV_COL_DOWNLOADED'},
-         {column: 'pcnt',       display: 1, order: 1, width: 70,  lang: 'FI_COL_PCNT'},
+         {column: 'done',       display: 1, order: 1, width: 70,  lang: 'OV_COL_DONE'},
          {column: 'prio',       display: 1, order: 1, width: 74,  lang: 'FI_COL_PRIO'}
     ],
     icons: {

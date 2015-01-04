@@ -220,7 +220,7 @@ var manager = {
         if (width < 723) {
             width = 723;
         }
-        document.body.style.width = width+'px';
+        document.body.style.width = width + 'px';
         mono.isFF && mono.sendMessage({action: 'resize', width: width}, undefined, 'service');
 
         manager.domCache.trFixedHead.appendChild(head);
@@ -228,7 +228,7 @@ var manager = {
 
         var graph = document.querySelector('li.graph');
         var selectBox = document.querySelector('li.select');
-        graph.style.width = selectBox.offsetLeft - graph.offsetLeft - 5;
+        graph.style.width = (selectBox.offsetLeft - graph.offsetLeft - 5) + 'px';
     },
     flWriteHead: function() {
         var styleBody = '';
@@ -1130,7 +1130,7 @@ var manager = {
                 a = apiA[3] - apiA[5];
                 b = apiB[3] - apiB[5];
             } else
-            if (index === 'pcnt') {
+            if (index === 'done') {
                 a = apiA[2] * 100 / apiA[1];
                 b = apiB[2] * 100 / apiB[1];
             }else {
@@ -1540,7 +1540,7 @@ var manager = {
                 update: update
             }
         },
-        pcnt: function(columnName, api) {
+        done: function(columnName, api) {
             var div1, div2;
             var node = mono.create('td', {
                 class: columnName,
@@ -1618,11 +1618,11 @@ var manager = {
         },
         2: function(changes) {
             changes.downloaded = manager.varCache.flColumnList.downloaded.display;
-            changes.pcnt = manager.varCache.flColumnList.pcnt.display;
+            changes.done = manager.varCache.flColumnList.done.display;
         },
         3: function(changes) {
             changes.prio = manager.varCache.flColumnList.prio.display;
-            changes.pcnt = manager.varCache.flColumnList.pcnt.display;
+            changes.done = manager.varCache.flColumnList.done.display;
         }
     },
     flGetApiDiff: function(oldArr, newArray) {
@@ -1666,7 +1666,7 @@ var manager = {
         name: 0,
         size: 1,
         downloaded: 2,
-        pcnt: 'pcnt',
+        done: 'done',
         prio: 3
     },
     flClearList: function() {
@@ -3049,10 +3049,12 @@ var define = function(name) {
         console.time('contextMenu');
         document.body.appendChild(mono.create('script', {src: 'js/notifer.js'}));
         document.body.appendChild(mono.create('script', {src: 'js/jquery.contextMenu.js'}));
+        return;
     }
     if (name === 'contextMenu') {
         console.timeEnd('contextMenu');
         manager.onDefine();
+        return;
     }
 };
 define.amd = {};
