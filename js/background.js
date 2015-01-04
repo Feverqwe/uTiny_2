@@ -47,7 +47,7 @@ var engine = {
         hideSeedStatusItem: {value: false, lang: 'hideSeedStatusItem'},
         hideFnishStatusItem: {value: false, lang: 'hideFnishStatusItem'},
         showSpeedGraph: {value: true, lang: 'showSpeedGraph'},
-        popupHeight: {value: 0, lang: 'popupHeight'},
+        popupHeight: {value: 300, lang: 'popupHeight'},
         selectDownloadCategoryOnAddItemFromContextMenu: {value: false, lang: 'selectDownloadCategoryOnAddItemFromContextMenu'},
 
         enableFolderContextMenu: {value: true, lang: 'enableFolderContextMenu'},

@@ -142,7 +142,7 @@ var manager = {
         flHeight: 0,
         flLeft: 0,
         // show/hide filelist layer bottom
-        flBottomIsHide: false,
+        flBottomIsHide: 0,
         labels: [],
         speedLimit: {}
     },
@@ -161,7 +161,7 @@ var manager = {
                 var thList = [];
                 for (var key in manager.varCache.trColumnList) {
                     var value = manager.varCache.trColumnList[key];
-                    if (!value.display) {
+                    if (value.display !== 1) {
                         continue;
                     }
                     var orderClass = (manager.varCache.trSortColumn !== key) ? undefined : (manager.varCache.trSortBy === 1) ? 'sortDown' : 'sortUp';
@@ -233,7 +233,7 @@ var manager = {
                 var thList = [];
                 for (var key in manager.varCache.flColumnList) {
                     var value = manager.varCache.flColumnList[key];
-                    if (!value.display) {
+                    if (value.display !== 1) {
                         continue;
                     }
                     var orderClass = (manager.varCache.flSortColumn !== key) ? undefined : (manager.varCache.flSortBy === 1) ? 'sortDown' : 'sortUp';
@@ -284,11 +284,11 @@ var manager = {
         }
         if (width < 100) {
             manager.domCache.flBottom.style.display = 'none';
-            manager.varCache.flBottomIsHide = true;
+            manager.varCache.flBottomIsHide = 1;
         } else
-        if (manager.varCache.flBottomIsHide === true) {
+        if (manager.varCache.flBottomIsHide === 1) {
             manager.domCache.flBottom.style.display = 'block';
-            manager.varCache.flBottomIsHide = false;
+            manager.varCache.flBottomIsHide = 0;
         }
         var popupHeight = manager.settings.popupHeight;
 
@@ -414,15 +414,14 @@ var manager = {
         for (var key in manager.varCache.trListItems) {
             var item = manager.varCache.trListItems[key];
             if (manager.trItemIsInFilter(item)) {
-                if (item.display) {
+                if (item.display === 1) {
                     item.node.classList.add('filtered');
-                    item.display = false;
+                    item.display = 0;
                 }
-            } else {
-                if (!item.display) {
-                    item.node.classList.remove('filtered');
-                    item.display = true;
-                }
+            } else
+            if (item.display !== 1) {
+                item.node.classList.remove('filtered');
+                item.display = 1;
             }
         }
         if (currentLabel.label === 'all') return;
@@ -543,7 +542,7 @@ var manager = {
         return '∞';
     },
     unixTimeToTimeStamp: function(shtamp) {
-        if (shtamp === 0 || shtamp === undefined) {
+        if (!shtamp) {
             return '∞';
         }
         var dt = new Date(shtamp * 1000);
@@ -937,7 +936,7 @@ var manager = {
                 var tdList = [];
                 for (var columnName in manager.varCache.trColumnList) {
                     var column = manager.varCache.trColumnList[columnName];
-                    if (!column.display) {
+                    if (column.display !== 1) {
                         continue;
                     }
                     var cell = manager.trCreateCell[columnName](columnName, item.api);
@@ -947,11 +946,11 @@ var manager = {
                 return tdList;
             }())
         });
-        item.display = true;
+        item.display = 1;
 
         if (manager.trItemIsInFilter(item)) {
             item.node.classList.add('filtered');
-            item.display = false;
+            item.display = 0;
         }
     },
     trGetApiDiff: function(oldArr, newArray) {
@@ -1059,15 +1058,14 @@ var manager = {
     },
     trItemUpdate: function(diff, item) {
         if (manager.trItemIsInFilter(item)) {
-            if (item.display) {
+            if (item.display === 1) {
                 item.node.classList.add('filtered');
-                item.display = false;
+                item.display = 0;
             }
-        } else {
-            if (!item.display) {
-                item.node.classList.remove('filtered');
-                item.display = true;
-            }
+        } else
+        if (item.display !== 1) {
+            item.node.classList.remove('filtered');
+            item.display = 1;
         }
         var changes = {};
         for (var i = 0, len = diff.length; i < len; i++) {
@@ -1075,7 +1073,7 @@ var manager = {
             manager.trApiIndexToChanges[index](changes);
         }
         for (var columnName in changes) {
-            if (!changes[columnName]) {
+            if (changes[columnName] !== 1) {
                 continue;
             }
             var fn = item.cell[columnName];
@@ -1486,7 +1484,7 @@ var manager = {
                 var tdList = [];
                 for (var columnName in manager.varCache.flColumnList) {
                     var column = manager.varCache.flColumnList[columnName];
-                    if (!column.display) {
+                    if (column.display !== 1) {
                         continue;
                     }
                     var cell = manager.flCreateCell[columnName](columnName, item.api);
@@ -1499,18 +1497,18 @@ var manager = {
     },
     flApiIndexToChanges: {
         0: function(changes) {
-            changes.name = manager.varCache.flColumnList.name.display === 1;
+            changes.name = manager.varCache.flColumnList.name.display;
         },
         1: function(changes) {
-            changes.size = manager.varCache.flColumnList.size.display === 1;
+            changes.size = manager.varCache.flColumnList.size.display;
         },
         2: function(changes) {
-            changes.downloaded = manager.varCache.flColumnList.downloaded.display === 1;
-            changes.pcnt = manager.varCache.flColumnList.pcnt.display === 1;
+            changes.downloaded = manager.varCache.flColumnList.downloaded.display;
+            changes.pcnt = manager.varCache.flColumnList.pcnt.display;
         },
         3: function(changes) {
-            changes.prio = manager.varCache.flColumnList.prio.display === 1;
-            changes.pcnt = manager.varCache.flColumnList.pcnt.display === 1;
+            changes.prio = manager.varCache.flColumnList.prio.display;
+            changes.pcnt = manager.varCache.flColumnList.pcnt.display;
         }
     },
     flGetApiDiff: function(oldArr, newArray) {
@@ -1540,7 +1538,7 @@ var manager = {
             manager.flApiIndexToChanges[index](changes);
         }
         for (var columnName in changes) {
-            if (!changes[columnName]) {
+            if (changes[columnName] !== 1) {
                 continue;
             }
             var fn = item.cell[columnName];
@@ -1782,15 +1780,15 @@ var manager = {
         var started = !!(stat & 1);
 
         var actionList = {
-            recheck: !checking && !started && !queued,
-            stop: checking || started || queued,
-            unpause: (started || checking) && paused,
-            pause: !paused && (checking || started || queued),
-            start: !(queued || checking) || paused,
-            forcestart: (!started || queued || paused) && !checking
+            recheck: !checking && !started && !queued ? 1 : 0,
+            stop: checking || started || queued ? 1 : 0,
+            unpause: (started || checking) && paused ? 1 : 0,
+            pause: !paused && (checking || started || queued) ? 1 : 0,
+            start: !(queued || checking) || paused ? 1 : 0,
+            forcestart: (!started || queued || paused) && !checking ? 1 : 0
         };
-        if (actionList.pause) {
-            actionList.unpause = false;
+        if (actionList.pause === 1) {
+            actionList.unpause = 0;
         }
 
         return actionList;
@@ -1879,7 +1877,6 @@ var manager = {
         if (manager.varCache.labels.length > 0 && items.s === undefined) {
             items.s = {
                 name: '-',
-                display: false,
                 $node: $('<li>', {'class': 'context-menu-item  context-menu-separator not-selectable'}).data({
                     contextMenuKey: 's',
                     contextMenu: trigger.items.labels,
@@ -1913,12 +1910,12 @@ var manager = {
                 delete items[key];
                 continue;
             }
-            if (item.name !== current_label && item.display) {
-                item.display = false;
-                item.$node.children('label').remove();
-            } else if (!item.display && item.name === current_label) {
-                item.display = true;
-                item.$node.prepend($('<label>', {text: '●'}));
+            if (item.name !== current_label) {
+                item.labelNode && item.labelNode.remove();
+                delete item.labelNode;
+            } else
+            if (item.labelNode === undefined) {
+                item.$node.prepend(item.labelNode = $('<label>', {text: '●'}));
             }
         }
     },
@@ -1976,12 +1973,12 @@ var manager = {
             if (value.type !== type) {
                 value.type = type;
             }
-            if (manager.varCache.speedLimit[type+'Speed'] !== value.speed && value.display === 1) {
-                value.$node.children('label').remove();
-                value.display = 0;
-            } else if (manager.varCache.speedLimit[type+'Speed'] === value.speed && value.display !== 1) {
-                value.display = 1;
-                value.$node.prepend($('<label>', {text: '●'}));
+            if (manager.varCache.speedLimit[type+'Speed'] !== value.speed) {
+                value.labelNode && value.labelNode.remove();
+                delete value.labelNode;
+            } else
+            if (value.labelNode === undefined) {
+                value.$node.prepend(value.labelNode = $('<label>', {text: '●'}));
             }
         }
     },
@@ -2172,6 +2169,9 @@ var manager = {
                     if (!type) {
                         return;
                     }
+                    if (manager.varCache[type+'ColumnList'][columnName].order !== 1) {
+                        return;
+                    }
                     manager.setColumSort(parent, columnName, sortBy, type);
                 };
                 manager.domCache.trFixedHead.addEventListener('click', onColumntClick);
@@ -2288,7 +2288,6 @@ var manager = {
                     var availActions = manager.trReadStatus(api);
                     for (var action in trigger.items) {
                         var item = trigger.items[action];
-                        var state = availActions[action];
                         if (action === 'labels') {
                             var lable = api[11];
                             if (item.label === lable) {
@@ -2308,9 +2307,15 @@ var manager = {
                             }
                             continue;
                         }
-                        if (state !== undefined && item.state !== state) {
+
+                        var state = availActions[action];
+                        if (state === undefined) {
+                            continue;
+                        }
+
+                        if (state !== item.display) {
                             item.display = state;
-                            if (state) {
+                            if (state === 1) {
                                 item.$node.removeClass('hidden').show();
                             } else {
                                 item.$node.addClass('hidden').hide();
@@ -2436,7 +2441,7 @@ var manager = {
                         this.addClass('selected');
                         this.find('input').trigger('click');
                     } else {
-                        this.addClass('selected force');
+                        this.addClass('force');
                     }
                     var priority = manager.varCache.flListItems[index].api[3];
                     for (var action in trigger.items) {
@@ -2444,13 +2449,12 @@ var manager = {
                         if (item.priority === undefined) {
                             continue;
                         }
-                        if (item.priority !== priority && item.display === 1) {
-                            item.$node.children('label').remove();
-                            item.display = 0;
-                        }
-                        if (item.priority === priority && item.display !== 1) {
-                            item.$node.prepend($('<label>', {text: '●'}));
-                            item.display = 1;
+                        if (item.priority !== priority) {
+                            item.labelNode && item.labelNode.remove();
+                            delete item.labelNode;
+                        } else
+                        if (item.labelNode === undefined) {
+                            item.$node.prepend(item.labelNode = $('<label>', {text: '●'}));
                         }
                     }
                     manager.varCache.flListLayer.ctxSelectArray = [];
@@ -2551,7 +2555,6 @@ var manager = {
                 var items = {};
                 items.unlimited = {
                     name: manager.capitalize(manager.language.MENU_UNLIMITED),
-                    display: 0,
                     speed: 0,
                     callback: function (key, toggle) {
                         /*if (toggle.items[key].type === 'download') {
@@ -2570,7 +2573,6 @@ var manager = {
                 for (var i = 0; i < count; i++) {
                     items['s' + i] = {
                         name: '-',
-                        display: undefined,
                         speed: undefined,
                         callback: function (key, toggle) {
                             /*if (toggle.items[key].type === 'download') {
@@ -2591,12 +2593,15 @@ var manager = {
             events: {
                 show: function (trigger) {
                     $.each(manager.varCache.trColumnList, function (key, value) {
-                        if (!!value.display !== !!trigger.items[key].display) {
-                            trigger.items[key].display = !!value.display;
-                            if (!value.display) {
-                                trigger.items[key].$node.children('label').remove();
-                            } else {
-                                trigger.items[key].$node.prepend($('<label>', {text: '●'}));
+                        var item = trigger.items[key];
+                        if (value.display !== item.display) {
+                            item.display = value.display;
+                            if (value.display !== 1) {
+                                item.labelNode && item.labelNode.remove();
+                                delete item.labelNode;
+                            } else
+                            if (item.labelNode === undefined) {
+                                item.$node.prepend(item.labelNode = $('<label>', {text: '●'}));
                             }
                         }
                     });
@@ -2607,7 +2612,6 @@ var manager = {
                 $.each(manager.varCache.trColumnList, function (key, value) {
                     items[key] = {
                         name: manager.language[value.lang],
-                        display: undefined,
                         callback: function (key) {
                             manager.trToggleColum(key);
                         }
@@ -2623,12 +2627,15 @@ var manager = {
             events: {
                 show: function (trigger) {
                     $.each(manager.varCache.flColumnList, function (key, value) {
-                        if (!!value.display !== !!trigger.items[key].display) {
-                            trigger.items[key].display = !!value.display;
-                            if (!value.display) {
-                                trigger.items[key].$node.children('label').remove();
-                            } else {
-                                trigger.items[key].$node.prepend($('<label>', {text: '●'}));
+                        var item = trigger.items[key];
+                        if (value.display !== item.display) {
+                            item.display = value.display;
+                            if (value.display !== 1) {
+                                item.labelNode && item.labelNode.remove();
+                                delete item.labelNode;
+                            } else
+                            if (item.labelNode === undefined) {
+                                item.$node.prepend(item.labelNode = $('<label>', {text: '●'}));
                             }
                         }
                     });
@@ -2639,7 +2646,6 @@ var manager = {
                 $.each(manager.varCache.flColumnList, function (key, value) {
                     items[key] = {
                         name: manager.language[value.lang],
-                        display: undefined,
                         callback: function (key) {
                             manager.flToggleColum(key);
                         }
