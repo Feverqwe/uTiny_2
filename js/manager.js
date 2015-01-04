@@ -134,6 +134,7 @@ var manager = {
         trSortColumn: 'name',
         trSortBy: 1,
         trSortList: [],
+
         flColumnList: {},
         flListLayer: {},
         flListItems: {},
@@ -146,6 +147,7 @@ var manager = {
         flLeft: 0,
         // show/hide filelist layer bottom
         flBottomIsHide: 0,
+        flSmartName: {},
         labels: [],
         speedLimit: {}
     },
@@ -1360,6 +1362,122 @@ var manager = {
             clearInterval(this.timer);
         }
     },
+    flCreateSmartName: function(item, level) {
+        if (item.smartName === undefined) {
+            item.smartName = {mod_name: false, show: false};
+        }
+        var addInCache = false;
+        if (level === -1) {
+            addInCache = true;
+            level = 0;
+        }
+        if (level === undefined) {
+            level = 0;
+        }
+        var text;
+        var path = item.api[0];
+        var linkList = [];
+        if (addInCache) {
+            var dirs = path.split('/');
+            text = dirs.splice(-1)[0];
+            var path = [];
+            for (var i = 0, dir; dir = dirs[i]; i++) {
+                path.push(dir);
+                var key = path.join('/');
+                linkList.push({path: key, name: dir, back: dirs.slice(0, i).join('/')});
+                if (manager.varCache.flSmartName[key] === undefined) {
+                    manager.varCache.flSmartName[key] = {
+                        items: [],
+                        path: dirs.slice(i),
+                        level: i + 1,
+                        links: linkList.slice(0)
+                    };
+                }
+                if (manager.varCache.flSmartName[key].items.indexOf(item.index) === -1) {
+                    manager.varCache.flSmartName[key].items.push(item.index);
+                }
+            }
+        } else {
+            var l_pos = path.lastIndexOf('/');
+            var cache_path = path.substr(0, l_pos);
+            text = path.substr(l_pos + 1);
+            linkList = manager.varCache.flSmartName[cache_path].links;
+        }
+
+        var linkNodeList = document.createDocumentFragment();
+        if (level !== 0) {
+            var lev = level - 1;
+            linkNodeList.appendChild(mono.create('a', {
+                class: 'folder c' + lev,
+                text: '←',
+                href: '#',
+                data: {
+                    path: linkList[lev].back
+                }
+            }));
+        }
+        for (var i = level, link; link = linkList[i]; i++) {
+            linkNodeList.appendChild(mono.create('a', {
+                class: 'folder c' + i,
+                text: link.name,
+                href: '#',
+                data: {
+                    path: link.path
+                }
+            }));
+        }
+        return {text: text, link: linkNodeList};
+    },
+    flOnSmartNameClick: function(path) {
+        var smartNamePathObj = manager.varCache.flSmartName[path];
+        if (smartNamePathObj === undefined) {
+            for (var index in manager.varCache.flListItems) {
+                var item = manager.varCache.flListItems[index];
+                if (item.smartName.mod_name !== true) {
+                    continue;
+                }
+                var smartName = manager.flCreateSmartName(item);
+                item.cell.name(undefined, smartName);
+            }
+            var style = manager.varCache['style.fl-filter'];
+            delete manager.varCache['style.fl-filter'];
+            style && style.parentNode.removeChild(style);
+            return;
+        }
+        for (var index in manager.varCache.flListItems) {
+            var item = manager.varCache.flListItems[index];
+            if (item.smartName.show === true && smartNamePathObj.items.indexOf(item.index) === -1) {
+                item.smartName.show = false;
+                item.node.classList.remove('show');
+            }
+        }
+        var level = smartNamePathObj.level;
+        for (var i = 0, len = smartNamePathObj.items.length; i < len; i++) {
+            var index = smartNamePathObj.items[i];
+            var item = manager.varCache.flListItems[index];
+            var smartName = manager.flCreateSmartName(item, level);
+            if (item.smartName.show === false) {
+                item.node.classList.add('show');
+                item.smartName.show = true;
+            }
+            item.cell.name(undefined, smartName);
+            item.smartName.mod_name = true;
+        }
+
+        var style = manager.varCache['style.fl-filter'];
+        delete manager.varCache['style.fl-filter'];
+        style && style.parentNode.removeChild(style);
+
+        document.body.appendChild(manager.varCache['style.fl-filter'] = mono.create('style', {
+            class: 'fl-filter',
+            text: '.fl-table-body tbody > tr{' +
+                'display: none;' +
+            '}' +
+            '.fl-table-body tbody > tr.show{' +
+                'display:table-row;' +
+            '}'
+        }));
+    },
     flCreateCell: {
         checkbox: function(columnName, api) {
             var node = mono.create('td', {
@@ -1372,7 +1490,7 @@ var manager = {
                 node: node
             }
         },
-        name: function(columnName, api) {
+        name: function(columnName, api, item) {
             var span;
             var node = mono.create('td', {
                 class: columnName,
@@ -1382,9 +1500,13 @@ var manager = {
                     ]
                 })
             });
-            var update = function(api) {
-                node.title = api[0];
-                span.textContent = api[0];
+            var update = function(api, smartName) {
+                if (smartName === undefined) {
+                    smartName = manager.flCreateSmartName(item, -1);
+                }
+                node.title = smartName.text;
+                span.textContent = smartName.text;
+                span.insertBefore(smartName.link, span.firstChild);
             };
             update(api);
             return {
@@ -1479,7 +1601,7 @@ var manager = {
                     if (column.display !== 1) {
                         continue;
                     }
-                    var cell = manager.flCreateCell[columnName](columnName, item.api);
+                    var cell = manager.flCreateCell[columnName](columnName, item.api, item);
                     item.cell[columnName] = cell.update;
                     tdList.push(cell.node);
                 }
@@ -1548,9 +1670,14 @@ var manager = {
         prio: 3
     },
     flClearList: function() {
+        manager.varCache.flSmartName = {};
         manager.varCache.flSortList = [];
         manager.varCache.flListItems = {};
         manager.domCache.flBody.textContent = '';
+
+        var style = manager.varCache['style.fl-filter'];
+        delete manager.varCache['style.fl-filter'];
+        style && style.parentNode.removeChild(style);
     },
     writeFlList: function(data) {
         if (!data.files) {
@@ -1643,9 +1770,7 @@ var manager = {
             manager.domCache.flFixedHead.removeChild(manager.domCache.flFixedHead.firstChild);
             manager.domCache.flHead.removeChild(manager.domCache.flHead.firstChild);
 
-            manager.varCache.flSortList = [];
-            manager.varCache.flListItems = {};
-            manager.domCache.flBody.textContent = '';
+            manager.flClearList();
 
             if (flListLayer.loading) {
                 flListLayer.loading.parentNode.removeChild(flListLayer.loading);
@@ -2069,6 +2194,14 @@ var manager = {
             checkedInputCount++;
         }
         manager.domCache.flFixedHead.getElementsByTagName('input')[0].checked = checkedInputCount === checkBoxList.length;
+    },
+    flUnCheckAll: function() {
+        var checkBoxList = manager.flGetCheckBoxList(1);
+        for (var i = 0, el; el = checkBoxList[i]; i++) {
+            el.checked = false;
+            el.parentNode.parentNode.classList.remove('selected');
+        }
+        manager.flSelectAllCheckBox();
     },
     onDefine: function() {
         $.contextMenu.defaults.delay = 0;
@@ -2727,12 +2860,15 @@ var manager = {
 
                 manager.domCache.trBody.addEventListener('dblclick', function(e) {
                     var parent = e.target;
-                    while (parent !== this) {
+                    while (parent && parent !== this) {
                         parent = parent.parentNode;
                         if (parent.tagName === 'TR') {
                             break;
                         }
                     }
+
+                    if (!parent) return;
+
                     var hash = parent.id;
                     if (!hash) return;
 
@@ -2741,12 +2877,14 @@ var manager = {
 
                 var onColumntClick = function(e) {
                     var parent = e.target;
-                    while (parent !== this) {
+                    while (parent && parent !== this) {
                         parent = parent.parentNode;
                         if (parent.tagName === 'TH') {
                             break;
                         }
                     }
+
+                    if (!parent) return;
 
                     var sortBy = parent.classList.contains('sortDown') ? 1 : parent.classList.contains('sortUp') ? 0 : undefined;
                     var columnName = parent.dataset.name;
@@ -2848,6 +2986,17 @@ var manager = {
                         manager.domCache.dropLayer.style.display = 'none';
                         manager.domCache.dropLayer.classList.remove('dropped');
                     }, 300);
+                });
+
+                manager.domCache.flBody.addEventListener('click', function(e) {
+                    var el = e.target;
+                    if (el.tagName !== 'A') return;
+
+                    if (!el.classList.contains('folder')) {
+                        return;
+                    }
+                    manager.flOnSmartNameClick(el.dataset.path);
+                    manager.flSelectAllCheckBox();
                 });
 
                 manager.domCache.flBody.addEventListener('change', function(e) {
