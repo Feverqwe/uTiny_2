@@ -1853,8 +1853,10 @@ var manager = {
                 delete items.delLabel;
             }
         }
+        var userLabelLength = 0;
         for (var i = 0, item; item = manager.varCache.labels[i]; i++) {
             if (item.custom) continue;
+            userLabelLength++;
             var label = item.label;
             if (items['_' + label] === undefined) {
                 items['_' + label] = {
@@ -1874,15 +1876,17 @@ var manager = {
                 });
             }
         }
-        if (manager.varCache.labels.length > 0 && items.s === undefined) {
-            items.s = {
-                name: '-',
-                $node: $('<li>', {'class': 'context-menu-item  context-menu-separator not-selectable'}).data({
-                    contextMenuKey: 's',
-                    contextMenu: trigger.items.labels,
-                    contextMenuRoot: trigger
-                })
-            };
+        if (userLabelLength > 0) {
+            if (items.s === undefined) {
+                items.s = {
+                    name: '-',
+                    $node: $('<li>', {'class': 'context-menu-item  context-menu-separator not-selectable'}).data({
+                        contextMenuKey: 's',
+                        contextMenu: trigger.items.labels,
+                        contextMenuRoot: trigger
+                    })
+                };
+            }
             if (items.delLabel !== undefined) {
                 items.delLabel.$node.after(items.s.$node);
             } else {
@@ -1893,14 +1897,14 @@ var manager = {
             delete items.s;
         }
         for (var key in items) {
-            var item = items[key];
             if (key[0] !== '_') {
                 continue;
             }
+            var item = items[key];
             var found = false;
-            for (var i = 0, lItem; lItem = manager.varCache.labels[i]; i++) {
-                if (lItem.custom) continue;
-                if (lItem.label === item.name) {
+            for (var i = 0, labelItem; labelItem = manager.varCache.labels[i]; i++) {
+                if (labelItem.custom) continue;
+                if (labelItem.label === item.name) {
                     found = true;
                     break;
                 }
