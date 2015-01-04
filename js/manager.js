@@ -4,6 +4,9 @@
  * @param {object} obj
  * @returns {Element}
  */
+mono.isVisibleElement = function(el) {
+    return el.offsetWidth > 0 && el.offsetHeight > 0;
+};
 mono.create = function(tagName, obj) {
     var el;
     if ( typeof tagName === 'string') {
@@ -1619,10 +1622,7 @@ var manager = {
         var folder = trItem.api[26];
         mono.create(folderEl, {
             title: folder,
-            value: folder,
-            onCreate: function(el) {
-                el.focus();
-            }
+            value: folder
         });
 
         mono.sendMessage({action: 'api', data: requestData}, function(data) {
@@ -1631,6 +1631,8 @@ var manager = {
         });
 
         manager.domCache.fl.style.display = 'block';
+
+        folderEl.focus();
 
         flListLayer.close = function() {
             manager.varCache.flListLayer = {};
@@ -2030,6 +2032,43 @@ var manager = {
     },
     setSpeedLimit: function(type, speed) {
         // todo: set setSpeedLimit
+    },
+    flGetCheckBoxList: function(isChecked, isVisible) {
+        if (isChecked === 0) {
+            isChecked = ':not(:checked)'
+        } else
+        if (isChecked === 1) {
+            isChecked = ':checked'
+        } else {
+            isChecked = '';
+        }
+        var checkBoxList;
+        if (isChecked === '') {
+            checkBoxList = manager.domCache.flBody.getElementsByTagName('input');
+        } else {
+            checkBoxList = manager.domCache.flBody.querySelectorAll('input' + isChecked);
+        }
+        if (!isVisible) return checkBoxList;
+
+        var visibleCheckBoxList = [];
+        for (var i = 0, el; el = checkBoxList[i]; i++) {
+            if (!mono.isVisibleElement(el)) {
+                continue;
+            }
+            visibleCheckBoxList.push(el);
+        }
+        return visibleCheckBoxList;
+    },
+    flSelectAllCheckBox: function() {
+        var checkBoxList = manager.flGetCheckBoxList(undefined, 1);
+        var checkedInputCount = 0;
+        for (var i = 0, el; el = checkBoxList[i]; i++) {
+            if (!el.checked) {
+                continue;
+            }
+            checkedInputCount++;
+        }
+        manager.domCache.flFixedHead.getElementsByTagName('input')[0].checked = checkedInputCount === checkBoxList.length;
     },
     onDefine: function() {
         $.contextMenu.defaults.delay = 0;
@@ -2492,7 +2531,7 @@ var manager = {
         });
     },
     run: function() {
-        console.time('manager ready');
+        console.time('manager');
         console.time('remote data');
 
         mono.storage.get([
@@ -2790,11 +2829,64 @@ var manager = {
                     manager.setSpeedLimit(type, 0);
                 });
 
+                document.body.addEventListener('drop', function onDrop(e) {
+                    e.preventDefault();
+                    /**
+                     * @namespace event.originalEvent.dataTransfer
+                     * @namespace event.originalEvent.dataTransfer.files
+                     */
+                    manager.domCache.dropLayer.classList.add('dropped');
+                    var files = e.originalEvent.dataTransfer.files;
+                    // onGetFiles(files);
+                });
+
+                document.body.addEventListener('dragover', function onDragOver(e) {
+                    e.preventDefault();
+                    manager.domCache.dropLayer.style.display = 'block';
+                    clearTimeout(onDragOver.timeout);
+                    onDragOver.timeout = setTimeout(function () {
+                        manager.domCache.dropLayer.style.display = 'none';
+                        manager.domCache.dropLayer.classList.remove('dropped');
+                    }, 300);
+                });
+
+                manager.domCache.flBody.addEventListener('change', function(e) {
+                    var el = e.target;
+                    if (el.tagName !== 'INPUT') return;
+
+                    if (el.checked) {
+                        el.parentNode.parentNode.classList.add("selected");
+                    } else {
+                        el.parentNode.parentNode.classList.remove("selected");
+                    }
+                    manager.flSelectAllCheckBox();
+                });
+
+                manager.domCache.flFixedHead.addEventListener('change', function(e) {
+                    var el = e.target;
+                    if (el.tagName !== 'INPUT') return;
+
+                    var checkBoxList;
+                    if (el.checked) {
+                        checkBoxList = manager.flGetCheckBoxList(0, 1);
+                        for (var i = 0, item; item = checkBoxList[i]; i++) {
+                            item.checked = true;
+                            item.parentNode.parentNode.classList.add("selected");
+                        }
+                    } else {
+                        checkBoxList = manager.flGetCheckBoxList(1, 1);
+                        for (var i = 0, item; item = checkBoxList[i]; i++) {
+                            item.checked = false;
+                            item.parentNode.parentNode.classList.remove("selected");
+                        }
+                    }
+                });
+
                 console.timeEnd('manager render');
-                console.timeEnd('manager ready');
+                console.timeEnd('manager');
 
                 setTimeout(function() {
-                    console.time('jquery ready');
+                    console.time('jquery');
                     document.body.appendChild(mono.create('script', {src: 'js/jquery-2.1.3.min.js'}));
                 }, 0);
             });
@@ -2804,13 +2896,13 @@ var manager = {
 
 var define = function(name) {
     if (name === 'jquery') {
-        console.timeEnd('jquery ready');
-        console.time('contextMenu ready');
+        console.timeEnd('jquery');
+        console.time('contextMenu');
         document.body.appendChild(mono.create('script', {src: 'js/notifer.js'}));
         document.body.appendChild(mono.create('script', {src: 'js/jquery.contextMenu.js'}));
     }
     if (name === 'contextMenu') {
-        console.timeEnd('contextMenu ready');
+        console.timeEnd('contextMenu');
         manager.onDefine();
     }
 };
