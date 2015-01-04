@@ -1798,41 +1798,41 @@ var manager = {
         var current_label = manager.varCache.trListItems[hash].api[11];
         var items = trigger.items.labels.items;
         if (current_label) {
-            if (items.del_label === undefined) {
-                items.del_label = {
+            if (items.delLabel === undefined) {
+                items.delLabel = {
                     name: manager.language.OV_REMOVE_LABEL,
                     $node: $('<li>', {'class': 'context-menu-item'}).data({
-                        contextMenuKey: 'del_label',
+                        contextMenuKey: 'delLabel',
                         contextMenu: trigger.items.labels,
                         contextMenuRoot: trigger
                     }).append(
                         $('<span>', {text: manager.language.OV_REMOVE_LABEL})
                     )
                 };
-                items.del_label.$node.prependTo(trigger.items.labels.$node.children('ul'));
-                items.del_label.$node.on('click', function () {
+                items.delLabel.$node.prependTo(trigger.items.labels.$node.children('ul'));
+                items.delLabel.$node.on('click', function () {
                     // sendAction({list: 1, action: 'setprops', s: 'label', hash: trigger.items.labels.id, v: ''});
                     $('#context-menu-layer').trigger('mousedown');
                 });
             }
-            if (items.add_label !== undefined) {
-                items.add_label.$node.remove();
-                delete items.add_label;
+            if (items.addLabel !== undefined) {
+                items.addLabel.$node.remove();
+                delete items.addLabel;
             }
         } else {
-            if (items.add_label === undefined) {
-                items.add_label = {
+            if (items.addLabel === undefined) {
+                items.addLabel = {
                     name: manager.language.OV_NEW_LABEL,
                     $node: $('<li>', {'class': 'context-menu-item'}).data({
-                        contextMenuKey: 'add_label',
+                        contextMenuKey: 'addLabel',
                         contextMenu: trigger.items.labels,
                         contextMenuRoot: trigger
                     }).append(
                         $('<span>', {text: manager.language.OV_NEW_LABEL})
                     )
                 };
-                items.add_label.$node.prependTo(trigger.items.labels.$node.children('ul'));
-                items.add_label.$node.on('click', function () {
+                items.addLabel.$node.prependTo(trigger.items.labels.$node.children('ul'));
+                items.addLabel.$node.on('click', function () {
                     /*notify([
                         {type: 'input', text: _lang_arr[115]}
                     ], _lang_arr[116][0], _lang_arr[116][1], function (arr) {
@@ -1848,9 +1848,9 @@ var manager = {
                     $('#context-menu-layer').trigger('mousedown');
                 });
             }
-            if (items.del_label !== undefined) {
-                items.del_label.$node.remove();
-                delete items.del_label;
+            if (items.delLabel !== undefined) {
+                items.delLabel.$node.remove();
+                delete items.delLabel;
             }
         }
         for (var i = 0, item; item = manager.varCache.labels[i]; i++) {
@@ -1883,10 +1883,10 @@ var manager = {
                     contextMenuRoot: trigger
                 })
             };
-            if (items.del_label !== undefined) {
-                items.del_label.$node.after(items.s.$node);
+            if (items.delLabel !== undefined) {
+                items.delLabel.$node.after(items.s.$node);
             } else {
-                items.add_label.$node.after(items.s.$node);
+                items.addLabel.$node.after(items.s.$node);
             }
         } else if (items.s !== undefined) {
             items.s.$node.remove();
