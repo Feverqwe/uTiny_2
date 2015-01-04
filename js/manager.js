@@ -2751,9 +2751,51 @@ var manager = {
             }()
         });
     },
-    onFileSelected: function() {
-        // todo: fix
-        console.log('hm...');
+    onGotFiles: function(files) {
+        var fileNameList = [];
+        for (var i = 0, file; file = files[i]; i++) {
+            fileNameList.push({span: {text: file.name}});
+        }
+        showNotification([
+            [
+                {label: {text: manager.language.selectedTorrentFiles}},
+                fileNameList
+            ],
+            [
+                {label: {text: manager.language.selectLable}},
+                {select: {options: (function(){
+                    var options = [
+                        $('<option>', {text: '', value: ''})
+                    ];
+                    for (var i = 0, item; item = manager.varCache.labels[i]; i++) {
+                        if (item.custom) continue;
+                        options.push($('<option>', {text: item.label, value: item.label}));
+                    }
+                    return options;
+                })(), name: 'label'}}
+            ],
+            [
+                {label: {text: manager.language.selectFolder}},
+                {select: {options: [], name: 'folder'}}
+            ],
+            [
+                {button: {text: manager.language.yes, on: [
+                    ['click', function() {
+                        var dataForm = this.getFormData();
+                        this.close();
+
+                        for (var i = 0, file; file = files[i]; i++) {
+                            mono.sendMessage({action: 'sendUrl', url: URL.createObjectURL(file), folder: dataForm.folder, label: dataForm.label});
+                        }
+                    }]
+                ]}},
+                {button: {text: manager.language.no, on: [
+                    ['click', function() {
+                        this.close();
+                    }]
+                ]}}
+            ]
+        ]);
     },
     run: function() {
         console.time('manager');
@@ -2909,7 +2951,17 @@ var manager = {
                     }
                     if (el.classList.contains('add_file')) {
                         e.preventDefault();
-                        mono.sendMessage({action: 'selectFile'}, manager.onFileSelected);
+                        mono.create('input', {
+                            type: 'file',
+                            multiple: true,
+                            accept: 'application/x-bittorrent',
+                            on: ['change', function() {
+                                manager.onGotFiles(this.files);
+                            }],
+                            onCreate: function(el) {
+                                el.dispatchEvent(new CustomEvent('click'));
+                            }
+                        });
                         return;
                     }
                     if (el.classList.contains('add_magnet')) {
@@ -2941,7 +2993,7 @@ var manager = {
                                     ['click', function() {
                                         var dataForm = this.getFormData();
                                         this.close();
-                                        mono.sendMessage({action: 'openLink', url: dataForm.link, folder: dataForm.folder, label: dataForm.label}, undefined, 'bg');
+                                        mono.sendMessage({action: 'sendUrl', url: dataForm.link, folder: dataForm.folder, label: dataForm.label});
                                     }]
                                 ]}},
                                 {button: {text: manager.language.no, on: [
@@ -3073,8 +3125,7 @@ var manager = {
                      */
                     manager.domCache.dropLayer.classList.add('dropped');
                     var files = e.originalEvent.dataTransfer.files;
-                    // todo: fix
-                    // onGetFiles(files);
+                    manager.onGotFiles(files);
                 });
 
                 document.body.addEventListener('dragover', function onDragOver(e) {
