@@ -2039,160 +2039,6 @@ var manager = {
             manager.timer.start();
         });
     },
-    run: function() {
-        console.time('manager ready');
-        console.time('remote data');
-
-        mono.storage.get([
-            'trSortOptions',
-            'flSortOptions',
-            'selectedLabel'
-        ], function(storage) {
-            mono.sendMessage([
-                {action: 'getLanguage'},
-                {action: 'getSettings'},
-                {action: 'getTrColumnArray'},
-                {action: 'getFlColumnArray'},
-                {action: 'getRemoteTorrentList'},
-                {action: 'getRemoteLabels'},
-                {action: 'getRemoteSettings'},
-                {action: 'getPublicStatus'}
-            ], function(data) {
-                console.timeEnd('remote data');
-                console.time('manager render');
-
-                manager.language = data.getLanguage;
-                manager.settings = data.getSettings;
-
-                if (manager.options.trWordWrap) {
-                    document.body.appendChild(mono.create('style', {
-                        text: 'div.torrent-list-layer td div {' +
-                            'white-space: normal;word-wrap: break-word;' +
-                        '}'
-                    }));
-                }
-                if (manager.options.flWordWrap) {
-                    document.body.appendChild(mono.create('style', {
-                        text: 'div.fl-layer td div {' +
-                            'white-space: normal;word-wrap: break-word;' +
-                        '}'
-                    }));
-                }
-
-                if (manager.settings.popupHeight > 0) {
-                    var panelsHeight = 54;
-                    manager.domCache.trLayer.style.maxHeight = (manager.settings.popupHeight - panelsHeight) + 'px';
-                    manager.domCache.trLayer.style.minHeight = (manager.settings.popupHeight - panelsHeight) + 'px';
-                }
-
-                if (storage.trSortOptions) {
-                    manager.varCache.trSortColumn = storage.trSortOptions.column;
-                    manager.varCache.trSortBy = storage.trSortOptions.by;
-                }
-                if (storage.flSortOptions) {
-                    manager.varCache.flSortColumn = storage.flSortOptions.column;
-                    manager.varCache.flSortBy = storage.flSortOptions.by;
-                }
-
-                manager.varCache.trColumnList = manager.prepareColumnList(data.getTrColumnArray);
-                manager.varCache.flColumnList = manager.prepareColumnList(data.getFlColumnArray);
-                manager.varCache.trColumnArray = data.getTrColumnArray;
-                manager.varCache.flColumnArray = data.getFlColumnArray;
-
-                manager.domCache.trLayer.addEventListener('scroll', function() {
-                    manager.domCache.trTableFixed.style.left = (-this.scrollLeft)+'px';
-                });
-                manager.domCache.flLayer.addEventListener('scroll', function() {
-                    if (this.scrollLeft !== 0) {
-                        manager.domCache.flTableFixed.style.left = (-this.scrollLeft + manager.varCache.flLeft) + 'px';
-                    } else {
-                        manager.domCache.flTableFixed.style.left = 'auto';
-                    }
-                });
-
-                manager.trWriteHead();
-
-                manager.varCache.currentFilter = storage.selectedLabel || manager.varCache.currentFilter;
-                manager.setLabels(data.getRemoteLabels);
-                manager.trChangeFilterByLabelBox();
-                manager.domCache.labelBox.addEventListener('change', function() {
-                    manager.trChangeFilterByLabelBox();
-                });
-
-                manager.setStatus(data.getPublicStatus);
-
-                if (!manager.settings.hideSeedStatusItem && !manager.settings.hideFnishStatusItem) {
-                    manager.trSkipItem = function(){
-                        return false;
-                    };
-                }
-
-                manager.writeTrList({torrents: data.getRemoteTorrentList});
-                manager.updateTrackerList(function() {
-                    manager.timer.start();
-                });
-
-                manager.readSettings({settings: data.getRemoteSettings});
-                mono.sendMessage({action: 'api', data: {action: 'getsettings'}}, function(data) {
-                    manager.readSettings(data);
-                });
-
-                manager.domCache.menu.querySelector('a.btn.refresh').addEventListener('click', function(e) {
-                    e.preventDefault();
-                    manager.updateTrackerList(function() {
-                        manager.timer.start();
-                    });
-                });
-
-                manager.domCache.trBody.addEventListener('dblclick', function(e) {
-                    var parent = e.target;
-                    while (parent !== this) {
-                        parent = parent.parentNode;
-                        if (parent.tagName === 'TR') {
-                            break;
-                        }
-                    }
-                    var hash = parent.id;
-                    if (!hash) return;
-
-                    manager.flListShow(hash);
-                });
-
-                var onColumntClick = function(e) {
-                    var parent = e.target;
-                    while (parent !== this) {
-                        parent = parent.parentNode;
-                        if (parent.tagName === 'TH') {
-                            break;
-                        }
-                    }
-
-                    var sortBy = parent.classList.contains('sortDown') ? 1 : parent.classList.contains('sortUp') ? 0 : undefined;
-                    var columnName = parent.dataset.name;
-                    var type = parent.dataset.type;
-                    if (!type) {
-                        return;
-                    }
-                    if (manager.varCache[type+'ColumnList'][columnName].order !== 1) {
-                        return;
-                    }
-                    manager.setColumSort(parent, columnName, sortBy, type);
-                };
-                manager.domCache.trFixedHead.addEventListener('click', onColumntClick);
-                manager.domCache.flFixedHead.addEventListener('click', onColumntClick);
-
-                manager.varCache.selectBox = selectBox.wrap(manager.domCache.labelBox);
-
-                console.timeEnd('manager render');
-                console.timeEnd('manager ready');
-
-                setTimeout(function() {
-                    console.time('jquery ready');
-                    document.body.appendChild(mono.create('script', {src: 'js/jquery-2.1.3.min.js'}));
-                }, 0);
-            });
-        });
-    },
     onDefine: function() {
         $.contextMenu.defaults.delay = 0;
         $.contextMenu.defaults.animation.hide = 'hide';
@@ -2377,13 +2223,13 @@ var manager = {
                     name: manager.language.ML_REMOVE,
                     callback: function (key, trigger) {
                         /*notify([
-                            {text: _lang_arr[73], type: 'note'}
-                        ], _lang_arr[110][0], _lang_arr[110][1], function (cb) {
-                            if (cb === undefined) {
-                                return;
-                            }
-                            sendAction({list: 1, action: 'remove', hash: trigger.items[key].id});
-                        });*/
+                         {text: _lang_arr[73], type: 'note'}
+                         ], _lang_arr[110][0], _lang_arr[110][1], function (cb) {
+                         if (cb === undefined) {
+                         return;
+                         }
+                         sendAction({list: 1, action: 'remove', hash: trigger.items[key].id});
+                         });*/
                     }
                 },
                 remove_with: {
@@ -2393,11 +2239,11 @@ var manager = {
                             name: manager.language.ML_DELETE_TORRENT,
                             callback: function (key, trigger) {
                                 /*var params = {list: 1, action: 'removetorrent', hash: trigger.items.remove.id };
-                                //для 2.xx проверяем версию по наличию статуса
-                                if (var_cache.tr_list[params.hash][21] === undefined) {
-                                    params.action = 'remove';
-                                }
-                                sendAction(params);*/
+                                 //для 2.xx проверяем версию по наличию статуса
+                                 if (var_cache.tr_list[params.hash][21] === undefined) {
+                                 params.action = 'remove';
+                                 }
+                                 sendAction(params);*/
                             }
                         },
                         remove_files: {
@@ -2410,11 +2256,11 @@ var manager = {
                             name: manager.language.ML_DELETE_DATATORRENT,
                             callback: function (key, trigger) {
                                 /*var params = {list: 1, action: 'removedatatorrent', hash: trigger.items.remove.id };
-                                //для 2.xx проверяем версию по наличию статуса
-                                if (var_cache.tr_list[params.hash][21] === undefined) {
-                                    params.action = 'removedata';
-                                }
-                                sendAction(params);*/
+                                 //для 2.xx проверяем версию по наличию статуса
+                                 if (var_cache.tr_list[params.hash][21] === undefined) {
+                                 params.action = 'removedata';
+                                 }
+                                 sendAction(params);*/
                             }
                         }
                     }
@@ -2484,7 +2330,7 @@ var manager = {
                     priority: 3,
                     callback: function (key, trigger) {
                         /*sendAction($.param({action: 'setprio', p: 3}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
-                        fl_unckeckCkecked();*/
+                         fl_unckeckCkecked();*/
                     }
                 },
                 normal: {
@@ -2493,7 +2339,7 @@ var manager = {
                     priority: 2,
                     callback: function (key, trigger) {
                         /*sendAction($.param({action: 'setprio', p: 2}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
-                        fl_unckeckCkecked();*/
+                         fl_unckeckCkecked();*/
                     }
                 },
                 low: {
@@ -2502,7 +2348,7 @@ var manager = {
                     name: manager.language.MF_LOW,
                     callback: function (key, trigger) {
                         /*sendAction($.param({action: 'setprio', p: 1}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
-                        fl_unckeckCkecked();*/
+                         fl_unckeckCkecked();*/
                     }
                 },
                 s: '-',
@@ -2512,7 +2358,7 @@ var manager = {
                     name: manager.language.MF_DONT,
                     callback: function (key, trigger) {
                         /*sendAction($.param({action: 'setprio', p: 0}) + '&' + $.param({hash: var_cache.fl_id, f: var_cache.fl_list_ctx_sel_arr}, true));
-                        fl_unckeckCkecked();*/
+                         fl_unckeckCkecked();*/
                     }
                 },
                 s1: '-',
@@ -2523,22 +2369,22 @@ var manager = {
                          * @namespace chrome.tabs.create
                          */
                         /*var webUi_url = ((_settings.ssl) ? 'https' : 'http') + "://" + _settings.login + ":" + _settings.password + "@" +
-                            _settings.ut_ip + ":" + _settings.ut_port + "/";
-                        for (var n = 0, item; item = var_cache.fl_list_ctx_sel_arr[n]; n++) {
-                            var sid = var_cache.tr_list[var_cache.fl_id][22];
-                            if (sid === undefined) {
-                                continue;
-                            }
-                            var fileUrl = webUi_url + 'proxy?sid=' + sid + '&file=' + item + '&disposition=ATTACHMENT&service=DOWNLOAD&qos=0';
-                            if (mono.isChrome) {
-                                chrome.tabs.create({
-                                    url: fileUrl
-                                });
-                            } else {
-                                mono.sendMessage({action: 'openTab', url: fileUrl}, undefined, 'service');
-                            }
-                        }
-                        fl_unckeckCkecked();*/
+                         _settings.ut_ip + ":" + _settings.ut_port + "/";
+                         for (var n = 0, item; item = var_cache.fl_list_ctx_sel_arr[n]; n++) {
+                         var sid = var_cache.tr_list[var_cache.fl_id][22];
+                         if (sid === undefined) {
+                         continue;
+                         }
+                         var fileUrl = webUi_url + 'proxy?sid=' + sid + '&file=' + item + '&disposition=ATTACHMENT&service=DOWNLOAD&qos=0';
+                         if (mono.isChrome) {
+                         chrome.tabs.create({
+                         url: fileUrl
+                         });
+                         } else {
+                         mono.sendMessage({action: 'openTab', url: fileUrl}, undefined, 'service');
+                         }
+                         }
+                         fl_unckeckCkecked();*/
                     }
                 }
             }
@@ -2562,10 +2408,10 @@ var manager = {
                     speed: 0,
                     callback: function (key, toggle) {
                         /*if (toggle.items[key].type === 'download') {
-                            setDlSpeed(0);
-                        } else {
-                            setUpSpeed(0);
-                        }*/
+                         setDlSpeed(0);
+                         } else {
+                         setUpSpeed(0);
+                         }*/
                     }
                 };
                 items["s"] = '-';
@@ -2580,10 +2426,10 @@ var manager = {
                         speed: undefined,
                         callback: function (key, toggle) {
                             /*if (toggle.items[key].type === 'download') {
-                                setDlSpeed(toggle.items[key].speed);
-                            } else {
-                                setUpSpeed(toggle.items[key].speed);
-                            }*/
+                             setDlSpeed(toggle.items[key].speed);
+                             } else {
+                             setUpSpeed(toggle.items[key].speed);
+                             }*/
                         }
                     };
                 }
@@ -2657,6 +2503,160 @@ var manager = {
                 });
                 return items;
             }()
+        });
+    },
+    run: function() {
+        console.time('manager ready');
+        console.time('remote data');
+
+        mono.storage.get([
+            'trSortOptions',
+            'flSortOptions',
+            'selectedLabel'
+        ], function(storage) {
+            mono.sendMessage([
+                {action: 'getLanguage'},
+                {action: 'getSettings'},
+                {action: 'getTrColumnArray'},
+                {action: 'getFlColumnArray'},
+                {action: 'getRemoteTorrentList'},
+                {action: 'getRemoteLabels'},
+                {action: 'getRemoteSettings'},
+                {action: 'getPublicStatus'}
+            ], function(data) {
+                console.timeEnd('remote data');
+                console.time('manager render');
+
+                manager.language = data.getLanguage;
+                manager.settings = data.getSettings;
+
+                if (manager.options.trWordWrap) {
+                    document.body.appendChild(mono.create('style', {
+                        text: 'div.torrent-list-layer td div {' +
+                            'white-space: normal;word-wrap: break-word;' +
+                        '}'
+                    }));
+                }
+                if (manager.options.flWordWrap) {
+                    document.body.appendChild(mono.create('style', {
+                        text: 'div.fl-layer td div {' +
+                            'white-space: normal;word-wrap: break-word;' +
+                        '}'
+                    }));
+                }
+
+                if (manager.settings.popupHeight > 0) {
+                    var panelsHeight = 54;
+                    manager.domCache.trLayer.style.maxHeight = (manager.settings.popupHeight - panelsHeight) + 'px';
+                    manager.domCache.trLayer.style.minHeight = (manager.settings.popupHeight - panelsHeight) + 'px';
+                }
+
+                if (storage.trSortOptions) {
+                    manager.varCache.trSortColumn = storage.trSortOptions.column;
+                    manager.varCache.trSortBy = storage.trSortOptions.by;
+                }
+                if (storage.flSortOptions) {
+                    manager.varCache.flSortColumn = storage.flSortOptions.column;
+                    manager.varCache.flSortBy = storage.flSortOptions.by;
+                }
+
+                manager.varCache.trColumnList = manager.prepareColumnList(data.getTrColumnArray);
+                manager.varCache.flColumnList = manager.prepareColumnList(data.getFlColumnArray);
+                manager.varCache.trColumnArray = data.getTrColumnArray;
+                manager.varCache.flColumnArray = data.getFlColumnArray;
+
+                manager.domCache.trLayer.addEventListener('scroll', function() {
+                    manager.domCache.trTableFixed.style.left = (-this.scrollLeft)+'px';
+                });
+                manager.domCache.flLayer.addEventListener('scroll', function() {
+                    if (this.scrollLeft !== 0) {
+                        manager.domCache.flTableFixed.style.left = (-this.scrollLeft + manager.varCache.flLeft) + 'px';
+                    } else {
+                        manager.domCache.flTableFixed.style.left = 'auto';
+                    }
+                });
+
+                manager.trWriteHead();
+
+                manager.varCache.currentFilter = storage.selectedLabel || manager.varCache.currentFilter;
+                manager.setLabels(data.getRemoteLabels);
+                manager.trChangeFilterByLabelBox();
+                manager.domCache.labelBox.addEventListener('change', function() {
+                    manager.trChangeFilterByLabelBox();
+                });
+
+                manager.setStatus(data.getPublicStatus);
+
+                if (!manager.settings.hideSeedStatusItem && !manager.settings.hideFnishStatusItem) {
+                    manager.trSkipItem = function(){
+                        return false;
+                    };
+                }
+
+                manager.writeTrList({torrents: data.getRemoteTorrentList});
+                manager.updateTrackerList(function() {
+                    manager.timer.start();
+                });
+
+                manager.readSettings({settings: data.getRemoteSettings});
+                mono.sendMessage({action: 'api', data: {action: 'getsettings'}}, function(data) {
+                    manager.readSettings(data);
+                });
+
+                manager.domCache.menu.querySelector('a.btn.refresh').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    manager.updateTrackerList(function() {
+                        manager.timer.start();
+                    });
+                });
+
+                manager.domCache.trBody.addEventListener('dblclick', function(e) {
+                    var parent = e.target;
+                    while (parent !== this) {
+                        parent = parent.parentNode;
+                        if (parent.tagName === 'TR') {
+                            break;
+                        }
+                    }
+                    var hash = parent.id;
+                    if (!hash) return;
+
+                    manager.flListShow(hash);
+                });
+
+                var onColumntClick = function(e) {
+                    var parent = e.target;
+                    while (parent !== this) {
+                        parent = parent.parentNode;
+                        if (parent.tagName === 'TH') {
+                            break;
+                        }
+                    }
+
+                    var sortBy = parent.classList.contains('sortDown') ? 1 : parent.classList.contains('sortUp') ? 0 : undefined;
+                    var columnName = parent.dataset.name;
+                    var type = parent.dataset.type;
+                    if (!type) {
+                        return;
+                    }
+                    if (manager.varCache[type+'ColumnList'][columnName].order !== 1) {
+                        return;
+                    }
+                    manager.setColumSort(parent, columnName, sortBy, type);
+                };
+                manager.domCache.trFixedHead.addEventListener('click', onColumntClick);
+                manager.domCache.flFixedHead.addEventListener('click', onColumntClick);
+
+                manager.varCache.selectBox = selectBox.wrap(manager.domCache.labelBox);
+
+                console.timeEnd('manager render');
+                console.timeEnd('manager ready');
+
+                setTimeout(function() {
+                    console.time('jquery ready');
+                    document.body.appendChild(mono.create('script', {src: 'js/jquery-2.1.3.min.js'}));
+                }, 0);
+            });
         });
     }
 };
