@@ -178,25 +178,25 @@ div.torrent-list-layer table .name div {
 div.torrent-list-layer table .size {
     text-align: right;
 }
-div.torrent-list-layer table .otdano {
+div.torrent-list-layer table .upped {
     text-align: right;
 }
-div.torrent-list-layer table .position {
+div.torrent-list-layer table .order {
     text-align: center;
 }
-div.torrent-list-layer table .ostalos {
+div.torrent-list-layer table .remaining {
     text-align: right;
 }
-div.torrent-list-layer table .time {
+div.torrent-list-layer table .eta {
     text-align: center;
 }
 div.torrent-list-layer table .seeds_peers {
     text-align: center;
 }
-div.torrent-list-layer table .poluchino {
+div.torrent-list-layer table .downloaded {
     text-align: right;
 }
-div.torrent-list-layer table .koeficient {
+div.torrent-list-layer table .shared {
     text-align: center;
 }
 div.torrent-list-layer table .status div {
@@ -228,14 +228,14 @@ table tbody tr.selected {
     background-color: #3875d7 !important;
     color: #fff;
 }
-table td.progress, table th.progress {
+table td.done, table th.done {
     padding: 0;
     position: relative;
     padding-left: 2px;
     padding-right: 2px;
     overflow: hidden;
 }
-table td.progress div.progress_b {
+table td.done div.progress_b {
     width: 100%;
     height: 14px;
     border: 1px solid #fff;
@@ -246,7 +246,7 @@ table td.progress div.progress_b {
     margin-left: -1px;
     text-align: center;
 }
-table td.progress div.progress_b_i {
+table td.done div.progress_b_i {
     position: absolute;
     height: 14px;
     background-color: #3687ED;
@@ -255,17 +255,17 @@ table td.progress div.progress_b_i {
     top: 0;
     left: 0;
 }
-table td.progress div.val {
+table td.done div.val {
     position: relative;
     z-index: 1;
     display: inline;
     line-height: -moz-block-height;
     vertical-align: top;
 }
-div.torrent-list-layer table td.controls div.btns {
+div.torrent-list-layer table td.actions div.btns {
     height: 18px;
 }
-div.torrent-list-layer table td.controls div.btns > a {
+div.torrent-list-layer table td.actions div.btns > a {
     width: 18px;
     height: 18px;
     cursor: pointer;
@@ -273,16 +273,16 @@ div.torrent-list-layer table td.controls div.btns > a {
     background-repeat: no-repeat;
     background-position: center center;
 }
-div.torrent-list-layer table td.controls div.btns > a.start {
+div.torrent-list-layer table td.actions div.btns > a.start {
     background-image: url('../images/play.png');
 }
-div.torrent-list-layer table td.controls div.btns > a.pause {
+div.torrent-list-layer table td.actions div.btns > a.pause {
     background-image: url('../images/pause.png');
 }
-div.torrent-list-layer table td.controls div.btns > a.stop {
+div.torrent-list-layer table td.actions div.btns > a.stop {
     background-image: url('../images/stop.png');
 }
-div.torrent-list-layer table td.controls div.btns > a:active {
+div.torrent-list-layer table td.actions div.btns > a:active {
     opacity: 0.7;
 }
 table.status-panel {
@@ -365,10 +365,10 @@ div.file-list {
 table.fl-table-body thead {
     visibility: hidden;
 }
-div.fl-layer table.fl-table-body td.select {
+div.fl-layer table.fl-table-body td.checkbox {
     text-align: center;
 }
-div.fl-layer table .select input {
+div.fl-layer table .checkbox input {
     margin-top: 2.5px;
     margin-bottom: 2.5px;
 }
@@ -379,13 +379,13 @@ div.fl-layer table .name > div {
 div.fl-layer table .size {
     text-align: right;
 }
-div.fl-layer table .download {
+div.fl-layer table .downloaded {
     text-align: right;
 }
-div.fl-layer table .priority {
+div.fl-layer table .prio {
     text-align: center;
 }
-div.fl-layer table .priority div {
+div.fl-layer table .prio div {
     white-space: nowrap;
     text-overflow: ellipsis;
 }

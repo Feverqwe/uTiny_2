@@ -151,7 +151,8 @@ var manager = {
         labels: [],
         remoteLabels: [],
         speedLimit: {},
-        folderList: {}
+        folderList: [],
+        webUiUrl: undefined
     },
     options: {
         scrollWidth: 17,
@@ -488,9 +489,6 @@ var manager = {
             var error = api[21];
             if (error && manager.language.lang !== 'en' && error.substr(0, 6) === 'Error:') {
                 var errMsg = manager.language.OV_FL_ERROR;
-                if (errMsg.slice(-1) === '!') {
-                    errMsg = errMsg.substr(0, errMsg.length -1);
-                }
                 error = errMsg+error.substr(5);
             }
             return error || manager.language.OV_FL_ERROR;
@@ -1983,17 +1981,17 @@ var manager = {
                 trigger.callbacks.addLabel = function () {
                     var hash = this[0].id;
                     showNotification([
-                        [{label: {text: manager.language.youShure}}],
+                        [{label: {text: manager.language.OV_NEWLABEL_CAPTION}}],
                         [{input: {type: 'text', name: 'label'}}],
                         [
-                            {button: {text: manager.language.yes, name: 'yesBtn', on: ['click', function() {
+                            {button: {text: manager.language.DLG_BTN_APPLY, name: 'yesBtn', on: ['click', function() {
                                 var formData = this.getFormData();
                                 this.close();
                                 var label = formData.label;
                                 if (!label) return;
                                 manager.api({list: 1, action: 'setprops', s: 'label', hash: hash, v: label});
                             }]}},
-                            {button: {text: manager.language.no, name: 'noBtn', on: ['click', function() {
+                            {button: {text: manager.language.DLG_BTN_CANCEL, name: 'noBtn', on: ['click', function() {
                                 this.close();
                             }]}}
                         ]
@@ -2253,7 +2251,7 @@ var manager = {
             }
         }
     },
-    onDefine: function() {
+    onLoadContextMenu: function() {
         $.contextMenu.defaults.delay = 0;
         $.contextMenu.defaults.animation.hide = 'hide';
         $.contextMenu.defaults.animation.show = 'show';
@@ -2444,15 +2442,16 @@ var manager = {
                     callback: function () {
                         var hash = this[0].id;
                         showNotification([
-                            [{label: {text: manager.language.areYouSure}}],
+                            [{label: {text: manager.language.OV_CONFIRM_DELETE_ONE}}],
+                            [{span: {text: manager.varCache.trListItems[hash].api[2]}}],
                             [
-                                {button: {text: manager.language.yes, on: [
+                                {button: {text: manager.language.DLG_BTN_YES, on: [
                                     ['click', function() {
                                         this.close();
                                         manager.api({list: 1, action: 'remove', hash: hash});
                                     }]
                                 ]}},
-                                {button: {text: manager.language.no, on: [
+                                {button: {text: manager.language.DLG_BTN_NO, on: [
                                     ['click', function() {
                                         this.close();
                                     }]
@@ -2614,12 +2613,7 @@ var manager = {
                     name: manager.language.DLG_RSSDOWNLOADER_24,
                     callback: function (key, trigger) {
                         var hash = manager.varCache.flListLayer.hash;
-                        var index = this[0].dataset.index;
-                        /**
-                         * @namespace chrome.tabs.create
-                         */
                         var settings = manager.settings;
-                        var webUiUrl = (settings.useSSL ? 'https://' : 'http://') + settings.login + ':' + settings.password + '@' + settings.ip + ':' + settings.port + '/';
                         var ctxSelectArray = manager.varCache.flListLayer.ctxSelectArray;
                         for (var n = 0, len = ctxSelectArray.length; n < len; n++) {
                             var item = ctxSelectArray[n];
@@ -2627,7 +2621,7 @@ var manager = {
                             if (sid === undefined) {
                                 continue;
                             }
-                            var fileUrl = webUiUrl + 'proxy?sid=' + sid + '&file=' + item + '&disposition=ATTACHMENT&service=DOWNLOAD&qos=0';
+                            var fileUrl = manager.varCache.webUiUrl + 'proxy?sid=' + sid + '&file=' + item + '&disposition=ATTACHMENT&service=DOWNLOAD&qos=0';
                             if (mono.isChrome) {
                                 chrome.tabs.create({
                                     url: fileUrl
@@ -2756,14 +2750,59 @@ var manager = {
         for (var i = 0, file; file = files[i]; i++) {
             fileNameList.push({span: {text: file.name}});
         }
+        var onClickYes = function(dataForm) {
+            if (!dataForm) {
+                dataForm = {};
+            }
+            for (var i = 0, file; file = files[i]; i++) {
+                mono.sendMessage({
+                    action: 'onSendFile',
+                    url: URL.createObjectURL(file),
+                    folder: manager.varCache.folderList[dataForm.folder],
+                    label: dataForm.label
+                });
+            }
+        };
+        var labelTemplate = showNotification.selectLabelTemplate();
+        var folderTemplate = showNotification.selectFolderTemplate();
+        if (labelTemplate[1].select.options.length === 0 && folderTemplate[1].select.options.length === 0) {
+            return onClickYes();
+        }
+        if (labelTemplate[1].select.options.length === 0) {
+            labelTemplate = undefined;
+        }
+        if (folderTemplate[1].select.options.length === 0) {
+            folderTemplate = undefined;
+        }
         showNotification([
             [
-                {label: {text: manager.language.selectedTorrentFiles}},
+                {label: {text: manager.language.selectedFiles+':'}},
                 fileNameList
             ],
+            labelTemplate,
+            folderTemplate,
             [
-                {label: {text: manager.language.selectLable}},
-                {select: {options: (function(){
+                {button: {text: manager.language.DLG_BTN_OK, on: [
+                    ['click', function() {
+                        var dataForm = this.getFormData();
+                        this.close();
+
+                        onClickYes(dataForm);
+                    }]
+                ]}},
+                {button: {text: manager.language.DLG_BTN_CANCEL, on: [
+                    ['click', function() {
+                        this.close();
+                    }]
+                ]}}
+            ]
+        ]);
+    },
+    onLoadQuickNotification: function() {
+        showNotification.selectLabelTemplate = function () {
+            return [
+                {label: {text: manager.language.OV_COL_LABEL, after: $('<br>')}},
+                {select: {append: (function(){
                     var options = [
                         $('<option>', {text: '', value: ''})
                     ];
@@ -2771,31 +2810,62 @@ var manager = {
                         if (item.custom) continue;
                         options.push($('<option>', {text: item.label, value: item.label}));
                     }
+                    if (options.length === 1) {
+                        return [];
+                    }
                     return options;
                 })(), name: 'label'}}
-            ],
-            [
-                {label: {text: manager.language.selectFolder}},
-                {select: {options: [], name: 'folder'}}
-            ],
-            [
-                {button: {text: manager.language.yes, on: [
-                    ['click', function() {
-                        var dataForm = this.getFormData();
-                        this.close();
+            ];
+        };
 
-                        for (var i = 0, file; file = files[i]; i++) {
-                            mono.sendMessage({action: 'sendUrl', url: URL.createObjectURL(file), folder: dataForm.folder, label: dataForm.label});
+        showNotification.selectFolderTemplate = function() {
+            return [
+                {label: {text: manager.language.ST_CAPT_FOLDER, after: $('<br>')}},
+                {select: {append: (function(){
+                    var folderList = [
+                        $('<option>', {text: '', value: -1})
+                    ];
+                    for (var i = 0, item; item = manager.varCache.folderList[i]; i++) {
+                        options.push($('<option>', {text: item.path, value: i}));
+                    }
+                    if (folderList.length === 1) {
+                        return [];
+                    }
+                    return folderList;
+                })(), name: 'folder'}}
+            ];
+        };
+    },
+    writeLanguage: function(body) {
+        var elList = (body || document).querySelectorAll('[data-lang]');
+        for (var i = 0, el; el = elList[i]; i++) {
+            var langList = el.dataset.lang.split('|');
+            for (var m = 0, lang; lang = langList[m]; m++) {
+                var args = lang.split(',');
+                var locale = manager.language[args.shift()];
+                if (locale === undefined) {
+                    console.log('Language string is not found!', el.dataset.lang);
+                    continue;
+                }
+                if (args.length !== 0) {
+                    args.forEach(function (item) {
+                        if (item === 'text') {
+                            el.textContent = locale;
+                            return 1;
                         }
-                    }]
-                ]}},
-                {button: {text: manager.language.no, on: [
-                    ['click', function() {
-                        this.close();
-                    }]
-                ]}}
-            ]
-        ]);
+                        el.setAttribute(item, locale);
+                    });
+                } else if (el.tagName === 'DIV') {
+                    el.title = locale;
+                } else if (['A', 'LEGEND', 'SPAN', 'LI', 'TH', 'P', 'OPTION'].indexOf(el.tagName) !== -1) {
+                    el.textContent = locale;
+                } else if (el.tagName === 'INPUT') {
+                    el.value = locale;
+                } else {
+                    console.log('Tag name not found!', el.tagName);
+                }
+            }
+        }
     },
     run: function() {
         console.time('manager');
@@ -2966,37 +3036,35 @@ var manager = {
                     }
                     if (el.classList.contains('add_magnet')) {
                         e.preventDefault();
+                        var labelTemplate = showNotification.selectLabelTemplate();
+                        var folderTemplate = showNotification.selectFolderTemplate();
+                        if (labelTemplate[1].select.append.length === 0) {
+                            labelTemplate = undefined;
+                        }
+                        if (folderTemplate[1].select.append.length === 0) {
+                            folderTemplate = undefined;
+                        }
                         showNotification([
                             [
-                                {label: {text: manager.language.insertLink}},
+                                {label: {text: manager.language.Paste_a_torrent_or_feed_URL}},
                                 {input: {type: 'text', name: 'link'}}
                             ],
+                            labelTemplate,
+                            folderTemplate,
                             [
-                                {label: {text: manager.language.selectLable}},
-                                {select: {options: (function(){
-                                    var options = [
-                                        $('<option>', {text: '', value: ''})
-                                    ];
-                                    for (var i = 0, item; item = manager.varCache.labels[i]; i++) {
-                                        if (item.custom) continue;
-                                        options.push($('<option>', {text: item.label, value: item.label}));
-                                    }
-                                    return options;
-                                })(), name: 'label'}}
-                            ],
-                            [
-                                {label: {text: manager.language.selectFolder}},
-                                {select: {options: [], name: 'folder'}}
-                            ],
-                            [
-                                {button: {text: manager.language.yes, on: [
+                                {button: {text: manager.language.DLG_BTN_OK, on: [
                                     ['click', function() {
                                         var dataForm = this.getFormData();
                                         this.close();
-                                        mono.sendMessage({action: 'sendUrl', url: dataForm.link, folder: dataForm.folder, label: dataForm.label});
+                                        mono.sendMessage({
+                                            action: 'onSendFile',
+                                            url: dataForm.link,
+                                            folder: manager.varCache.folderList[dataForm.folder],
+                                            label: dataForm.label
+                                        });
                                     }]
                                 ]}},
-                                {button: {text: manager.language.no, on: [
+                                {button: {text: manager.language.DLG_BTN_CANCEL, on: [
                                     ['click', function() {
                                         this.close();
                                     }]
@@ -3057,29 +3125,20 @@ var manager = {
 
                     if (el.classList.contains('start')) {
                         e.preventDefault();
-                        // todo: fix
-                        var hash = this.parentNode.parentNode.parentNode.id;
-                        console.log(hash);
-                        /*
-                        var hash = $(this).parents().eq(2).attr('id');
-                        sendAction({list: 1, action: 'start', hash: hash});
-                        */
+                        var hash = el.parentNode.parentNode.parentNode.id;
+                        manager.api({list: 1, action: 'start', hash: hash});
                         return;
                     }
                     if (el.classList.contains('pause')) {
                         e.preventDefault();
-                        /*
-                        var hash = $(this).parents().eq(2).attr('id');
-                        sendAction({list: 1, action: 'pause', hash: hash});
-                        */
+                        var hash = el.parentNode.parentNode.parentNode.id;
+                        manager.api({list: 1, action: 'pause', hash: hash});
                         return;
                     }
-                    if (el.classList.contains('pause')) {
+                    if (el.classList.contains('stop')) {
                         e.preventDefault();
-                        /*
-                        var hash = $(this).parents().eq(2).attr('id');
-                        sendAction({list: 1, action: 'stop', hash: hash});
-                        */
+                        var hash = el.parentNode.parentNode.parentNode.id;
+                        manager.api({list: 1, action: 'stop', hash: hash});
                         return;
                     }
                 });
@@ -3119,10 +3178,6 @@ var manager = {
 
                 document.body.addEventListener('drop', function onDrop(e) {
                     e.preventDefault();
-                    /**
-                     * @namespace event.originalEvent.dataTransfer
-                     * @namespace event.originalEvent.dataTransfer.files
-                     */
                     manager.domCache.dropLayer.classList.add('dropped');
                     var files = e.originalEvent.dataTransfer.files;
                     manager.onGotFiles(files);
@@ -3181,6 +3236,12 @@ var manager = {
                     }
                 });
 
+                manager.varCache.webUiUrl = (manager.settings.useSSL ? 'https://' : 'http://') + manager.settings.login + ':' + manager.settings.password + '@' + manager.settings.ip + ':' + manager.settings.port + '/';
+                mono.create(document.querySelector('a.btn.wui'), {
+                    href: manager.varCache.webUiUrl + manager.settings.path
+                });
+                manager.writeLanguage();
+
                 console.timeEnd('manager render');
                 console.timeEnd('manager');
 
@@ -3196,15 +3257,29 @@ var manager = {
 var define = function(name) {
     if (name === 'jquery') {
         console.timeEnd('jquery');
+
         console.time('contextMenu');
-        document.body.appendChild(mono.create('script', {src: 'js/notifer.js'}));
         document.body.appendChild(mono.create('script', {src: 'js/jquery.contextMenu.js'}));
         return;
     }
     if (name === 'contextMenu') {
         console.timeEnd('contextMenu');
-        manager.onDefine();
+        manager.onLoadContextMenu();
+
+        console.time('quickNotification');
+        document.body.appendChild(mono.create('script', {src: 'js/notifer.js'}));
         return;
+    }
+    if (name === 'quickNotification') {
+        console.timeEnd('quickNotification');
+        manager.onLoadQuickNotification();
+
+        console.time('d3js');
+        document.body.appendChild(mono.create('script', {src: 'js/d3.min.js'}));
+        return;
+    }
+    if (name.hasOwnProperty('version')) {
+        console.timeEnd('d3js');
     }
 };
 define.amd = {};

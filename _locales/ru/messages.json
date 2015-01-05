@@ -46,13 +46,15 @@
         "message": "Скорость загрузки"
     },
     "OV_COL_DOWNSPD_SHORT": {
-        "message": "Загр. скор."
+        "message": "Загр. скор.",
+        "originalKey": "OV_COL_DOWNSPD"
     },
     "OV_COL_UPSPD": {
         "message": "Скорость отдачи"
     },
     "OV_COL_UPSPD_SHORT": {
-        "message": "Отд. скор."
+        "message": "Отд. скор.",
+        "originalKey": "OV_COL_UPSPD"
     },
     "OV_COL_ETA": {
         "message": "Время"
@@ -67,13 +69,15 @@
         "message": "Коэффициент"
     },
     "OV_COL_SHARED_SHORT": {
-        "message": "Коэфф."
+        "message": "Коэфф.",
+        "originalKey": "OV_COL_SHARED"
     },
     "OV_COL_AVAIL": {
         "message": "Доступность"
     },
     "OV_COL_AVAIL_SHORT": {
-        "message": "Доступ."
+        "message": "Доступ.",
+        "originalKey": "OV_COL_AVAIL"
     },
     "OV_COL_LABEL": {
         "message": "Метка"
@@ -124,7 +128,8 @@
         "message": "Загружается"
     },
     "OV_FL_ERROR": {
-        "message": "Ошибка!"
+        "message": "Ошибка",
+        "modifed": 1
     },
     "OV_FL_FINISHED": {
         "message": "Загружен"
@@ -209,5 +214,60 @@
     },
     "resume": {
         "message": "Возобновить"
+    },
+    "refresh": {
+        "message": "Обновить"
+    },
+    "webUi": {
+        "message": "Web-интерфейс"
+    },
+    "Open_file": {
+        "message": "Открыть файл",
+        "originalKey": "Open file"
+    },
+    "MM_FILE_ADD_URL": {
+        "message": "Добавить по URL..."
+    },
+    "STM_TORRENTS_RESUMEALL": {
+        "message": "Продолжить все загрузки"
+    },
+    "STM_TORRENTS_PAUSEALL": {
+        "message": "Пауза для всех"
+    },
+    "DLG_BTN_CLOSE": {
+        "message": "Закрыть"
+    },
+    "OV_CONFIRM_DELETE_ONE": {
+        "message": "Вы действительно хотите удалить выбранный торрент?"
+    },
+    "DLG_BTN_YES": {
+        "message": "Да"
+    },
+    "DLG_BTN_NO": {
+        "message": "Нет"
+    },
+    "DLG_BTN_CANCEL": {
+        "message": "Отмена"
+    },
+    "DLG_BTN_APPLY": {
+        "message": "Применить"
+    },
+    "DLG_BTN_OK": {
+        "message": "OK"
+    },
+    "selectedFiles": {
+        "message": "Выбранные файл(ы)"
+    },
+    "ST_CAPT_FOLDER": {
+        "message": "Директория",
+        "modifed": 1
+    },
+    "Paste_a_torrent_or_feed_URL": {
+        "message": "Вставьте URL торрента или рассылки",
+        "originalKey": "Paste a torrent or feed URL"
+    },
+    "OV_NEWLABEL_CAPTION": {
+        "message": "Введите новую метку",
+        "modifed": 1
     }
 }

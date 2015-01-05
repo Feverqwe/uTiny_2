@@ -481,6 +481,75 @@ var engine = {
             }
         });
     },
+    downloadFile: function (url, cb, referer) {
+        var xhr = new engine.ajax.xhr();
+        xhr.open('GET', url, true);
+        xhr.responseType = 'blob';
+        if (referer !== undefined) {
+            xhr.setRequestHeader('Referer', referer);
+        }
+        xhr.onprogress = function (e) {
+            if (e.total > 1048576 * 10 || e.loaded > 1048576 * 10) {
+                xhr.abort();
+                // showNotifi(error_icon, lang_arr[122][0],  lang_arr[122][1], 'addFile');
+            }
+        };
+        xhr.onload = function () {
+            cb(xhr.response);
+        };
+        xhr.onerror = function () {
+            if (xhr.status === 0) {
+                // showNotifi(error_icon, xhr.status, lang_arr[103], 'addFile');
+            } else {
+                // showNotifi(error_icon, xhr.status, xhr.statusText, 'addFile');
+            }
+            // setStatus('downloadFile', [xhr.status, xhr.statusText]);
+        };
+        xhr.send();
+    },
+    sendFile: function(url, folder, label) {
+        var isUrl;
+        if (isUrl = typeof url === "string") {
+            if (url.substr(0, 7).toLowerCase() !== 'magnet:') {
+                engine.downloadFile(url, function (file) {
+                    if (url.substr(0,5).toLowerCase() === 'blob:') {
+                        window.URL.revokeObjectURL(url);
+                    }
+                    engine.sendFile(file, folder, label);
+                });
+                return;
+            }
+        }
+        engine.sendAction({list: 1}, function () {
+            var currentTorrentList = engine.varCache.torrents.slice(0);
+            var args = {};
+            if (isUrl) {
+                args.action = 'add-url';
+                args.s = url;
+            } else {
+                args.action = 'add-file';
+                args.torrent_file = url;
+            }
+            if (folder) {
+                args.download_dir = folder.download_dir;
+                args.path = folder.path;
+            }
+            engine.sendAction(args, function (data) {
+                if (data.error !== undefined) {
+                    /*showNotifi(error_icon, lang_arr[23], data.error, 'addFile');
+                     var_cache.newFileListener = undefined;*/
+                    return;
+                }
+                engine.sendAction({list: 1}, function() {
+                    var newTorrentList = engine.varCache.torrents.slice(0);
+                    if (newTorrentList.length === currentTorrentList.length) {
+                        return;
+                    }
+                    // find diff and add label
+                });
+            });
+        });
+    },
     run: function() {
         engine.loadSettings(function() {
             engine.getLanguage(function() {
@@ -559,6 +628,9 @@ var engine = {
         setFlColumnArray: function(message, response) {
             engine.fileListColumnList = message.data;
             mono.storage.set({fileListColumnList: message.data}, response);
+        },
+        onSendFile: function(message, response) {
+            engine.sendFile(message.url, message.folder, message.label);
         }
     }
 };

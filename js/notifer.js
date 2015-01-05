@@ -44,17 +44,25 @@ var showNotification = function(template, onClose) {
             var el = template[i];
             if (Array.isArray(el)) {
                 nodeCounter++;
-                var subSection = nodeCache['node'+nodeCounter] = $('<div>', {class: prefix + '-subItem'}).appendTo(this);
+                var subSection = $('<div>', {class: prefix + '-subItem'}).appendTo(this);
                 readTemplate.call(subSection, el);
                 continue;
             }
             if (typeof el === "object") {
                 for (var tagName in el) {
                     var attrList = el[tagName];
+
                     var on = attrList.on;
                     delete attrList.on;
-                    var options = attrList.options;
-                    delete attrList.options;
+                    var after = attrList.after;
+                    delete attrList.after;
+
+                    var before = attrList.before;
+                    delete attrList.before;
+
+                    var append = attrList.append;
+                    delete attrList.append;
+
                     nodeCounter++;
                     var $el = nodeCache[attrList.name || 'node'+nodeCounter] = $('<' + tagName + '>', attrList);
                     if (on) {
@@ -74,13 +82,16 @@ var showNotification = function(template, onClose) {
                             }
                         }
                     }
-                    if (options) {
-                        if (options.length === 0) {
-                            continue;
-                        }
-                        $el.append(options);
+                    if (append) {
+                        $el.append(append);
                     }
                     this.append($el);
+                    if (after) {
+                        $el.after(after);
+                    }
+                    if (before) {
+                        $el.before(before);
+                    }
                 }
                 continue;
             }
@@ -95,3 +106,6 @@ var showNotification = function(template, onClose) {
     readTemplate.call(nodeCache.body, template);
     $(document.body).append(nodeCache.body);
 };
+if (typeof define !== "undefined" && define.amd) {
+    define('quickNotification');
+}
