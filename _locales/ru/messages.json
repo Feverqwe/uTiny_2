@@ -269,5 +269,29 @@
     "OV_NEWLABEL_CAPTION": {
         "message": "Введите новую метку",
         "modifed": 1
+    },
+    "torrentAdded": {
+        "message": "Торрент добавлен!"
+    },
+    "unexpectedError": {
+        "message": "Неожиданная ошибка!"
+    },
+    "fileSizeError": {
+        "message": "Файл больше 10 мб"
+    },
+    "addInTorrentClient": {
+        "message": "Добавить в uTorrent"
+    },
+    "enterNewDirPath": {
+        "message": "Введите путь к новой дирректории"
+    },
+    "defaultPath": {
+        "message": "Путь по умолчанию"
+    },
+    "add": {
+        "message": "Добавить..."
+    },
+    "torrentFileExists": {
+        "message": "Возможно торрент файл уже существует!"
     }
 }

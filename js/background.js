@@ -26,6 +26,68 @@ var require = (typeof require !== 'undefined') ? require : undefined;
             }
         }
     }), "data/mono");
+    mono.setBadgeText = function(size, text, cb) {
+        var self = require('sdk/self');
+        var xhr = new engine.ajax.xhr();
+        var url = self.data.url('./icons/icon-'+size+'.png');
+        if (!text) {
+            return cb(url);
+        }
+        xhr.open('GET', url);
+        xhr.responseType = 'blob';
+        xhr.onload = function() {
+            var reader = new window.FileReader();
+            reader.onloadend = function() {
+                var base64data = reader.result;
+                var pos = base64data.indexOf(';');
+                base64data = base64data.substr(pos);
+                base64data = 'data:image/png'+base64data;
+
+                var box_w = 14;
+                var box_h = 10;
+                var text_p = 2;
+                var fSize = 10;
+                if (text < 10) {
+                    box_w = 8;
+                }
+                if (size === 32) {
+                    box_w = 20;
+                    box_h = 16;
+                    text_p = 2;
+                    fSize = 16;
+                    if (text < 10) {
+                        box_w = 12;
+                    }
+                }
+                if (size === 64) {
+                    box_w = 38;
+                    box_h = 30;
+                    text_p = 4;
+                    fSize = 30;
+                    if (text < 10) {
+                        box_w = 21;
+                    }
+                }
+                var left_p = size - box_w;
+
+                var img = 'data:image/svg+xml;utf8,'+'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" ' +
+                    'width="'+size+'" height="'+size+'">'
+                    +'<image x="0" y="0" width="'+size+'" height="'+size+'" xlink:href="'+base64data+'" />'
+                    +'<rect rx="4" ry="4" x="'+left_p+'" y="'+(size-box_h)+'" '
+                    +'width="'+box_w+'" height="'+box_h+'" '
+                    +'style="fill:rgba(60,60,60,0.8);stroke:black;stroke-width:1;opacity:0.6;"/>'
+                    +'<text fill="white" x="'+(left_p+parseInt( text_p / 2 ))+'" y="'+(size-text_p)+'" style="' +
+                    'font-family: Arial;' +
+                    'font-weight: bolder;' +
+                    'font-size: '+fSize+'px;' +
+                    'background-color: black;'+
+                    '">'+text+'</text>'+'</svg>';
+                cb(img);
+            };
+            reader.readAsDataURL(xhr.response);
+        };
+        xhr.send();
+    };
 })();
 
 var engine = {
@@ -35,7 +97,7 @@ var engine = {
         ip: {value: "127.0.0.1", lang: 'PRS_COL_IP'},
         port: {value: 8080, lang: 'PRS_COL_PORT'},
         path: {value: "gui/", lang: 'apiPath'},
-        disapleActiveTorrentCountIcon: {value: true, lang: 'disapleActiveTorrentCountIcon'},
+        displayActiveTorrentCountIcon: {value: true, lang: 'displayActiveTorrentCountIcon'},
         showNotificationOnDownloadCompleate: {value: true, lang: 'showNotificationOnDownloadCompleate'},
         notificationTimeout: {value: 5000, lang: 'notificationTimeout'},
         backgroundUpdateInterval: {value: 120000, lang: 'backgroundUpdateInterval'},
@@ -106,8 +168,14 @@ var engine = {
         torrents: [],
         labels: [],
         settings: [],
-        trListItems: {},
-        lastPublicStatus: 'Sleep'
+        lastPublicStatus: '-_-',
+        trafficList: [{name:'download', values: []}, {name:'upload', values: []}],
+        startTime: parseInt(Date.now() / 1000),
+        activeCount: 0,
+        notifyList: {},
+
+        folderList: [],
+        labelList: []
     },
     param: function(params) {
         if (typeof params === 'string') return params;
@@ -136,8 +204,13 @@ var engine = {
 
         var data = obj.data;
 
+        var isFormData = false;
+
         if (data && typeof data !== "string") {
-            data = engine.param(data);
+            isFormData = data && data.constructor && data.constructor.name === "FormData";
+            if (!isFormData) {
+                data = engine.param(data);
+            }
         }
 
         if (data && method === 'GET') {
@@ -172,7 +245,7 @@ var engine = {
             obj.headers["Content-Type"] = obj.contentType;
         }
 
-        if (data && !obj.headers["Content-Type"]) {
+        if (data && !obj.headers["Content-Type"] && !isFormData) {
             obj.headers["Content-Type"] = 'application/x-www-form-urlencoded; charset=UTF-8';
         }
 
@@ -236,7 +309,7 @@ var engine = {
                     engine.publicStatus('Token not found!');
                 }
                 engine.varCache.token = token;
-                engine.publicStatus('Connected');
+                engine.publicStatus('');
                 onReady && onReady();
             },
             error: function(xhr) {
@@ -252,22 +325,42 @@ var engine = {
             }
         });
     },
-    sendAction: function(data, onLoad, onError, force) {
+    sendAction: function(origData, onLoad, onError, force) {
         if (engine.varCache.token === undefined) {
             return engine.getToken(function onGetToken() {
-                engine.sendAction.call(engine, data, onLoad, onError, force || 1);
+                engine.sendAction.call(engine, origData, onLoad, onError, force || 1);
             });
         }
 
+        var data = origData;
         if (typeof data === "string") {
             data = 'token='+engine.varCache.token+'&cid='+engine.varCache.cid+'&'+data;
         } else {
             data.token = engine.varCache.token;
-            data.cid = engine.varCache.cid;
+            if (data.cid !== 0) {
+                data.cid = engine.varCache.cid;
+            }
         }
 
-        var type = 'GET';
         var url = engine.varCache.webUiUrl;
+        var type;
+        if (data.hasOwnProperty('torrent_file')) {
+            type = 'POST';
+            var formData = new window.FormData();
+            var file = data.torrent_file;
+            formData.append("torrent_file", file);
+
+            data = {};
+            for (var key in origData) {
+                data[key] = origData[key];
+            }
+            delete data.torrent_file;
+            delete data.cid;
+            url += '?' + engine.param(data);
+            data = formData;
+        } else {
+            type = 'GET';
+        }
 
         engine.ajax({
             type: type,
@@ -283,7 +376,7 @@ var engine = {
                 } catch (err) {
                     return engine.publicStatus('Data parse error!');
                 }
-                engine.publicStatus('Connected');
+                engine.publicStatus('');
                 onLoad && onLoad(data);
                 engine.readResponse(data);
             },
@@ -295,7 +388,7 @@ var engine = {
                     force++;
                     engine.varCache.token = undefined;
                     if (force < 2) {
-                        return engine.sendAction.call(engine, data, onLoad, onError, force);
+                        return engine.sendAction.call(engine, origData, onLoad, onError, force);
                     }
                 }
                 onError && onError();
@@ -320,6 +413,12 @@ var engine = {
             }
         }
 
+        var newTorrentList = data.torrents || data.torrentp;
+        if (newTorrentList !== undefined) {
+            var oldTorrentList = engine.varCache.torrents.slice(0);
+            engine.utils(oldTorrentList, newTorrentList);
+        }
+
         if (data.torrents !== undefined) {
             //Full torrent list
             engine.varCache.torrents = data.torrents;
@@ -327,7 +426,7 @@ var engine = {
         if (data.torrentp !== undefined) {
             // Updated torrent list with CID
             var list = engine.varCache.torrents;
-            var new_item = [];
+            var newItem = [];
             for (var i = 0, item_p; item_p = data.torrentp[i]; i++) {
                 var found = false;
                 for (var n = 0, item_s; item_s = list[n]; n++) {
@@ -339,10 +438,11 @@ var engine = {
                     break;
                 }
                 if (found === false) {
-                    new_item.push(item_p);
+                    newItem.push(item_p);
                     list.push(item_p);
                 }
             }
+            engine.varCache.newFileListener && engine.varCache.newFileListener(newItem);
         }
 
         if (data.label !== undefined) {
@@ -358,9 +458,6 @@ var engine = {
     updateTrackerList: function() {
         engine.sendAction({list: 1});
     },
-    ready: function() {
-
-    },
     loadSettings: function(cb) {
         var defaultSettings = engine.defaultSettings;
 
@@ -375,6 +472,8 @@ var engine = {
         });
 
         optionsList.push('language');
+        optionsList.push('folderList');
+        optionsList.push('labelList');
 
         mono.storage.get(optionsList, function(storage) {
             var settings = {};
@@ -384,6 +483,9 @@ var engine = {
             }
 
             settings.lang = storage.language;
+
+            engine.varCache.folderList = storage.folderList || engine.varCache.folderList;
+            engine.varCache.labelList = storage.labelList || engine.varCache.labelList;
 
             engine.settings = settings;
 
@@ -481,6 +583,116 @@ var engine = {
             }
         });
     },
+    trafficCounter: function(torrentList) {
+        var limit = 90;
+        var dlSpeed = 0;
+        var upSpeed = 0;
+        for (var i = 0, item; item = torrentList[i]; i++) {
+            dlSpeed += item[9];
+            upSpeed += item[8];
+        }
+        var dlSpeedList = engine.varCache.trafficList[0].values;
+        var upSpeedList = engine.varCache.trafficList[1].values;
+        var now = parseInt(Date.now() / 1000) - engine.varCache.startTime;
+        dlSpeedList.push({time: now, pos: dlSpeed});
+        upSpeedList.push({time: now, pos: upSpeed});
+        if (dlSpeedList.length > limit) {
+            dlSpeedList.shift();
+            upSpeedList.shift();
+        }
+    },
+    showNotification: mono.isModule ? function(icon, title, desc) {
+        var notification = require("sdk/notifications");
+        notification.notify({title: String(title), text: String(desc), iconURL: icon});
+    } : function(icon, title, desc, id) {
+        var notifyId = 'notification_';
+        if (id !== undefined) {
+            notifyId += id;
+        } else {
+            notifyId += Date.now();
+        }
+        var timerId = notifyId + 'Timer';
+
+        var notifyList = engine.varCache.notifyList;
+
+        if (id !== undefined && notifyList[notifyId] !== undefined) {
+            delete notifyList[notifyId];
+            clearTimeout(notifyList[timerId]);
+            chrome.notifications.clear(notifyId, function() {});
+        }
+        /**
+         * @namespace chrome.notifications
+         */
+        chrome.notifications.create(
+            notifyId,
+            {
+                type: 'basic',
+                iconUrl: icon,
+                title: String(title),
+                message: String(desc)
+            },
+            function(id) {
+                notifyList[notifyId] = id;
+            }
+        );
+        if (engine.settings.notificationTimeout > 0) {
+            notifyList[timerId] = setTimeout(function () {
+                notifyList[notifyId] = undefined;
+                chrome.notifications.clear(notifyId, function() {});
+            }, engine.settings.notificationTimeout);
+        }
+    },
+    onCompleteNotification: function(oldTorrentList, newTorrentList) {
+        if (oldTorrentList.length === 0) {
+            return;
+        }
+        for (var i = 0, newItem; newItem = newTorrentList[i]; i++) {
+            if (newItem[4] !== 1000) {
+                continue;
+            }
+            for (var n = 0, oldItem; oldItem = oldTorrentList[n]; n++) {
+                if (oldItem[4] === 1000 || ( oldItem[24] !== 0 && oldItem[24] !== undefined ) || oldItem[0] !== newItem[0]) {
+                    continue;
+                }
+                engine.showNotification(engine.icons.complete, newItem[2], (newItem[21] !== undefined) ? engine.language.OV_COL_STATUS + ': ' + newItem[21] : '');
+            }
+        }
+    },
+    displayActiveItemsCountIcon: function(newTorrentList) {
+        var activeCount = 0;
+        for (var i = 0, item; item = newTorrentList[i]; i++) {
+            if (item[4] !== 1000 && ( item[24] === undefined || item[24] === 0) ) {
+                activeCount++;
+            }
+        }
+        if (engine.varCache.activeCount === activeCount) {
+            return;
+        }
+        engine.varCache.activeCount = activeCount;
+        var text = activeCount ? String(activeCount) : '';
+        if (mono.isChrome) {
+            chrome.browserAction.setBadgeText({
+                text: text
+            });
+        } else {
+            mono.setBadgeText(16, text, function(url16) {
+                mono.setBadgeText(32, text, function(url32) {
+                    mono.setBadgeText(64, text, function(url64) {
+                        mono.ffButton.icon = {
+                            16: url16,
+                            32: url32,
+                            64: url64
+                        };
+                    });
+                });
+            });
+        }
+    },
+    utils: function(oldTorrentList, newTorrentList) {
+        engine.settings.showSpeedGraph && engine.trafficCounter(newTorrentList);
+        engine.settings.showNotificationOnDownloadCompleate && engine.onCompleteNotification(oldTorrentList, newTorrentList);
+        engine.settings.displayActiveTorrentCountIcon && engine.displayActiveItemsCountIcon(newTorrentList);
+    },
     downloadFile: function (url, cb, referer) {
         var xhr = new engine.ajax.xhr();
         xhr.open('GET', url, true);
@@ -491,7 +703,7 @@ var engine = {
         xhr.onprogress = function (e) {
             if (e.total > 1048576 * 10 || e.loaded > 1048576 * 10) {
                 xhr.abort();
-                // showNotifi(error_icon, lang_arr[122][0],  lang_arr[122][1], 'addFile');
+                engine.showNotification(engine.icons.error, engine.language.OV_FL_ERROR, engine.language.fileSizeError);
             }
         };
         xhr.onload = function () {
@@ -499,13 +711,32 @@ var engine = {
         };
         xhr.onerror = function () {
             if (xhr.status === 0) {
-                // showNotifi(error_icon, xhr.status, lang_arr[103], 'addFile');
+                engine.showNotification(engine.icons.error, xhr.status, engine.language.unexpectedError);
             } else {
-                // showNotifi(error_icon, xhr.status, xhr.statusText, 'addFile');
+                engine.showNotification(engine.icons.error, xhr.status, xhr.statusText);
             }
-            // setStatus('downloadFile', [xhr.status, xhr.statusText]);
         };
         xhr.send();
+    },
+    setOnFileAddListener: function(label) {
+        engine.varCache.newFileListener = function(newFile) {
+            delete engine.varCache.newFileListener;
+            if (newFile.length === 0) {
+                engine.showNotification(engine.icons.error, engine.language.torrentFileExists, '');
+                return;
+            }
+            if (newFile.length !== 1) {
+                return;
+            }
+            var item = newFile[0];
+            if (label && !item[11]) {
+                engine.sendAction({action: 'setprops', s: 'label', hash: item[0], v: label});
+            }
+            if (engine.settings.selectDownloadCategoryOnAddItemFromContextMenu) {
+                mono.storage.set({selected_label: {label: 'DL', custom: 1}});
+            }
+            engine.showNotification(engine.icons.add, item[2], engine.language.torrentAdded);
+        }
     },
     sendFile: function(url, folder, label) {
         var isUrl;
@@ -521,7 +752,7 @@ var engine = {
             }
         }
         engine.sendAction({list: 1}, function () {
-            var currentTorrentList = engine.varCache.torrents.slice(0);
+            var oldTorrentList = engine.varCache.torrents.slice(0);
             var args = {};
             if (isUrl) {
                 args.action = 'add-url';
@@ -536,16 +767,412 @@ var engine = {
             }
             engine.sendAction(args, function (data) {
                 if (data.error !== undefined) {
-                    /*showNotifi(error_icon, lang_arr[23], data.error, 'addFile');
-                     var_cache.newFileListener = undefined;*/
+                    engine.showNotification(engine.icons.error, engine.language.OV_FL_ERROR, data.error);
                     return;
                 }
-                engine.sendAction({list: 1}, function() {
-                    var newTorrentList = engine.varCache.torrents.slice(0);
-                    if (newTorrentList.length === currentTorrentList.length) {
-                        return;
+                engine.setOnFileAddListener(label);
+                engine.sendAction({list: 1});
+            });
+        });
+    },
+    onCtxMenuCall: function (e) {
+        /**
+         * @namespace e.linkUrl
+         * @namespace e.menuItemId
+         */
+        var link = e.linkUrl;
+        var id = e.menuItemId;
+        var updateMenu = false;
+        var contextMenu = engine.createFolderCtxMenu.contextMenu;
+        if (id === 'new') {
+            var path = window.prompt(engine.language.enterNewDirPath, contextMenu[0][1]);
+            if (!path) {
+                return;
+            }
+            var download_dir = contextMenu[0][0];
+            id = contextMenu.length;
+            contextMenu.push([download_dir, path]);
+            engine.varCache.folderList.push([download_dir, path]);
+            updateMenu = true;
+        }
+        if (id === 'main' || id === 'default') {
+            engine.sendFile(link);
+            return;
+        }
+        var dir, label;
+        var item = contextMenu[id];
+        if (engine.settings.enableLabelContextMenu) {
+            label = item[1];
+        } else {
+            dir = {download_dir: item[0], path: item[1]};
+        }
+        if (updateMenu) {
+            mono.storage.set({ folderList: JSON.stringify(engine.varCache.folderList) }, function() {
+                engine.createFolderCtxMenu();
+            });
+        }
+        engine.sendFile(link, dir, label);
+    },
+    listToTreeList: function() {
+        var tmp_folders_array = [];
+        var tree = {};
+        var sepType;
+        var treeLen = 0;
+        for (var i = 0, item; item = engine.createFolderCtxMenu.contextMenu[i]; i++) {
+            var path = item[1];
+            if (sepType === undefined) {
+                sepType = path.indexOf('/') === -1 ? path.indexOf('\\') === -1 ? undefined : '\\' : '/';
+            } else {
+                if (sepType === '\\') {
+                    item[1] = path.replace(/\//g, '\\');
+                } else {
+                    item[1] = path.replace(/\\/g, '/');
+                }
+            }
+        }
+        if (sepType === undefined) {
+            sepType = '';
+        }
+        for (var i = 0, item; item = engine.createFolderCtxMenu.contextMenu[i]; i++) {
+            var _disk = item[0];
+            var path = item[1];
+            if (!path) {
+                continue;
+            }
+
+            var dblSep = sepType+sepType;
+            var splitedPath = [];
+            if (path.search(/[a-zA-Z]{1}:(\/\/|\\\\)/) === 0) {
+                var disk = path.split(':'+dblSep);
+                if (disk.length === 2) {
+                    disk[0] += ':'+dblSep;
+                    splitedPath.push(disk[0]);
+                    path = disk[1];
+                }
+            }
+
+            var pathList;
+            if (sepType.length !== 0) {
+                pathList = path.split(sepType);
+            } else {
+                pathList = [path];
+            }
+
+            splitedPath = splitedPath.concat(pathList);
+
+            if (splitedPath[0] === '') {
+                splitedPath.shift();
+                splitedPath[0] = sepType + splitedPath[0];
+            }
+
+            if (splitedPath.slice(-1)[0] === '') {
+                splitedPath.splice(-1);
+            }
+
+            var lastDir = undefined;
+            var folderPath = undefined;
+            for (var m = 0, len = splitedPath.length; m < len; m++) {
+                var cPath = (lastDir !== undefined)?lastDir:tree;
+                var jPath = splitedPath[m];
+                if (folderPath === undefined) {
+                    folderPath = jPath;
+                } else {
+                    if (m === 1 && folderPath.slice(-3) === ':'+dblSep) {
+                        folderPath += jPath;
+                    } else {
+                        folderPath += sepType + jPath;
                     }
-                    // find diff and add label
+                }
+
+                lastDir = cPath[ jPath ];
+                if (lastDir === undefined) {
+                    if (cPath === tree) {
+                        treeLen++;
+                    }
+                    lastDir = cPath[ jPath ] = {
+                        arrayIndex: tmp_folders_array.length,
+                        currentPath: jPath
+                    };
+                    tmp_folders_array.push([ _disk , folderPath ]);
+                }
+            }
+            if (lastDir) {
+                lastDir.end = true;
+            }
+        }
+
+        var smartTree = [];
+
+        var createSubMenu = function(parentId, itemList) {
+            var childList = [];
+            for (var subPath in itemList) {
+                var item = itemList[subPath];
+                if (item.currentPath !== undefined) {
+                    childList.push(item);
+                }
+            }
+            var childListLen = childList.length;
+            if (childListLen === 1 && itemList.end === undefined) {
+                var cPath = itemList.currentPath;
+                if (itemList.currentPath.slice(-1) !== sepType) {
+                    cPath += sepType;
+                }
+                childList[0].currentPath = cPath + childList[0].currentPath;
+                createSubMenu(parentId, childList[0]);
+                return;
+            }
+            var hasChild = childListLen !== 0;
+            var id = (hasChild) ? 'p'+String(itemList.arrayIndex) : String(itemList.arrayIndex);
+            if (itemList.currentPath) {
+                smartTree.push({
+                    id: id,
+                    parentId: parentId,
+                    title: itemList.currentPath
+                });
+                if (hasChild) {
+                    smartTree.push({
+                        id: id.substr(1),
+                        parentId: id,
+                        title: lang_arr.cmCf
+                    });
+                }
+            }
+            childList.forEach(function(item) {
+                createSubMenu(id, item);
+            });
+        };
+
+        for (var item in tree) {
+            createSubMenu('main', tree[item]);
+        }
+
+        return {tree: smartTree, list: tmp_folders_array};
+    },
+    createFolderCtxMenu: mono.isModule ? (function() {
+        var contentScript = (function() {
+            var onClick = function() {
+                self.on("click", function(node) {
+                    var href = node.href;
+                    if (!href) {
+                        return self.postMessage({error: 0});
+                    }
+                    if (href.substr(0, 7).toLowerCase() === 'magnet:') {
+                        return self.postMessage(node.href);
+                    }
+                    var downloadFile = function (url, cb) {
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('GET', url, true);
+                        xhr.responseType = 'blob';
+                        xhr.onprogress = function (e) {
+                            if (e.total > 1048576 * 10 || e.loaded > 1048576 * 10) {
+                                xhr.abort();
+                                cb({error: 0});
+                            }
+                        };
+                        xhr.onload = function () {
+                            cb( URL.createObjectURL(xhr.response) );
+                        };
+                        xhr.onerror = function () {
+                            if (xhr.status === 0) {
+                                cb({error: 1, url: url, referer: window.location.href});
+                            } else {
+                                cb({error: 1, status: xhr.status, statusText: xhr.statusText});
+                            }
+                        };
+                        xhr.send();
+                    };
+                    downloadFile(href, self.postMessage);
+                });
+            };
+            var minifi = function(str) {
+                var list = str.split('\n');
+                var newList = [];
+                list.forEach(function(line) {
+                    newList.push(line.trim());
+                });
+                return newList.join('');
+            };
+            var onClickString = onClick.toString();
+            var n_pos =  onClickString.indexOf('\n')+1;
+            onClickString = onClickString.substr(n_pos, onClickString.length - 1 - n_pos).trim();
+            return minifi(onClickString);
+        })();
+
+        var topLevel = undefined;
+
+        var readData = function(data, cb) {
+            if (typeof data === 'object') {
+                if (data.error === 0) {
+                    return engine.showNotification(engine.icons.error, engine.language.OV_FL_ERROR, engine.language.fileSizeError);
+                }
+                if (data.error === 1) {
+                    if (data.url) {
+                        return cb();
+                    }
+                    return engine.showNotification(engine.icons.error, data.status, engine.language.unexpectedError);
+                }
+                if (data.error === 2) {
+                    return engine.showNotification(engine.icons.error, data.status, data.statusText);
+                }
+            }
+            cb();
+        };
+
+        return function() {
+            var contextMenu = engine.createFolderCtxMenu.contextMenu = engine.varCache.folderList.slice(0);
+
+            var self = require('sdk/self');
+            var cm = require("sdk/context-menu");
+            try {
+                if (topLevel && topLevel.parentMenu) {
+                    topLevel.parentMenu.removeItem(topLevel);
+                }
+            } catch (e) {
+                topLevel = undefined;
+            }
+            if (!engine.enableFolderContextMenu) {
+                return;
+            }
+
+            if (contextMenu.length === 0) {
+                topLevel = cm.Item({
+                    label: engine.language.addInTorrentClient,
+                    context: cm.SelectorContext("a"),
+                    image: self.data.url('./icons/icon-16.png'),
+                    contentScript: contentScript,
+                    onMessage: function (data) {
+                        readData(data, function() {
+                            engine.sendFile(data);
+                        });
+                    }
+                });
+                return;
+            }
+
+            var onMessage = function(data) {
+                var _this = this;
+                readData(data, function() {
+                    engine.onCtxMenuCall({
+                        linkUrl: data,
+                        menuItemId: _this.data
+                    }, (data && data.error === 1) ? data.referer : undefined);
+                });
+            };
+            var items = [];
+            if (engine.settings.treeViewContextMenu) {
+                var treeList = engine.listToTreeList();
+                var createItems = function(parentId, itemList) {
+                    var menuItemList = [];
+                    for (var i = 0, item; item = itemList[i]; i++) {
+                        if (item.parentId !== parentId) {
+                            continue;
+                        }
+                        var itemOpt = { label: item.title, context: cm.SelectorContext("a") };
+                        var subItems = createItems( item.id, itemList );
+                        if (subItems.length !== 0) {
+                            itemOpt.items = subItems;
+                            menuItemList.push(cm.Menu(itemOpt));
+                        } else {
+                            itemOpt.onMessage = onMessage;
+                            itemOpt.contentScript = contentScript;
+                            itemOpt.data = item.id;
+                            menuItemList.push(cm.Item(itemOpt));
+                        }
+                    }
+                    return menuItemList;
+                };
+                items = createItems('main', treeList.tree);
+                engine.createFolderCtxMenu.contextMenu = treeList.list;
+            } else {
+                for (var i = 0, item; item = contextMenu.folders_array[i]; i++) {
+                    items.push(cm.Item({
+                        label: item[1],
+                        data: String(i),
+                        context: cm.SelectorContext("a"),
+                        onMessage: onMessage,
+                        contentScript: contentScript
+                    }));
+                }
+            }
+
+            if (engine.settings.showDefaultFolderContextMenuItem) {
+                items.push(cm.Item({
+                    label: engine.language.defaultPath,
+                    data: 'default',
+                    context: cm.SelectorContext("a"),
+                    onMessage: onMessage,
+                    contentScript: contentScript
+                }));
+            }
+            items.push(cm.Item({ label: engine.language.add,
+                data: 'new',
+                context: cm.SelectorContext("a"),
+                onMessage: onMessage,
+                contentScript: contentScript
+            }));
+
+            topLevel = cm.Menu({
+                label: engine.language.addInTorrentClient,
+                context: cm.SelectorContext("a"),
+                image: self.data.url('./icons/icon-16.png'),
+                items: items
+            });
+        }
+    })() : function() {
+        var contextMenu = engine.createFolderCtxMenu.contextMenu = engine.varCache.folderList.slice(0);
+
+        chrome.contextMenus.removeAll(function () {
+            if (!engine.settings.enableFolderContextMenu) {
+                return;
+            }
+
+            chrome.contextMenus.create({
+                id: 'main',
+                title: engine.language.addInTorrentClient,
+                contexts: ["link"],
+                onclick: engine.onCtxMenuCall
+            }, function () {
+                if (contextMenu.length === 0) {
+                    return;
+                }
+                if (engine.settings.treeViewContextMenu) {
+                    var treeList = engine.listToTreeList();
+                    for (var i = 0, item; item = treeList.tree[i]; i++) {
+                        chrome.contextMenus.create({
+                            id: item.id,
+                            parentId: item.parentId,
+                            title: item.title,
+                            contexts: ["link"],
+                            onclick: engine.onCtxMenuCall
+                        });
+                    }
+                    engine.createFolderCtxMenu.contextMenu = treeList.list;
+                } else {
+                    for (var i = 0, item; item = contextMenu[i]; i++) {
+                        chrome.contextMenus.create({
+                            id: String(i),
+                            parentId: 'main',
+                            title: item[1],
+                            contexts: ["link"],
+                            onclick: engine.onCtxMenuCall
+                        });
+                    }
+                }
+                if (engine.settings.showDefaultFolderContextMenuItem) {
+                    chrome.contextMenus.create({
+                        id: 'default',
+                        parentId: 'main',
+                        title: engine.language.defaultPath,
+                        contexts: ["link"],
+                        onclick: engine.onCtxMenuCall
+                    });
+                }
+                chrome.contextMenus.create({
+                    id: 'new',
+                    parentId: 'main',
+                    title: engine.language.add,
+                    contexts: ["link"],
+                    onclick: engine.onCtxMenuCall
                 });
             });
         });
@@ -563,6 +1190,8 @@ var engine = {
                 engine.updateTrackerList();
 
                 engine.timer.start();
+
+                engine.createFolderCtxMenu();
             });
         });
     },
@@ -636,9 +1265,11 @@ var engine = {
 };
 
 (function() {
-    var init = function(addon) {
+    var init = function(addon, button) {
         if (addon) {
             mono = mono.init(addon);
+
+            mono.ffButton = button;
 
             var sdkTimers = require("sdk/timers");
             engine.timer.setInterval = sdkTimers.setInterval;
@@ -652,6 +1283,9 @@ var engine = {
             engine.ajax.xhr = require('sdk/net/xhr').XMLHttpRequest;
         } else {
             engine.ajax.xhr = XMLHttpRequest;
+            chrome.browserAction.setBadgeBackgroundColor({
+                color: [0, 0, 0, 40]
+            });
         }
 
         engine.varCache.msgStack = [];

@@ -639,7 +639,7 @@ var manager = {
                 if (text < 0) {
                     text = 0;
                 }
-                div.textContent = text;
+                div.textContent = manager.bytesToText(text, 0);
             };
             update(api);
             return {
@@ -1360,12 +1360,16 @@ var manager = {
             objA[key] = objB[key];
         }
     },
-    updateTrackerList: function(onReady) {
+    updateTrackerList: function(onReady, isNewSession) {
         manager.timer.wait = true;
 
         var data = {list: 1};
         if (manager.varCache.flListLayer.param !== undefined) {
             manager.extend(data, manager.varCache.flListLayer.param);
+        }
+
+        if (isNewSession) {
+            data.cid = 0;
         }
 
         mono.sendMessage({action: 'api', data: data}, function(data) {
@@ -1930,7 +1934,7 @@ var manager = {
             stop: checking || started || queued ? 1 : 0,
             unpause: (started || checking) && paused ? 1 : 0,
             pause: !paused && (checking || started || queued) ? 1 : 0,
-            start: !(queued || checking) || paused ? 1 : 0,
+            start: !queued || paused ? 1 : 0,
             forcestart: (!started || queued || paused) && !checking ? 1 : 0
         };
         if (actionList.pause === 1) {
@@ -2765,13 +2769,13 @@ var manager = {
         };
         var labelTemplate = showNotification.selectLabelTemplate();
         var folderTemplate = showNotification.selectFolderTemplate();
-        if (labelTemplate[1].select.options.length === 0 && folderTemplate[1].select.options.length === 0) {
+        if (labelTemplate[1].select.append.length === 0 && folderTemplate[1].select.append.length === 0) {
             return onClickYes();
         }
-        if (labelTemplate[1].select.options.length === 0) {
+        if (labelTemplate[1].select.append.length === 0) {
             labelTemplate = undefined;
         }
-        if (folderTemplate[1].select.options.length === 0) {
+        if (folderTemplate[1].select.append.length === 0) {
             folderTemplate = undefined;
         }
         showNotification([
@@ -2997,7 +3001,7 @@ var manager = {
                         e.preventDefault();
                         manager.updateTrackerList(function() {
                             manager.timer.start();
-                        });
+                        }, 1);
                         return;
                     }
                     if (el.classList.contains('pause_all')) {
