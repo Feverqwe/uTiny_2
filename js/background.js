@@ -380,7 +380,7 @@ var engine = {
                 onLoad && onLoad(data);
                 engine.readResponse(data);
             },
-            onerror: function(xhr) {
+            error: function(xhr) {
                 if (xhr.status === 400) {
                     if (force === undefined) {
                         force = 0;
@@ -391,6 +391,7 @@ var engine = {
                         return engine.sendAction.call(engine, origData, onLoad, onError, force);
                     }
                 }
+                engine.publicStatus('Can\'t send action! '+xhr.statusText+' (Code: '+xhr.status+')');
                 onError && onError();
             }
         });

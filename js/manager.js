@@ -2875,6 +2875,14 @@ var manager = {
         console.time('manager');
         console.time('remote data');
 
+        mono.onMessage(function(message) {
+            if (!message) return;
+
+            if (message.hasOwnProperty('setStatus')) {
+                manager.setStatus(message.setStatus);
+            }
+        });
+
         mono.storage.get([
             'trSortOptions',
             'flSortOptions',
