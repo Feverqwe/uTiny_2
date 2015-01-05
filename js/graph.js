@@ -117,9 +117,12 @@ var graph = function () {
             traf1.values.splice(0, values_len - limit);
         }
     };
+    if (typeof define !== "undefined" && define.amd) {
+        define('graph');
+    }
     return {
         move: function (dl, up) {
-            if (!traffic) {
+            if (traffic === undefined) {
                 return;
             }
             addData(dl, up);
@@ -127,29 +130,12 @@ var graph = function () {
         },
         run: function () {
             body = $('li.graph');
-            mono.sendMessage(['getTraffic', 'trafStartTime'], function(response) {
-                startTime = response.trafStartTime;
-                traffic = response.getTraffic;
+            mono.sendMessage({action: 'getTraffic'}, function(response) {
+                startTime = response.startTime;
+                traffic = response.list;
                 init();
             }, 'bg');
         }
     }
 }();
-(function(){
-    var n = 10;
-    var check = function () {
-        if (window.d3 === undefined) {
-            if (n === 0) {
-                console.log('graph timeout');
-                return;
-            }
-            setTimeout(function() {
-                check();
-                n--;
-            }, 100);
-        } else {
-            graph.run();
-        }
-    };
-    check();
-})();
+graph.run();

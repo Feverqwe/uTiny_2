@@ -1230,6 +1230,9 @@ var engine = {
         getSettings: function(message, response) {
             response(engine.settings);
         },
+        getDefaultSettings: function(message, response) {
+            response(engine.defaultSettings);
+        },
         getTrColumnArray: function(message, response) {
             response(engine.torrentListColumnList);
         },
@@ -1261,6 +1264,9 @@ var engine = {
         },
         onSendFile: function(message, response) {
             engine.sendFile(message.url, message.folder, message.label);
+        },
+        getTraffic: function(message, response) {
+            response({list: engine.varCache.trafficList, startTime: engine.varCache.startTime});
         }
     }
 };

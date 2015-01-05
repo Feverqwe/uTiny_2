@@ -1354,6 +1354,11 @@ var manager = {
                 manager.setLabels(data.label);
             }
         }
+
+
+        if (manager.settings.showSpeedGraph && window.graph) {
+            graph.move(dlSpeed, upSpeed);
+        }
     },
     extend: function(objA, objB) {
         for (var key in objB) {
@@ -3286,12 +3291,16 @@ var define = function(name) {
         console.timeEnd('quickNotification');
         manager.onLoadQuickNotification();
 
-        console.time('d3js');
-        document.body.appendChild(mono.create('script', {src: 'js/d3.min.js'}));
+        if (manager.settings.showSpeedGraph) {
+            console.time('d3js');
+            document.body.appendChild(mono.create('script', {src: 'js/d3.min.js'}));
+        }
         return;
     }
     if (name.hasOwnProperty('version')) {
         console.timeEnd('d3js');
+
+        document.body.appendChild(mono.create('script', {src: 'js/graph.js'}));
     }
 };
 define.amd = {};
