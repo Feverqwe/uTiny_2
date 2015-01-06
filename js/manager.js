@@ -153,7 +153,8 @@ var manager = {
         speedLimit: {},
         folderList: [],
         webUiUrl: undefined,
-        hasGraph: false
+        hasGraph: false,
+        movebleStyleList: {}
     },
     options: {
         scrollWidth: 17,
@@ -681,6 +682,10 @@ var manager = {
             var update = function(api) {
                 div.title = api[2];
                 span.textContent = api[2];
+                span.addEventListener('mouseenter', function reCaclSize() {
+                    span.removeEventListener('mouseenter', reCaclSize);
+                    manager.calculateMoveble(this, manager.varCache.trColumnList.name.width);
+                });
             };
             update(api);
             return {
@@ -1450,7 +1455,6 @@ var manager = {
                 manager.setLabels(data.label);
             }
         }
-
 
         if (manager.settings.showSpeedGraph && manager.varCache.hasGraph) {
             graph.move(dlSpeed, upSpeed);
@@ -2940,6 +2944,68 @@ var manager = {
                 })(), name: 'folder'}}
             ];
         };
+    },
+    calculateMoveble: function(el, width) {
+        var className = 'title';
+
+        var styleList = undefined;
+
+        var elWidth = el.offsetWidth;
+        if (elWidth <= width) {
+            el.parentNode.setAttribute('class', className);
+            return;
+        }
+        elWidth = Math.ceil(elWidth / 10);
+        if (elWidth > 10) {
+            if (elWidth < 100) {
+                var t1 = Math.round(elWidth / 10);
+                if (t1 > elWidth / 10) {
+                    elWidth = t1 * 10 * 10;
+                } else {
+                    elWidth = (t1 * 10 + 5) * 10;
+                }
+            } else {
+                elWidth = elWidth * 10;
+            }
+        } else {
+            elWidth = elWidth * 10;
+        }
+
+        var timeCalc = Math.round(parseInt(elWidth) / parseInt(width) * 3.5);
+        var moveName = 'moveble' + '_' + width + '_' + elWidth;
+        if (manager.varCache.movebleStyleList['style.' + moveName] === undefined) {
+            if (styleList === undefined) {
+                styleList = document.createDocumentFragment();
+            }
+            var keyFrames = ''
+                + '{'
+                + '0%{margin-left:2px;}'
+                + '50%{margin-left:-' + (elWidth - width) + 'px;}'
+                + '90%{margin-left:6px;}'
+                + '100%{margin-left:2px;}'
+                + '}';
+            styleList.appendChild(manager.varCache.movebleStyleList['style.' + moveName] = mono.create('style', {
+                class: moveName,
+                text: ''
+                + '@-webkit-keyframes a_' + moveName
+                    + keyFrames
+                + '@keyframes a_' + moveName
+                    + keyFrames
+                + '@-moz-keyframes a_' + moveName
+                    + keyFrames
+                + 'div.' + moveName + ':hover > span {'
+                    + 'overflow: visible;'
+                    + '-webkit-animation:a_' + moveName + ' ' + timeCalc + 's;'
+                    + '-moz-animation:a_' + moveName + ' ' + timeCalc + 's;'
+                    + 'animation:a_' + moveName + ' ' + timeCalc + 's;'
+                + '}'
+            }));
+        }
+        el.parentNode.setAttribute('class', className + ' ' + moveName);
+
+        if (styleList !== undefined) {
+            document.body.appendChild(styleList);
+        }
     },
     writeLanguage: function(body) {
         var elList = (body || document).querySelectorAll('[data-lang]');
