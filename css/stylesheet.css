@@ -627,10 +627,17 @@ div.btn.setup {
     display: block;
     height: 100%;
     width: 6px;
+    margin-right: 2px;
     cursor: col-resize;
     right: 0;
     top: 0;
     position: absolute !important;
+    opacity: 0;
+    background-color: #000;
+    transition: opacity 0.2s;
+}
+.resize-el:hover {
+    opacity: 0.5;
 }
 .trColumSelect {
     overflow-x: auto;

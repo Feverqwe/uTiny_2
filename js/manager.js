@@ -280,6 +280,7 @@ var manager = {
                             }),
                             mono.create('div', {
                                 class: 'resize-el',
+                                draggable: false,
                                 on: [
                                     ['click', function(e){e.stopPropagation();}],
                                     ['mousedown', manager.tableResize]
@@ -1962,6 +1963,10 @@ var manager = {
         return string.substr(0, 1).toUpperCase()+string.substr(1);
     },
     tableResize: function(e) {
+        e.stopPropagation();
+        var th = this.parentNode;
+        th.draggable = false;
+
         if (e.button !== 0) {
             return;
         }
@@ -2014,6 +2019,8 @@ var manager = {
             mono.sendMessage({action: 'set'+manager.capitalize(type)+'ColumnArray', data: manager.varCache[type+'ColumnArray']});
 
             manager.updateHead(type);
+
+            th.draggable = true;
         });
     },
     prepareColumnList: function(columnList) {
@@ -2763,7 +2770,7 @@ var manager = {
                     speed: 0,
                     callback: function (key, toggle) {
                         var item = toggle.items[key];
-                        manager.setSpeedLimit(item, 0);
+                        manager.setSpeedLimit(item.type, 0);
                     }
                 };
                 items.s = '-';
