@@ -416,8 +416,7 @@ var engine = {
 
         var newTorrentList = data.torrents || data.torrentp;
         if (newTorrentList !== undefined) {
-            var oldTorrentList = engine.varCache.torrents.slice(0);
-            engine.utils(oldTorrentList, newTorrentList);
+            engine.utils(engine.varCache.torrents, newTorrentList);
         }
 
         if (data.torrents !== undefined) {
@@ -455,6 +454,8 @@ var engine = {
             // Settings
             engine.varCache.settings = data.settings;
         }
+
+        engine.settings.displayActiveTorrentCountIcon && engine.displayActiveItemsCountIcon(engine.varCache.torrents);
     },
     updateTrackerList: function() {
         engine.sendAction({list: 1});
@@ -691,8 +692,7 @@ var engine = {
     },
     utils: function(oldTorrentList, newTorrentList) {
         engine.settings.showSpeedGraph && engine.trafficCounter(newTorrentList);
-        engine.settings.showNotificationOnDownloadCompleate && engine.onCompleteNotification(oldTorrentList, newTorrentList);
-        engine.settings.displayActiveTorrentCountIcon && engine.displayActiveItemsCountIcon(newTorrentList);
+        engine.settings.showNotificationOnDownloadCompleate && engine.onCompleteNotification(oldTorrentList.slice(0), newTorrentList);
     },
     downloadFile: function (url, cb, referer) {
         var xhr = new engine.ajax.xhr();
