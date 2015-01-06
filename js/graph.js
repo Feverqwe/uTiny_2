@@ -117,9 +117,6 @@ var graph = function () {
             traf1.values.splice(0, values_len - limit);
         }
     };
-    if (typeof define !== "undefined" && define.amd) {
-        define('graph');
-    }
     return {
         move: function (dl, up) {
             if (traffic === undefined) {
@@ -134,6 +131,10 @@ var graph = function () {
                 startTime = response.startTime;
                 traffic = response.list;
                 init();
+
+                if (typeof define !== "undefined" && define.amd) {
+                    define('graph');
+                }
             }, 'bg');
         }
     }

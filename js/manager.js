@@ -152,7 +152,8 @@ var manager = {
         remoteLabels: [],
         speedLimit: {},
         folderList: [],
-        webUiUrl: undefined
+        webUiUrl: undefined,
+        hasGraph: false
     },
     options: {
         scrollWidth: 17,
@@ -1356,7 +1357,7 @@ var manager = {
         }
 
 
-        if (manager.settings.showSpeedGraph && window.graph) {
+        if (manager.settings.showSpeedGraph && manager.varCache.hasGraph) {
             graph.move(dlSpeed, upSpeed);
         }
     },
@@ -3295,6 +3296,10 @@ var define = function(name) {
             console.time('d3js');
             document.body.appendChild(mono.create('script', {src: 'js/d3.min.js'}));
         }
+        return;
+    }
+    if (name === 'graph') {
+        manager.varCache.hasGraph = true;
         return;
     }
     if (name.hasOwnProperty('version')) {
