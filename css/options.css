@@ -42,18 +42,30 @@ h2 {
 
     width: 100%;
 }
+
+h3 {
+    font-size: 1.2em;
+
+    border-bottom: 1px solid #b6b6b6;
+    padding-bottom: 5px;
+
+    font-weight: normal;
+    margin-top: 9px;
+
+    width: 100%;
+}
+
 textarea {
     width: 658px;
     height: 400px;
 }
 
-input[type="text"] {
-    width: 80px;
+input[type="number"] {
+    width: 60px;
 }
 
-#proxyURL, #proxyHost {
-    display: block;
-    width: 658px;
+input[type="text"], input[type="password"] {
+    width: 140px;
 }
 
 div.search_panel {
@@ -122,6 +134,18 @@ label {
     display: block;
     margin: 5px;
 }
+.client label > span:first-child {
+    min-width: 150px;
+    display: inline-block;
+}
+.main label > span:first-child {
+    min-width: 400px;
+    display: inline-block;
+}
+.notify label > span:first-child {
+    min-width: 450px;
+    display: inline-block;
+}
 
 div.info {
     background-color: #f0f7fd;
@@ -183,4 +207,17 @@ input.button.main {
     position: fixed;
     width: 180px;
     text-align: center;
+}
+
+#dirList {
+    min-width: 200px;
+}
+
+#checkContainer {
+    text-align: center;
+}
+
+#folderList, #labelList {
+    width: 400px;
+    height: 100px;
 }

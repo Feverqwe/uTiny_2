@@ -16,20 +16,67 @@
                 <div class="left menu">
                     <a href="#client" data-page="client" data-lang="optClient">uTorrent</a>
                     <a href="#main" data-page="main" data-lang="optMain">Общие</a>
+                    <a href="#notify" data-page="notify" data-lang="optNotify">Уведомления</a>
+                    <a href="#ctx" data-page="ctx" data-lang="optCtx">Контекстное меню</a>
                     <a href="#backup" data-page="backup" data-lang="word_backup">Архивирование</a>
                     <a href="#restore" data-page="restore" data-lang="word_restore">Восстановление</a>
                 </div>
                 <div class="right">
                     <div class="page client">
                         <h2 data-lang="optClient">uTorrent</h2>
-                        <label data-lang="login,sub,text">Логин<input type="text" data-option="login"/></label>
-                        <label data-lang="password,sub,text">Пароль<input type="password" data-option="password"/></label>
-                        <label data-lang="clientIp,sub,text">IP-адрес<input type="text" data-option="ip"/></label>
-                        <label data-lang="clientPort,sub,text">Порт<input type="text" data-option="port"/></label>
+                        <label><span data-lang="login">Логин</span><input type="text" data-option="login"/></label>
+                        <label><span data-lang="password">Пароль</span><input type="password" data-option="password"/></label>
+                        <label><span data-lang="clientIp">IP-адрес</span><input type="text" data-option="ip"/></label>
+                        <label><span data-lang="clientPort">Порт</span><input type="text" data-option="port"/></label>
+                        <div id="checkContainer">
+                            <div><button id="clientCheckBtn">Проверить настройки</button></div>
+                            <div id="clientStatus"></div>
+                        </div>
+                        <h3 data-lang="additional">Дополнительно</h3>
+                        <label><span data-lang="useSSL">Использовать SSL</span><input type="checkbox" data-option="useSSL"/></label>
+                        <label><span data-lang="path">Путь</span><input type="text" data-option="path"/></label>
                     </div>
                     <div class="page main">
                         <h2 data-lang="optMain">Общие</h2>
-                        <label data-lang="optHideTrackerIcons,sub,text"><input type="checkbox" data-option="hideTrackerIcons"/>Скрыть иконки трекеров в выдаче</label>
+                        <label><span data-lang="hideSeedStatusItem">Скрыть раздачи со статусом "Раздаются"</span><input type="checkbox" data-option="hideSeedStatusItem"/></label>
+                        <label><span data-lang="hideFnishStatusItem">Скрыть раздачи со статусом "Загружен"</span><input type="checkbox" data-option="hideFnishStatusItem"/></label>
+                        <label><span data-lang="showSpeedGraph">Отображать график скорости</span><input type="checkbox" data-option="showSpeedGraph"/></label>
+                        <label><span data-lang="popupHeight">Высота popup окна</span><input type="number" data-option="popupHeight"/> <span data-lang="px">пикселей</span></label>
+                        <label><span data-lang="popupUpdateInterval">Интервал обновления списка раздач</span><input type="number" data-option="popupUpdateInterval"/> <span data-lang="ms">миллисекунда</span></label>
+                    </div>
+                    <div class="page notify">
+                        <h2 data-lang="optNotify">Уведомления</h2>
+                        <label><span data-lang="showNotificationOnDownloadCompleate">Уведомлять при завершении загрузки раздачи</span><input type="checkbox" data-option="showNotificationOnDownloadCompleate"/></label>
+                        <label><span data-lang="displayActiveTorrentCountIcon">Отображать количество активных раздач на иконке расширения</span><input type="checkbox" data-option="displayActiveTorrentCountIcon"/></label>
+                        <label><span data-lang="backgroundUpdateInterval">Интервал фонового обновления списка раздач</span><input type="number" data-option="backgroundUpdateInterval"/> <span data-lang="ms">миллисекунда</span></label>
+                        <label><span data-lang="notificationTimeout">Время отображения уведомлений</span><input type="number" data-option="notificationTimeout"/> <span data-lang="ms">миллисекунда</span></label>
+                    </div>
+                    <div class="page ctx">
+                        <h2 data-lang="optCtx">Контекстное меню</h2>
+                        <label><span data-lang="enableFolderContextMenu">Отображать список директорий</span><input type="checkbox" data-option="enableFolderContextMenu"/></label>
+                        <label><span data-lang="enableLabelContextMenu">Отображать список меток</span><input type="checkbox" data-option="enableLabelContextMenu"/></label>
+                        <label><span data-lang="selectDownloadCategoryOnAddItemFromContextMenu">Переходить в категорию "Загрузки" при успешном добавлении раздачи</span><input type="checkbox" data-option="selectDownloadCategoryOnAddItemFromContextMenu"/></label>
+                        <label><span data-lang="treeViewContextMenu">Древовидное контекстноме меню</span><input type="checkbox" data-option="treeViewContextMenu"/></label>
+                        <label><span data-lang="showDefaultFolderContextMenuItem">Отображать дирректорию по умолчанию</span><input type="checkbox" data-option="showDefaultFolderContextMenuItem"/></label>
+                        <h3 data-lang="folderList">Список директорий</h3>
+                        <div>
+                            <div><span data-lang="dirList">Списко директорий</span> <select id="dirList"></select> <span data-lang="available">Доступно</span>: <span id="availableCount">-1</span> <button id="updateDirList" data-lang="update">Обновить</button></div>
+                            <div><span data-lang="subPath">Подкаталог</span> <input type="text" id="subPath"/> <button id="addSubPath" data-lang="add">Добавить</button></div>
+                            <div><select id="folderList" multiple></select></div>
+                            <div>
+                                <button id="folderRemoveSelected" data-lang="removeSelected">Удалить выбранное</button>
+                                <button id="folderUp" data-lang="up">Вверх</button>
+                                <button id="folderDown" data-lang="down">Ввниз</button>
+                            </div>
+                        </div>
+                        <h3 data-lang="labelList">Список меток</h3>
+                        <div><span data-lang="label">Метка</span> <input type="text" id="label"/> <button id="addLabel" data-lang="add">Добавить</button></div>
+                        <div><select id="labelList" multiple></select></div>
+                        <div>
+                            <button id="labelRemoveSelected" data-lang="removeSelected">Удалить выбранное</button>
+                            <button id="labelUp" data-lang="up">Вверх</button>
+                            <button id="labelDown" data-lang="down">Ввниз</button>
+                        </div>
                     </div>
                     <div class="page backup">
                         <h2 data-lang="word_backup">Архивирование</h2>

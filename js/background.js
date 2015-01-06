@@ -321,7 +321,7 @@ var engine = {
                 if (force <= 5) {
                     return engine.getToken.call(engine, onReady, onError, force);
                 }
-                onError && onError();
+                onError && onError({status: xhr.status, statusText: xhr.statusText});
             }
         });
     },
@@ -607,7 +607,7 @@ var engine = {
         var notification = require("sdk/notifications");
         notification.notify({title: String(title), text: String(desc), iconURL: icon});
     } : function(icon, title, desc, id) {
-        var notifyId = 'notification_';
+        var notifyId = 'notify';
         if (id !== undefined) {
             notifyId += id;
         } else {
@@ -618,9 +618,9 @@ var engine = {
         var notifyList = engine.varCache.notifyList;
 
         if (id !== undefined && notifyList[notifyId] !== undefined) {
-            delete notifyList[notifyId];
             clearTimeout(notifyList[timerId]);
-            chrome.notifications.clear(notifyId, function() {});
+            delete notifyList[notifyId];
+            chrome.notifications.clear(notifyId, function(){});
         }
         /**
          * @namespace chrome.notifications
@@ -640,7 +640,7 @@ var engine = {
         if (engine.settings.notificationTimeout > 0) {
             notifyList[timerId] = setTimeout(function () {
                 notifyList[notifyId] = undefined;
-                chrome.notifications.clear(notifyId, function() {});
+                chrome.notifications.clear(notifyId, function(){});
             }, engine.settings.notificationTimeout);
         }
     },
@@ -1267,6 +1267,29 @@ var engine = {
         },
         getTraffic: function(message, response) {
             response({list: engine.varCache.trafficList, startTime: engine.varCache.startTime});
+        },
+        getDirList: function(message, response) {
+            engine.sendAction({action: 'list-dirs'}, response, function() {
+                response({});
+            });
+        },
+        checkSettings: function(message, response) {
+            engine.loadSettings(function() {
+                engine.getLanguage(function () {
+                    engine.getToken(function() {
+                        response({});
+                    }, function(statusObj) {
+                        response({error: statusObj});
+                    });
+                });
+            });
+        },
+        reloadSettings: function(message, response) {
+            engine.loadSettings(function() {
+                engine.getLanguage(function () {
+                    engine.createFolderCtxMenu();
+                });
+            });
         }
     }
 };
