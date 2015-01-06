@@ -165,14 +165,97 @@ var manager = {
     api: function(data) {
         mono.sendMessage({action: 'api', data: data}, manager.writeTrList);
     },
+    moveColumn: function(type, from, to) {
+        var columnList = manager.varCache[type + 'ColumnArray'];
+        var fromPos = -1;
+        var toPos = -1;
+        var toColumn;
+        var fromColumn;
+        for (var i = 0, column; column = columnList[i]; i++) {
+            if (column.column === from) {
+                fromPos = i;
+                fromColumn = column;
+            }
+            if (column.column === to) {
+                toPos = i;
+                toColumn = column;
+            }
+        }
+        if (fromPos === -1 || toPos === -1) {
+            return;
+        }
+
+        columnList.splice(fromPos, 1);
+        columnList.splice(toPos, 0, fromColumn);
+
+        if (type === 'tr') {
+            manager.timer.stop();
+            manager.updateHead(type);
+            manager.trFullUpdatePrepare([]);
+            mono.sendMessage([
+                {action: 'getRemoteTorrentList'},
+                {action: 'setTrColumnArray', data: manager.varCache.trColumnArray}
+            ], function(data) {
+                manager.writeTrList({torrents: data.getRemoteTorrentList});
+                manager.timer.start();
+            });
+        } else
+        if (type === 'fl') {
+            var flListLayer = manager.varCache.flListLayer;
+            if (!flListLayer.param) {
+                return;
+            }
+            manager.timer.stop();
+            manager.updateHead(type);
+            manager.flClearList();
+            mono.sendMessage([
+                {action: 'api', data: flListLayer.param},
+                {action: 'setFlColumnArray', data: manager.varCache.flColumnArray}
+            ], function(data) {
+                manager.writeFlList(data.api);
+                manager.timer.start();
+            });
+        }
+    },
+    onDragStart: function(e) {
+        e.dataTransfer.setData("name", e.target.dataset.name);
+        e.dataTransfer.setData("type", e.target.dataset.type);
+    },
+    onDragOver: function(e) {
+        var el = e.toElement;
+        if (el.tagName !== 'TH' && el.parentNode.tagName !== 'TH') return;
+        e.preventDefault();
+        e.stopPropagation();
+    },
+    onDrop: function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var el = e.toElement;
+        if (el.tagName !== 'TH') {
+            el = el.parentNode;
+        }
+        if (el.tagName !== 'TH') {
+            return;
+        }
+
+        var type = el.dataset.type;
+        if (type !== e.dataTransfer.getData("type")) {
+            return;
+        }
+        var toName = el.dataset.name;
+        var fromName = e.dataTransfer.getData("name");
+        if (toName === fromName) return;
+
+        manager.moveColumn(type, fromName, toName);
+    },
     trWriteHead: function() {
         var styleBody = '';
         var width = 0;
         var head = mono.create('tr', {
             append: (function() {
                 var thList = [];
-                for (var key in manager.varCache.trColumnList) {
-                    var value = manager.varCache.trColumnList[key];
+                for (var i = 0, value; value = manager.varCache.trColumnArray[i]; i++) {
+                    var key = value.column;
                     if (value.display !== 1) {
                         continue;
                     }
@@ -184,6 +267,12 @@ var manager = {
                             name: key,
                             type: 'tr'
                         },
+                        draggable: true,
+                        on: [
+                            ['dragstart', manager.onDragStart],
+                            ['dragover', manager.onDragOver],
+                            ['drop', manager.onDrop]
+                        ],
                         append: [
                             mono.create('div', {
                                 text: manager.language[value.lang+'_SHORT'] || manager.language[value.lang]
@@ -243,8 +332,8 @@ var manager = {
         var head = mono.create('tr', {
             append: (function() {
                 var thList = [];
-                for (var key in manager.varCache.flColumnList) {
-                    var value = manager.varCache.flColumnList[key];
+                for (var i = 0, value; value = manager.varCache.flColumnArray[i]; i++) {
+                    var key = value.column;
                     if (value.display !== 1) {
                         continue;
                     }
@@ -256,6 +345,12 @@ var manager = {
                             name: key,
                             type: 'fl'
                         },
+                        draggable: true,
+                        on: [
+                            ['dragstart', manager.onDragStart],
+                            ['dragover', manager.onDragOver],
+                            ['drop', manager.onDrop]
+                        ],
                         append: [
                             (key === 'checkbox') ? mono.create('div', {
                                 append: mono.create('input', {
@@ -945,8 +1040,8 @@ var manager = {
             },
             append: (function(){
                 var tdList = [];
-                for (var columnName in manager.varCache.trColumnList) {
-                    var column = manager.varCache.trColumnList[columnName];
+                for (var i = 0, column; column = manager.varCache.trColumnArray[i]; i++) {
+                    var columnName = column.column;
                     if (column.display !== 1) {
                         continue;
                     }
@@ -1636,8 +1731,8 @@ var manager = {
             },
             append: (function() {
                 var tdList = [];
-                for (var columnName in manager.varCache.flColumnList) {
-                    var column = manager.varCache.flColumnList[columnName];
+                for (var i = 0, column; column = manager.varCache.flColumnArray[i]; i++) {
+                    var columnName = column.column;
                     if (column.display !== 1) {
                         continue;
                     }
@@ -2836,7 +2931,7 @@ var manager = {
                         $('<option>', {text: '', value: -1})
                     ];
                     for (var i = 0, item; item = manager.varCache.folderList[i]; i++) {
-                        options.push($('<option>', {text: item.path, value: i}));
+                        folderList.push($('<option>', {text: item.path, value: i}));
                     }
                     if (folderList.length === 1) {
                         return [];
@@ -3197,7 +3292,7 @@ var manager = {
                 document.body.addEventListener('drop', function onDrop(e) {
                     e.preventDefault();
                     manager.domCache.dropLayer.classList.add('dropped');
-                    var files = e.originalEvent.dataTransfer.files;
+                    var files = e.dataTransfer.files;
                     manager.onGotFiles(files);
                 });
 
