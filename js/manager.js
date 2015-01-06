@@ -221,7 +221,7 @@ var manager = {
         e.dataTransfer.setData("name", e.target.dataset.name);
         e.dataTransfer.setData("type", e.target.dataset.type);
     },
-    onDragOver: function(e) {
+    onDragOver: function onDragOver(e) {
         var el = e.toElement;
         if (el.tagName !== 'TH' && el.parentNode.tagName !== 'TH') return;
         e.preventDefault();
@@ -3293,10 +3293,14 @@ var manager = {
                     e.preventDefault();
                     manager.domCache.dropLayer.classList.add('dropped');
                     var files = e.dataTransfer.files;
+                    if (!files.length) return;
                     manager.onGotFiles(files);
                 });
 
                 document.body.addEventListener('dragover', function onDragOver(e) {
+                    if (e.dataTransfer.types.length === 2) {
+                        return;
+                    }
                     e.preventDefault();
                     manager.domCache.dropLayer.style.display = 'block';
                     clearTimeout(onDragOver.timeout);
