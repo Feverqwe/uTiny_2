@@ -3120,7 +3120,8 @@ var manager = {
                 {action: 'getRemoteTorrentList'},
                 {action: 'getRemoteLabels'},
                 {action: 'getRemoteSettings'},
-                {action: 'getPublicStatus'}
+                {action: 'getPublicStatus'},
+                {action: 'managerIsOpen'}
             ], function(data) {
                 console.timeEnd('remote data');
                 console.time('manager render');

@@ -170,6 +170,10 @@ var options = function() {
         } else
         if (['text', 'password'].indexOf(el.type) !== -1) {
             value = el.value;
+            var placehoder = el.placeholder;
+            if (!value && placehoder) {
+                value = placehoder;
+            }
         }
 
         var obj = {};
@@ -566,6 +570,15 @@ var options = function() {
                                         color: 'green'
                                     }
                                 });
+                                var windowMode;
+                                if (mono.isChrome) {
+                                    windowMode = window !== chrome.extension.getViews({type: 'popup'})[0];
+                                } else {
+                                    windowMode = mono.isFF && mono.noAddon;
+                                }
+                                if (!windowMode) {
+                                    return window.location = "manager.html";
+                                }
                             }
                             statusEl.appendChild(span);
                         });
@@ -591,9 +604,8 @@ var options = function() {
 
                     var inputList = document.querySelectorAll('input[type=text], input[type=password], input[type=number]');
 
-                    var saveChangeDebounsed = mono.debounce(saveChange, 500);
                     for (var i = 0, el; el = inputList[i]; i++) {
-                        el.addEventListener('keyup', saveChangeDebounsed);
+                        el.addEventListener('keyup', mono.debounce(saveChange, 500));
                     }
 
                     document.body.addEventListener('click', saveChange);

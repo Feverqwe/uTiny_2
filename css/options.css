@@ -8,7 +8,7 @@ body {
     -o-user-select: none;
     user-select: none;
 
-    min-width: 920px;
+    min-width: 780px;
 }
 
 .user-select {
@@ -56,7 +56,7 @@ h3 {
 }
 
 textarea {
-    width: 658px;
+    width: 590px;
     height: 400px;
 }
 
@@ -76,6 +76,10 @@ div.search_panel {
 div.search_panel > * {
     display: inline-block;
     vertical-align: middle;
+}
+
+.container {
+    min-height: 500px;
 }
 
 div.container > .content {

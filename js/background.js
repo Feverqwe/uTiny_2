@@ -284,7 +284,9 @@ var engine = {
         clearInterval: typeof clearInterval !== 'undefined' ? clearInterval.bind() : undefined,
         setInterval: typeof setInterval !== 'undefined' ? setInterval.bind() : undefined,
         timer: undefined,
+        state: 0,
         start: function() {
+            this.state = 1;
             this.clearInterval(this.timer);
             this.timer = this.setInterval(function() {
                 engine.updateTrackerList();
@@ -292,6 +294,7 @@ var engine = {
         },
         stop: function() {
             this.clearInterval(this.timer);
+            this.state = 0;
         }
     },
     getToken: function(onReady, onError, force) {
@@ -465,6 +468,8 @@ var engine = {
             if (data.torrentc !== undefined) {
                 engine.varCache.cid = data.torrentc;
             }
+        }, function() {
+            engine.timer.stop();
         });
     },
     loadSettings: function(cb) {
@@ -743,7 +748,7 @@ var engine = {
                 engine.sendAction({action: 'setprops', s: 'label', hash: item[0], v: label});
             }
             if (engine.settings.selectDownloadCategoryOnAddItemFromContextMenu) {
-                mono.storage.set({selected_label: {label: 'DL', custom: 1}});
+                mono.storage.set({selectedLabel: {label: 'DL', custom: 1}});
             }
             engine.showNotification(engine.icons.add, item[2], engine.language.torrentAdded);
         }
@@ -1425,6 +1430,12 @@ var engine = {
                     response();
                 });
             });
+        },
+        managerIsOpen: function(message, response) {
+            if (engine.timer.state !== 1) {
+                engine.timer.start();
+            }
+            response();
         }
     }
 };
