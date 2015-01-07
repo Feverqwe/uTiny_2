@@ -3117,6 +3117,10 @@ var manager = {
                 manager.language = data.getLanguage;
                 manager.settings = data.getSettings;
 
+                if (manager.settings.login === null || manager.settings.password === null) {
+                    return window.location = "options.html";
+                }
+
                 if (mono.isChrome) {
                     manager.options.windowMode = window !== chrome.extension.getViews({type: 'popup'})[0];
                 } else {

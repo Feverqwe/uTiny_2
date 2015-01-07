@@ -184,6 +184,10 @@ var engine = {
             if (value === null || value === undefined) {
                 continue;
             }
+            if (engine.settings.fixCirilicTorrentPath && key === 'path'&& params.download_dir !== undefined) {
+                args.push(encodeURIComponent(key) + '=' + engine.inCp1251(value));
+                continue;
+            }
             args.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
         }
         return args.join('&');
@@ -292,7 +296,9 @@ var engine = {
     },
     getToken: function(onReady, onError, force) {
         if (engine.settings.login === null || engine.settings.password === null) {
-            return engine.publicStatus('Login or password is not found!');
+            var errorText = 'Login or password is not found!';
+            onError && onError({status: 0, statusText: errorText});
+            return engine.publicStatus(errorText);
         }
 
         engine.publicStatus('Try get token!' + (force ? ' Retry: ' + force : ''));
@@ -370,6 +376,9 @@ var engine = {
             success: function(data, xhr) {
                 var data = xhr.responseText;
                 try {
+                    if (engine.settings.fixCirilic) {
+                        data = engine.fixCirilic(data);
+                    }
                     data = JSON.parse(data);
                 } catch (err) {
                     return engine.publicStatus('Data parse error!');
@@ -753,7 +762,6 @@ var engine = {
         }
         engine.sendAction({list: 1}, function (data) {
             var cid = data.torrentc;
-            var oldTorrentList = engine.varCache.torrents.slice(0);
             var args = {};
             if (isUrl) {
                 args.action = 'add-url';
@@ -775,6 +783,86 @@ var engine = {
                 engine.sendAction({list: 1, cid: cid});
             });
         });
+    },
+    fixCirilic: function () {
+        var cirilic = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+        var chars = ("\\u037777777720\\u037777777620 \\u037777777720\\u037777777621 " +
+        "\\u037777777720\\u037777777622 \\u037777777720\\u037777777623 " +
+        "\\u037777777720\\u037777777624 \\u037777777720\\u037777777625 " +
+        "\\u037777777720\\u037777777601 \\u037777777720\\u037777777626 " +
+        "\\u037777777720\\u037777777627 \\u037777777720\\u037777777630 " +
+        "\\u037777777720\\u037777777631 \\u037777777720\\u037777777632 " +
+        "\\u037777777720\\u037777777633 \\u037777777720\\u037777777634 " +
+        "\\u037777777720\\u037777777635 \\u037777777720\\u037777777636 " +
+        "\\u037777777720\\u037777777637 \\u037777777720\\u037777777640 " +
+        "\\u037777777720\\u037777777641 \\u037777777720\\u037777777642 " +
+        "\\u037777777720\\u037777777643 \\u037777777720\\u037777777644 " +
+        "\\u037777777720\\u037777777645 \\u037777777720\\u037777777646 " +
+        "\\u037777777720\\u037777777647 \\u037777777720\\u037777777650 " +
+        "\\u037777777720\\u037777777651 \\u037777777720\\u037777777652 " +
+        "\\u037777777720\\u037777777653 \\u037777777720\\u037777777654 " +
+        "\\u037777777720\\u037777777655 \\u037777777720\\u037777777656 " +
+        "\\u037777777720\\u037777777657 \\u037777777720\\u037777777660 " +
+        "\\u037777777720\\u037777777661 \\u037777777720\\u037777777662 " +
+        "\\u037777777720\\u037777777663 \\u037777777720\\u037777777664 " +
+        "\\u037777777720\\u037777777665 \\u037777777721\\u037777777621 " +
+        "\\u037777777720\\u037777777666 \\u037777777720\\u037777777667 " +
+        "\\u037777777720\\u037777777670 \\u037777777720\\u037777777671 " +
+        "\\u037777777720\\u037777777672 \\u037777777720\\u037777777673 " +
+        "\\u037777777720\\u037777777674 \\u037777777720\\u037777777675 " +
+        "\\u037777777720\\u037777777676 \\u037777777720\\u037777777677 " +
+        "\\u037777777721\\u037777777600 \\u037777777721\\u037777777601 " +
+        "\\u037777777721\\u037777777602 \\u037777777721\\u037777777603 " +
+        "\\u037777777721\\u037777777604 \\u037777777721\\u037777777605 " +
+        "\\u037777777721\\u037777777606 \\u037777777721\\u037777777607 " +
+        "\\u037777777721\\u037777777610 \\u037777777721\\u037777777611 " +
+        "\\u037777777721\\u037777777612 \\u037777777721\\u037777777613 " +
+        "\\u037777777721\\u037777777614 \\u037777777721\\u037777777615 " +
+        "\\u037777777721\\u037777777616 \\u037777777721\\u037777777617").split(' ');
+        return function (data) {
+            if (data.indexOf("\\u03777777772") === -1) {
+                return data;
+            }
+            for (var i = 0, char_item; char_item = chars[i]; i++) {
+                while (data.indexOf(char_item) !== -1) {
+                    data = data.replace(char_item, cirilic[i]);
+                }
+            }
+            return data;
+        };
+    }(),
+    inCp1251: function(sValue) {
+        var text = "", Ucode, ExitValue, s;
+        for (var i = 0, sValue_len = sValue.length; i < sValue_len; i++) {
+            s = sValue.charAt(i);
+            Ucode = s.charCodeAt(0);
+            var Acode = Ucode;
+            if (Ucode > 1039 && Ucode < 1104) {
+                Acode -= 848;
+                ExitValue = "%" + Acode.toString(16);
+            }
+            else if (Ucode === 1025) {
+                Acode = 168;
+                ExitValue = "%" + Acode.toString(16);
+            }
+            else if (Ucode === 1105) {
+                Acode = 184;
+                ExitValue = "%" + Acode.toString(16);
+            }
+            else if (Ucode === 32) {
+                Acode = 32;
+                ExitValue = "%" + Acode.toString(16);
+            }
+            else if (Ucode === 10) {
+                Acode = 10;
+                ExitValue = "%0A";
+            }
+            else {
+                ExitValue = s;
+            }
+            text = text + ExitValue;
+        }
+        return text;
     },
     onCtxMenuCall: function (e) {
         /**
@@ -1149,44 +1237,48 @@ var engine = {
                 contexts: ["link"],
                 onclick: engine.onCtxMenuCall
             }, function () {
-                if (enableFolders && folderList.length > 0) {
+                if (enableFolders) {
                     Array.prototype.push.apply(contextMenu, folderList);
-                    if (engine.settings.treeViewContextMenu) {
-                        var treeList = engine.listToTreeList(folderList.slice(0));
-                        for (var i = 0, item; item = treeList.tree[i]; i++) {
-                            chrome.contextMenus.create({
-                                id: item.id,
-                                parentId: item.parentId,
-                                title: item.title,
-                                contexts: ["link"],
-                                onclick: engine.onCtxMenuCall
-                            });
-                        }
-                        contextMenu.splice(0);
-                        Array.prototype.push.apply(contextMenu, treeList.list);
-                    } else {
-                        for (var i = 0, item; item = folderList[i]; i++) {
-                            chrome.contextMenus.create({
-                                id: String(i),
-                                parentId: 'main',
-                                title: item[1],
-                                contexts: ["link"],
-                                onclick: engine.onCtxMenuCall
-                            });
+                    if (folderList.length > 0) {
+                        if (engine.settings.treeViewContextMenu) {
+                            var treeList = engine.listToTreeList(folderList.slice(0));
+                            for (var i = 0, item; item = treeList.tree[i]; i++) {
+                                chrome.contextMenus.create({
+                                    id: item.id,
+                                    parentId: item.parentId,
+                                    title: item.title,
+                                    contexts: ["link"],
+                                    onclick: engine.onCtxMenuCall
+                                });
+                            }
+                            contextMenu.splice(0);
+                            Array.prototype.push.apply(contextMenu, treeList.list);
+                        } else {
+                            for (var i = 0, item; item = folderList[i]; i++) {
+                                chrome.contextMenus.create({
+                                    id: String(i),
+                                    parentId: 'main',
+                                    title: item[1],
+                                    contexts: ["link"],
+                                    onclick: engine.onCtxMenuCall
+                                });
+                            }
                         }
                     }
-                    chrome.contextMenus.create({
-                        id: 'newFolder',
-                        parentId: 'main',
-                        title: engine.language.add,
-                        contexts: ["link"],
-                        onclick: engine.onCtxMenuCall
-                    });
                     if (engine.settings.showDefaultFolderContextMenuItem) {
                         chrome.contextMenus.create({
                             id: 'default',
                             parentId: 'main',
                             title: engine.language.defaultPath,
+                            contexts: ["link"],
+                            onclick: engine.onCtxMenuCall
+                        });
+                    }
+                    if (folderList.length > 0 || engine.settings.showDefaultFolderContextMenuItem) {
+                        chrome.contextMenus.create({
+                            id: 'newFolder',
+                            parentId: 'main',
+                            title: engine.language.add,
                             contexts: ["link"],
                             onclick: engine.onCtxMenuCall
                         });
@@ -1324,6 +1416,7 @@ var engine = {
             engine.loadSettings(function() {
                 engine.getLanguage(function () {
                     engine.createFolderCtxMenu();
+                    response();
                 });
             });
         }

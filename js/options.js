@@ -189,7 +189,9 @@ var options = function() {
             data[item] = value;
         }
         mono.storage.set(data, function() {
-            window.location.reload();
+            mono.sendMessage({action: 'reloadSettings'}, function() {
+                window.location.reload();
+            });
         });
     };
 
