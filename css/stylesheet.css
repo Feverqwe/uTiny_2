@@ -41,10 +41,15 @@ ul.menu li.select {
     margin-right: 2px;
 }
 ul.menu li.select {
-    width: 152px;
+    width: 140px;
     position: absolute;
     right: 0;
     top: 0;
+}
+ul.menu li.select > * {
+    width: 138px;
+    max-width: 138px;
+    min-width: 138px;
 }
 ul.menu a.btn{
     width: 28px;
@@ -489,6 +494,11 @@ table thead .sortUp .arrow {
     transform: rotate(180deg);
     background-position-y: -5px;
 }
+li.select > select,
+li.select > .simple-select-box {
+    float: right;
+}
+
 li.select div[data-image] .image,
 .simple-select-box-menu div[data-image] .image {
     background-repeat: no-repeat;

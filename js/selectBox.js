@@ -129,7 +129,8 @@ var selectBox = {
                                 class: 'image'
                             }) : undefined,
                             mono.create('span', {
-                                text: item.textContent
+                                text: item.textContent,
+                                title: item.textContent
                             })
                         ],
                         on: ['click', function() {

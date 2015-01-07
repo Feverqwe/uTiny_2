@@ -30,6 +30,7 @@
 }
 
 .simple-select-box-menu > div {
+    text-overflow: ellipsis;
     padding: 2px 4px;
     white-space: nowrap;
     overflow: hidden;
@@ -45,8 +46,6 @@
     color: #000;
     text-decoration: none;
 
-    float: right;
-
     white-space: nowrap;
     margin-top: 2px;
 }
@@ -54,6 +53,8 @@
     line-height: 24px;
     vertical-align: middle;
     padding: 0 4px;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .simple-select-box > .arrow {
