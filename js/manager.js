@@ -1427,9 +1427,6 @@ var manager = {
             manager.varCache.cid = data.torrentc;
         }
 
-        var dlSpeed = 0;
-        var upSpeed = 0;
-
         if (data.torrentm !== undefined) {
             // remove items from dom
             for (var i = 0, hash; hash = data.torrentm[i]; i++) {
@@ -1442,35 +1439,39 @@ var manager = {
             manager.trFullUpdatePrepare(data.torrents);
         }
 
-        var list = data.torrents || data.torrentp || [];
-        for (var i = 0, api; api = list[i]; i++) {
-            dlSpeed += api[9];
-            upSpeed += api[8];
+        var list = data.torrents || data.torrentp;
+        if (list !== undefined) {
+            var dlSpeed = 0;
+            var upSpeed = 0;
+            for (var i = 0, api; api = list[i]; i++) {
+                dlSpeed += api[9];
+                upSpeed += api[8];
 
-            if (manager.trSkipItem(api)) {
-                continue;
-            }
-
-            var hash = api[0];
-            var item = manager.varCache.trListItems[hash];
-            if (item === undefined) {
-                item = manager.varCache.trListItems[hash] = {};
-                item.api = api;
-                manager.trItemCreate(item);
-            } else {
-                var diffList = manager.trGetApiDiff(item.api, api);
-                if (diffList.length === 0) {
+                if (manager.trSkipItem(api)) {
                     continue;
                 }
-                item.api = api;
-                manager.trItemUpdate(diffList, item);
+
+                var hash = api[0];
+                var item = manager.varCache.trListItems[hash];
+                if (item === undefined) {
+                    item = manager.varCache.trListItems[hash] = {};
+                    item.api = api;
+                    manager.trItemCreate(item);
+                } else {
+                    var diffList = manager.trGetApiDiff(item.api, api);
+                    if (diffList.length === 0) {
+                        continue;
+                    }
+                    item.api = api;
+                    manager.trItemUpdate(diffList, item);
+                }
             }
+
+            manager.setSummSpeed('dl', dlSpeed);
+            manager.setSummSpeed('up', upSpeed);
+
+            manager.sort('tr');
         }
-
-        manager.setSummSpeed('dl', dlSpeed);
-        manager.setSummSpeed('up', upSpeed);
-
-        manager.sort('tr');
 
         if (data.files !== undefined) {
             manager.writeFlList(data);
@@ -1483,7 +1484,7 @@ var manager = {
             }
         }
 
-        if (manager.settings.showSpeedGraph && manager.varCache.hasGraph) {
+        if (list !== undefined && manager.settings.showSpeedGraph && manager.varCache.hasGraph) {
             graph.move(dlSpeed, upSpeed);
         }
     },
@@ -3392,7 +3393,9 @@ var manager = {
                     if (el.tagName !== 'A') return;
                     if (el.classList.contains('update')) {
                         e.preventDefault();
-                        mono.sendMessage({action: 'api', data: {action: 'getfiles', hash: manager.varCache.flListLayer.hash}});
+                        mono.sendMessage({action: 'api', data: {action: 'getfiles', hash: manager.varCache.flListLayer.hash}}, function(data) {
+                            manager.writeFlList(data);
+                        });
                         return;
                     }
                     if (el.classList.contains('close')) {
