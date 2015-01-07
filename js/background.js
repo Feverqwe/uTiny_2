@@ -116,7 +116,7 @@ var engine = {
         treeViewContextMenu: 0,
         showDefaultFolderContextMenuItem: 0,
 
-        fixCirilic: 0,
+        fixCirilicTitle: 0,
         fixCirilicTorrentPath: 0
     },
     torrentListColumnList: {},
@@ -376,8 +376,8 @@ var engine = {
             success: function(data, xhr) {
                 var data = xhr.responseText;
                 try {
-                    if (engine.settings.fixCirilic) {
-                        data = engine.fixCirilic(data);
+                    if (engine.settings.fixCirilicTitle) {
+                        data = engine.fixCirilicTitle(data);
                     }
                     data = JSON.parse(data);
                 } catch (err) {
@@ -785,7 +785,7 @@ var engine = {
             });
         });
     },
-    fixCirilic: function () {
+    fixCirilicTitle: function () {
         var cirilic = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
         var chars = ("\\u037777777720\\u037777777620 \\u037777777720\\u037777777621 " +
         "\\u037777777720\\u037777777622 \\u037777777720\\u037777777623 " +
