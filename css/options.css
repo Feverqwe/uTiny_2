@@ -130,7 +130,8 @@ div.page.active {
     display: block;
 }
 
-label {
+label,
+div.optionItem {
     display: block;
     margin: 5px;
 }

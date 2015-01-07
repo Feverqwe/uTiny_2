@@ -93,33 +93,31 @@ var require = (typeof require !== 'undefined') ? require : undefined;
 var engine = {
     settings: {},
     defaultSettings: {
-        useSSL: {value: false, lang: 'useSSL'},
-        ip: {value: "127.0.0.1", lang: 'PRS_COL_IP'},
-        port: {value: 8080, lang: 'PRS_COL_PORT'},
-        path: {value: "gui/", lang: 'apiPath'},
-        displayActiveTorrentCountIcon: {value: true, lang: 'displayActiveTorrentCountIcon'},
-        showNotificationOnDownloadCompleate: {value: true, lang: 'showNotificationOnDownloadCompleate'},
-        notificationTimeout: {value: 5000, lang: 'notificationTimeout'},
-        backgroundUpdateInterval: {value: 120000, lang: 'backgroundUpdateInterval'},
-        popupUpdateInterval: {value: 1000, lang: 'popupUpdateInterval'},
+        useSSL: 0,
+        ip: "127.0.0.1",
+        port: 8080,
+        path: "gui/",
+        displayActiveTorrentCountIcon: 1,
+        showNotificationOnDownloadCompleate: 1,
+        notificationTimeout: 5000,
+        backgroundUpdateInterval: 120000,
+        popupUpdateInterval: 1000,
 
-        login: {value: undefined, lang: 'DLG_SETTINGS_9_WEBUI_03'},
-        password: {value: undefined, lang: 'DLG_SETTINGS_9_WEBUI_05'},
+        login: null,
+        password: null,
 
-        hideSeedStatusItem: {value: false, lang: 'hideSeedStatusItem'},
-        hideFnishStatusItem: {value: false, lang: 'hideFnishStatusItem'},
-        showSpeedGraph: {value: true, lang: 'showSpeedGraph'},
-        popupHeight: {value: 300, lang: 'popupHeight'},
-        selectDownloadCategoryOnAddItemFromContextMenu: {value: false, lang: 'selectDownloadCategoryOnAddItemFromContextMenu'},
+        hideSeedStatusItem: 0,
+        hideFnishStatusItem: 0,
+        showSpeedGraph: 1,
+        popupHeight: 350,
+        selectDownloadCategoryOnAddItemFromContextMenu: 0,
 
-        enableFolderContextMenu: {value: true, lang: 'enableFolderContextMenu'},
-        treeViewContextMenu: {value: false, lang: 'treeViewContextMenu'},
-        showDefaultFolderContextMenuItem: {value: false, lang: 'showDefaultFolderContextMenuItem'},
+        ctxMenuType: 1,
+        treeViewContextMenu: 0,
+        showDefaultFolderContextMenuItem: 0,
 
-        enableLabelContextMenu: {value: false, lang: 'enableLabelContextMenu'},
-
-        fixCirilic: {value: false, lang: 'fixCirilic'},
-        fixCirilicTorrentPath: {value: false, lang: 'fixCirilicTorrentPath'}
+        fixCirilic: 0,
+        fixCirilicTorrentPath: 0
     },
     torrentListColumnList: {},
     defaultTorrentListColumnList: [
@@ -293,6 +291,10 @@ var engine = {
         }
     },
     getToken: function(onReady, onError, force) {
+        if (engine.settings.login === null || engine.settings.password === null) {
+            return engine.publicStatus('Login or password is not found!');
+        }
+
         engine.publicStatus('Try get token!' + (force ? ' Retry: ' + force : ''));
 
         engine.ajax({
@@ -477,7 +479,7 @@ var engine = {
             var settings = {};
 
             for (var item in defaultSettings) {
-                settings[item] = storage.hasOwnProperty(item) ? storage[item] : defaultSettings[item].value;
+                settings[item] = storage.hasOwnProperty(item) ? storage[item] : defaultSettings[item];
             }
 
             settings.lang = storage.language;
@@ -783,7 +785,7 @@ var engine = {
         var id = e.menuItemId;
         var updateMenu = false;
         var contextMenu = engine.createFolderCtxMenu.contextMenu;
-        if (id === 'new') {
+        if (id === 'newFolder') {
             var path = window.prompt(engine.language.enterNewDirPath, contextMenu[0][1]);
             if (!path) {
                 return;
@@ -794,30 +796,42 @@ var engine = {
             engine.varCache.folderList.push([download_dir, path]);
             updateMenu = true;
         }
+        if (id === 'newLabel') {
+            var newLabel = window.prompt(engine.language.enterNewLabel);
+            if (!label) {
+                return;
+            }
+            id = contextMenu.length;
+            contextMenu.push(newLabel);
+            engine.varCache.labelList.push(newLabel);
+            updateMenu = true;
+        }
         if (id === 'main' || id === 'default') {
-            engine.sendFile(link);
-            return;
+            return engine.sendFile(link);
         }
         var dir, label;
         var item = contextMenu[id];
-        if (engine.settings.enableLabelContextMenu) {
-            label = item[1];
+        if (typeof item === 'string') {
+            label = item;
         } else {
             dir = {download_dir: item[0], path: item[1]};
         }
         if (updateMenu) {
-            mono.storage.set({ folderList: JSON.stringify(engine.varCache.folderList) }, function() {
+            mono.storage.set({
+                folderList: engine.varCache.folderList,
+                labelList: engine.varCache.labelList
+            }, function() {
                 engine.createFolderCtxMenu();
             });
         }
         engine.sendFile(link, dir, label);
     },
-    listToTreeList: function() {
+    listToTreeList: function(contextMenu) {
         var tmp_folders_array = [];
         var tree = {};
         var sepType;
         var treeLen = 0;
-        for (var i = 0, item; item = engine.createFolderCtxMenu.contextMenu[i]; i++) {
+        for (var i = 0, item; item = contextMenu[i]; i++) {
             var path = item[1];
             if (sepType === undefined) {
                 sepType = path.indexOf('/') === -1 ? path.indexOf('\\') === -1 ? undefined : '\\' : '/';
@@ -832,7 +846,7 @@ var engine = {
         if (sepType === undefined) {
             sepType = '';
         }
-        for (var i = 0, item; item = engine.createFolderCtxMenu.contextMenu[i]; i++) {
+        for (var i = 0, item; item = contextMenu[i]; i++) {
             var _disk = item[0];
             var path = item[1];
             if (!path) {
@@ -932,7 +946,7 @@ var engine = {
                     smartTree.push({
                         id: id.substr(1),
                         parentId: id,
-                        title: lang_arr.cmCf
+                        title: engine.language.currentDirectory
                     });
                 }
             }
@@ -947,7 +961,7 @@ var engine = {
 
         return {tree: smartTree, list: tmp_folders_array};
     },
-    createFolderCtxMenu: mono.isModule ? (function() {
+    createFolderCtxMenu: /*mono.isModule ? (function() {
         var contentScript = (function() {
             var onClick = function() {
                 self.on("click", function(node) {
@@ -1117,13 +1131,17 @@ var engine = {
                 items: items
             });
         }
-    })() : function() {
-        var contextMenu = engine.createFolderCtxMenu.contextMenu = engine.varCache.folderList.slice(0);
-
+    })() : */function() {
         chrome.contextMenus.removeAll(function () {
-            if (!engine.settings.enableFolderContextMenu) {
+            var enableFolders, enableLabels;
+            if (!(enableFolders = engine.settings.ctxMenuType === 1) && !(enableLabels = engine.settings.ctxMenuType === 2)) {
                 return;
             }
+
+            var contextMenu = engine.createFolderCtxMenu.contextMenu = [];
+
+            var folderList = engine.varCache.folderList;
+            var labelList = engine.varCache.labelList;
 
             chrome.contextMenus.create({
                 id: 'main',
@@ -1131,48 +1149,68 @@ var engine = {
                 contexts: ["link"],
                 onclick: engine.onCtxMenuCall
             }, function () {
-                if (contextMenu.length === 0) {
-                    return;
-                }
-                if (engine.settings.treeViewContextMenu) {
-                    var treeList = engine.listToTreeList();
-                    for (var i = 0, item; item = treeList.tree[i]; i++) {
+                if (enableFolders && folderList.length > 0) {
+                    Array.prototype.push.apply(contextMenu, folderList);
+                    if (engine.settings.treeViewContextMenu) {
+                        var treeList = engine.listToTreeList(folderList.slice(0));
+                        for (var i = 0, item; item = treeList.tree[i]; i++) {
+                            chrome.contextMenus.create({
+                                id: item.id,
+                                parentId: item.parentId,
+                                title: item.title,
+                                contexts: ["link"],
+                                onclick: engine.onCtxMenuCall
+                            });
+                        }
+                        contextMenu.splice(0);
+                        Array.prototype.push.apply(contextMenu, treeList.list);
+                    } else {
+                        for (var i = 0, item; item = folderList[i]; i++) {
+                            chrome.contextMenus.create({
+                                id: String(i),
+                                parentId: 'main',
+                                title: item[1],
+                                contexts: ["link"],
+                                onclick: engine.onCtxMenuCall
+                            });
+                        }
+                    }
+                    chrome.contextMenus.create({
+                        id: 'newFolder',
+                        parentId: 'main',
+                        title: engine.language.add,
+                        contexts: ["link"],
+                        onclick: engine.onCtxMenuCall
+                    });
+                    if (engine.settings.showDefaultFolderContextMenuItem) {
                         chrome.contextMenus.create({
-                            id: item.id,
-                            parentId: item.parentId,
-                            title: item.title,
+                            id: 'default',
+                            parentId: 'main',
+                            title: engine.language.defaultPath,
                             contexts: ["link"],
                             onclick: engine.onCtxMenuCall
                         });
                     }
-                    engine.createFolderCtxMenu.contextMenu = treeList.list;
-                } else {
-                    for (var i = 0, item; item = contextMenu[i]; i++) {
+                } else
+                if (enableLabels && labelList.length > 0) {
+                    Array.prototype.push.apply(contextMenu, labelList);
+                    for (var i = 0, item; item = labelList[i]; i++) {
                         chrome.contextMenus.create({
                             id: String(i),
                             parentId: 'main',
-                            title: item[1],
+                            title: item,
                             contexts: ["link"],
                             onclick: engine.onCtxMenuCall
                         });
                     }
-                }
-                if (engine.settings.showDefaultFolderContextMenuItem) {
                     chrome.contextMenus.create({
-                        id: 'default',
+                        id: 'newLabel',
                         parentId: 'main',
-                        title: engine.language.defaultPath,
+                        title: engine.language.add,
                         contexts: ["link"],
                         onclick: engine.onCtxMenuCall
                     });
                 }
-                chrome.contextMenus.create({
-                    id: 'new',
-                    parentId: 'main',
-                    title: engine.language.add,
-                    contexts: ["link"],
-                    onclick: engine.onCtxMenuCall
-                });
             });
         });
     },

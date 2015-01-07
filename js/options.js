@@ -106,7 +106,8 @@ var options = function() {
     var varCache = {};
 
     var set_place_holder = function() {
-        $.each(options.defaultSettings, function(key, defaultValue) {
+        for (var key in options.defaultSettings) {
+            var defaultValue = options.defaultSettings[key];
             var el = document.querySelector('input[data-option="' + key + '"]');
             if (el === null) {
                 return console.log('El not found!', key);
@@ -129,7 +130,7 @@ var options = function() {
                 }
                 el.checked = true;
             }
-        });
+        }
     };
 
     var onHashChange = function() {
@@ -250,7 +251,7 @@ var options = function() {
                     });
                 } else if (el.tagName === 'DIV') {
                     el.title = locale;
-                } else if (['A', 'LEGEND', 'SPAN', 'LI', 'TH', 'P', 'OPTION'].indexOf(el.tagName) !== -1) {
+                } else if (['A', 'LEGEND', 'SPAN', 'LI', 'TH', 'P', 'OPTION', 'BUTTON'].indexOf(el.tagName) !== -1) {
                     el.textContent = locale;
                 } else if (el.tagName === 'INPUT') {
                     el.value = locale;

@@ -293,5 +293,8 @@
     },
     "torrentFileExists": {
         "message": "Возможно торрент файл уже существует!"
+    },
+    "currentDirectory": {
+        "message": "Текущая директория"
     }
 }

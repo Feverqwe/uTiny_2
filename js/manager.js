@@ -3073,7 +3073,7 @@ var manager = {
                     });
                 } else if (el.tagName === 'DIV') {
                     el.title = locale;
-                } else if (['A', 'LEGEND', 'SPAN', 'LI', 'TH', 'P', 'OPTION'].indexOf(el.tagName) !== -1) {
+                } else if (['A', 'LEGEND', 'SPAN', 'LI', 'TH', 'P', 'OPTION', 'BUTTON'].indexOf(el.tagName) !== -1) {
                     el.textContent = locale;
                 } else if (el.tagName === 'INPUT') {
                     el.value = locale;
