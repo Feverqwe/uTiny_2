@@ -212,7 +212,7 @@ var options = function() {
             try {
                 var data = JSON.parse(domCache.restoreInp.val());
             } catch (error) {
-                return alert(options.language.error + "\n" + error);
+                return alert(options.language.OV_FL_ERROR + "\n" + error);
             }
             restoreSettings(data);
         });
@@ -260,7 +260,7 @@ var options = function() {
                     });
                 } else if (el.tagName === 'DIV') {
                     el.title = locale;
-                } else if (['A', 'LEGEND', 'SPAN', 'LI', 'TH', 'P', 'OPTION', 'BUTTON'].indexOf(el.tagName) !== -1) {
+                } else if (['A', 'LEGEND', 'SPAN', 'LI', 'TH', 'P', 'OPTION', 'BUTTON', 'H2', 'H3'].indexOf(el.tagName) !== -1) {
                     el.textContent = locale;
                 } else if (el.tagName === 'INPUT') {
                     el.value = locale;

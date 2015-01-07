@@ -286,16 +286,158 @@
     "enterNewDirPath": {
         "message": "Введите путь к новой дирректории"
     },
+    "enterNewLabel": {
+        "message": "Введите название метки"
+    },
     "defaultPath": {
         "message": "Путь по умолчанию"
     },
     "add": {
-        "message": "Добавить..."
+        "message": "Добавить"
     },
     "torrentFileExists": {
         "message": "Возможно торрент файл уже существует!"
     },
     "currentDirectory": {
         "message": "Текущая директория"
+    },
+    "openInTab": {
+        "message": "Открыть во вкладке"
+    },
+    "optClient": {
+        "message": "uTorrent"
+    },
+    "optMain": {
+        "message": "Общие"
+    },
+    "optNotify": {
+        "message": "Уведомления"
+    },
+    "optCtx": {
+        "message": "Контекстное меню"
+    },
+    "word_backup": {
+        "message": "Архивирование"
+    },
+    "word_restore": {
+        "message": "Восстановление"
+    },
+    "word_restore": {
+        "message": "Восстановление"
+    },
+    "DLG_SETTINGS_4_CONN_16": {
+        "message": "Логин"
+    },
+    "DLG_SETTINGS_4_CONN_18": {
+        "message": "Пароль"
+    },
+    "PRS_COL_IP": {
+        "message": "IP-адрес"
+    },
+    "PRS_COL_PORT": {
+        "message": "Порт"
+    },
+    "ST_CAPT_ADVANCED": {
+        "message": "Дополнительно"
+    },
+    "useSSL": {
+        "message": "Использовать SSL"
+    },
+    "path": {
+        "message": "Путь"
+    },
+    "hideSeedStatusItem": {
+        "message": "Скрыть раздачи со статусом \"Раздаются\""
+    },
+    "hideFnishStatusItem": {
+        "message": "Скрыть раздачи со статусом \"Загружен\""
+    },
+    "showSpeedGraph": {
+        "message": "Отображать график скорости"
+    },
+    "popupHeight": {
+        "message": "Высота popup окна"
+    },
+    "px": {
+        "message": "пикселей"
+    },
+    "popupUpdateInterval": {
+        "message": "Интервал обновления списка раздач"
+    },
+    "ms": {
+        "message": "миллисекунда"
+    },
+    "fixCirilicIf": {
+        "message": "Исправить кириллицу если..."
+    },
+    "fixCirilicTitle": {
+        "message": "Неправильно отображаются названия раздач"
+    },
+    "fixCirilicTorrentPath": {
+        "message": "Неправильно присваивается директория к добавленной раздаче"
+    },
+    "showNotificationOnDownloadCompleate": {
+        "message": "Уведомлять при завершении загрузки раздачи"
+    },
+    "displayActiveTorrentCountIcon": {
+        "message": "Отображать количество активных раздач на иконке расширения"
+    },
+    "backgroundUpdateInterval": {
+        "message": "Интервал фонового обновления списка раздач"
+    },
+    "notificationTimeout": {
+        "message": "Время отображения уведомлений"
+    },
+    "folderContextMenu": {
+        "message": "Отображать список директорий"
+    },
+    "labelContextMenu": {
+        "message": "Отображать список меток"
+    },
+    "selectDownloadCategoryOnAddItemFromContextMenu": {
+        "message": "Переходить в категорию \"Загрузки\" при успешном добавлении раздачи"
+    },
+    "available": {
+        "message": "Доступно",
+        "originalKey": "STATUS_REMOTE_01"
+    },
+    "treeViewContextMenu": {
+        "message": "Древовидное контекстноме меню"
+    },
+    "showDefaultFolderContextMenuItem": {
+        "message": "Отображать директорию по умолчанию"
+    },
+    "dirList": {
+        "message": "Списко директорий"
+    },
+    "update": {
+        "message": "Обновить"
+    },
+    "subPath": {
+        "message": "Подкаталог"
+    },
+    "removeSelected": {
+        "message": "Удалить выбранное"
+    },
+    "up": {
+        "message": "Вверх"
+    },
+    "down": {
+        "message": "Ввниз"
+    },
+    "labelList": {
+        "message": "Список меток"
+    },
+    "optSaveInCloud": {
+        "message": "Сохранить в облаке"
+    },
+    "word_to_restore": {
+        "message": "Восстановить"
+    },
+    "optGetFromCloud": {
+        "message": "Получить настройки из облака"
+    },
+    "optClearCloudStorage": {
+        "message": "Очистить настройки в облаке"
     }
 }

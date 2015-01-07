@@ -24,11 +24,11 @@
                 <div class="right">
                     <div class="page client">
                         <h2 data-lang="optClient">uTorrent</h2>
-                        <label><span data-lang="login">Логин</span><input type="text" data-option="login"/></label>
-                        <label><span data-lang="password">Пароль</span><input type="password" data-option="password"/></label>
-                        <label><span data-lang="clientIp">IP-адрес</span><input type="text" data-option="ip"/></label>
-                        <label><span data-lang="clientPort">Порт</span><input type="number" data-option="port"/></label>
-                        <h3 data-lang="additional">Дополнительно</h3>
+                        <label><span data-lang="DLG_SETTINGS_4_CONN_16">Логин</span><input type="text" data-option="login"/></label>
+                        <label><span data-lang="DLG_SETTINGS_4_CONN_18">Пароль</span><input type="password" data-option="password"/></label>
+                        <label><span data-lang="PRS_COL_IP">IP-адрес</span><input type="text" data-option="ip"/></label>
+                        <label><span data-lang="PRS_COL_PORT">Порт</span><input type="number" data-option="port"/></label>
+                        <h3 data-lang="ST_CAPT_ADVANCED">Дополнительно</h3>
                         <label><span data-lang="useSSL">Использовать SSL</span><input type="checkbox" data-option="useSSL"/></label>
                         <label><span data-lang="path">Путь</span><input type="text" data-option="path"/></label>
                         <div id="checkContainer">
@@ -59,7 +59,7 @@
                         <label><span data-lang="folderContextMenu">Отображать список директорий</span><input type="radio" name="ctxMenuType" value="1" data-option="ctxMenuType"/></label>
                         <label><span data-lang="labelContextMenu">Отображать список меток</span><input type="radio" name="ctxMenuType" value="2" data-option="ctxMenuType"/></label>
                         <label><span data-lang="selectDownloadCategoryOnAddItemFromContextMenu">Переходить в категорию "Загрузки" при успешном добавлении раздачи</span><input type="checkbox" data-option="selectDownloadCategoryOnAddItemFromContextMenu"/></label>
-                        <h3 data-lang="folderList">Список директорий</h3>
+                        <h3 data-lang="dirList">Список директорий</h3>
                         <div>
                             <label><span data-lang="treeViewContextMenu">Древовидное контекстноме меню</span><input type="checkbox" data-option="treeViewContextMenu"/></label>
                             <label><span data-lang="showDefaultFolderContextMenuItem">Отображать директорию по умолчанию</span><input type="checkbox" data-option="showDefaultFolderContextMenuItem"/></label>
@@ -73,7 +73,7 @@
                             </div>
                         </div>
                         <h3 data-lang="labelList">Список меток</h3>
-                        <div class="optionItem"><span data-lang="label">Метка</span> <input type="text" id="label"/> <button id="addLabel" data-lang="add">Добавить</button></div>
+                        <div class="optionItem"><span data-lang="OV_COL_LABEL">Метка</span> <input type="text" id="label"/> <button id="addLabel" data-lang="add">Добавить</button></div>
                         <div class="optionItem"><select id="labelList" multiple></select></div>
                         <div class="optionItem">
                             <button id="labelRemoveSelected" data-lang="removeSelected">Удалить выбранное</button>
@@ -84,7 +84,7 @@
                     <div class="page backup">
                         <h2 data-lang="word_backup">Архивирование</h2>
                         <div class="btnList">
-                            <input type="button" id="backupUpdate" value="Обновить" data-lang="word_update"/>
+                            <input type="button" id="backupUpdate" value="Обновить" data-lang="update"/>
                             <input type="button" id="saveInCloud" value="Сохранить в облаке" data-lang="optSaveInCloud"/>
                         </div>
                         <textarea id="backupInp"></textarea>

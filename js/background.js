@@ -1279,7 +1279,7 @@ var engine = {
                         chrome.contextMenus.create({
                             id: 'newFolder',
                             parentId: 'main',
-                            title: engine.language.add,
+                            title: engine.language.add+'...',
                             contexts: ["link"],
                             onclick: engine.onCtxMenuCall
                         });
@@ -1299,7 +1299,7 @@ var engine = {
                     chrome.contextMenus.create({
                         id: 'newLabel',
                         parentId: 'main',
-                        title: engine.language.add,
+                        title: engine.language.add+'...',
                         contexts: ["link"],
                         onclick: engine.onCtxMenuCall
                     });
