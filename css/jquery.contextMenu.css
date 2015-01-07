@@ -103,12 +103,25 @@ li.context-menu-item ul.context-menu-list {
 }
 
 .context-menu-submenu:after {
-    content: ">";
-    color: #666;
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-image: url(../images/arrow_up.svg);
+    background-size: 22px;
+    transform: rotate(90deg);
     position: absolute;
     top: 0;
-    right: 3px;
     z-index: 1;
+    background-position-x: -3px;
+    right: -5px;
+    background-position-y: 3px;
+}
+
+.context-menu-submenu.hover:after {
+    color: #fff;
+    -webkit-filter: invert(100%);
+    filter: invert(100%);
 }
 
 /* icons

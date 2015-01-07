@@ -465,28 +465,29 @@ div.fl-layer a.folder.c1 {
 div.fl-layer a.folder.c0 {
     background-color: #acd1ff;
 }
-table thead .sortDown {
-    background-image: url('../images/down.png');
-    background-position: right center;
-    background-repeat: no-repeat;
-    background-origin: content-box;
-    padding-rigth: 3px;
-}
-table thead .sortUp {
-    background-image: url('../images/up.png');
-    background-position: right center;
-    background-repeat: no-repeat;
-    background-origin: content-box;
-    padding-rigth: 3px;
-}
-li.context-menu-item label.context {
-    background-image: url('../images/right.png');
-    background-repeat: no-repeat;
-    width: 11px;
-    height: 11px;
+table thead .arrow {
+    display: inline-block;
     position: absolute;
-    right: 3px;
-    margin-top: 1px;
+    right: 0;
+    top: 0;
+    width: 16px;
+    height: 16px;
+    background-position: top center;
+    background-repeat: no-repeat;
+    background-origin: content-box;
+    background-size: 27px;
+
+    transition: transform 0.2s;
+    opacity: 0.5;
+}
+table thead .sortDown .arrow {
+    background-image: url('../images/arrow_up.svg');
+    background-position-y: -5px;
+}
+table thead .sortUp .arrow {
+    background-image: url('../images/arrow_up.svg');
+    transform: rotate(180deg);
+    background-position-y: -5px;
 }
 li.select div[data-image] .image,
 .simple-select-box-menu div[data-image] .image {
@@ -623,21 +624,20 @@ div.btn.setup {
     margin-right: 2px;
 }
 .resize-el {
-    float: right;
     display: block;
     height: 100%;
     width: 6px;
     margin-right: 2px;
     cursor: col-resize;
-    right: 0;
+    left: 0;
     top: 0;
     position: absolute !important;
     opacity: 0;
-    background-color: #000;
-    transition: opacity 0.2s;
+    z-index: 2;
 }
-.resize-el:hover {
-    opacity: 0.5;
+.resize-el.last {
+    left: auto;
+    right: 0;
 }
 .trColumSelect {
     overflow-x: auto;

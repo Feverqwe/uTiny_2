@@ -255,6 +255,7 @@ var manager = {
         var head = mono.create('tr', {
             append: (function() {
                 var thList = [];
+                var resizeEl;
                 for (var i = 0, value; value = manager.varCache.trColumnArray[i]; i++) {
                     var key = value.column;
                     if (value.display !== 1) {
@@ -278,16 +279,20 @@ var manager = {
                             mono.create('div', {
                                 text: manager.language[value.lang+'_SHORT'] || manager.language[value.lang]
                             }),
-                            mono.create('div', {
-                                class: 'resize-el',
-                                draggable: false,
-                                on: [
-                                    ['click', function(e){e.stopPropagation();}],
-                                    ['mousedown', manager.tableResize]
-                                ]
+                            resizeEl,
+                            value.order === 0 ? null : mono.create('i', {
+                                class: 'arrow'
                             })
                         ]
                     }));
+                    resizeEl = mono.create('div', {
+                        class: 'resize-el',
+                        draggable: false,
+                        on: [
+                            ['click', function(e){e.stopPropagation();}],
+                            ['mousedown', manager.tableResize]
+                        ]
+                    });
                     styleBody += '.torrent-list-layer th.' + key + ',' +
                     ' .torrent-list-layer td.' + key + ' {' +
                         'max-width:' + value.width + 'px;' +
@@ -295,6 +300,10 @@ var manager = {
                     '}';
                     //2px padding; 1-border size right; 2px ??
                     width += value.width + 2 + 1 + 2;
+                }
+                if (resizeEl) {
+                    resizeEl.classList.add('last');
+                    thList.slice(-1)[0].appendChild(resizeEl);
                 }
                 return thList;
             })()
@@ -334,6 +343,7 @@ var manager = {
         var head = mono.create('tr', {
             append: (function() {
                 var thList = [];
+                var resizeEl;
                 for (var i = 0, value; value = manager.varCache.flColumnArray[i]; i++) {
                     var key = value.column;
                     if (value.display !== 1) {
@@ -361,15 +371,19 @@ var manager = {
                             }) : mono.create('div', {
                                 text: manager.language[value.lang+'_SHORT'] || manager.language[value.lang]
                             }),
-                            mono.create('div', {
-                                class: 'resize-el',
-                                on: [
-                                    ['click', function(e){e.stopPropagation();}],
-                                    ['mousedown', manager.tableResize]
-                                ]
+                            resizeEl,
+                            value.order === 0 ? null : mono.create('i', {
+                                class: 'arrow'
                             })
                         ]
                     }));
+                    resizeEl = mono.create('div', {
+                        class: 'resize-el',
+                        on: [
+                            ['click', function(e){e.stopPropagation();}],
+                            ['mousedown', manager.tableResize]
+                        ]
+                    });
                     styleBody += '.fl-layer th.' + key + ',' +
                     ' .fl-layer td.' + key + ' {' +
                         'max-width:' + value.width + 'px;' +
@@ -377,6 +391,10 @@ var manager = {
                     '}';
                     //2px padding; 1-border size right; 2px ??
                     width += value.width + 2 + 1 + 2;
+                }
+                if (resizeEl) {
+                    resizeEl.classList.add('last');
+                    thList.slice(-1)[0].appendChild(resizeEl);
                 }
                 return thList;
             })()
@@ -1964,19 +1982,25 @@ var manager = {
     },
     tableResize: function(e) {
         e.stopPropagation();
-        var th = this.parentNode;
-        th.draggable = false;
-
         if (e.button !== 0) {
             return;
         }
+
         var _this = manager.tableResize;
         _this.enable = true;
 
         var column = this.parentNode;
+        if (!this.classList.contains('last')) {
+            column = column.previousElementSibling;
+        }
+        if (column === null) {
+            return;
+        }
         var type = column.dataset.type;
         var columnName = column.dataset.name;
 
+        var th = this.parentNode;
+        th.draggable = false;
 
         var currentSize = column.clientWidth;
 
@@ -2493,10 +2517,15 @@ var manager = {
 
                         if (state !== item.display) {
                             item.display = state;
+                            var el = item.$node[0];
                             if (state === 1) {
-                                item.$node.removeClass('hidden').show();
+                                el.classList.remove('hidden');
+                                el.classList.remove('not-selectable');
+                                el.style.display = 'block';
                             } else {
-                                item.$node.addClass('hidden').hide();
+                                el.classList.add('hidden');
+                                el.classList.add('not-selectable');
+                                el.style.display = 'none';
                             }
                         }
                     }
