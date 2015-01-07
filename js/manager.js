@@ -2127,17 +2127,23 @@ var manager = {
                 trigger.callbacks.addLabel = function () {
                     var hash = this[0].id;
                     showNotification([
-                        [{label: {text: manager.language.OV_NEWLABEL_CAPTION}}],
-                        [{input: {type: 'text', name: 'label'}}],
+                        [{label: {text: manager.language.OV_NEWLABEL_CAPTION}},
+                        {input: {type: 'text', name: 'label', focus: true, on: [
+                            ['keydown', function(e) {
+                                if (e.keyCode === 13) {
+                                    this.nodeCache.yesBtn.trigger('click');
+                                }
+                            }]
+                        ]}}],
                         [
-                            {button: {text: manager.language.DLG_BTN_APPLY, name: 'yesBtn', on: ['click', function() {
+                            {input: {type: "button", value: manager.language.DLG_BTN_APPLY, name: 'yesBtn', on: ['click', function() {
                                 var formData = this.getFormData();
                                 this.close();
                                 var label = formData.label;
                                 if (!label) return;
                                 manager.api({list: 1, action: 'setprops', s: 'label', hash: hash, v: label});
                             }]}},
-                            {button: {text: manager.language.DLG_BTN_CANCEL, name: 'noBtn', on: ['click', function() {
+                            {input: {type: "button", value: manager.language.DLG_BTN_CANCEL, name: 'noBtn', on: ['click', function() {
                                 this.close();
                             }]}}
                         ]
@@ -2593,16 +2599,16 @@ var manager = {
                     callback: function () {
                         var hash = this[0].id;
                         showNotification([
-                            [{label: {text: manager.language.OV_CONFIRM_DELETE_ONE}}],
-                            [{span: {text: manager.varCache.trListItems[hash].api[2]}}],
+                            [{label: {text: manager.language.OV_CONFIRM_DELETE_ONE}},
+                                {span: {text: manager.varCache.trListItems[hash].api[2], class: 'fileName'}}],
                             [
-                                {button: {text: manager.language.DLG_BTN_YES, on: [
+                                {input: {type: "button", value: manager.language.DLG_BTN_YES, on: [
                                     ['click', function() {
                                         this.close();
                                         manager.api({list: 1, action: 'remove', hash: hash});
                                     }]
                                 ]}},
-                                {button: {text: manager.language.DLG_BTN_NO, on: [
+                                {input: {type: "button", value: manager.language.DLG_BTN_NO, focus: true, on: [
                                     ['click', function() {
                                         this.close();
                                     }]
@@ -2934,7 +2940,7 @@ var manager = {
             labelTemplate,
             folderTemplate,
             [
-                {button: {text: manager.language.DLG_BTN_OK, on: [
+                {input: {type: "button", value: manager.language.DLG_BTN_OK, focus: true, on: [
                     ['click', function() {
                         var dataForm = this.getFormData();
                         this.close();
@@ -2942,7 +2948,7 @@ var manager = {
                         onClickYes(dataForm);
                     }]
                 ]}},
-                {button: {text: manager.language.DLG_BTN_CANCEL, on: [
+                {input: {type: "button", value: manager.language.DLG_BTN_CANCEL, on: [
                     ['click', function() {
                         this.close();
                     }]
@@ -3270,7 +3276,7 @@ var manager = {
                     if (el.classList.contains('add_file')) {
                         e.preventDefault();
                         if (manager.varCache.selectFileInput !== undefined) {
-                            manager.varCache.selectFileInput.parentNode.removeChild(manager.varCache.selectFileInput);
+                            document.body.removeChild(manager.varCache.selectFileInput);
                             delete manager.varCache.selectFileInput;
                         }
                         document.body.appendChild(manager.varCache.selectFileInput = mono.create('input', {
@@ -3282,6 +3288,8 @@ var manager = {
                             },
                             on: ['change', function() {
                                 manager.onGotFiles(this.files);
+                                document.body.removeChild(manager.varCache.selectFileInput);
+                                delete manager.varCache.selectFileInput;
                             }]
                         }));
                         manager.varCache.selectFileInput.dispatchEvent(new CustomEvent('click'));
@@ -3300,12 +3308,18 @@ var manager = {
                         showNotification([
                             [
                                 {label: {text: manager.language.Paste_a_torrent_URL}},
-                                {input: {type: 'text', name: 'link'}}
+                                {input: {type: 'text', name: 'link', focus: true, on: [
+                                    ['keydown', function(e) {
+                                        if (e.keyCode === 13) {
+                                            this.nodeCache.okBtn.trigger('click');
+                                        }
+                                    }]
+                                ]}}
                             ],
                             labelTemplate,
                             folderTemplate,
                             [
-                                {button: {text: manager.language.DLG_BTN_OK, on: [
+                                {input: {type: "button", value: manager.language.DLG_BTN_OK, name: 'okBtn', on: [
                                     ['click', function() {
                                         var dataForm = this.getFormData();
                                         this.close();
@@ -3322,7 +3336,7 @@ var manager = {
                                         });
                                     }]
                                 ]}},
-                                {button: {text: manager.language.DLG_BTN_CANCEL, on: [
+                                {input: {type: "button", value: manager.language.DLG_BTN_CANCEL, on: [
                                     ['click', function() {
                                         this.close();
                                     }]

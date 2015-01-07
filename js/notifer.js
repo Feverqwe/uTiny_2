@@ -2,6 +2,7 @@ var showNotification = function(template, onClose) {
     var prefix = 'nf';
     var nodeCache = {};
     var nodeCounter = 0;
+    var focusEl = null;
     var clearNodeCache = function() {
         var rmList = [];
         for (var key in nodeCache) {
@@ -63,8 +64,17 @@ var showNotification = function(template, onClose) {
                     var append = attrList.append;
                     delete attrList.append;
 
+                    var hasFocus = false;
+                    if (attrList.focus) {
+                        hasFocus = true;
+                        delete attrList.focus;
+                    }
+
                     nodeCounter++;
                     var $el = nodeCache[attrList.name || 'node'+nodeCounter] = $('<' + tagName + '>', attrList);
+                    if (hasFocus) {
+                        focusEl = $el;
+                    }
                     if (on) {
                         if (typeof on[0] === "string") {
                             $el.on(on[0], on[1].bind({
@@ -105,6 +115,9 @@ var showNotification = function(template, onClose) {
     nodeCache.body = $('<div>', {'class': prefix + '-notifi'});
     readTemplate.call(nodeCache.body, template);
     $(document.body).append(nodeCache.body);
+    if (focusEl) {
+        focusEl.focus();
+    }
 };
 if (typeof define !== "undefined" && define.amd) {
     define('quickNotification');
