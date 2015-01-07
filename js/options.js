@@ -545,12 +545,29 @@ var options = function() {
 
                     document.getElementById('clientCheckBtn').addEventListener('click', function(e) {
                         var statusEl = document.getElementById('clientStatus');
+                        statusEl.textContent = '';
+                        statusEl.appendChild(mono.create('img', {
+                            src: 'images/loading.gif'
+                        }));
                         mono.sendMessage({action: 'checkSettings'}, function(response) {
+                            statusEl.textContent = '';
+                            var span;
                             if (response.error) {
-                                statusEl.textContent = response.error.statusText+' (code: '+response.error.status+')';
+                                span = mono.create('span', {
+                                    text: response.error.statusText+' (code: '+response.error.status+')',
+                                    style: {
+                                        color: 'red'
+                                    }
+                                });
                             } else {
-                                statusEl.textContent = options.language.ready || '{ready}';
+                                span = mono.create('span', {
+                                    text: options.language.DLG_BTN_OK,
+                                    style: {
+                                        color: 'green'
+                                    }
+                                });
                             }
+                            statusEl.appendChild(span);
                         });
                     });
 

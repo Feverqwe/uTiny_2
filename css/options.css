@@ -222,3 +222,11 @@ input.button.main {
     width: 400px;
     height: 100px;
 }
+
+#clientStatus {
+    height: 30px;
+}
+#clientStatus > span {
+    margin-top: 6px;
+    display: block;
+}
