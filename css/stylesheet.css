@@ -319,17 +319,19 @@ table.status-panel td.status img {
 }
 table.status-panel td.speed {
     width: 25%;
-    padding-left: 12px;
+    padding-left: 14px;
     background-repeat: no-repeat;
     background-position-y: 3px;
 }
 table.status-panel td.download {
-    background-image: url(../images/icon_downloading.png);
+    background-image: url(../images/arrowDown.svg);
     background-position: left center;
+    background-size: 13px;
 }
 table.status-panel td.upload {
-    background-image: url(../images/icon_uploading.png);
+    background-image: url(../images/arrowUp.svg);
     background-position: left center;
+    background-size: 13px;
 }
 ul.context-menu-list label {
     position: absolute;
