@@ -3506,6 +3506,18 @@ var manager = {
                 });
                 manager.writeLanguage();
 
+                !manager.options.windowMode && manager.domCache.upSpeed.appendChild(mono.create('div', {
+                    class: 'openInTab',
+                    title: manager.language.openInTab,
+                    on: ['click', function(e) {
+                        if (mono.isChrome) {
+                            chrome.tabs.create({url: window.location.href});
+                        } else {
+                            mono.sendMessage({action: 'openTab', url: window.location.href}, undefined, 'service');
+                        }
+                    }]
+                }));
+
                 console.timeEnd('manager render');
                 console.timeEnd('manager');
 

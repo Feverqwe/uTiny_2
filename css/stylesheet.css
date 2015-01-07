@@ -660,3 +660,20 @@ div.btn.setup {
 .trColumSelect {
     overflow-x: auto;
 }
+
+.openInTab {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    opacity: 0.3;
+    cursor: pointer;
+    float: right;
+    margin-right: 2px;
+
+    background-image: url(../images/openInTab.svg);
+    background-size: 16px;
+    transition: opacity 0.2s;
+}
+.openInTab:hover {
+    opacity: 0.6;
+}
