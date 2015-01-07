@@ -160,7 +160,6 @@ var manager = {
         scrollWidth: 17,
         trWordWrap: false,
         flWordWrap: true,
-        TrMovebleEnabled: true,
         windowMode: false
     },
     api: function(data) {
@@ -320,15 +319,18 @@ var manager = {
 
         //no border last element
         width -= 1;
-        width = width + manager.options.scrollWidth;
-        if (width > 800) {
-            width = 800;
+
+        if (!manager.options.windowMode) {
+            width = width + manager.options.scrollWidth;
+            if (width > 800) {
+                width = 800;
+            }
+            if (width < 723) {
+                width = 723;
+            }
+            document.body.style.width = width + 'px';
+            mono.isFF && mono.sendMessage({action: 'resize', width: width}, undefined, 'service');
         }
-        if (width < 723) {
-            width = 723;
-        }
-        document.body.style.width = width + 'px';
-        mono.isFF && mono.sendMessage({action: 'resize', width: width}, undefined, 'service');
 
         manager.domCache.trFixedHead.appendChild(head);
         manager.domCache.trHead.appendChild(head.cloneNode(true));
@@ -417,7 +419,7 @@ var manager = {
             manager.domCache.flBottom.style.display = 'block';
             manager.varCache.flBottomIsHide = 0;
         }
-        var popupHeight = manager.settings.popupHeight;
+        var popupHeight = manager.options.windowMode ? document.body.clientHeight : manager.settings.popupHeight;
 
         var flBodyHeight = popupHeight - manager.domCache.menu.clientHeight - 1 - manager.domCache.statusPanel.clientHeight - 2;
         var flTableHeight = flBodyHeight - manager.domCache.menu.clientHeight;
@@ -3108,6 +3110,12 @@ var manager = {
                 manager.language = data.getLanguage;
                 manager.settings = data.getSettings;
 
+                if (mono.isChrome) {
+                    manager.options.windowMode = window !== chrome.extension.getViews({type: 'popup'})[0];
+                } else {
+                    manager.options.windowMode = mono.isFF && mono.noAddon;
+                }
+
                 if (manager.options.trWordWrap) {
                     document.body.appendChild(mono.create('style', {
                         text: 'div.torrent-list-layer td div {' +
@@ -3123,6 +3131,13 @@ var manager = {
                     }));
                 }
 
+                if (manager.options.windowMode) {
+                    document.body.parentNode.style.height = '100%';
+                    document.body.style.height = '100%';
+                    manager.domCache.trLayer.style.maxHeight = 'calc(100% - 54px)';
+                    manager.domCache.trLayer.style.minHeight = 'calc(100% - 54px)';
+                    manager.domCache.trLayer.style.maxWidth = 'initial';
+                } else
                 if (manager.settings.popupHeight > 0) {
                     var panelsHeight = 54;
                     manager.domCache.trLayer.style.maxHeight = (manager.settings.popupHeight - panelsHeight) + 'px';
