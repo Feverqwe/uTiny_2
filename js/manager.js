@@ -583,7 +583,7 @@ var manager = {
         if (state & 32) { // paused
             if (state & 2) {
                 //OV_FL_CHECKED //Progress
-                return manager.language.OV_FL_CHECKED.replace('%:.1d%', manager.apiGetDone(api));
+                return manager.language.OV_FL_CHECKED + ' ' + manager.apiGetDone(api);
             } else {
                 //OV_FL_PAUSED
                 return manager.language.OV_FL_PAUSED;
@@ -604,7 +604,7 @@ var manager = {
             }
         } else if (state & 2) { // checking
             //OV_FL_CHECKED //Progress
-            return manager.language.OV_FL_CHECKED.replace('%:.1d%', manager.apiGetDone(api));
+            return manager.language.OV_FL_CHECKED + ' ' + manager.apiGetDone(api);
         } else if (state & 16) { // error
             //OV_FL_ERROR //Progress
             var error = api[21];

@@ -1,6 +1,6 @@
 {
     "appDesc": {
-        "message": "Это расширение добавит Web-интерфейс uTorrent в ваш браузер."
+        "message": "Расширение добавит Web-интерфейс uTorrent в ваш браузер."
     },
     "lang": {
         "message": "ru"
@@ -122,7 +122,8 @@
         "message": "Без метки"
     },
     "OV_FL_CHECKED": {
-        "message": "Проверено %:.1d%"
+        "message": "Проверено",
+        "modifed": 1
     },
     "OV_FL_DOWNLOADING": {
         "message": "Загружается"
