@@ -3165,7 +3165,6 @@ var manager = {
                     var panelsHeight = 54;
                     manager.domCache.trLayer.style.maxHeight = (manager.settings.popupHeight - panelsHeight) + 'px';
                     manager.domCache.trLayer.style.minHeight = (manager.settings.popupHeight - panelsHeight) + 'px';
-                    document.body.parentNode.style.height = 'auto';
                 }
 
                 manager.varCache.folderList = storage.folderList || manager.varCache.folderList;
