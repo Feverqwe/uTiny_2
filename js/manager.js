@@ -2784,6 +2784,7 @@ var manager = {
         });
 
         $.contextMenu({
+            zIndex: 2,
             className: 'speed',
             selector: 'table.status-panel td.speed',
             events: {
@@ -2808,6 +2809,9 @@ var manager = {
                 var count = Math.round((manager.settings.popupHeight - 54) / 27);
                 if (count > 10) {
                     count = 10;
+                }
+                if (manager.options.windowMode) {
+                    count = 15;
                 }
                 manager.varCache.speedLimit.count = count;
                 for (var i = 0; i < count; i++) {
