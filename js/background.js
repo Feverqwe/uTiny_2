@@ -334,12 +334,9 @@ var engine = {
 
         var data = origData;
         if (typeof data === "string") {
-            data = 'token='+engine.varCache.token+'&cid='+engine.varCache.cid+'&'+data;
+            data = 'token='+engine.varCache.token+'&'+data;
         } else {
             data.token = engine.varCache.token;
-            if (data.cid !== 0) {
-                data.cid = engine.varCache.cid;
-            }
         }
 
         var url = engine.varCache.webUiUrl;
@@ -355,7 +352,6 @@ var engine = {
                 data[key] = origData[key];
             }
             delete data.torrent_file;
-            delete data.cid;
             url += '?' + engine.param(data);
             data = formData;
         } else {
@@ -378,7 +374,7 @@ var engine = {
                 }
                 engine.publicStatus('');
                 onLoad && onLoad(data);
-                engine.readResponse(data);
+                engine.readResponse(data, origData.cid);
             },
             error: function(xhr) {
                 if (xhr.status === 400) {
@@ -396,11 +392,7 @@ var engine = {
             }
         });
     },
-    readResponse: function(data) {
-        if (data.torrentc !== undefined) {
-            // CID
-            engine.varCache.cid = data.torrentc;
-        }
+    readResponse: function(data, cid) {
         if (data.torrentm !== undefined) {
             // Removed torrents
             var list = engine.varCache.torrents;
@@ -442,7 +434,7 @@ var engine = {
                     list.push(item_p);
                 }
             }
-            engine.varCache.newFileListener && engine.varCache.newFileListener(newItem);
+            engine.varCache.newFileListener && engine.varCache.newFileListener(newItem, cid);
         }
 
         if (data.label !== undefined) {
@@ -458,7 +450,11 @@ var engine = {
         engine.settings.displayActiveTorrentCountIcon && engine.displayActiveItemsCountIcon(engine.varCache.torrents);
     },
     updateTrackerList: function() {
-        engine.sendAction({list: 1});
+        engine.sendAction({list: 1, cid: engine.varCache.cid}, function(data) {
+            if (data.torrentc !== undefined) {
+                engine.varCache.cid = data.torrentc;
+            }
+        });
     },
     loadSettings: function(cb) {
         var defaultSettings = engine.defaultSettings;
@@ -719,8 +715,9 @@ var engine = {
         };
         xhr.send();
     },
-    setOnFileAddListener: function(label) {
-        engine.varCache.newFileListener = function(newFile) {
+    setOnFileAddListener: function(label, requestCid) {
+        engine.varCache.newFileListener = function(newFile, cid) {
+            if (cid !== requestCid) return;
             delete engine.varCache.newFileListener;
             if (newFile.length === 0) {
                 engine.showNotification(engine.icons.error, engine.language.torrentFileExists, '');
@@ -752,7 +749,8 @@ var engine = {
                 return;
             }
         }
-        engine.sendAction({list: 1}, function () {
+        engine.sendAction({list: 1}, function (data) {
+            var cid = data.torrentc;
             var oldTorrentList = engine.varCache.torrents.slice(0);
             var args = {};
             if (isUrl) {
@@ -771,8 +769,8 @@ var engine = {
                     engine.showNotification(engine.icons.error, engine.language.OV_FL_ERROR, data.error);
                     return;
                 }
-                engine.setOnFileAddListener(label);
-                engine.sendAction({list: 1});
+                engine.setOnFileAddListener(label, cid);
+                engine.sendAction({list: 1, cid: cid});
             });
         });
     },

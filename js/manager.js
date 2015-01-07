@@ -154,7 +154,8 @@ var manager = {
         folderList: [],
         webUiUrl: undefined,
         hasGraph: false,
-        movebleStyleList: {}
+        movebleStyleList: {},
+        cid: undefined
     },
     options: {
         scrollWidth: 17,
@@ -162,8 +163,9 @@ var manager = {
         flWordWrap: true,
         windowMode: false
     },
-    api: function(data) {
-        mono.sendMessage({action: 'api', data: data}, manager.writeTrList);
+    api: function(data, onReady) {
+        data.cid = manager.varCache.cid;
+        mono.sendMessage({action: 'api', data: data}, onReady || manager.writeTrList);
     },
     moveColumn: function(type, from, to) {
         var columnList = manager.varCache[type + 'ColumnArray'];
@@ -1421,6 +1423,10 @@ var manager = {
             return;
         }
 
+        if (data.torrentc !== undefined) {
+            manager.varCache.cid = data.torrentc;
+        }
+
         var dlSpeed = 0;
         var upSpeed = 0;
 
@@ -1486,7 +1492,7 @@ var manager = {
             objA[key] = objB[key];
         }
     },
-    updateTrackerList: function(onReady, isNewSession) {
+    updateTrackerList: function(onReady) {
         manager.timer.wait = true;
 
         var data = {list: 1};
@@ -1494,11 +1500,7 @@ var manager = {
             manager.extend(data, manager.varCache.flListLayer.param);
         }
 
-        if (isNewSession) {
-            data.cid = 0;
-        }
-
-        mono.sendMessage({action: 'api', data: data}, function(data) {
+        manager.api(data, function(data) {
             manager.timer.wait = false;
             onReady && onReady();
             manager.writeTrList(data);
@@ -3229,9 +3231,10 @@ var manager = {
                     }
                     if (el.classList.contains('refresh')) {
                         e.preventDefault();
+                        manager.varCache.cid = undefined;
                         manager.updateTrackerList(function() {
                             manager.timer.start();
-                        }, 1);
+                        });
                         return;
                     }
                     if (el.classList.contains('pause_all')) {
@@ -3389,7 +3392,7 @@ var manager = {
                     if (el.tagName !== 'A') return;
                     if (el.classList.contains('update')) {
                         e.preventDefault();
-                        manager.api({action: 'getfiles', hash: manager.varCache.flListLayer.hash});
+                        mono.sendMessage({action: 'api', data: {action: 'getfiles', hash: manager.varCache.flListLayer.hash}});
                         return;
                     }
                     if (el.classList.contains('close')) {
