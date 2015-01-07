@@ -118,7 +118,7 @@ var options = function() {
                 } else {
                     el.value = '';
                 }
-                if (defaultValue || defaultValue === '') {
+                if (defaultValue || defaultValue === '' || defaultValue === 0) {
                     el.placeholder = defaultValue;
                 }
             } else if (el.type === "checkbox") {
@@ -159,7 +159,14 @@ var options = function() {
             value = parseInt(el.value);
         } else
         if (el.type === 'number') {
-            value = parseInt(el.value);
+            var number = parseInt(el.value);
+            if (isNaN(number)) {
+                number = parseInt(el.placeholder);
+            }
+            if (isNaN(number)) {
+                return;
+            }
+            value = number;
         } else
         if (['text', 'password'].indexOf(el.type) !== -1) {
             value = el.value;
@@ -440,6 +447,11 @@ var options = function() {
                         domCache.subPath.value = '';
                         folderSaveList();
                     });
+                    domCache.subPath.addEventListener('keydown', function(e) {
+                        if (e.keyCode === 13) {
+                            domCache.addSubPath.dispatchEvent(new CustomEvent('click'));
+                        }
+                    });
 
                     domCache.label = document.getElementById('label');
                     domCache.labelList = document.getElementById('labelList');
@@ -459,6 +471,11 @@ var options = function() {
 
                         domCache.label.value = '';
                         labelSaveList();
+                    });
+                    domCache.label.addEventListener('keydown', function(e) {
+                        if (e.keyCode === 13) {
+                            domCache.addLabel.dispatchEvent(new CustomEvent('click'));
+                        }
                     });
 
                     domCache.folderRemoveSelected = document.getElementById('folderRemoveSelected');

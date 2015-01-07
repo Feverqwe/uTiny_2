@@ -667,6 +667,23 @@ var engine = {
             }
         }
     },
+    setBadgeText: mono.isChrome ? function(text) {
+        chrome.browserAction.setBadgeText({
+            text: text
+        });
+    } : function(text) {
+        mono.setBadgeText(16, text, function(url16) {
+            mono.setBadgeText(32, text, function(url32) {
+                mono.setBadgeText(64, text, function(url64) {
+                    mono.ffButton.icon = {
+                        16: url16,
+                        32: url32,
+                        64: url64
+                    };
+                });
+            });
+        });
+    },
     displayActiveItemsCountIcon: function(newTorrentList) {
         var activeCount = 0;
         for (var i = 0, item; item = newTorrentList[i]; i++) {
@@ -679,23 +696,7 @@ var engine = {
         }
         engine.varCache.activeCount = activeCount;
         var text = activeCount ? String(activeCount) : '';
-        if (mono.isChrome) {
-            chrome.browserAction.setBadgeText({
-                text: text
-            });
-        } else {
-            mono.setBadgeText(16, text, function(url16) {
-                mono.setBadgeText(32, text, function(url32) {
-                    mono.setBadgeText(64, text, function(url64) {
-                        mono.ffButton.icon = {
-                            16: url16,
-                            32: url32,
-                            64: url64
-                        };
-                    });
-                });
-            });
-        }
+        engine.setBadgeText(text);
     },
     utils: function(oldTorrentList, newTorrentList) {
         engine.settings.showSpeedGraph && engine.trafficCounter(newTorrentList);
@@ -1416,6 +1417,11 @@ var engine = {
             engine.loadSettings(function() {
                 engine.getLanguage(function () {
                     engine.createFolderCtxMenu();
+                    if (!engine.settings.displayActiveTorrentCountIcon
+                        && engine.varCache.activeCount > 0) {
+                        engine.varCache.activeCount = 0;
+                        engine.setBadgeText('');
+                    }
                     response();
                 });
             });
