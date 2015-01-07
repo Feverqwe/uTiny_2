@@ -262,9 +262,10 @@
         "message": "Директория",
         "modifed": 1
     },
-    "Paste_a_torrent_or_feed_URL": {
-        "message": "Вставьте URL торрента или рассылки",
-        "originalKey": "Paste a torrent or feed URL"
+    "Paste_a_torrent_URL": {
+        "message": "Вставьте URL торрента",
+        "originalKey": "Paste a torrent or feed URL",
+        "modifed": 1
     },
     "OV_NEWLABEL_CAPTION": {
         "message": "Введите новую метку",

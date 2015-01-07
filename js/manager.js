@@ -152,6 +152,7 @@ var manager = {
         remoteLabels: [],
         speedLimit: {},
         folderList: [],
+        labelList: [],
         webUiUrl: undefined,
         hasGraph: false,
         movebleStyleList: {},
@@ -2900,19 +2901,20 @@ var manager = {
         });
     },
     onGotFiles: function(files) {
-        var fileNameList = [];
-        for (var i = 0, file; file = files[i]; i++) {
-            fileNameList.push({span: {text: file.name}});
-        }
         var onClickYes = function(dataForm) {
             if (!dataForm) {
                 dataForm = {};
+            }
+            var folder = manager.varCache.folderList[dataForm.folder];
+            var folderRequest;
+            if (folder) {
+                folderRequest = {download_dir: folder[0], path: folder[1]}
             }
             for (var i = 0, file; file = files[i]; i++) {
                 mono.sendMessage({
                     action: 'onSendFile',
                     url: URL.createObjectURL(file),
-                    folder: manager.varCache.folderList[dataForm.folder],
+                    folder: folderRequest,
                     label: dataForm.label
                 });
             }
@@ -2929,10 +2931,6 @@ var manager = {
             folderTemplate = undefined;
         }
         showNotification([
-            [
-                {label: {text: manager.language.selectedFiles+':'}},
-                fileNameList
-            ],
             labelTemplate,
             folderTemplate,
             [
@@ -2955,14 +2953,20 @@ var manager = {
     onLoadQuickNotification: function() {
         showNotification.selectLabelTemplate = function () {
             return [
-                {label: {text: manager.language.OV_COL_LABEL, after: $('<br>')}},
+                {label: {text: manager.language.OV_COL_LABEL}},
                 {select: {append: (function(){
                     var options = [
                         $('<option>', {text: '', value: ''})
                     ];
+                    var labels = [];
                     for (var i = 0, item; item = manager.varCache.labels[i]; i++) {
                         if (item.custom) continue;
+                        labels.push(item.label);
                         options.push($('<option>', {text: item.label, value: item.label}));
+                    }
+                    for (var i = 0, item; item = manager.varCache.labelList[i]; i++) {
+                        if (labels.indexOf(item) !== -1) continue;
+                        options.push($('<option>', {text: item, value: item}));
                     }
                     if (options.length === 1) {
                         return [];
@@ -2974,13 +2978,13 @@ var manager = {
 
         showNotification.selectFolderTemplate = function() {
             return [
-                {label: {text: manager.language.ST_CAPT_FOLDER, after: $('<br>')}},
+                {label: {text: manager.language.ST_CAPT_FOLDER}},
                 {select: {append: (function(){
                     var folderList = [
-                        $('<option>', {text: '', value: -1})
+                        $('<option>', {text: manager.language.defaultPath, value: -1})
                     ];
                     for (var i = 0, item; item = manager.varCache.folderList[i]; i++) {
-                        folderList.push($('<option>', {text: item.path, value: i}));
+                        folderList.push($('<option>', {text: item[1], value: i}));
                     }
                     if (folderList.length === 1) {
                         return [];
@@ -3099,7 +3103,8 @@ var manager = {
             'trSortOptions',
             'flSortOptions',
             'selectedLabel',
-            'folderList'
+            'folderList',
+            'labelList'
         ], function(storage) {
             mono.sendMessage([
                 {action: 'getLanguage'},
@@ -3156,6 +3161,7 @@ var manager = {
                 }
 
                 manager.varCache.folderList = storage.folderList || manager.varCache.folderList;
+                manager.varCache.labelList = storage.labelList || manager.varCache.labelList;
 
                 if (storage.trSortOptions) {
                     manager.varCache.trSortColumn = storage.trSortOptions.column;
@@ -3263,17 +3269,22 @@ var manager = {
                     }
                     if (el.classList.contains('add_file')) {
                         e.preventDefault();
-                        mono.create('input', {
+                        if (manager.varCache.selectFileInput !== undefined) {
+                            manager.varCache.selectFileInput.parentNode.removeChild(manager.varCache.selectFileInput);
+                            delete manager.varCache.selectFileInput;
+                        }
+                        document.body.appendChild(manager.varCache.selectFileInput = mono.create('input', {
                             type: 'file',
                             multiple: true,
                             accept: 'application/x-bittorrent',
+                            style: {
+                                display: 'none'
+                            },
                             on: ['change', function() {
                                 manager.onGotFiles(this.files);
-                            }],
-                            onCreate: function(el) {
-                                el.dispatchEvent(new CustomEvent('click'));
-                            }
-                        });
+                            }]
+                        }));
+                        manager.varCache.selectFileInput.dispatchEvent(new CustomEvent('click'));
                         return;
                     }
                     if (el.classList.contains('add_magnet')) {
@@ -3288,7 +3299,7 @@ var manager = {
                         }
                         showNotification([
                             [
-                                {label: {text: manager.language.Paste_a_torrent_or_feed_URL}},
+                                {label: {text: manager.language.Paste_a_torrent_URL}},
                                 {input: {type: 'text', name: 'link'}}
                             ],
                             labelTemplate,
@@ -3298,10 +3309,15 @@ var manager = {
                                     ['click', function() {
                                         var dataForm = this.getFormData();
                                         this.close();
+                                        var folder = manager.varCache.folderList[dataForm.folder];
+                                        var folderRequest;
+                                        if (folder) {
+                                            folderRequest = {download_dir: folder[0], path: folder[1]};
+                                        }
                                         mono.sendMessage({
                                             action: 'onSendFile',
                                             url: dataForm.link,
-                                            folder: manager.varCache.folderList[dataForm.folder],
+                                            folder: folderRequest,
                                             label: dataForm.label
                                         });
                                     }]
