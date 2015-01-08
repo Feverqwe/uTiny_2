@@ -179,6 +179,10 @@ var engine = {
         if (typeof params === 'string') return params;
 
         var args = [];
+        if (params.token) {
+            args.push(encodeURIComponent('token') + '=' + encodeURIComponent(params.token));
+            delete params.token;
+        }
         for (var key in params) {
             var value = params[key];
             if (value === null || value === undefined) {
@@ -899,12 +903,13 @@ var engine = {
         var id = e.menuItemId;
         var updateMenu = false;
         var contextMenu = engine.createFolderCtxMenu.contextMenu;
+        var defaultItem = contextMenu[0] ? contextMenu[0] : ['0', ''];
         if (id === 'newFolder') {
-            var path = window.prompt(engine.language.enterNewDirPath, contextMenu[0] ? contextMenu[0][1] : '0');
+            var path = window.prompt(engine.language.enterNewDirPath, defaultItem[1]);
             if (!path) {
                 return;
             }
-            var download_dir = contextMenu[0][0];
+            var download_dir = defaultItem[0];
             id = contextMenu.length;
             contextMenu.push([download_dir, path]);
             engine.varCache.folderList.push([download_dir, path]);
