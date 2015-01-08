@@ -162,7 +162,8 @@ var manager = {
         scrollWidth: 17,
         trWordWrap: false,
         flWordWrap: true,
-        windowMode: false
+        windowMode: false,
+        noSleep: false
     },
     api: function(data, onReady) {
         data.cid = manager.varCache.cid;
@@ -225,7 +226,7 @@ var manager = {
         e.dataTransfer.setData("type", e.target.dataset.type);
     },
     onDragOver: function onDragOver(e) {
-        var el = e.toElement;
+        var el = e.target;
         if (el.tagName !== 'TH' && el.parentNode.tagName !== 'TH') return;
         e.preventDefault();
         e.stopPropagation();
@@ -233,7 +234,7 @@ var manager = {
     onDrop: function(e) {
         e.preventDefault();
         e.stopPropagation();
-        var el = e.toElement;
+        var el = e.target;
         if (el.tagName !== 'TH') {
             el = el.parentNode;
         }
@@ -2437,7 +2438,7 @@ var manager = {
                 offset.top -= height;
             }
 
-            if (height + 2 >= bottom) {
+            if (height + 2 >= bottom || offset.top < 0) {
                 offset.top = 1;
                 offset.height = bottom - 2;
             }
@@ -2956,7 +2957,9 @@ var manager = {
                     }]
                 ]}}
             ]
-        ]);
+        ], function onClise() {
+            manager.options.noSleep = false;
+        });
     },
     onLoadQuickNotification: function() {
         showNotification.selectLabelTemplate = function () {
@@ -3103,11 +3106,18 @@ var manager = {
             if (!message) return;
 
             if (message === 'sleep') {
-                return manager.timer.stop();
-            }
-
-            if (message === 'wake') {
-                return manager.timer.start();
+                if (manager.options.noSleep) {
+                    setTimeout(function(){
+                        if (manager.options.noSleep) {
+                            manager.options.noSleep = false;
+                            if (!mono.noAddon) {
+                                mono.addon.postMessage('isShow');
+                            }
+                        }
+                    }, 60*1000);
+                    return;
+                }
+                window.location = 'sleep.html';
             }
 
             if (message.hasOwnProperty('setStatus')) {
@@ -3287,6 +3297,7 @@ var manager = {
                     }
                     if (el.classList.contains('add_file')) {
                         e.preventDefault();
+                        manager.options.noSleep = true;
                         if (manager.varCache.selectFileInput !== undefined) {
                             document.body.removeChild(manager.varCache.selectFileInput);
                             delete manager.varCache.selectFileInput;
@@ -3304,7 +3315,7 @@ var manager = {
                                 delete manager.varCache.selectFileInput;
                             }]
                         }));
-                        manager.varCache.selectFileInput.dispatchEvent(new CustomEvent('click'));
+                        manager.varCache.selectFileInput.click();
                         return;
                     }
                     if (el.classList.contains('add_magnet')) {

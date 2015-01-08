@@ -47,16 +47,26 @@
         tabs.open( self.data.url('options.html') );
     });
 
+    var isSleep = false;
     var popup = require("sdk/panel").Panel({
         width: 800,
         height: 350,
-        contentURL: self.data.url("./manager.html"),
+        contentURL: self.data.url("./sleep.html"),
         onHide: function () {
             button.state('window', {checked: false});
+            isSleep = true;
             popup.port.emit('mono', {data: 'sleep'});
         },
         onShow: function() {
+            isSleep = false;
             popup.port.emit('mono', {data: 'wake'});
+        },
+        onMessage: function(msg) {
+            if (msg === 'isShow') {
+                if (isSleep) {
+                    popup.port.emit('mono', {data: 'sleep'});
+                }
+            }
         }
     });
     monoLib.addPage(popup);

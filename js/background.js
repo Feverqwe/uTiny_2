@@ -152,7 +152,7 @@ var engine = {
         var isFormData = false;
 
         if (data && typeof data !== "string") {
-            isFormData = data && data.constructor && data.constructor.name === "FormData";
+            isFormData = String(data) === '[object FormData]';
             if (!isFormData) {
                 data = engine.param(data);
             }
@@ -857,7 +857,7 @@ var engine = {
         }
         if (id === 'newLabel') {
             var newLabel = window.prompt(engine.language.enterNewLabel);
-            if (!label) {
+            if (!newLabel) {
                 return;
             }
             id = contextMenu.length;
@@ -1029,9 +1029,9 @@ var engine = {
                         return self.postMessage({error: -1});
                     }
                     if (href.substr(0, 7).toLowerCase() === 'magnet:') {
-                        return self.postMessage({href: node.href});
+                        return self.postMessage({href: href});
                     }
-                    self.postMessage({href: url, referer: window.location.href});
+                    self.postMessage({href: href, referer: window.location.href});
                 });
             };
             var minifi = function(str) {
