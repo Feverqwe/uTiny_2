@@ -665,7 +665,7 @@ var engine = {
                 continue;
             }
             for (var n = 0, oldItem; oldItem = oldTorrentList[n]; n++) {
-                if (oldItem[4] === 1000 || ( oldItem[24] !== 0 && oldItem[24] !== undefined ) || oldItem[0] !== newItem[0]) {
+                if (oldItem[0] !== newItem[0] || oldItem[4] === 1000 || oldItem[24]) {
                     continue;
                 }
                 engine.showNotification(engine.icons.complete, newItem[2], (newItem[21] !== undefined) ? engine.language.OV_COL_STATUS + ': ' + newItem[21] : '');
