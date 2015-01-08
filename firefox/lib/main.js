@@ -1,13 +1,11 @@
 (function() {
-    var ToggleButton = require('sdk/ui/button/toggle').ToggleButton;
-    var panels = require("sdk/panel");
     var self = require("sdk/self");
     var monoLib = require("./monoLib.js");
     var pageMod = require("sdk/page-mod");
 
     monoLib.flags.enableLocalScope = true;
 
-    var button = ToggleButton({
+    var button = require('sdk/ui/button/toggle').ToggleButton({
         id: "uTinyOpenBtn",
         label: "uTorrent easy client",
         icon: {
@@ -49,26 +47,16 @@
         tabs.open( self.data.url('options.html') );
     });
 
-    var displayState = false;
-    var popup = panels.Panel({
+    var popup = require("sdk/panel").Panel({
         width: 800,
         height: 350,
         contentURL: self.data.url("./manager.html"),
         onHide: function () {
             button.state('window', {checked: false});
-            displayState = false;
             popup.port.emit('mono', {data: 'sleep'});
         },
         onShow: function() {
-            displayState = true;
             popup.port.emit('mono', {data: 'wake'});
-        },
-        onMessage: function(msg) {
-            if (msg === 'isShow') {
-                if (!displayState) {
-                    popup.port.emit('mono', {data: 'sleep'});
-                }
-            }
         }
     });
     monoLib.addPage(popup);

@@ -15,11 +15,12 @@ copy .\*.json .\build\.
 
 mkdir .\build_firefox_sdk\data
 xcopy .\build .\build_firefox_sdk\data\ /E
-rd /S /Q .\build_firefox_sdk\data\_locales
 del .\build_firefox_sdk\data\manifest.json
 xcopy .\firefox\* .\build_firefox_sdk\. /E /Y
 xcopy .\js\background.js .\build_firefox_sdk\lib\. /E
 del .\build_firefox_sdk\data\js\background.js
+
+exit
 
 :: base
 

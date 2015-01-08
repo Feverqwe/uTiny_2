@@ -1,9 +1,10 @@
 var mono = (typeof mono !== 'undefined') ? mono : undefined;
-var require = (typeof require !== 'undefined') ? require : undefined;
 
 (function() {
     if (typeof window !== 'undefined') return;
     var self = require('sdk/self');
+    window = require('sdk/window/utils').getMostRecentBrowserWindow();
+    window.isModule = true;
     mono = require('toolkit/loader').main(require('toolkit/loader').Loader({
         paths: {
             'data/': self.data.url('js/')
@@ -26,68 +27,6 @@ var require = (typeof require !== 'undefined') ? require : undefined;
             }
         }
     }), "data/mono");
-    mono.setBadgeText = function(size, text, cb) {
-        var self = require('sdk/self');
-        var xhr = new engine.ajax.xhr();
-        var url = self.data.url('./icons/icon-'+size+'.png');
-        if (!text) {
-            return cb(url);
-        }
-        xhr.open('GET', url);
-        xhr.responseType = 'blob';
-        xhr.onload = function() {
-            var reader = new window.FileReader();
-            reader.onloadend = function() {
-                var base64data = reader.result;
-                var pos = base64data.indexOf(';');
-                base64data = base64data.substr(pos);
-                base64data = 'data:image/png'+base64data;
-
-                var box_w = 14;
-                var box_h = 10;
-                var text_p = 2;
-                var fSize = 10;
-                if (text < 10) {
-                    box_w = 8;
-                }
-                if (size === 32) {
-                    box_w = 20;
-                    box_h = 16;
-                    text_p = 2;
-                    fSize = 16;
-                    if (text < 10) {
-                        box_w = 12;
-                    }
-                }
-                if (size === 64) {
-                    box_w = 38;
-                    box_h = 30;
-                    text_p = 4;
-                    fSize = 30;
-                    if (text < 10) {
-                        box_w = 21;
-                    }
-                }
-                var left_p = size - box_w;
-
-                var img = 'data:image/svg+xml;utf8,'+'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" ' +
-                    'width="'+size+'" height="'+size+'">'
-                    +'<image x="0" y="0" width="'+size+'" height="'+size+'" xlink:href="'+base64data+'" />'
-                    +'<rect rx="4" ry="4" x="'+left_p+'" y="'+(size-box_h)+'" '
-                    +'width="'+box_w+'" height="'+box_h+'" '
-                    +'style="fill:rgba(60,60,60,0.8);stroke:black;stroke-width:1;opacity:0.6;"/>'
-                    +'<text fill="white" x="'+(left_p+parseInt( text_p / 2 ))+'" y="'+(size-text_p)+'" style="' +
-                    'font-family: Arial;' +
-                    'font-weight: bolder;' +
-                    'font-size: '+fSize+'px;' +
-                    'background-color: black;'+
-                    '">'+text+'</text>'+'</svg>';
-                cb(img);
-            };
-            reader.readAsDataURL(xhr.response);
-        };
-        xhr.send();
-    };
 })();
 
 var engine = {
@@ -596,9 +535,10 @@ var engine = {
         var url = '_locales/' + lang + '/messages.json';
         if (mono.isFF) {
             try {
-                engine.language = engine.readChromeLocale(JSON.parse(self.data.load(url)));
+                engine.language = engine.readChromeLocale(JSON.parse(require('sdk/self').data.load(url)));
                 cb();
             } catch (e) {
+                console.log(e);
                 if (lang !== 'en') {
                     return engine.getLanguage(cb, 'en');
                 }
@@ -639,7 +579,7 @@ var engine = {
             upSpeedList.shift();
         }
     },
-    showNotification: mono.isModule ? function(icon, title, desc) {
+    showNotification: window.isModule ? function(icon, title, desc) {
         var notification = require("sdk/notifications");
         notification.notify({title: String(title), text: String(desc), iconURL: icon});
     } : function(icon, title, desc, id) {
@@ -777,7 +717,7 @@ var engine = {
             engine.showNotification(engine.icons.add, item[2], engine.language.torrentAdded);
         }
     },
-    sendFile: function(url, folder, label) {
+    sendFile: function(url, folder, label, referer) {
         var isUrl;
         if (isUrl = typeof url === "string") {
             if (url.substr(0, 7).toLowerCase() !== 'magnet:') {
@@ -785,8 +725,8 @@ var engine = {
                     if (url.substr(0,5).toLowerCase() === 'blob:') {
                         window.URL.revokeObjectURL(url);
                     }
-                    engine.sendFile(file, folder, label);
-                });
+                    engine.sendFile(file, folder, label, referer);
+                }, referer);
                 return;
             }
         }
@@ -926,7 +866,7 @@ var engine = {
             updateMenu = true;
         }
         if (id === 'main' || id === 'default') {
-            return engine.sendFile(link);
+            return engine.sendFile(link, undefined, undefined, e.referer);
         }
         var dir, label;
         var item = contextMenu[id];
@@ -943,7 +883,7 @@ var engine = {
                 engine.createFolderCtxMenu();
             });
         }
-        engine.sendFile(link, dir, label);
+        engine.sendFile(link, dir, label, e.referer);
     },
     listToTreeList: function(contextMenu) {
         var tmp_folders_array = [];
@@ -1080,40 +1020,18 @@ var engine = {
 
         return {tree: smartTree, list: tmp_folders_array};
     },
-    createFolderCtxMenu: /*mono.isModule ? (function() {
+    createFolderCtxMenu: window.isModule ? (function() {
         var contentScript = (function() {
             var onClick = function() {
                 self.on("click", function(node) {
                     var href = node.href;
                     if (!href) {
-                        return self.postMessage({error: 0});
+                        return self.postMessage({error: -1});
                     }
                     if (href.substr(0, 7).toLowerCase() === 'magnet:') {
-                        return self.postMessage(node.href);
+                        return self.postMessage({href: node.href});
                     }
-                    var downloadFile = function (url, cb) {
-                        var xhr = new XMLHttpRequest();
-                        xhr.open('GET', url, true);
-                        xhr.responseType = 'blob';
-                        xhr.onprogress = function (e) {
-                            if (e.total > 1048576 * 10 || e.loaded > 1048576 * 10) {
-                                xhr.abort();
-                                cb({error: 0});
-                            }
-                        };
-                        xhr.onload = function () {
-                            cb( URL.createObjectURL(xhr.response) );
-                        };
-                        xhr.onerror = function () {
-                            if (xhr.status === 0) {
-                                cb({error: 1, url: url, referer: window.location.href});
-                            } else {
-                                cb({error: 1, status: xhr.status, statusText: xhr.statusText});
-                            }
-                        };
-                        xhr.send();
-                    };
-                    downloadFile(href, self.postMessage);
+                    self.postMessage({href: url, referer: window.location.href});
                 });
             };
             var minifi = function(str) {
@@ -1133,124 +1051,160 @@ var engine = {
         var topLevel = undefined;
 
         var readData = function(data, cb) {
-            if (typeof data === 'object') {
-                if (data.error === 0) {
-                    return engine.showNotification(engine.icons.error, engine.language.OV_FL_ERROR, engine.language.fileSizeError);
-                }
-                if (data.error === 1) {
-                    if (data.url) {
-                        return cb();
-                    }
-                    return engine.showNotification(engine.icons.error, data.status, engine.language.unexpectedError);
-                }
-                if (data.error === 2) {
-                    return engine.showNotification(engine.icons.error, data.status, data.statusText);
-                }
+            if (typeof data !== 'object' || data.error === -1) {
+                return engine.showNotification(engine.icons.error, engine.language.OV_FL_ERROR, engine.language.unexpectedError);
             }
-            cb();
+            if (data.href) {
+                return cb(data.href, data.referer);
+            }
         };
 
-        return function() {
-            var contextMenu = engine.createFolderCtxMenu.contextMenu = engine.varCache.folderList.slice(0);
-
-            var self = require('sdk/self');
-            var cm = require("sdk/context-menu");
-            try {
-                if (topLevel && topLevel.parentMenu) {
-                    topLevel.parentMenu.removeItem(topLevel);
-                }
-            } catch (e) {
-                topLevel = undefined;
-            }
-            if (!engine.enableFolderContextMenu) {
-                return;
-            }
-
-            if (contextMenu.length === 0) {
-                topLevel = cm.Item({
-                    label: engine.language.addInTorrentClient,
-                    context: cm.SelectorContext("a"),
-                    image: self.data.url('./icons/icon-16.png'),
-                    contentScript: contentScript,
-                    onMessage: function (data) {
-                        readData(data, function() {
-                            engine.sendFile(data);
-                        });
-                    }
-                });
-                return;
-            }
-
-            var onMessage = function(data) {
-                var _this = this;
-                readData(data, function() {
-                    engine.onCtxMenuCall({
-                        linkUrl: data,
-                        menuItemId: _this.data
-                    }, (data && data.error === 1) ? data.referer : undefined);
-                });
-            };
-            var items = [];
-            if (engine.settings.treeViewContextMenu) {
-                var treeList = engine.listToTreeList();
-                var createItems = function(parentId, itemList) {
-                    var menuItemList = [];
-                    for (var i = 0, item; item = itemList[i]; i++) {
-                        if (item.parentId !== parentId) {
-                            continue;
-                        }
-                        var itemOpt = { label: item.title, context: cm.SelectorContext("a") };
-                        var subItems = createItems( item.id, itemList );
-                        if (subItems.length !== 0) {
-                            itemOpt.items = subItems;
-                            menuItemList.push(cm.Menu(itemOpt));
-                        } else {
-                            itemOpt.onMessage = onMessage;
-                            itemOpt.contentScript = contentScript;
-                            itemOpt.data = item.id;
-                            menuItemList.push(cm.Item(itemOpt));
-                        }
-                    }
-                    return menuItemList;
-                };
-                items = createItems('main', treeList.tree);
-                engine.createFolderCtxMenu.contextMenu = treeList.list;
-            } else {
-                for (var i = 0, item; item = contextMenu.folders_array[i]; i++) {
-                    items.push(cm.Item({
-                        label: item[1],
-                        data: String(i),
-                        context: cm.SelectorContext("a"),
-                        onMessage: onMessage,
-                        contentScript: contentScript
-                    }));
-                }
-            }
-
-            if (engine.settings.showDefaultFolderContextMenuItem) {
-                items.push(cm.Item({
-                    label: engine.language.defaultPath,
-                    data: 'default',
-                    context: cm.SelectorContext("a"),
-                    onMessage: onMessage,
-                    contentScript: contentScript
-                }));
-            }
-            items.push(cm.Item({ label: engine.language.add,
-                data: 'new',
-                context: cm.SelectorContext("a"),
-                onMessage: onMessage,
-                contentScript: contentScript
-            }));
-
-            topLevel = cm.Menu({
+        var createSingleTopMenu = function(self, cm) {
+            return topLevel = cm.Item({
                 label: engine.language.addInTorrentClient,
                 context: cm.SelectorContext("a"),
                 image: self.data.url('./icons/icon-16.png'),
-                items: items
+                contentScript: contentScript,
+                onMessage: function (data) {
+                    readData(data, function(href, referer) {
+                        engine.sendFile(href, undefined, undefined, referer);
+                    });
+                }
             });
+        };
+
+        var onSubMenuMessage = function(data) {
+            var _this = this;
+            readData(data, function(href, referer) {
+                engine.onCtxMenuCall({
+                    linkUrl: href,
+                    menuItemId: _this.data,
+                    referer: referer
+                });
+            });
+        };
+
+        var createTreeItems = function(cm, parentId, itemList) {
+            var menuItemList = [];
+            for (var i = 0, item; item = itemList[i]; i++) {
+                if (item.parentId !== parentId) {
+                    continue;
+                }
+                var itemOpt = { label: item.title, context: cm.SelectorContext("a") };
+                var subItems = createTreeItems(cm, item.id, itemList );
+                if (subItems.length !== 0) {
+                    itemOpt.items = subItems;
+                    menuItemList.push(cm.Menu(itemOpt));
+                } else {
+                    itemOpt.onMessage = onSubMenuMessage;
+                    itemOpt.contentScript = contentScript;
+                    itemOpt.data = item.id;
+                    menuItemList.push(cm.Item(itemOpt));
+                }
+            }
+            return menuItemList;
+        };
+
+        return function() {
+            var self = require('sdk/self');
+            var cm = require("sdk/context-menu");
+
+            try {
+                topLevel && topLevel.parentMenu && topLevel.parentMenu.removeItem(topLevel);
+            } catch (e) {}
+            topLevel = undefined;
+
+            var enableFolders, enableLabels;
+            if (!(enableFolders = engine.settings.ctxMenuType === 1) && !(enableLabels = engine.settings.ctxMenuType === 2)) {
+                return;
+            }
+
+            var contextMenu = engine.createFolderCtxMenu.contextMenu = [];
+
+            var folderList = engine.varCache.folderList;
+            var labelList = engine.varCache.labelList;
+
+            var items = [];
+
+            if (enableFolders) {
+                Array.prototype.push.apply(contextMenu, folderList);
+                if (folderList.length > 0) {
+                    if (engine.settings.treeViewContextMenu) {
+                        var treeList = engine.listToTreeList(folderList.slice(0));
+                        Array.prototype.push.apply(items, createTreeItems(cm, 'main', treeList.tree));
+                        contextMenu.splice(0);
+                        Array.prototype.push.apply(contextMenu, treeList.list);
+                    } else {
+                        for (var i = 0, item; item = folderList[i]; i++) {
+                            items.push(cm.Item({
+                                label: item[1],
+                                data: String(i),
+                                context: cm.SelectorContext("a"),
+                                onMessage: onSubMenuMessage,
+                                contentScript: contentScript
+                            }));
+                        }
+                    }
+                }
+                if (engine.settings.showDefaultFolderContextMenuItem) {
+                    items.push(cm.Item({
+                        label: engine.language.defaultPath,
+                        data: 'default',
+                        context: cm.SelectorContext("a"),
+                        onMessage: onSubMenuMessage,
+                        contentScript: contentScript
+                    }));
+                }
+                if (folderList.length > 0 || engine.settings.showDefaultFolderContextMenuItem) {
+                    items.push(cm.Item({
+                        label: engine.language.add+'...',
+                        data: 'newFolder',
+                        context: cm.SelectorContext("a"),
+                        onMessage: onSubMenuMessage,
+                        contentScript: contentScript
+                    }));
+                }
+                if (items.length === 0) {
+                    return createSingleTopMenu(self, cm);
+                }
+                topLevel = cm.Menu({
+                    label: engine.language.addInTorrentClient,
+                    context: cm.SelectorContext("a"),
+                    image: self.data.url('./icons/icon-16.png'),
+                    items: items
+                });
+            } else
+            if (enableLabels) {
+                if (labelList.length === 0) {
+                    return createSingleTopMenu(self, cm);
+                }
+
+                Array.prototype.push.apply(contextMenu, labelList);
+                for (var i = 0, item; item = labelList[i]; i++) {
+                    items.push(cm.Item({
+                        label: item,
+                        data: String(i),
+                        context: cm.SelectorContext("a"),
+                        onMessage: onSubMenuMessage,
+                        contentScript: contentScript
+                    }));
+                }
+                items.push(cm.Item({
+                    label: engine.language.add+'...',
+                    data: 'newLabel',
+                    context: cm.SelectorContext("a"),
+                    onMessage: onSubMenuMessage,
+                    contentScript: contentScript
+                }));
+                topLevel = cm.Menu({
+                    label: engine.language.addInTorrentClient,
+                    context: cm.SelectorContext("a"),
+                    image: self.data.url('./icons/icon-16.png'),
+                    items: items
+                });
+            }
         }
-    })() : */function() {
+    })() : function() {
         chrome.contextMenus.removeAll(function () {
             var enableFolders, enableLabels;
             if (!(enableFolders = engine.settings.ctxMenuType === 1) && !(enableLabels = engine.settings.ctxMenuType === 2)) {
@@ -1470,6 +1424,69 @@ var engine = {
         if (addon) {
             mono = mono.init(addon);
 
+            mono.setBadgeText = function(size, text, cb) {
+                var self = require('sdk/self');
+                var xhr = new engine.ajax.xhr();
+                var url = self.data.url('./icons/icon-'+size+'.png');
+                if (!text) {
+                    return cb(url);
+                }
+                xhr.open('GET', url);
+                xhr.responseType = 'blob';
+                xhr.onload = function() {
+                    var reader = new window.FileReader();
+                    reader.onloadend = function() {
+                        var base64data = reader.result;
+                        var pos = base64data.indexOf(';');
+                        base64data = base64data.substr(pos);
+                        base64data = 'data:image/png'+base64data;
+
+                        var box_w = 14;
+                        var box_h = 10;
+                        var text_p = 2;
+                        var fSize = 10;
+                        if (text < 10) {
+                            box_w = 8;
+                        }
+                        if (size === 32) {
+                            box_w = 20;
+                            box_h = 16;
+                            text_p = 2;
+                            fSize = 16;
+                            if (text < 10) {
+                                box_w = 12;
+                            }
+                        }
+                        if (size === 64) {
+                            box_w = 38;
+                            box_h = 30;
+                            text_p = 4;
+                            fSize = 30;
+                            if (text < 10) {
+                                box_w = 21;
+                            }
+                        }
+                        var left_p = size - box_w;
+
+                        var img = 'data:image/svg+xml;utf8,'+'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" ' +
+                            'width="'+size+'" height="'+size+'">'
+                            +'<image x="0" y="0" width="'+size+'" height="'+size+'" xlink:href="'+base64data+'" />'
+                            +'<rect rx="4" ry="4" x="'+left_p+'" y="'+(size-box_h)+'" '
+                            +'width="'+box_w+'" height="'+box_h+'" '
+                            +'style="fill:rgba(60,60,60,0.8);stroke:black;stroke-width:1;opacity:0.6;"/>'
+                            +'<text fill="white" x="'+(left_p+parseInt( text_p / 2 ))+'" y="'+(size-text_p)+'" style="' +
+                            'font-family: Arial;' +
+                            'font-weight: bolder;' +
+                            'font-size: '+fSize+'px;' +
+                            'background-color: black;'+
+                            '">'+text+'</text>'+'</svg>';
+                        cb(img);
+                    };
+                    reader.readAsDataURL(xhr.response);
+                };
+                xhr.send();
+            };
+
             mono.ffButton = button;
 
             var sdkTimers = require("sdk/timers");
@@ -1495,7 +1512,7 @@ var engine = {
 
         engine.run();
     };
-    if (typeof window === 'undefined') {
+    if (window.isModule) {
         exports.init = init;
     } else {
         init();

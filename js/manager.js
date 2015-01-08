@@ -2027,7 +2027,7 @@ var manager = {
 
         var newSize = currentSize;
         var onMouseMove = function(e) {
-            var xPos = e.x;
+            var xPos = e.clientX;
             delta = xPos - startXPos - 6;
             newSize = currentSize + delta;
             if (newSize < 16) {
@@ -3102,6 +3102,14 @@ var manager = {
         mono.onMessage(function(message) {
             if (!message) return;
 
+            if (message === 'sleep') {
+                return manager.timer.stop();
+            }
+
+            if (message === 'wake') {
+                return manager.timer.start();
+            }
+
             if (message.hasOwnProperty('setStatus')) {
                 manager.setStatus(message.setStatus);
             }
@@ -3139,6 +3147,7 @@ var manager = {
                     manager.options.windowMode = window !== chrome.extension.getViews({type: 'popup'})[0];
                 } else {
                     manager.options.windowMode = mono.isFF && mono.noAddon;
+                    !manager.options.windowMode && mono.sendMessage({action: 'resize', height: manager.settings.popupHeight}, undefined, "service");
                 }
 
                 if (manager.options.trWordWrap) {

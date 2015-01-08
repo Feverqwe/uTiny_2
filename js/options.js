@@ -424,6 +424,8 @@ var options = function() {
                     options.defaultSettings = data.getDefaultSettings;
                     options.language = data.getLanguage;
 
+                    !(mono.isFF && mono.noAddon) && mono.sendMessage({action: 'resize', height: 480}, undefined, "service");
+
                     var langSelect = document.getElementById("language");
                     var langPos = ['ru', 'en', 'fr'].indexOf(options.language.lang);
                     if (langPos === -1) {
