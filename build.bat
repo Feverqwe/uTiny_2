@@ -20,8 +20,6 @@ xcopy .\firefox\* .\build_firefox_sdk\. /E /Y
 xcopy .\js\background.js .\build_firefox_sdk\lib\. /E
 del .\build_firefox_sdk\data\js\background.js
 
-exit
-
 :: base
 
 del .\build\sleep.html
