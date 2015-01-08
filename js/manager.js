@@ -1327,7 +1327,7 @@ var manager = {
         }
 
         var table = manager.domCache[type+'Body'];
-        for (i = 0, item; item = newPaste[i]; i++) {
+        for (var n = 0, item; item = newPaste[n]; n++) {
             if (item.pos === 0) {
                 var firstChild = table.firstChild;
                 if (firstChild === null) {

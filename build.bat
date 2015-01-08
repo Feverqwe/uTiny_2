@@ -27,13 +27,13 @@ del .\build\sleep.html
 del .\build\js\sleep.js
 
 java -jar compiler.jar --jscomp_warning=const --js .\js\background.js --js_output_file .\build\js\background.js
-java -jar compiler.jar --js .\js\graph.js --js_output_file .\build\js\graph.js
-java -jar compiler.jar --js .\js\jquery.contextMenu.js --js_output_file .\build\js\jquery.contextMenu.js
-java -jar compiler.jar --js .\js\manager.js --js_output_file .\build\js\manager.js
-java -jar compiler.jar --js .\js\mono.js --js_output_file .\build\js\mono.js
-java -jar compiler.jar --js .\js\notifer.js --js_output_file .\build\js\notifer.js
-java -jar compiler.jar --js .\js\options.js --js_output_file .\build\js\options.js
-java -jar compiler.jar --js .\js\selectBox.js --js_output_file .\build\js\selectBox.js
+java -jar compiler.jar --language_in ECMASCRIPT5 --js .\js\graph.js --js_output_file .\build\js\graph.js
+java -jar compiler.jar --language_in ECMASCRIPT5 --js .\js\jquery.contextMenu.js --js_output_file .\build\js\jquery.contextMenu.js
+java -jar compiler.jar --language_in ECMASCRIPT5 --js .\js\manager.js --js_output_file .\build\js\manager.js
+java -jar compiler.jar --language_in ECMASCRIPT5 --js .\js\mono.js --js_output_file .\build\js\mono.js
+java -jar compiler.jar --language_in ECMASCRIPT5 --js .\js\notifer.js --js_output_file .\build\js\notifer.js
+java -jar compiler.jar --language_in ECMASCRIPT5 --js .\js\options.js --js_output_file .\build\js\options.js
+java -jar compiler.jar --language_in ECMASCRIPT5 --js .\js\selectBox.js --js_output_file .\build\js\selectBox.js
 
 :: building
 
