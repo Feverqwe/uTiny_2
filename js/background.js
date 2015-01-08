@@ -565,7 +565,7 @@ var engine = {
         return language;
     },
     getLanguage: function(cb, force) {
-        var lang = force || engine.checkAvailableLanguage((engine.settings.language || engine.detectLanguage()));
+        var lang = force || engine.checkAvailableLanguage((engine.settings.lang || engine.detectLanguage()));
 
         engine.settings.lang = engine.settings.lang || lang;
 
@@ -880,7 +880,7 @@ var engine = {
         var updateMenu = false;
         var contextMenu = engine.createFolderCtxMenu.contextMenu;
         if (id === 'newFolder') {
-            var path = window.prompt(engine.language.enterNewDirPath, contextMenu[0][1]);
+            var path = window.prompt(engine.language.enterNewDirPath, contextMenu[0] ? contextMenu[0][1] : '0');
             if (!path) {
                 return;
             }

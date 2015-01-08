@@ -1,6 +1,6 @@
 {
     "appDesc": {
-        "message": "Расширение добавит Web-интерфейс uTorrent в ваш браузер."
+        "message": "Расширение добавит Web-интерфейс uTorrent в ваш браузер"
     },
     "lang": {
         "message": "ru"
@@ -39,7 +39,11 @@
         "message": "Пиры"
     },
     "OV_COL_SEEDS_PEERS": {
+        "message": "Сиды/Пиры"
+    },
+    "OV_COL_SEEDS_PEERS_SHORT": {
         "message": "С/П",
+        "originalKey": "OV_COL_SEEDS_PEERS",
         "modifed": 1
     },
     "OV_COL_DOWNSPD": {
@@ -193,7 +197,8 @@
         "message": "Удалить и"
     },
     "ML_DELETE_TORRENT": {
-        "message": "только .torrent"
+        "message": "Только .torrent",
+        "modifed": 1
     },
     "ML_DELETE_DATA": {
         "message": "Стереть загруженные файлы"
@@ -201,30 +206,19 @@
     "ML_DELETE_DATATORRENT": {
         "message": ".torrent и файл(ы)"
     },
-    "showFileList": {
-        "message": "Список файлов"
-    },
     "DLG_RSSDOWNLOADER_24": {
         "message": "Загрузить"
     },
     "MENU_UNLIMITED": {
-        "message": "неограниченно"
-    },
-    "selectAll": {
-        "message": "Выбрать всё"
-    },
-    "resume": {
-        "message": "Возобновить"
-    },
-    "refresh": {
-        "message": "Обновить"
-    },
-    "webUi": {
-        "message": "Web-интерфейс"
+        "message": "Неограниченно",
+        "modifed": 1
     },
     "Open_file": {
         "message": "Открыть файл",
         "originalKey": "Open file"
+    },
+    "ST_CAPT_WEBUI": {
+        "message": "Web интерфейс"
     },
     "MM_FILE_ADD_URL": {
         "message": "Добавить по URL..."
@@ -256,9 +250,6 @@
     "DLG_BTN_OK": {
         "message": "OK"
     },
-    "selectedFiles": {
-        "message": "Выбранные файл(ы)"
-    },
     "ST_CAPT_FOLDER": {
         "message": "Директория",
         "modifed": 1
@@ -272,6 +263,66 @@
         "message": "Введите новую метку",
         "modifed": 1
     },
+    "DLG_SETTINGS_4_CONN_16": {
+        "message": "Логин"
+    },
+    "DLG_SETTINGS_4_CONN_18": {
+        "message": "Пароль"
+    },
+    "PRS_COL_IP": {
+        "message": "IP-адрес"
+    },
+    "PRS_COL_PORT": {
+        "message": "Порт"
+    },
+    "ST_CAPT_ADVANCED": {
+        "message": "Дополнительно"
+    },
+    "resume": {
+        "message": "Возобновить",
+        "originalKey": "STM_TORRENTS_RESUMEALL",
+        "modifed": 1
+    },
+    "enterNewLabel": {
+        "message": "Введите название метки",
+        "originalKey": "OV_NEWLABEL_TEXT",
+        "modifed": 1
+    },
+    "defaultPath": {
+        "message": "Путь по умолчанию",
+        "originalKey": "DLG_SETTINGS_3_PATHS_10",
+        "modifed": 1
+    },
+    "add": {
+        "message": "Добавить"
+    },
+    "available": {
+        "message": "Доступно",
+        "originalKey": "STATUS_REMOTE_01"
+    },
+    "up": {
+        "message": "Вверх",
+        "originalKey": "ML_QUEUEUP",
+        "modifed": 1
+    },
+    "down": {
+        "message": "Ввниз",
+        "originalKey": "ML_QUEUEDOWN",
+        "modifed": 1
+    },
+    "update": {
+        "message": "Обновить",
+        "originalKey": "DLG_RSSDOWNLOADER_22",
+        "modifed": 1
+    },
+    "deleteSelected": {
+        "message": "Удалить выбранное",
+        "originalKey": "DLG_RSSDOWNLOADER_35",
+        "modifed": 1
+    },
+
+
+
     "torrentAdded": {
         "message": "Торрент добавлен!"
     },
@@ -286,15 +337,6 @@
     },
     "enterNewDirPath": {
         "message": "Введите путь к новой дирректории"
-    },
-    "enterNewLabel": {
-        "message": "Введите название метки"
-    },
-    "defaultPath": {
-        "message": "Путь по умолчанию"
-    },
-    "add": {
-        "message": "Добавить"
     },
     "torrentFileExists": {
         "message": "Возможно торрент файл уже существует!"
@@ -317,35 +359,18 @@
     "optCtx": {
         "message": "Контекстное меню"
     },
-    "word_backup": {
+    "backup": {
         "message": "Архивирование"
     },
-    "word_restore": {
+    "restore": {
         "message": "Восстановление"
-    },
-    "word_restore": {
-        "message": "Восстановление"
-    },
-    "DLG_SETTINGS_4_CONN_16": {
-        "message": "Логин"
-    },
-    "DLG_SETTINGS_4_CONN_18": {
-        "message": "Пароль"
-    },
-    "PRS_COL_IP": {
-        "message": "IP-адрес"
-    },
-    "PRS_COL_PORT": {
-        "message": "Порт"
-    },
-    "ST_CAPT_ADVANCED": {
-        "message": "Дополнительно"
     },
     "useSSL": {
         "message": "Использовать SSL"
     },
     "path": {
-        "message": "Путь"
+        "message": "Путь",
+        "note": "URL path"
     },
     "hideSeedStatusItem": {
         "message": "Скрыть торренты со статусом \"Раздаются\""
@@ -362,11 +387,11 @@
     "px": {
         "message": "пикселей"
     },
-    "popupUpdateInterval": {
-        "message": "Интервал обновления списка торрентов"
-    },
     "ms": {
         "message": "миллисекунда"
+    },
+    "popupUpdateInterval": {
+        "message": "Интервал обновления списка торрентов"
     },
     "fixCirilicIf": {
         "message": "Исправить кириллицу если..."
@@ -396,11 +421,7 @@
         "message": "Отображать список меток"
     },
     "selectDownloadCategoryOnAddItemFromContextMenu": {
-        "message": "Переходить в категорию \"Загрузки\" при успешном добавлении торрента"
-    },
-    "available": {
-        "message": "Доступно",
-        "originalKey": "STATUS_REMOTE_01"
+        "message": "Перейти в категорию \"Загрузки\" при успешном добавлении торрента"
     },
     "treeViewContextMenu": {
         "message": "Древовидное контекстноме меню"
@@ -411,20 +432,8 @@
     "dirList": {
         "message": "Списко директорий"
     },
-    "update": {
-        "message": "Обновить"
-    },
     "subPath": {
         "message": "Подкаталог"
-    },
-    "removeSelected": {
-        "message": "Удалить выбранное"
-    },
-    "up": {
-        "message": "Вверх"
-    },
-    "down": {
-        "message": "Ввниз"
     },
     "labelList": {
         "message": "Список меток"
@@ -432,7 +441,7 @@
     "optSaveInCloud": {
         "message": "Сохранить в облаке"
     },
-    "word_to_restore": {
+    "toRestore": {
         "message": "Восстановить"
     },
     "optGetFromCloud": {
@@ -440,5 +449,14 @@
     },
     "optClearCloudStorage": {
         "message": "Очистить настройки в облаке"
+    },
+    "showFileList": {
+        "message": "Список файлов"
+    },
+    "selectAll": {
+        "message": "Выбрать всё"
+    },
+    "refresh": {
+        "message": "Обновить"
     }
 }

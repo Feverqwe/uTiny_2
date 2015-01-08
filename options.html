@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/html">
     <head> 	
         <meta charset="utf-8" />
         <title>uTorrent easy client options</title>
@@ -18,8 +18,8 @@
                     <a href="#main" data-page="main" data-lang="optMain">Общие</a>
                     <a href="#notify" data-page="notify" data-lang="optNotify">Уведомления</a>
                     <a href="#ctx" data-page="ctx" data-lang="optCtx">Контекстное меню</a>
-                    <a href="#backup" data-page="backup" data-lang="word_backup">Архивирование</a>
-                    <a href="#restore" data-page="restore" data-lang="word_restore">Восстановление</a>
+                    <a href="#backup" data-page="backup" data-lang="backup">Архивирование</a>
+                    <a href="#restore" data-page="restore" data-lang="restore">Восстановление</a>
                 </div>
                 <div class="right">
                     <div class="page client">
@@ -38,14 +38,19 @@
                     </div>
                     <div class="page main">
                         <h2 data-lang="optMain">Общие</h2>
+                        <label><span>Language</span>
+                            <select id="language" data-option="language"/><option value="ru">Русский</option><option value="en">English</option><option value="fr">Français</option></select>
+                        </label>
                         <label><span data-lang="hideSeedStatusItem">Скрыть раздачи со статусом "Раздаются"</span><input type="checkbox" data-option="hideSeedStatusItem"/></label>
                         <label><span data-lang="hideFnishStatusItem">Скрыть раздачи со статусом "Загружен"</span><input type="checkbox" data-option="hideFnishStatusItem"/></label>
                         <label><span data-lang="showSpeedGraph">Отображать график скорости</span><input type="checkbox" data-option="showSpeedGraph"/></label>
                         <label><span data-lang="popupHeight">Высота popup окна</span><input type="number" data-option="popupHeight"/> <span data-lang="px">пикселей</span></label>
                         <label><span data-lang="popupUpdateInterval">Интервал обновления списка раздач</span><input type="number" data-option="popupUpdateInterval"/> <span data-lang="ms">миллисекунда</span></label>
-                        <h3 data-lang="fixCirilicIf">Исправить кириллицу если...</h3>
-                        <label><span data-lang="fixCirilicTitle">Неправильно отображаются названия раздач</span><input type="checkbox" data-option="fixCirilicTitle"/></label>
-                        <label><span data-lang="fixCirilicTorrentPath">Неправильно присваивается директория к добавленной раздаче</span><input type="checkbox" data-option="fixCirilicTorrentPath"/></label>
+                        <div class="cirilicFixs">
+                            <h3 data-lang="fixCirilicIf">Исправить кириллицу если...</h3>
+                            <label><span data-lang="fixCirilicTitle">Неправильно отображаются названия раздач</span><input type="checkbox" data-option="fixCirilicTitle"/></label>
+                            <label><span data-lang="fixCirilicTorrentPath">Неправильно присваивается директория к добавленной раздаче</span><input type="checkbox" data-option="fixCirilicTorrentPath"/></label>
+                        </div>
                     </div>
                     <div class="page notify">
                         <h2 data-lang="optNotify">Уведомления</h2>
@@ -67,7 +72,7 @@
                             <div class="optionItem"><span data-lang="subPath">Подкаталог</span> <input type="text" id="subPath"/> <button id="addSubPath" data-lang="add">Добавить</button></div>
                             <div class="optionItem"><select id="folderList" multiple></select></div>
                             <div class="optionItem">
-                                <button id="folderRemoveSelected" data-lang="removeSelected">Удалить выбранное</button>
+                                <button id="folderDeleteSelected" data-lang="deleteSelected">Удалить выбранное</button>
                                 <button id="folderUp" data-lang="up">Вверх</button>
                                 <button id="folderDown" data-lang="down">Ввниз</button>
                             </div>
@@ -76,13 +81,13 @@
                         <div class="optionItem"><span data-lang="OV_COL_LABEL">Метка</span> <input type="text" id="label"/> <button id="addLabel" data-lang="add">Добавить</button></div>
                         <div class="optionItem"><select id="labelList" multiple></select></div>
                         <div class="optionItem">
-                            <button id="labelRemoveSelected" data-lang="removeSelected">Удалить выбранное</button>
+                            <button id="labelDeleteSelected" data-lang="deleteSelected">Удалить выбранное</button>
                             <button id="labelUp" data-lang="up">Вверх</button>
                             <button id="labelDown" data-lang="down">Ввниз</button>
                         </div>
                     </div>
                     <div class="page backup">
-                        <h2 data-lang="word_backup">Архивирование</h2>
+                        <h2 data-lang="backup">Архивирование</h2>
                         <div class="btnList">
                             <input type="button" id="backupUpdate" value="Обновить" data-lang="update"/>
                             <input type="button" id="saveInCloud" value="Сохранить в облаке" data-lang="optSaveInCloud"/>
@@ -90,9 +95,9 @@
                         <textarea id="backupInp"></textarea>
                     </div>
                     <div class="page restore">
-                        <h2 data-lang="word_restore">Восстановление</h2>
+                        <h2 data-lang="restore">Восстановление</h2>
                         <div class="btnList">
-                            <input type="button" id="restoreBtn" value="Восстановить" data-lang="word_to_restore"/>
+                            <input type="button" id="restoreBtn" value="Восстановить" data-lang="toRestore"/>
                             <input type="button" id="getFromCloudBtn" value="Получить настройки из облака" data-lang="optGetFromCloud"/>
                             <input type="button" id="clearCloudStorage" value="Очистить настройки в облаке" data-lang="optClearCloudStorage"/>
                         </div>

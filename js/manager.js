@@ -266,7 +266,7 @@ var manager = {
                     var orderClass = (manager.varCache.trSortColumn !== key) ? undefined : (manager.varCache.trSortBy === 1) ? 'sortDown' : 'sortUp';
                     thList.push(mono.create('th', {
                         class: [key, orderClass],
-                        title: manager.language[value.lang+'_SHORT'] || manager.language[value.lang],
+                        title: manager.language[value.lang],
                         data: {
                             name: key,
                             type: 'tr'
@@ -357,7 +357,7 @@ var manager = {
                     var orderClass = (manager.varCache.flSortColumn !== key) ? undefined : (manager.varCache.flSortBy === 1) ? 'sortDown' : 'sortUp';
                     thList.push(mono.create('th', {
                         class: [key, orderClass],
-                        title: manager.language[value.lang+'_SHORT'] || manager.language[value.lang],
+                        title: manager.language[value.lang],
                         data: {
                             name: key,
                             type: 'fl'
@@ -2156,10 +2156,14 @@ var manager = {
             }
         }
         var userLabelLength = 0;
+        var fullLabelList = manager.varCache.labelList.slice(0);
         for (var i = 0, item; item = manager.varCache.labels[i]; i++) {
             if (item.custom) continue;
+            if (fullLabelList.indexOf(item.label) !== -1) continue;
+            fullLabelList.push(item.label);
+        }
+        for (var i = 0, label; label = fullLabelList[i]; i++) {
             userLabelLength++;
-            var label = item.label;
             if (items['_' + label] === undefined) {
                 items['_' + label] = {
                     name: label,
@@ -2204,9 +2208,8 @@ var manager = {
             }
             var item = items[key];
             var found = false;
-            for (var i = 0, labelItem; labelItem = manager.varCache.labels[i]; i++) {
-                if (labelItem.custom) continue;
-                if (labelItem.label === item.name) {
+            for (var i = 0, label; label = fullLabelList[i]; i++) {
+                if (label === item.name) {
                     found = true;
                     break;
                 }
@@ -2808,7 +2811,7 @@ var manager = {
                 //выстраивает внутренности контекстного меню для ограничения скорости
                 var items = {};
                 items.unlimited = {
-                    name: manager.capitalize(manager.language.MENU_UNLIMITED),
+                    name: manager.language.MENU_UNLIMITED,
                     speed: 0,
                     callback: function (key, toggle) {
                         var item = toggle.items[key];

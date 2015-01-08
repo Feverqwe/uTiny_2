@@ -424,6 +424,27 @@ var options = function() {
                     options.defaultSettings = data.getDefaultSettings;
                     options.language = data.getLanguage;
 
+                    var langSelect = document.getElementById("language");
+                    var langPos = ['ru', 'en', 'fr'].indexOf(options.language.lang);
+                    if (langPos === -1) {
+                        langPos = 1;
+                    }
+                    langSelect.selectedIndex = langPos;
+                    langSelect.addEventListener('change', function() {
+                        var index = langSelect.selectedIndex;
+                        var option = langSelect.childNodes[index];
+                        var lang = option.value;
+                        mono.storage.set({language: lang}, function() {
+                            mono.sendMessage({action: 'reloadSettings'}, function() {
+                                location.reload();
+                            });
+                        });
+                    });
+
+                    if (options.language.lang !== "ru") {
+                        document.querySelector('.cirilicFixs').style.display = 'none';
+                    }
+
                     writeLanguage();
 
                     domCache.folderList = document.getElementById('folderList');
@@ -482,15 +503,15 @@ var options = function() {
                         }
                     });
 
-                    domCache.folderRemoveSelected = document.getElementById('folderRemoveSelected');
-                    domCache.folderRemoveSelected.addEventListener('click', removeOption.bind(null, 'folder'));
+                    domCache.folderDeleteSelected = document.getElementById('folderDeleteSelected');
+                    domCache.folderDeleteSelected.addEventListener('click', removeOption.bind(null, 'folder'));
                     domCache.folderUp = document.getElementById('folderUp');
                     domCache.folderUp.addEventListener('click', optionUp.bind(null, 'folder'));
                     domCache.folderDown = document.getElementById('folderDown');
                     domCache.folderDown.addEventListener('click', optionDown.bind(null, 'folder'));
 
-                    domCache.labelRemoveSelected = document.getElementById('labelRemoveSelected');
-                    domCache.labelRemoveSelected.addEventListener('click', removeOption.bind(null, 'label'));
+                    domCache.labelDeleteSelected = document.getElementById('labelDeleteSelected');
+                    domCache.labelDeleteSelected.addEventListener('click', removeOption.bind(null, 'label'));
                     domCache.labelUp = document.getElementById('labelUp');
                     domCache.labelUp.addEventListener('click', optionUp.bind(null, 'label'));
                     domCache.labelDown = document.getElementById('labelDown');
