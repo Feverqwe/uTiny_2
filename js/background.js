@@ -489,8 +489,28 @@ var engine = {
         optionsList.push('folderList');
         optionsList.push('labelList');
 
+        optionsList.push('ut_port');
+        optionsList.push('ut_ip');
+        optionsList.push('ut_path');
+        optionsList.push('ssl');
+
         mono.storage.get(optionsList, function(storage) {
             var settings = {};
+
+            // migration >>>
+            if (!storage.hasOwnProperty('port') && storage.ut_port && !isNaN(parseInt(storage.ut_port))) {
+                storage.port = parseInt(storage.ut_port);
+            }
+            if (!storage.hasOwnProperty('ip') && storage.ut_ip) {
+                storage.ip = storage.ut_ip;
+            }
+            if (!storage.hasOwnProperty('path') && storage.path) {
+                storage.path = storage.ut_path;
+            }
+            if (!storage.hasOwnProperty('useSSL') && storage.ssl === 1) {
+                storage.useSSL = storage.ssl;
+            }
+            // <<< migration
 
             for (var item in defaultSettings) {
                 settings[item] = storage.hasOwnProperty(item) ? storage[item] : defaultSettings[item];
