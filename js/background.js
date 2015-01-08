@@ -511,7 +511,7 @@ var engine = {
     },
     detectLanguage: mono.isChrome ? function() {
         return chrome.i18n.getMessage('lang');
-    } : mono.isFF ? function() {
+    } : window.isModule ? function() {
         var lang = require("sdk/l10n").get('lang');
         if (lang !== 'lang') {
             return lang;

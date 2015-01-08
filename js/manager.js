@@ -3150,6 +3150,8 @@ var manager = {
                 manager.settings = data.getSettings;
 
                 if (manager.settings.login === null || manager.settings.password === null) {
+                    console.timeEnd('manager render');
+                    console.timeEnd('manager');
                     return window.location = "options.html";
                 }
 
@@ -3157,7 +3159,10 @@ var manager = {
                     manager.options.windowMode = window !== chrome.extension.getViews({type: 'popup'})[0];
                 } else {
                     manager.options.windowMode = mono.isFF && mono.noAddon;
-                    !manager.options.windowMode && mono.sendMessage({action: 'resize', height: manager.settings.popupHeight}, undefined, "service");
+                    if (!manager.options.windowMode) {
+                        document.body.style.overflow = 'hidden';
+                        mono.sendMessage({action: 'resize', height: manager.settings.popupHeight}, undefined, "service");
+                    }
                 }
 
                 if (manager.options.trWordWrap) {

@@ -432,7 +432,8 @@ div.file-list ul.bottom-menu a.update{
     background-size: 20px;
 }
 div.file-list ul.bottom-menu a.close{
-    background-image: url('../images/close.png');
+    background-image: url('../images/close.svg');
+    background-size: 20px;
     margin-right:  2px;
 }
 div.file-list ul.bottom-menu a:hover {

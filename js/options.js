@@ -178,8 +178,10 @@ var options = function() {
 
         var obj = {};
         obj[key] = value;
+
+        var cb = this.cb;
         mono.storage.set(obj, function() {
-            mono.sendMessage({action: 'reloadSettings'});
+            mono.sendMessage({action: 'reloadSettings'}, cb);
         });
     };
 
@@ -576,7 +578,8 @@ var options = function() {
                     window.addEventListener("hashchange", onHashChange);
                     onHashChange();
 
-                    document.getElementById('clientCheckBtn').addEventListener('click', function(e) {
+                    domCache.clientCheckBtn = document.getElementById('clientCheckBtn');
+                    domCache.clientCheckBtn.addEventListener('click', function(e) {
                         var statusEl = document.getElementById('clientStatus');
                         statusEl.textContent = '';
                         statusEl.appendChild(mono.create('img', {
@@ -610,6 +613,11 @@ var options = function() {
                                 }
                             }
                             statusEl.appendChild(span);
+
+                            clearTimeout(varCache.statusTimer);
+                            varCache.statusTimer = setTimeout(function() {
+                                statusEl.textContent = '';
+                            }, 2500);
                         });
                     });
 
@@ -630,6 +638,17 @@ var options = function() {
                     domCache.updateDirList.addEventListener('click', function() {
                         updateDirList();
                     });
+
+                    var checkInputList = document.querySelectorAll('input[data-option="login"], input[data-option="password"], input[data-option="ip"], input[data-option="port"]');
+                    for (var i = 0, el; el = checkInputList[i]; i++) {
+                        el.addEventListener('keydown', function(e) {
+                            if (e.keyCode === 13) {
+                                saveChange.call({cb: function() {
+                                    domCache.clientCheckBtn.dispatchEvent(new CustomEvent('click'));
+                                }}, {target: this});
+                            }
+                        });
+                    }
 
                     var inputList = document.querySelectorAll('input[type=text], input[type=password], input[type=number]');
 
