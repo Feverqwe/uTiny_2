@@ -306,7 +306,7 @@
         "modifed": 1
     },
     "down": {
-        "message": "Ввниз",
+        "message": "Вниз",
         "originalKey": "ML_QUEUEDOWN",
         "modifed": 1
     },
@@ -336,7 +336,7 @@
         "message": "Добавить в uTorrent"
     },
     "enterNewDirPath": {
-        "message": "Введите путь к новой дирректории"
+        "message": "Введите путь к новой директории"
     },
     "torrentFileExists": {
         "message": "Возможно торрент файл уже существует!"
@@ -406,7 +406,7 @@
         "message": "Уведомлять при завершении загрузки торрента"
     },
     "displayActiveTorrentCountIcon": {
-        "message": "Отображать количество скачиваемых торрентов на иконке расширения"
+        "message": "Отображать количество загружаемых торрентов на иконке расширения"
     },
     "backgroundUpdateInterval": {
         "message": "Интервал фонового обновления списка торрентов"
@@ -424,13 +424,13 @@
         "message": "Перейти в категорию \"Загрузки\" при успешном добавлении торрента"
     },
     "treeViewContextMenu": {
-        "message": "Древовидное контекстноме меню"
+        "message": "Древовидное контекстное меню"
     },
     "showDefaultFolderContextMenuItem": {
         "message": "Отображать директорию по умолчанию"
     },
     "dirList": {
-        "message": "Списко директорий"
+        "message": "Список директорий"
     },
     "subPath": {
         "message": "Подкаталог"
