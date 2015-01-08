@@ -2773,7 +2773,6 @@ var manager = {
                     name: manager.language.DLG_RSSDOWNLOADER_24,
                     callback: function (key, trigger) {
                         var hash = manager.varCache.flListLayer.hash;
-                        var settings = manager.settings;
                         var ctxSelectArray = manager.varCache.flListLayer.ctxSelectArray;
                         for (var n = 0, len = ctxSelectArray.length; n < len; n++) {
                             var item = ctxSelectArray[n];
