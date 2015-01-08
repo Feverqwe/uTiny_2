@@ -409,7 +409,7 @@
         "message": "Open \"Downloading\" category when adding a torrent"
     },
     "treeViewContextMenu": {
-        "message": "Tree view context meny"
+        "message": "Tree view context menu"
     },
     "showDefaultFolderContextMenuItem": {
         "message": "Show default directory"
