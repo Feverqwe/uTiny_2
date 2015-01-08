@@ -2931,7 +2931,6 @@ var manager = {
         var labelTemplate = showNotification.selectLabelTemplate();
         var folderTemplate = showNotification.selectFolderTemplate();
         if (labelTemplate[1].select.append.length === 0 && folderTemplate[1].select.append.length === 0) {
-            manager.options.noSleep = false;
             return onClickYes();
         }
         if (labelTemplate[1].select.append.length === 0) {
