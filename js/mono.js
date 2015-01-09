@@ -201,7 +201,7 @@ var mono = (typeof mono === 'undefined') ? undefined : mono;
       msgTools.cbStack.splice(msgTools.cbStack.indexOf(cbId), 1);
     },
     /**
-     * Remove all callback from cbObj
+     * Remove old callback from cbObj
      * @param {number} aliveTime - Keep alive time
      */
     clean: function(aliveTime) {
