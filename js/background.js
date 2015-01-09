@@ -850,20 +850,38 @@ var engine = {
                 return;
             }
             var download_dir = defaultItem[0];
-            id = contextMenu.length;
-            contextMenu.push([download_dir, path]);
-            engine.varCache.folderList.push([download_dir, path]);
-            updateMenu = true;
+            id = -1;
+            for (var i = 0, item; item = contextMenu[i]; i++) {
+                if (item[1] === path && item[0] === download_dir) {
+                    id = i;
+                    break;
+                }
+            }
+            if (id === -1) {
+                id = contextMenu.length;
+                contextMenu.push([download_dir, path]);
+                engine.varCache.folderList.push([download_dir, path]);
+                updateMenu = true;
+            }
         }
         if (id === 'newLabel') {
             var newLabel = window.prompt(engine.language.enterNewLabel);
             if (!newLabel) {
                 return;
             }
-            id = contextMenu.length;
-            contextMenu.push(newLabel);
-            engine.varCache.labelList.push(newLabel);
-            updateMenu = true;
+            id = -1;
+            for (var i = 0, item; item = contextMenu[i]; i++) {
+                if (item === newLabel) {
+                    id = i;
+                    break;
+                }
+            }
+            if (id === -1) {
+                id = contextMenu.length;
+                contextMenu.push(newLabel);
+                engine.varCache.labelList.push(newLabel);
+                updateMenu = true;
+            }
         }
         if (id === 'main' || id === 'default') {
             return engine.sendFile(link, undefined, undefined, e.referer);
