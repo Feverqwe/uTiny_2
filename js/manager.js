@@ -2400,10 +2400,11 @@ var manager = {
         for (var i = 0, len = fileIndexList.length; i < len; i++) {
             var index = fileIndexList[i];
             var item = manager.varCache.flListItems[index];
-            var fn = item.cell.prio;
-            if (fn) {
+            var cell = item.cell;
+            if (cell) {
                 item.api[3] = priority;
-                fn(item.api);
+                cell.prio && cell.prio(item.api);
+                cell.done && cell.done(item.api);
             }
         }
     },
