@@ -3439,6 +3439,7 @@ var manager = {
                 manager.domCache.flFixedHead.addEventListener('click', onColumntClick);
 
                 manager.varCache.selectBox = selectBox.wrap(manager.domCache.labelBox);
+                manager.domCache.labelBox.classList.remove('prepare');
 
                 manager.domCache.trBody.addEventListener('click', function(e) {
                     var el = e.target;
@@ -3580,6 +3581,10 @@ var manager = {
                         }
                     }]
                 }));
+
+                mono.isChrome && setTimeout(function() {
+                    document.body.style.minHeight = (manager.settings.popupHeight) + 'px';
+                }, 100);
 
                 console.timeEnd('manager render');
                 console.timeEnd('manager');

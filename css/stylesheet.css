@@ -508,6 +508,9 @@ table thead .sortUp .arrow {
     transform: rotate(180deg);
     background-position-y: -5px;
 }
+li.select > select.prepare {
+    opacity: 0;
+}
 li.select > select,
 li.select > .simple-select-box {
     float: right;
