@@ -4,9 +4,6 @@
  * @param {object} obj
  * @returns {Element}
  */
-mono.isVisibleElement = function(el) {
-    return el.offsetWidth > 0 && el.offsetHeight > 0;
-};
 mono.create = function(tagName, obj) {
     var el;
     if ( typeof tagName === 'string') {
@@ -95,6 +92,9 @@ mono.create.hookList = {
     onCreate: function(el, value) {
         value(el);
     }
+};
+mono.isVisibleElement = function(el) {
+    return el.offsetWidth > 0 && el.offsetHeight > 0;
 };
 mono.spaceToUnderline = function(string) {
     return string.replace(/\s/, '_');
@@ -453,11 +453,8 @@ var manager = {
     },
     getLabelOptionNode: function(item, isCustom) {
         var hasImage;
-        if (isCustom) {
+        if (isCustom && item !== 'NOLABEL') {
             hasImage = true;
-            if (item === 'NOLABEL') {
-                hasImage = false;
-            }
         }
         return mono.create('option', {
             value: item,
@@ -2034,7 +2031,7 @@ var manager = {
             if (newSize < 16) {
                 newSize = 16;
             }
-            styleEl.textContent = styleBody.replace(/\{size\}/g, newSize);
+            styleEl.textContent = styleBody.replace(/\{size}/g, newSize);
         };
         document.body.addEventListener('mousemove', onMouseMove);
         document.body.addEventListener('mouseup', function onMouseDown(e) {

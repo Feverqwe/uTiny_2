@@ -201,10 +201,6 @@ input.button {
     width: 28px;
     height: 28px;
 }
-input.button.main {
-    background-image: url(../images/main.png);
-    float: right;
-}
 
 .bottom {
     padding-bottom: 2em;

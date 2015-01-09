@@ -556,7 +556,7 @@ var mono = (typeof mono === 'undefined') ? undefined : mono;
       return;
     }
 
-    mono.isChromeBgPage = location.href.indexOf('_generated_background_page.html') !== -1;;
+    mono.isChromeBgPage = location.href.indexOf('_generated_background_page.html') !== -1;
 
     chrome.runtime.getBackgroundPage(function(bgWin) {
       if (bgWin !== window) {
