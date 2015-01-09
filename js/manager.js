@@ -2400,12 +2400,10 @@ var manager = {
         for (var i = 0, len = fileIndexList.length; i < len; i++) {
             var index = fileIndexList[i];
             var item = manager.varCache.flListItems[index];
-            var cell = item.cell;
-            if (cell) {
-                item.api[3] = priority;
-                cell.prio && cell.prio(item.api);
-                cell.done && cell.done(item.api);
-            }
+            if (!item) continue;
+            item.api[3] = priority;
+            item.cell.prio && item.cell.prio(item.api);
+            item.cell.done && item.cell.done(item.api);
         }
     },
     setPriority: function(hash, fileIndexList, level) {
