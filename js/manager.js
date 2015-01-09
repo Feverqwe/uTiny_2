@@ -2417,7 +2417,7 @@ var manager = {
             if (doneCount !== waitCount) {
                 return;
             }
-            manager.flForceSetFilePriority(2, fileIndexList);
+            manager.flForceSetFilePriority(level, fileIndexList);
             manager.flUnCheckAll(1);
         };
         while (fileIndexList[from] !== undefined) {
