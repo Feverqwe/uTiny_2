@@ -2407,6 +2407,26 @@ var manager = {
             }
         }
     },
+    setPriority: function(hash, fileIndexList, level) {
+        var step = 500;
+        var waitCount = 0;
+        var doneCount = 0;
+        var from = 0;
+        var onReady = function() {
+            doneCount++;
+            if (doneCount !== waitCount) {
+                return;
+            }
+            manager.flForceSetFilePriority(2, fileIndexList);
+            manager.flUnCheckAll(1);
+        };
+        while (fileIndexList[from] !== undefined) {
+            waitCount++;
+            var list = fileIndexList.slice(from, from+step);
+            from+=step;
+            mono.sendMessage({action: 'api', data: $.param({action: 'setprio', p: level}) + '&' + $.param({hash: hash, f: list}, true)}, onReady);
+        }
+    },
     onLoadContextMenu: function() {
         $.contextMenu.defaults.delay = 0;
         $.contextMenu.defaults.animation.hide = 'hide';
@@ -2738,10 +2758,7 @@ var manager = {
                     callback: function () {
                         var hash = manager.varCache.flListLayer.hash;
                         var fileIndexList = manager.varCache.flListLayer.ctxSelectArray.slice(0);
-                        mono.sendMessage({action: 'api', data: $.param({action: 'setprio', p: 3}) + '&' + $.param({hash: hash, f: manager.varCache.flListLayer.ctxSelectArray}, true)}, function() {
-                            manager.flForceSetFilePriority(3, fileIndexList);
-                        });
-                        manager.flUnCheckAll(1);
+                        manager.setPriority(hash, fileIndexList, 3);
                     }
                 },
                 normal: {
@@ -2751,10 +2768,7 @@ var manager = {
                     callback: function () {
                         var hash = manager.varCache.flListLayer.hash;
                         var fileIndexList = manager.varCache.flListLayer.ctxSelectArray.slice(0);
-                        mono.sendMessage({action: 'api', data: $.param({action: 'setprio', p: 2}) + '&' + $.param({hash: hash, f: manager.varCache.flListLayer.ctxSelectArray}, true)}, function() {
-                            manager.flForceSetFilePriority(2, fileIndexList);
-                        });
-                        manager.flUnCheckAll(1);
+                        manager.setPriority(hash, fileIndexList, 2);
                     }
                 },
                 low: {
@@ -2764,10 +2778,7 @@ var manager = {
                     callback: function () {
                         var hash = manager.varCache.flListLayer.hash;
                         var fileIndexList = manager.varCache.flListLayer.ctxSelectArray.slice(0);
-                        mono.sendMessage({action: 'api', data: $.param({action: 'setprio', p: 1}) + '&' + $.param({hash: hash, f: manager.varCache.flListLayer.ctxSelectArray}, true)}, function() {
-                            manager.flForceSetFilePriority(1, fileIndexList);
-                        });
-                        manager.flUnCheckAll(1);
+                        manager.setPriority(hash, fileIndexList, 1);
                     }
                 },
                 s: '-',
@@ -2778,10 +2789,7 @@ var manager = {
                     callback: function () {
                         var hash = manager.varCache.flListLayer.hash;
                         var fileIndexList = manager.varCache.flListLayer.ctxSelectArray.slice(0);
-                        mono.sendMessage({action: 'api', data: $.param({action: 'setprio', p: 0}) + '&' + $.param({hash: hash, f: manager.varCache.flListLayer.ctxSelectArray}, true)}, function() {
-                            manager.flForceSetFilePriority(0, fileIndexList);
-                        });
-                        manager.flUnCheckAll(1);
+                        manager.setPriority(hash, fileIndexList, 0);
                     }
                 },
                 s1: '-',

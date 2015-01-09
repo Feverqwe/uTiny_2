@@ -146,10 +146,13 @@ var mono = (typeof mono === 'undefined') ? undefined : mono;
       mono.onMessage.inited === undefined && mono.onMessage(function(){});
 
       if (msgTools.cbStack.length > mono.messageStack) {
-        delete msgTools.cbObj[msgTools.cbStack.shift()];
+        msgTools.clean();
+        if (msgTools.cbStack.length > mono.messageStack) {
+          delete msgTools.cbObj[msgTools.cbStack.shift()];
+        }
       }
       var id = message.callbackId = msgTools.idPrefix+(++msgTools.id);
-      msgTools.cbObj[id] = cb;
+      msgTools.cbObj[id] = {fn: cb, time: Date.now()};
       msgTools.cbStack.push(id);
     },
     /**
@@ -161,7 +164,7 @@ var mono = (typeof mono === 'undefined') ? undefined : mono;
       if (cb === undefined) return;
       delete msgTools.cbObj[message.responseId];
       msgTools.cbStack.splice(msgTools.cbStack.indexOf(message.responseId), 1);
-      cb(message.data);
+      cb.fn(message.data);
     },
     /**
      * Response function
@@ -196,11 +199,26 @@ var mono = (typeof mono === 'undefined') ? undefined : mono;
       if (cb === undefined) return;
       delete msgTools.cbObj[cbId];
       msgTools.cbStack.splice(msgTools.cbStack.indexOf(cbId), 1);
+    },
+    /**
+     * Remove all callback from cbObj
+     * @param {number} aliveTime - Keep alive time
+     */
+    clean: function(aliveTime) {
+      var now = Date.now();
+      aliveTime = aliveTime || 120*1000;
+      for (var item in msgTools.cbObj) {
+        if (msgTools.cbObj[item].time + aliveTime < now) {
+          delete msgTools.cbObj[item];
+          msgTools.cbStack.splice(msgTools.cbStack.indexOf(item), 1);
+        }
+      }
     }
   };
 
   mono.msgClearStack = msgTools.clearCbStack;
   mono.msgRemoveCbById = msgTools.removeCb;
+  mono.msgClean = msgTools.clean;
 
   /**
    * Send message if background page - to local pages, or to background page

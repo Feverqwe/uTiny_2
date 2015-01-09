@@ -1429,6 +1429,7 @@ var engine = {
             });
         },
         managerIsOpen: function(message, response) {
+            mono.msgClean();
             if (engine.timer.state !== 1) {
                 engine.timer.start();
             }
