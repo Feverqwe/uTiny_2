@@ -2417,6 +2417,9 @@ var manager = {
             if (doneCount !== waitCount) {
                 return;
             }
+            if (hash !== manager.varCache.flListLayer.hash) {
+                return;
+            }
             manager.flForceSetFilePriority(level, fileIndexList);
             manager.flUnCheckAll(1);
         };
