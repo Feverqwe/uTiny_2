@@ -84,7 +84,7 @@ var mono = (typeof mono === 'undefined') ? undefined : mono;
           mono.isChromeWebApp = true;
         }
       }
-      mono.isChromeInject = chrome.tabs === undefined;
+      mono.isChromeInject = chrome.hasOwnProperty('tabs');
       return;
     }
 
@@ -273,7 +273,7 @@ var mono = (typeof mono === 'undefined') ? undefined : mono;
   mono.storage = undefined;
 
 (function() {
-  if (!mono.isChrome || !(chrome.runtime && chrome.runtime.onMessage)) return;
+  if (!mono.isChrome || !(chrome.hasOwnProperty('runtime') && chrome.runtime.onMessage)) return;
 
   var lowLevelHook = {};
 
@@ -350,7 +350,7 @@ var mono = (typeof mono === 'undefined') ? undefined : mono;
   chromeMsg.on.lowLevelHook = lowLevelHook;
 
   (function() {
-    if (chrome.runtime.getBackgroundPage === undefined) return;
+    if (!chrome.runtime.hasOwnProperty('getBackgroundPage')) return;
 
     mono.isChromeBgPage = location.href.indexOf('_generated_background_page.html') !== -1;
 
@@ -451,7 +451,7 @@ var mono = (typeof mono === 'undefined') ? undefined : mono;
 })();
 
 (function() {
-  if (!mono.isChrome || (chrome.runtime && chrome.runtime.onMessage)) return;
+  if (!mono.isChrome || (chrome.hasOwnProperty('runtime') && chrome.runtime.onMessage)) return;
 
   var lowLevelHook = {};
 
@@ -561,7 +561,7 @@ var mono = (typeof mono === 'undefined') ? undefined : mono;
 //@gmMsg
 
 (function() {
-  if (!mono.isChrome || !chrome.storage) return;
+  if (!mono.isChrome || !chrome.hasOwnProperty('storage')) return;
 
   /**
    * Chrome storage mode
