@@ -3583,8 +3583,10 @@ var manager = {
                 }));
 
                 mono.isChrome && !manager.options.windowMode && setTimeout(function() {
-                    var height = document.body.clientHeight;
-                    document.body.style.minHeight = height + 'px';
+                    document.body.style.minHeight = (manager.settings.popupHeight + 1) + 'px';
+                    setTimeout(function() {
+                        document.body.style.minHeight = manager.settings.popupHeight + 'px';
+                    });
                 }, 100);
 
                 console.timeEnd('manager render');
