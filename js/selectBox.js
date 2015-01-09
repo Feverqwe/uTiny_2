@@ -44,8 +44,14 @@ var selectBox = {
                 break;
             }
         }
+        var docHeight = document.body.clientHeight;
         options.style.display = 'block';
-        options.style.top = (control.clientTop + control.clientHeight) + 'px',
+        var topPos = control.clientTop + control.clientHeight;
+        options.style.top = (topPos) + 'px';
+        options.style.height = 'initial';
+        if (topPos + options.clientHeight > docHeight) {
+            options.style.height = (docHeight - topPos - 1 - 1) + 'px';
+        }
         options.style.left = leftPos+'px';
         currentBox.isOpen = true;
         currentBox.control.classList.add('is-open');
@@ -95,18 +101,12 @@ var selectBox = {
             currentBox.options.parentNode.removeChild(currentBox.options);
         }
 
-        var maxHeight = document.body.clientHeight;
-        if (maxHeight > 200) {
-            maxHeight = 200;
-        }
-
         currentBox.options = mono.create('div', {
             class: 'simple-select-box-menu',
             style: {
                 display: disaply,
                 position: 'absolute',
-                width: currentBox.control.clientWidth+'px',
-                maxHeight: maxHeight+'px'
+                width: currentBox.control.clientWidth+'px'
             },
             on: ['click', function(e) {
                 e.stopPropagation();

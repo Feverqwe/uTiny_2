@@ -2429,13 +2429,20 @@ var manager = {
 
             var $win = $(window);
             // correct offset if viewport demands it
+            opt.$menu.css({'height': 'initial', 'overflow': 'initial'});
+            var hasSubMenu = opt.$menu[0].querySelector('.context-menu-submenu') !== null;
+
             var bottom = $win.scrollTop() + $win.height();
             var right = $win.scrollLeft() + $win.width();
             var height = opt.$menu.height();
             var width = opt.$menu.width();
 
+            if (!hasSubMenu) {
+                offset.overflow = 'auto';
+            }
+
             if (offset.top + height > bottom) {
-                offset.top -= height;
+                offset.top -= (offset.top + height) - bottom + 1;
             }
 
             if (height + 2 >= bottom || offset.top < 0) {
@@ -2468,7 +2475,6 @@ var manager = {
             var docWitdh = document.body.clientWidth;
             var docHeight = document.body.clientHeight;
 
-            $menu.css({opacity: 0});
             var menuHeight = $menu.height();
             var top = -parseInt((menuHeight - parentMenuItemHeight) / 2);
             var menuWidth = $menu.width();
@@ -2480,17 +2486,26 @@ var manager = {
                 left = this.outerWidth() - 1;
             }
 
+            var changeDisplay = false;
+            if (document.body.scrollHeight > docHeight) {
+                changeDisplay = true;
+                $menu.css({display: 'none'});
+            }
+            docHeight = document.body.clientHeight;
+            if (changeDisplay) {
+                $menu.css({display: 'block'});
+            }
+
             if (parentMenuItemTop + top + menuHeight < 0) {
                 top = -parentMenuItemTop;
             } else
             if (parentMenuItemTop + top + menuHeight > docHeight) {
-                top -= (parentMenuItemTop + top + menuHeight - docHeight);
+                top -= (parentMenuItemTop + top + menuHeight - docHeight) + 2;
             }
 
             $menu.css({
                 top: top,
-                left: left,
-                opacity: 1
+                left: left
             });
         };
 
@@ -2842,7 +2857,6 @@ var manager = {
         });
 
         $.contextMenu({
-            className: 'trColumSelect',
             selector: 'table.torrent-table-head thead',
             events: {
                 show: function (trigger) {

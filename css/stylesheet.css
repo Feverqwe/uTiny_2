@@ -676,9 +676,6 @@ div.btn.setup {
     left: auto;
     right: 0;
 }
-.trColumSelect {
-    overflow-x: auto;
-}
 
 .openInTab {
     display: inline-block;
