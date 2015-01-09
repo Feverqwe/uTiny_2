@@ -2489,11 +2489,11 @@ var manager = {
             var changeDisplay = false;
             if (document.body.scrollHeight > docHeight) {
                 changeDisplay = true;
-                $menu.css({display: 'none'});
+                $menu[0].classList.add('forceHidden');
             }
             docHeight = document.body.clientHeight;
             if (changeDisplay) {
-                $menu.css({display: 'block'});
+                $menu[0].classList.remove('forceHidden');
             }
 
             if (parentMenuItemTop + top + menuHeight < 0) {

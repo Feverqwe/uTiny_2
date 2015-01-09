@@ -187,3 +187,6 @@ li.context-menu-item ul.context-menu-list {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+.forceHidden {
+    display: none !important;
+}
