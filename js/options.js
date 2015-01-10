@@ -163,6 +163,11 @@ var options = function() {
             if (isNaN(number)) {
                 number = parseInt(el.placeholder);
             }
+            var min = parseInt(el.min);
+            if (!isNaN(min) && number < min) {
+                number = min;
+                el.value = number;
+            }
             if (isNaN(number)) {
                 return;
             }

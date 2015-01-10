@@ -231,6 +231,9 @@ var engine = {
         start: function() {
             this.state = 1;
             this.clearInterval(this.timer);
+            if (engine.settings.backgroundUpdateInterval <= 1000) {
+                return;
+            }
             this.timer = this.setInterval(function() {
                 engine.updateTrackerList();
             }, engine.settings.backgroundUpdateInterval);
@@ -696,10 +699,37 @@ var engine = {
         };
         xhr.send();
     },
-    setOnFileAddListener: function(label, requestCid) {
-        engine.varCache.newFileListener = function(newFile, cid) {
-            if (cid !== requestCid) return;
+    newFileListenerStackClean: function() {
+        var len = 0;
+        for (var cid in engine.setOnFileAddListener.stack) {
+            if (engine.setOnFileAddListener.stack[cid].time + 60*1000 < Date.now()) {
+                delete engine.setOnFileAddListener.stack[cid];
+                continue;
+            }
+            len++;
+        }
+        if (len === 0) {
             delete engine.varCache.newFileListener;
+        }
+    },
+    setOnFileAddListener: function(label, requestCid) {
+        if (engine.setOnFileAddListener.stack === undefined) {
+            engine.setOnFileAddListener.stack = {};
+        }
+
+        engine.setOnFileAddListener.stack[requestCid] = {time: Date.now(), label: label};
+
+        if (engine.varCache.newFileListener !== undefined) {
+            return;
+        }
+
+        engine.varCache.newFileListener = function(newFile, cid) {
+            var stackItem = engine.setOnFileAddListener.stack[cid];
+            if (stackItem === undefined) {
+                engine.newFileListenerStackClean();
+                return;
+            }
+            delete engine.setOnFileAddListener.stack[cid];
             if (newFile.length === 0) {
                 engine.showNotification(engine.icons.error, engine.language.torrentFileExists, '');
                 return;
@@ -708,14 +738,15 @@ var engine = {
                 return;
             }
             var item = newFile[0];
-            if (label && !item[11]) {
-                engine.sendAction({action: 'setprops', s: 'label', hash: item[0], v: label});
+            if (stackItem.label && !item[11]) {
+                engine.sendAction({action: 'setprops', s: 'label', hash: item[0], v: stackItem.label});
             }
             if (engine.settings.selectDownloadCategoryOnAddItemFromContextMenu) {
                 mono.storage.set({selectedLabel: {label: 'DL', custom: 1}});
             }
             engine.showNotification(engine.icons.add, item[2], engine.language.torrentAdded);
-        }
+            engine.newFileListenerStackClean();
+        };
     },
     sendFile: function(url, folder, label, referer) {
         var isUrl;

@@ -423,7 +423,10 @@ var manager = {
             manager.domCache.flBottom.style.display = 'block';
             manager.varCache.flBottomIsHide = 0;
         }
-        var popupHeight = manager.options.windowMode ? document.body.clientHeight : manager.settings.popupHeight;
+        var popupHeight = manager.settings.popupHeight;
+        if (manager.options.windowMode || popupHeight === 0) {
+            popupHeight = document.body.clientHeight;
+        }
 
         var flBodyHeight = popupHeight - manager.domCache.menu.clientHeight - 1 - manager.domCache.statusPanel.clientHeight - 2;
         var flTableHeight = flBodyHeight - manager.domCache.menu.clientHeight;
@@ -2841,7 +2844,11 @@ var manager = {
                     }
                 };
                 items.s = '-';
-                var count = Math.round((manager.settings.popupHeight - 54) / 27);
+                var popupHeight = manager.settings.popupHeight;
+                if (manager.options.windowMode || popupHeight === 0) {
+                    popupHeight = document.body.clientHeight;
+                }
+                var count = Math.round((popupHeight - 54) / 27);
                 if (count > 10) {
                     count = 10;
                 }
@@ -3181,8 +3188,12 @@ var manager = {
                 } else {
                     manager.options.windowMode = mono.isFF && mono.noAddon;
                     if (!manager.options.windowMode) {
+                        var popupHeight = manager.settings.popupHeight;
+                        if (popupHeight === 0) {
+                            popupHeight = document.body.clientHeight;
+                        }
                         document.body.style.overflow = 'hidden';
-                        mono.sendMessage({action: 'resize', height: manager.settings.popupHeight}, undefined, "service");
+                        mono.sendMessage({action: 'resize', height: popupHeight}, undefined, "service");
                     }
                 }
 
@@ -3583,7 +3594,11 @@ var manager = {
                 }));
 
                 mono.isChrome && !manager.options.windowMode && setTimeout(function() {
-                    document.body.style.minHeight = (manager.settings.popupHeight + 1) + 'px';
+                    var popupHeight = manager.settings.popupHeight;
+                    if (popupHeight === 0) {
+                        popupHeight = document.body.clientHeight;
+                    }
+                    document.body.style.minHeight = (popupHeight + 1) + 'px';
                     setTimeout(function() {
                         document.body.style.minHeight = manager.settings.popupHeight + 'px';
                     });

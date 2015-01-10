@@ -44,8 +44,8 @@
                         <label><span data-lang="hideSeedStatusItem">Скрыть раздачи со статусом "Раздаются"</span><input type="checkbox" data-option="hideSeedStatusItem"/></label>
                         <label><span data-lang="hideFnishStatusItem">Скрыть раздачи со статусом "Загружен"</span><input type="checkbox" data-option="hideFnishStatusItem"/></label>
                         <label><span data-lang="showSpeedGraph">Отображать график скорости</span><input type="checkbox" data-option="showSpeedGraph"/></label>
-                        <label><span data-lang="popupHeight">Высота popup окна</span><input type="number" data-option="popupHeight"/> <span data-lang="px">пикселей</span></label>
-                        <label><span data-lang="popupUpdateInterval">Интервал обновления списка раздач</span><input type="number" data-option="popupUpdateInterval"/> <span data-lang="ms">миллисекунда</span></label>
+                        <label><span data-lang="popupHeight">Высота popup окна</span><input type="number" data-option="popupHeight" min="0"/> <span data-lang="px">пикселей</span></label>
+                        <label><span data-lang="popupUpdateInterval">Интервал обновления списка раздач</span><input type="number" data-option="popupUpdateInterval" min="100"/> <span data-lang="ms">миллисекунда</span></label>
                         <div class="cirilicFixs">
                             <h3 data-lang="fixCirilicIf">Исправить кириллицу если...</h3>
                             <label><span data-lang="fixCirilicTitle">Неправильно отображаются названия раздач</span><input type="checkbox" data-option="fixCirilicTitle"/></label>
@@ -56,7 +56,7 @@
                         <h2 data-lang="optNotify">Уведомления</h2>
                         <label><span data-lang="showNotificationOnDownloadCompleate">Уведомлять при завершении загрузки раздачи</span><input type="checkbox" data-option="showNotificationOnDownloadCompleate"/></label>
                         <label><span data-lang="displayActiveTorrentCountIcon">Отображать количество активных раздач на иконке расширения</span><input type="checkbox" data-option="displayActiveTorrentCountIcon"/></label>
-                        <label><span data-lang="backgroundUpdateInterval">Интервал фонового обновления списка раздач</span><input type="number" data-option="backgroundUpdateInterval"/> <span data-lang="ms">миллисекунда</span></label>
+                        <label><span data-lang="backgroundUpdateInterval">Интервал фонового обновления списка раздач</span><input type="number" data-option="backgroundUpdateInterval" min="1000"/> <span data-lang="ms">миллисекунда</span></label>
                         <label><span data-lang="notificationTimeout">Время отображения уведомлений</span><input type="number" data-option="notificationTimeout"/> <span data-lang="ms">миллисекунда</span></label>
                     </div>
                     <div class="page ctx">
