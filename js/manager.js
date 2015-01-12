@@ -108,7 +108,7 @@ var manager = {
         menu: document.querySelector('ul.menu'),
         dlSpeed: document.querySelector('.status-panel td.speed.download'),
         upSpeed: document.querySelector('.status-panel td.speed.upload'),
-        status: document.querySelector('.status-panel td.status'),
+        status: document.querySelector('.status-panel td.status div'),
         statusPanel: document.querySelector('.status-panel'),
         labelBox: document.querySelector('ul.menu li.select select'),
         trLayer: document.querySelector('.torrent-list-layer'),
@@ -570,6 +570,7 @@ var manager = {
     },
     setStatus: function(statusText) {
         manager.domCache.status.textContent = statusText;
+        manager.domCache.status.title = statusText;
     },
     apiGetDone: function(api, noRound) {
         var value = api[4] / 10;

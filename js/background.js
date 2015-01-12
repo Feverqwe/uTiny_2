@@ -275,7 +275,7 @@ var engine = {
                     force = 0;
                 }
                 force++;
-                if (force <= 5) {
+                if (force < 4) {
                     return engine.getToken.call(engine, onReady, onError, force);
                 }
                 onError && onError({status: xhr.status, statusText: xhr.statusText});
@@ -337,15 +337,15 @@ var engine = {
                 engine.readResponse(data, origData.cid);
             },
             error: function(xhr) {
+                if (force === undefined) {
+                    force = 0;
+                }
+                force++;
                 if (xhr.status === 400) {
-                    if (force === undefined) {
-                        force = 0;
-                    }
-                    force++;
                     engine.varCache.token = undefined;
-                    if (force < 2) {
-                        return engine.sendAction.call(engine, origData, onLoad, onError, force);
-                    }
+                }
+                if (force < 2) {
+                    return engine.sendAction.call(engine, origData, onLoad, onError, force);
                 }
                 engine.publicStatus('Can\'t send action! '+xhr.statusText+' (Code: '+xhr.status+')');
                 onError && onError();

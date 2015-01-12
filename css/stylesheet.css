@@ -311,8 +311,12 @@ table.status-panel td {
 }
 table.status-panel td.status {
     width: 50%;
+}
+table.status-panel td.status div {
     text-overflow: ellipsis;
     white-space: nowrap;
+    overflow: hidden;
+    max-width: 400px;
 }
 table.status-panel td.status img {
     margin-bottom: -4px;

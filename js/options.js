@@ -110,7 +110,8 @@ var options = function() {
             var defaultValue = options.defaultSettings[key];
             var el = document.querySelector('input[data-option="' + key + '"]');
             if (el === null) {
-                return console.log('El not found!', key);
+                console.log('El not found!', key);
+                continue;
             }
             if (['text', 'number', 'password'].indexOf(el.type) !== -1) {
                 if (options.settings[key] !== defaultValue) {

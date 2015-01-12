@@ -443,5 +443,8 @@
     },
     "refresh": {
         "message": "Refresh"
+    },
+    "checkSettings": {
+        "message": "Сheck the settings"
     }
 }

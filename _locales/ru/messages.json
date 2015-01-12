@@ -458,5 +458,8 @@
     },
     "refresh": {
         "message": "Обновить"
+    },
+    "checkSettings": {
+        "message": "Проверить настройки"
     }
 }
