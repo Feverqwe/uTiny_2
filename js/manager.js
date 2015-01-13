@@ -2696,6 +2696,25 @@ var manager = {
                     }
                 },
                 's2': '-',
+                order: {
+                    name: manager.language.OV_COL_ORDER,
+                    items: {
+                        up: {
+                            name: manager.language.up,
+                            callback: function () {
+                                var hash = this[0].id;
+                                manager.api({list: 1, action: 'queueup', hash: hash});
+                            }
+                        },
+                        down: {
+                            name: manager.language.down,
+                            callback: function () {
+                                var hash = this[0].id;
+                                manager.api({list: 1, action: 'queuedown', hash: hash});
+                            }
+                        }
+                    }
+                },
                 torrent_files: {
                     name: manager.language.showFileList,
                     callback: function () {
