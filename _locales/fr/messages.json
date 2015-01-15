@@ -442,5 +442,11 @@
     },
     "checkSettings": {
         "message": "Les paramètres Сheck"
+    },
+    "showFreeSpace": {
+        "message": "Pour afficher le nombre d'espace disque disponible"
+    },
+    "freeSpace": {
+        "message": "Disponible"
     }
 }

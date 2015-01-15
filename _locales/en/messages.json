@@ -446,5 +446,11 @@
     },
     "checkSettings": {
         "message": "Сheck the settings"
+    },
+    "showFreeSpace": {
+        "message": "Display the number of available disk space"
+    },
+    "freeSpace": {
+        "message": "Free space"
     }
 }

@@ -156,7 +156,9 @@ var manager = {
         webUiUrl: undefined,
         hasGraph: false,
         movebleStyleList: {},
-        cid: undefined
+        cid: undefined,
+
+        freeSpace: undefined
     },
     options: {
         scrollWidth: 17,
@@ -3146,6 +3148,33 @@ var manager = {
             }
         }
     },
+    onGetFreeSpace: function(freeSpace) {
+        if (!freeSpace || manager.varCache.freeSpace === freeSpace) return;
+        manager.varCache.freeSpace = freeSpace;
+        var size = manager.bytesToText(freeSpace);
+        var spaceItem = manager.domCache.statusPanel.querySelector('.space');
+        spaceItem.classList.add('disk');
+        spaceItem.title = manager.language.freeSpace + ': ' + size;
+        spaceItem.textContent = '';
+        spaceItem.appendChild(mono.create('div', {
+            text: size,
+            style: {
+                width: spaceItem.clientWidth + 'px'
+            },
+            on: ['click', function() {
+                manager.getFreeSpace();
+            }]
+        }));
+    },
+    getFreeSpace: function() {
+        mono.sendMessage({action: 'getDirList'}, function(data) {
+            var dirList = data['download-dirs'];
+            if (!dirList || !dirList[0]) return;
+            var available = dirList[0].available * 1024 * 1024;
+            if (isNaN(available)) return;
+            manager.onGetFreeSpace(available);
+        });
+    },
     run: function() {
         console.time('manager');
         console.time('remote data');
@@ -3299,6 +3328,10 @@ var manager = {
                 mono.sendMessage({action: 'api', data: {action: 'getsettings'}}, function(data) {
                     manager.readSettings(data);
                 });
+
+                if (manager.settings.showFreeSpace) {
+                    manager.getFreeSpace();
+                }
 
                 manager.domCache.menu.addEventListener('click', function(e) {
                     var el = e.target;

@@ -461,5 +461,11 @@
     },
     "checkSettings": {
         "message": "Проверить настройки"
+    },
+    "showFreeSpace": {
+        "message": "Отображать количество свободного места на диске"
+    },
+    "freeSpace": {
+        "message": "Свободно"
     }
 }

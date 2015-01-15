@@ -55,6 +55,8 @@ var engine = {
         treeViewContextMenu: 0,
         showDefaultFolderContextMenuItem: 0,
 
+        showFreeSpace: 1,
+
         fixCirilicTitle: 0,
         fixCirilicTorrentPath: 0
     },
