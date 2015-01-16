@@ -285,7 +285,7 @@ var options = function() {
 
     var bytesToText = function(bytes, nan, ps) {
         //переводит байты в строчки
-        var sizes = (ps === undefined) ? options.language.sizeList : options.language.sizePsList;
+        var sizes = (ps === undefined) ? manager.language.sizeList : manager.language.sizePsList;
         sizes = JSON.parse(sizes);
         if (nan === undefined) {
             nan = 'n/a';
@@ -297,7 +297,11 @@ var options = function() {
         if (i === 0) {
             return (bytes / Math.pow(1024, i)) + ' ' + sizes[i];
         }
-        return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
+        var toFixed = 1;
+        if (i > 2) {
+            toFixed = 2;
+        }
+        return (bytes / Math.pow(1024, i)).toFixed(toFixed) + ' ' + sizes[i];
     };
 
     var updateDirList = function() {
