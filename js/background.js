@@ -1402,7 +1402,7 @@ var engine = {
             engine.sendFile(message.url, message.folder, message.label);
         },
         getTraffic: function(message, response) {
-            response({list: engine.varCache.trafficList, startTime: engine.varCache.startTime});
+            response({trafficList: engine.varCache.trafficList, startTime: engine.varCache.startTime});
         },
         getDirList: function(message, response) {
             engine.sendAction({action: 'list-dirs'}, response, function() {
