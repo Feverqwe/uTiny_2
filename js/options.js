@@ -285,7 +285,7 @@ var options = function() {
 
     var bytesToText = function(bytes, nan, ps) {
         //переводит байты в строчки
-        var sizes = (ps === undefined) ? manager.language.sizeList : manager.language.sizePsList;
+        var sizes = (ps === undefined) ? options.language.sizeList : options.language.sizePsList;
         sizes = JSON.parse(sizes);
         if (nan === undefined) {
             nan = 'n/a';
