@@ -282,11 +282,7 @@ var manager = {
                             ['drop', manager.onDrop]
                         ],
                         append: [
-                            (key === 'checkbox') ? mono.create('div', {
-                                append: mono.create('input', {
-                                    type: 'checkbox'
-                                })
-                            }) : mono.create('div', {
+                            mono.create('div', {
                                 text: manager.language[value.lang+'_SHORT'] || manager.language[value.lang]
                             }),
                             resizeEl,
@@ -3710,7 +3706,6 @@ var manager = {
                     } else {
                         el.parentNode.parentNode.classList.remove("selected");
                     }
-                    manager.selectAllCheckBox('tr');
                 });
 
                 manager.domCache.flBody.addEventListener('change', function(e) {
@@ -3723,26 +3718,6 @@ var manager = {
                         el.parentNode.parentNode.classList.remove("selected");
                     }
                     manager.selectAllCheckBox('fl');
-                });
-
-                manager.domCache.trFixedHead.addEventListener('change', function(e) {
-                    var el = e.target;
-                    if (el.tagName !== 'INPUT') return;
-
-                    var checkBoxList;
-                    if (el.checked) {
-                        checkBoxList = manager.getCheckBoxList('tr', 0, 1);
-                        for (var i = 0, item; item = checkBoxList[i]; i++) {
-                            item.checked = true;
-                            item.parentNode.parentNode.classList.add("selected");
-                        }
-                    } else {
-                        checkBoxList = manager.getCheckBoxList('tr', 1, 1);
-                        for (var i = 0, item; item = checkBoxList[i]; i++) {
-                            item.checked = false;
-                            item.parentNode.parentNode.classList.remove("selected");
-                        }
-                    }
                 });
 
                 manager.domCache.flFixedHead.addEventListener('change', function(e) {
