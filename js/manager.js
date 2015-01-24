@@ -2167,6 +2167,7 @@ var manager = {
                 };
                 items.addLabel.$node.prependTo(trigger.items.labels.$node.children('ul'));
                 trigger.callbacks.addLabel = function () {
+                    var _this = this;
                     this.addClass('force');
                     var list = manager.varCache.trSelectedHashList.slice(0);
                     showNotification([
@@ -2192,6 +2193,7 @@ var manager = {
                         ]
                     ], function() {
                         manager.unCheckAll('tr', 1);
+                        _this.removeClass('selected');
                     });
                 };
             }
@@ -2734,6 +2736,7 @@ var manager = {
                 remove: {
                     name: manager.language.ML_REMOVE,
                     callback: function () {
+                        var _this = this;
                         this.addClass('force');
                         var list = manager.varCache.trSelectedHashList.slice(0);
                         var trTitle = list.length !== 1 ? '' : manager.varCache.trListItems[list[0]].api[2];
@@ -2755,6 +2758,7 @@ var manager = {
                             ]
                         ], function() {
                             manager.unCheckAll('tr', 1);
+                            _this.removeClass('selected');
                         });
                     }
                 },
