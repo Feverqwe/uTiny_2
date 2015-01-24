@@ -141,6 +141,7 @@ var manager = {
         flSortColumn: 'name',
         flSortBy: 1,
         flSortList: [],
+        trSelectedHashList: [],
         // filelist layer pos
         flWidth: 0,
         flHeight: 0,
@@ -281,7 +282,11 @@ var manager = {
                             ['drop', manager.onDrop]
                         ],
                         append: [
-                            mono.create('div', {
+                            (key === 'checkbox') ? mono.create('div', {
+                                append: mono.create('input', {
+                                    type: 'checkbox'
+                                })
+                            }) : mono.create('div', {
                                 text: manager.language[value.lang+'_SHORT'] || manager.language[value.lang]
                             }),
                             resizeEl,
@@ -703,6 +708,17 @@ var manager = {
         return dt.getFullYear() + '-' + m + '-' + d + ' ' + h + ':' + mi + ':' + sec;
     },
     trCreateCell: {
+        checkbox: function(columnName, api) {
+            var node = mono.create('td', {
+                class: columnName,
+                append: mono.create('input', {
+                    type: 'checkbox'
+                })
+            });
+            return {
+                node: node
+            }
+        },
         name: function(key, api) {
             var div, span;
             var node = mono.create('td', {
@@ -1237,6 +1253,7 @@ var manager = {
         }
     },
     trColumnToApiIndex: {
+        checkbox:    undefined,
         name:        2,
         order:       17,
         size:        3,
@@ -1901,6 +1918,13 @@ var manager = {
         var trNode = trItem.node;
         trNode.classList.add('selected');
 
+        manager.unCheckAll('tr');
+        var checkBox = trNode.querySelector('input');
+        if (checkBox) {
+            checkBox.checked = true;
+            checkBox.dispatchEvent(new CustomEvent('change', {bubbles: true}));
+        }
+
         document.body.appendChild(flListLayer.closeLayer = mono.create('div', {
             class: 'file-list-layer-temp',
             on: ['mousedown', function() {
@@ -1938,6 +1962,11 @@ var manager = {
             manager.domCache.fl.style.display = 'none';
             flListLayer.closeLayer.parentNode.removeChild(flListLayer.closeLayer);
             trNode.classList.remove('selected');
+
+            if (checkBox) {
+                checkBox.checked = false;
+                checkBox.dispatchEvent(new CustomEvent('change', {bubbles: true}));
+            }
 
             manager.domCache.flFixedHead.removeChild(manager.domCache.flFixedHead.firstChild);
             manager.domCache.flHead.removeChild(manager.domCache.flHead.firstChild);
@@ -2095,9 +2124,14 @@ var manager = {
     },
     updateLabesCtx: function (trigger, hash) {
         var ul = trigger.items.labels.$node.children('ul');
-        var current_label = manager.varCache.trListItems[hash].api[11];
+        var current_label;
+        if (!hash) {
+            current_label = '';
+        } else {
+            current_label = manager.varCache.trListItems[hash].api[11];
+        }
         var items = trigger.items.labels.items;
-        if (current_label) {
+        if (current_label || !hash) {
             if (items.delLabel === undefined) {
                 items.delLabel = {
                     name: manager.language.OV_REMOVE_LABEL,
@@ -2111,8 +2145,8 @@ var manager = {
                 };
                 items.delLabel.$node.prependTo(trigger.items.labels.$node.children('ul'));
                 trigger.callbacks.delLabel = function () {
-                    var hash = this[0].id;
-                    manager.api({list: 1, action: 'setprops', s: 'label', hash: hash, v: ''});
+                    manager.api({list: 1, action: 'setprops', s: 'label', hash: manager.varCache.trSelectedHashList, v: ''});
+                    manager.unCheckAll('tr', 1);
                 };
             }
             if (items.addLabel !== undefined) {
@@ -2133,7 +2167,8 @@ var manager = {
                 };
                 items.addLabel.$node.prependTo(trigger.items.labels.$node.children('ul'));
                 trigger.callbacks.addLabel = function () {
-                    var hash = this[0].id;
+                    this.addClass('force');
+                    var list = manager.varCache.trSelectedHashList.slice(0);
                     showNotification([
                         [{label: {text: manager.language.OV_NEWLABEL_CAPTION}},
                         {input: {type: 'text', name: 'label', focus: true, on: [
@@ -2149,13 +2184,15 @@ var manager = {
                                 this.close();
                                 var label = formData.label;
                                 if (!label) return;
-                                manager.api({list: 1, action: 'setprops', s: 'label', hash: hash, v: label});
+                                manager.api({list: 1, action: 'setprops', s: 'label', hash: list, v: label});
                             }]}},
                             {input: {type: "button", value: manager.language.DLG_BTN_CANCEL, name: 'noBtn', on: ['click', function() {
                                 this.close();
                             }]}}
                         ]
-                    ]);
+                    ], function() {
+                        manager.unCheckAll('tr', 1);
+                    });
                 };
             }
             if (items.delLabel !== undefined) {
@@ -2184,9 +2221,9 @@ var manager = {
                 };
                 items['_' + label].$node.appendTo(trigger.items.labels.$node.children('ul'));
                 trigger.callbacks['_' + label] = function (key, trigger) {
-                    var hash = this[0].id;
                     var label = trigger.items.labels.items[key].name;
-                    manager.api({list: 1, action: 'setprops', s: 'label', hash: hash, v: label});
+                    manager.api({list: 1, action: 'setprops', s: 'label', hash: manager.varCache.trSelectedHashList, v: label});
+                    manager.unCheckAll('tr', 1);
                 };
             }
         }
@@ -2358,7 +2395,7 @@ var manager = {
         manager.varCache.speedLimit[type+'Speed'] = speed;
         manager.setSpeedDom(type, speed);
     },
-    flGetCheckBoxList: function(isChecked, isVisible) {
+    getCheckBoxList: function(type, isChecked, isVisible) {
         if (isChecked === 0) {
             isChecked = ':not(:checked)'
         } else
@@ -2369,9 +2406,9 @@ var manager = {
         }
         var checkBoxList;
         if (isChecked === '') {
-            checkBoxList = manager.domCache.flBody.getElementsByTagName('input');
+            checkBoxList = manager.domCache[type + 'Body'].getElementsByTagName('input');
         } else {
-            checkBoxList = manager.domCache.flBody.querySelectorAll('input' + isChecked);
+            checkBoxList = manager.domCache[type + 'Body'].querySelectorAll('input' + isChecked);
         }
         if (!isVisible) return checkBoxList;
 
@@ -2384,8 +2421,8 @@ var manager = {
         }
         return visibleCheckBoxList;
     },
-    flSelectAllCheckBox: function() {
-        var checkBoxList = manager.flGetCheckBoxList(undefined, 1);
+    selectAllCheckBox: function(type) {
+        var checkBoxList = manager.getCheckBoxList(type, undefined, 1);
         var checkedInputCount = 0;
         for (var i = 0, el; el = checkBoxList[i]; i++) {
             if (!el.checked) {
@@ -2393,15 +2430,15 @@ var manager = {
             }
             checkedInputCount++;
         }
-        manager.domCache.flFixedHead.getElementsByTagName('input')[0].checked = checkedInputCount === checkBoxList.length;
+        manager.domCache[type + 'FixedHead'].getElementsByTagName('input')[0].checked = checkedInputCount === checkBoxList.length;
     },
-    flUnCheckAll: function(onlyVisible) {
-        var checkBoxList = manager.flGetCheckBoxList(1, onlyVisible);
+    unCheckAll: function(type, onlyVisible) {
+        var checkBoxList = manager.getCheckBoxList(type, 1, onlyVisible);
         for (var i = 0, el; el = checkBoxList[i]; i++) {
             el.checked = false;
             el.parentNode.parentNode.classList.remove('selected');
         }
-        manager.flSelectAllCheckBox();
+        manager.selectAllCheckBox(type);
     },
     flForceSetFilePriority: function(priority, fileIndexList) {
         for (var i = 0, len = fileIndexList.length; i < len; i++) {
@@ -2427,13 +2464,13 @@ var manager = {
                 return;
             }
             manager.flForceSetFilePriority(level, fileIndexList);
-            manager.flUnCheckAll(1);
+            manager.unCheckAll('fl', 1);
         };
         while (fileIndexList[from] !== undefined) {
             waitCount++;
             var list = fileIndexList.slice(from, from+step);
             from+=step;
-            mono.sendMessage({action: 'api', data: $.param({action: 'setprio', p: level}) + '&' + $.param({hash: hash, f: list}, true)}, onReady);
+            mono.sendMessage({action: 'api', data: {action: 'setprio', p: level, hash: hash, f: list}}, onReady);
         }
     },
     onLoadContextMenu: function() {
@@ -2544,10 +2581,46 @@ var manager = {
             className: "torrent",
             events: {
                 show: function(trigger) {
+                    if (!this.hasClass('selected')) {
+                        this.addClass('selected');
+                        this.find('input').trigger('click');
+                    } else {
+                        this.addClass('force');
+                    }
+
+                    manager.varCache.trSelectedHashList = [];
+                    var itemList = manager.getCheckBoxList('tr', 1, 1);
+                    for (var i = 0, item; item = itemList[i]; i++) {
+                        manager.varCache.trSelectedHashList.push(item.parentNode.parentNode.id);
+                    }
+
                     var hash = this[0].id;
-                    var api = manager.varCache.trListItems[hash].api;
-                    this.addClass('selected');
-                    var availActions = manager.trReadStatus(api);
+
+                    if (!manager.varCache.trListItems[hash].cell.hasOwnProperty('checkbox')) {
+                        manager.varCache.trSelectedHashList.push(hash)
+                    }
+
+                    var api;
+                    var availActions;
+                    if (itemList.length > 1) {
+                        hash = undefined;
+                        api = [];
+                        availActions = {
+                            order: 0,
+                            torrent_files: 0
+                        };
+                        for (var n = 0, hash; hash = manager.varCache.trSelectedHashList[n]; n++) {
+                            var actionList = manager.trReadStatus(manager.varCache.trListItems[hash].api);
+                            for (var action in actionList) {
+                                if (availActions[action] !== 1) {
+                                    availActions[action] = actionList[action];
+                                }
+                            }
+                        }
+                    }  else {
+                        api = manager.varCache.trListItems[hash].api;
+                        availActions = manager.trReadStatus(api);
+                    }
                     for (var action in trigger.items) {
                         var item = trigger.items[action];
                         if (action === 'labels') {
@@ -2572,6 +2645,13 @@ var manager = {
 
                         var state = availActions[action];
                         if (state === undefined) {
+                            if (item.display === 0) {
+                                item.display = 1;
+                                var el = item.$node[0];
+                                el.classList.remove('hidden');
+                                el.classList.remove('not-selectable');
+                                el.style.display = 'block';
+                            }
                             continue;
                         }
 
@@ -2592,68 +2672,76 @@ var manager = {
                     manager.updateLabesCtx(trigger, hash);
                 },
                 hide: function() {
-                    var hash = this[0].id;
-                    if (manager.varCache.flListLayer.hash !== hash) {
-                        this.removeClass('selected');
+                    if (this.hasClass('selected') && !this.hasClass('force')) {
+                        var hash = this[0].id;
+                        if (manager.varCache.flListLayer.hash !== hash) {
+                            this.removeClass('selected');
+                            this.find('input').trigger('click');
+                        }
+                    } else {
+                        this.removeClass('force');
                     }
+                    manager.varCache.trSelectedHashList = [];
                 }
             },
             items: {
                 start: {
                     name: manager.language.ML_START,
                     callback: function () {
-                        var hash = this[0].id;
-                        manager.api({list: 1, action: 'start', hash: hash});
+                        manager.api({list: 1, action: 'start', hash: manager.varCache.trSelectedHashList});
+                        manager.unCheckAll('tr', 1);
                     }
                 },
                 forcestart: {
                     name: manager.language.ML_FORCE_START,
                     callback: function () {
-                        var hash = this[0].id;
-                        manager.api({list: 1, action: 'forcestart', hash: hash});
+                        manager.api({list: 1, action: 'forcestart', hash: manager.varCache.trSelectedHashList});
+                        manager.unCheckAll('tr', 1);
                     }
                 },
                 pause: {
                     name: manager.language.OV_FL_PAUSED,
                     callback: function () {
-                        var hash = this[0].id;
-                        manager.api({list: 1, action: 'pause', hash: hash});
+                        manager.api({list: 1, action: 'pause', hash: manager.varCache.trSelectedHashList});
+                        manager.unCheckAll('tr', 1);
                     }
                 },
                 unpause: {
                     name: manager.language.resume,
                     callback: function () {
-                        var hash = this[0].id;
-                        manager.api({list: 1, action: 'unpause', hash: hash});
+                        manager.api({list: 1, action: 'unpause', hash: manager.varCache.trSelectedHashList});
+                        manager.unCheckAll('tr', 1);
                     }
                 },
                 stop: {
                     name: manager.language.ML_STOP,
                     callback: function () {
-                        var hash = this[0].id;
-                        manager.api({list: 1, action: 'stop', hash: hash});
+                        manager.api({list: 1, action: 'stop', hash: manager.varCache.trSelectedHashList});
+                        manager.unCheckAll('tr', 1);
                     }
                 },
                 s1: '-',
                 recheck: {
                     name: manager.language.ML_FORCE_RECHECK,
                     callback: function () {
-                        var hash = this[0].id;
-                        manager.api({list: 1, action: 'recheck', hash: hash});
+                        manager.api({list: 1, action: 'recheck', hash: manager.varCache.trSelectedHashList});
+                        manager.unCheckAll('tr', 1);
                     }
                 },
                 remove: {
                     name: manager.language.ML_REMOVE,
                     callback: function () {
-                        var hash = this[0].id;
+                        this.addClass('force');
+                        var list = manager.varCache.trSelectedHashList.slice(0);
+                        var trTitle = list.length !== 1 ? '' : manager.varCache.trListItems[list[0]].api[2];
                         showNotification([
                             [{label: {text: manager.language.OV_CONFIRM_DELETE_ONE}},
-                                {span: {text: manager.varCache.trListItems[hash].api[2], class: 'fileName'}}],
+                                {span: {text: trTitle, class: 'fileName'}}],
                             [
                                 {input: {type: "button", value: manager.language.DLG_BTN_YES, on: [
                                     ['click', function() {
                                         this.close();
-                                        manager.api({list: 1, action: 'remove', hash: hash});
+                                        manager.api({list: 1, action: 'remove', hash: list});
                                     }]
                                 ]}},
                                 {input: {type: "button", value: manager.language.DLG_BTN_NO, focus: true, on: [
@@ -2662,7 +2750,9 @@ var manager = {
                                     }]
                                 ]}}
                             ]
-                        ]);
+                        ], function() {
+                            manager.unCheckAll('tr', 1);
+                        });
                     }
                 },
                 remove_with: {
@@ -2671,32 +2761,32 @@ var manager = {
                         remove_torrent: {
                             name: manager.language.ML_DELETE_TORRENT,
                             callback: function () {
-                                var hash = this[0].id;
-                                var params = {list: 1, action: 'removetorrent', hash: hash};
+                                var params = {list: 1, action: 'removetorrent', hash: manager.varCache.trSelectedHashList};
                                  //для 2.xx проверяем версию по наличию статуса
-                                if (manager.varCache.trListItems[params.hash].api[21] === undefined) {
+                                if (manager.varCache.trListItems[params.hash[0]].api[21] === undefined) {
                                     params.action = 'remove';
                                 }
                                 manager.api(params);
+                                manager.unCheckAll('tr', 1);
                             }
                         },
                         remove_files: {
                             name: manager.language.ML_DELETE_DATA,
                             callback: function () {
-                                var hash = this[0].id;
-                                manager.api({list: 1, action: 'removedata', hash: hash});
+                                manager.api({list: 1, action: 'removedata', hash: manager.varCache.trSelectedHashList});
+                                manager.unCheckAll('tr', 1);
                             }
                         },
                         remove_torrent_files: {
                             name: manager.language.ML_DELETE_DATATORRENT,
                             callback: function () {
-                                var hash = this[0].id;
-                                var params = {list: 1, action: 'removedatatorrent', hash: hash};
+                                var params = {list: 1, action: 'removedatatorrent', hash: manager.varCache.trSelectedHashList};
                                 //для 2.xx проверяем версию по наличию статуса
-                                if (manager.varCache.trListItems[params.hash].api[21] === undefined) {
+                                if (manager.varCache.trListItems[params.hash[0]].api[21] === undefined) {
                                     params.action = 'removedata';
                                 }
                                 manager.api(params);
+                                manager.unCheckAll('tr', 1);
                             }
                         }
                     }
@@ -2708,15 +2798,15 @@ var manager = {
                         up: {
                             name: manager.language.up,
                             callback: function () {
-                                var hash = this[0].id;
-                                manager.api({list: 1, action: 'queueup', hash: hash});
+                                manager.api({list: 1, action: 'queueup', hash: manager.varCache.trSelectedHashList});
+                                manager.unCheckAll('tr', 1);
                             }
                         },
                         down: {
                             name: manager.language.down,
                             callback: function () {
-                                var hash = this[0].id;
-                                manager.api({list: 1, action: 'queuedown', hash: hash});
+                                manager.api({list: 1, action: 'queuedown', hash: manager.varCache.trSelectedHashList});
+                                manager.unCheckAll('tr', 1);
                             }
                         }
                     }
@@ -2724,7 +2814,7 @@ var manager = {
                 torrent_files: {
                     name: manager.language.showFileList,
                     callback: function () {
-                        manager.flListShow(this[0].id);
+                        manager.flListShow(manager.varCache.trSelectedHashList[0]);
                     }
                 },
                 labels: {
@@ -2763,9 +2853,13 @@ var manager = {
                         }
                     }
                     manager.varCache.flListLayer.ctxSelectArray = [];
-                    var itemList = manager.flGetCheckBoxList(1, 1);
+                    var itemList = manager.getCheckBoxList('fl', 1, 1);
                     for (var i = 0, item; item = itemList[i]; i++) {
                         manager.varCache.flListLayer.ctxSelectArray.push(item.parentNode.parentNode.dataset.index);
+                    }
+
+                    if (!manager.varCache.flListItems[index].cell.hasOwnProperty('checkbox')) {
+                        manager.varCache.flListLayer.ctxSelectArray.push(index)
                     }
                 },
                 hide: function () {
@@ -2841,7 +2935,7 @@ var manager = {
                                 mono.sendMessage({action: 'openTab', url: fileUrl}, undefined, 'service');
                             }
                         }
-                        manager.flUnCheckAll(1);
+                        manager.unCheckAll('fl', 1);
                     }
                 }
             }
@@ -3359,7 +3453,7 @@ var manager = {
                         if (hashList.length === 0) {
                             return;
                         }
-                        manager.api($.param({list: 1, action: 'unpause', hash: hashList}, true));
+                        manager.api({list: 1, action: 'unpause', hash: hashList});
                         return;
                     }
                     if (el.classList.contains('refresh')) {
@@ -3386,7 +3480,7 @@ var manager = {
                         if (hashList.length === 0) {
                             return;
                         }
-                        manager.api($.param({list: 1, action: 'pause', hash: hashList}, true));
+                        manager.api({list: 1, action: 'pause', hash: hashList});
                         return;
                     }
                     if (el.classList.contains('add_file')) {
@@ -3597,7 +3691,19 @@ var manager = {
                         return;
                     }
                     manager.flOnSmartNameClick(el.dataset.path);
-                    manager.flSelectAllCheckBox();
+                    manager.selectAllCheckBox('fl');
+                });
+
+                manager.domCache.trBody.addEventListener('change', function(e) {
+                    var el = e.target;
+                    if (el.tagName !== 'INPUT') return;
+
+                    if (el.checked) {
+                        el.parentNode.parentNode.classList.add("selected");
+                    } else {
+                        el.parentNode.parentNode.classList.remove("selected");
+                    }
+                    manager.selectAllCheckBox('tr');
                 });
 
                 manager.domCache.flBody.addEventListener('change', function(e) {
@@ -3609,7 +3715,27 @@ var manager = {
                     } else {
                         el.parentNode.parentNode.classList.remove("selected");
                     }
-                    manager.flSelectAllCheckBox();
+                    manager.selectAllCheckBox('fl');
+                });
+
+                manager.domCache.trFixedHead.addEventListener('change', function(e) {
+                    var el = e.target;
+                    if (el.tagName !== 'INPUT') return;
+
+                    var checkBoxList;
+                    if (el.checked) {
+                        checkBoxList = manager.getCheckBoxList('tr', 0, 1);
+                        for (var i = 0, item; item = checkBoxList[i]; i++) {
+                            item.checked = true;
+                            item.parentNode.parentNode.classList.add("selected");
+                        }
+                    } else {
+                        checkBoxList = manager.getCheckBoxList('tr', 1, 1);
+                        for (var i = 0, item; item = checkBoxList[i]; i++) {
+                            item.checked = false;
+                            item.parentNode.parentNode.classList.remove("selected");
+                        }
+                    }
                 });
 
                 manager.domCache.flFixedHead.addEventListener('change', function(e) {
@@ -3618,13 +3744,13 @@ var manager = {
 
                     var checkBoxList;
                     if (el.checked) {
-                        checkBoxList = manager.flGetCheckBoxList(0, 1);
+                        checkBoxList = manager.getCheckBoxList('fl', 0, 1);
                         for (var i = 0, item; item = checkBoxList[i]; i++) {
                             item.checked = true;
                             item.parentNode.parentNode.classList.add("selected");
                         }
                     } else {
-                        checkBoxList = manager.flGetCheckBoxList(1, 1);
+                        checkBoxList = manager.getCheckBoxList('fl', 1, 1);
                         for (var i = 0, item; item = checkBoxList[i]; i++) {
                             item.checked = false;
                             item.parentNode.parentNode.classList.remove("selected");
