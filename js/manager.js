@@ -3311,8 +3311,8 @@ var manager = {
         });
     },
     run: function() {
-        console.time('manager');
-        console.time('remote data');
+        // console.time('manager');
+        // console.time('remote data');
 
         mono.onMessage(function(message) {
             if (!message) return;
@@ -3355,15 +3355,15 @@ var manager = {
                 {action: 'getPublicStatus'},
                 {action: 'managerIsOpen'}
             ], function(data) {
-                console.timeEnd('remote data');
-                console.time('manager render');
+                // console.timeEnd('remote data');
+                // console.time('manager render');
 
                 manager.language = data.getLanguage;
                 manager.settings = data.getSettings;
 
                 if (manager.settings.login === null || manager.settings.password === null) {
-                    console.timeEnd('manager render');
-                    console.timeEnd('manager');
+                    // console.timeEnd('manager render');
+                    // console.timeEnd('manager');
                     return window.location = "options.html";
                 }
 
@@ -3825,11 +3825,11 @@ var manager = {
                     });
                 }, 100);
 
-                console.timeEnd('manager render');
-                console.timeEnd('manager');
+                // console.timeEnd('manager render');
+                // console.timeEnd('manager');
 
                 setTimeout(function() {
-                    console.time('jquery');
+                    // console.time('jquery');
                     document.body.appendChild(mono.create('script', {src: 'js/jquery-2.1.3.min.js'}));
                 }, 0);
             });
@@ -3839,26 +3839,26 @@ var manager = {
 
 var define = function(name) {
     if (name === 'jquery') {
-        console.timeEnd('jquery');
+        // console.timeEnd('jquery');
 
-        console.time('contextMenu');
+        // console.time('contextMenu');
         document.body.appendChild(mono.create('script', {src: 'js/jquery.contextMenu.js'}));
         return;
     }
     if (name === 'contextMenu') {
-        console.timeEnd('contextMenu');
+        // console.timeEnd('contextMenu');
         manager.onLoadContextMenu();
 
-        console.time('quickNotification');
+        // console.time('quickNotification');
         document.body.appendChild(mono.create('script', {src: 'js/notifer.js'}));
         return;
     }
     if (name === 'quickNotification') {
-        console.timeEnd('quickNotification');
+        // console.timeEnd('quickNotification');
         manager.onLoadQuickNotification();
 
         if (manager.settings.showSpeedGraph) {
-            console.time('d3js');
+            // console.time('d3js');
             document.body.appendChild(mono.create('script', {src: 'js/d3.min.js'}));
         }
         return;
@@ -3868,7 +3868,7 @@ var define = function(name) {
         return;
     }
     if (name.hasOwnProperty('version')) {
-        console.timeEnd('d3js');
+        // console.timeEnd('d3js');
 
         document.body.appendChild(mono.create('script', {src: 'js/graph.js'}));
     }
