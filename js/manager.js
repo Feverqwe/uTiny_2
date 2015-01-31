@@ -100,6 +100,8 @@ mono.spaceToUnderline = function(string) {
     return string.replace(/\s/, '_');
 };
 
+var debug = false;
+
 var manager = {
     language: {},
     settings: {},
@@ -3311,8 +3313,8 @@ var manager = {
         });
     },
     run: function() {
-        // console.time('manager');
-        // console.time('remote data');
+        debug && console.time('manager');
+        debug && console.time('remote data');
 
         mono.onMessage(function(message) {
             if (!message) return;
@@ -3355,15 +3357,15 @@ var manager = {
                 {action: 'getPublicStatus'},
                 {action: 'managerIsOpen'}
             ], function(data) {
-                // console.timeEnd('remote data');
-                // console.time('manager render');
+                debug && console.timeEnd('remote data');
+                debug && console.time('manager render');
 
                 manager.language = data.getLanguage;
                 manager.settings = data.getSettings;
 
                 if (manager.settings.login === null || manager.settings.password === null) {
-                    // console.timeEnd('manager render');
-                    // console.timeEnd('manager');
+                    debug && console.timeEnd('manager render');
+                    debug && console.timeEnd('manager');
                     return window.location = "options.html";
                 }
 
@@ -3825,11 +3827,11 @@ var manager = {
                     });
                 }, 100);
 
-                // console.timeEnd('manager render');
-                // console.timeEnd('manager');
+                debug && console.timeEnd('manager render');
+                debug && console.timeEnd('manager');
 
                 setTimeout(function() {
-                    // console.time('jquery');
+                    debug && console.time('jquery');
                     document.body.appendChild(mono.create('script', {src: 'js/jquery-2.1.3.min.js'}));
                 }, 0);
             });
@@ -3839,26 +3841,26 @@ var manager = {
 
 var define = function(name) {
     if (name === 'jquery') {
-        // console.timeEnd('jquery');
+        debug && console.timeEnd('jquery');
 
-        // console.time('contextMenu');
+        debug && console.time('contextMenu');
         document.body.appendChild(mono.create('script', {src: 'js/jquery.contextMenu.js'}));
         return;
     }
     if (name === 'contextMenu') {
-        // console.timeEnd('contextMenu');
+        debug && console.timeEnd('contextMenu');
         manager.onLoadContextMenu();
 
-        // console.time('quickNotification');
+        debug && console.time('quickNotification');
         document.body.appendChild(mono.create('script', {src: 'js/notifer.js'}));
         return;
     }
     if (name === 'quickNotification') {
-        // console.timeEnd('quickNotification');
+        debug && console.timeEnd('quickNotification');
         manager.onLoadQuickNotification();
 
         if (manager.settings.showSpeedGraph) {
-            // console.time('d3js');
+            debug && console.time('d3js');
             document.body.appendChild(mono.create('script', {src: 'js/d3.min.js'}));
         }
         return;
@@ -3868,7 +3870,7 @@ var define = function(name) {
         return;
     }
     if (name.hasOwnProperty('version')) {
-        // console.timeEnd('d3js');
+        debug && console.timeEnd('d3js');
 
         document.body.appendChild(mono.create('script', {src: 'js/graph.js'}));
     }
