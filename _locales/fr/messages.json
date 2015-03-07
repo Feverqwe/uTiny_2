@@ -458,6 +458,9 @@
     "freeSpace": {
         "message": "Disponible"
     },
+    "help": {
+        "message": "Aide"
+    },
     "helpS1": {
         "message": "Ouvrir l'application uTorrent"
     },

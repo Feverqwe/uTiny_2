@@ -475,6 +475,9 @@
     "freeSpace": {
         "message": "Свободно"
     },
+    "help": {
+        "message": "Справка"
+    },
     "helpS1": {
         "message": "Откройте приложение uTorrent"
     },

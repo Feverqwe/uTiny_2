@@ -462,6 +462,9 @@
     "freeSpace": {
         "message": "Free space"
     },
+    "help": {
+        "message": "Help"
+    },
     "helpS1": {
         "message": "Open uTorrent application"
     },
