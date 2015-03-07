@@ -461,5 +461,26 @@
     },
     "freeSpace": {
         "message": "Free space"
+    },
+    "helpS1": {
+        "message": "Open uTorrent application"
+    },
+    "helpS2": {
+        "message": "Go in \"Options\" > \"Preferences\""
+    },
+    "helpS3": {
+        "message": "Open \"Advanced\" section > \"Web UI\""
+    },
+    "helpS4": {
+        "message": "Check the box \"Enable Web UI\", enter \"Username\" and \"Password\""
+    },
+    "helpS5": {
+        "message": "Check the box \"Alternative listening port\", enter port number 8080"
+    },
+    "helpS6": {
+        "message": "Now enter \"Username\", \"Password\", \"IP\" and \"Port\". If you do not know your \"IP\" try enter 127.0.0.1"
+    },
+    "helpS7": {
+        "message": "Press the button \"Сheck the settings\""
     }
 }

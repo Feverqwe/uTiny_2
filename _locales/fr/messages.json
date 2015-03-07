@@ -457,5 +457,26 @@
     },
     "freeSpace": {
         "message": "Disponible"
+    },
+    "helpS1": {
+        "message": "Ouvrir l'application uTorrent"
+    },
+    "helpS2": {
+        "message": "Aller dans \"Options\" > \"Préferences\""
+    },
+    "helpS3": {
+        "message": "Ouvrir la section \"Avancé\" > \"Plugin WebUI\""
+    },
+    "helpS4": {
+        "message": "Cliquez sur \"Activer le plugin WebUI\", entrez le \"Nom\" et \"Mot de passe\""
+    },
+    "helpS5": {
+        "message": "Cliquez sur le \"Port d'écoute alternatif\", entez le port 8080"
+    },
+    "helpS6": {
+        "message": "Maintenant entrez le \"Identifiant\", \"M. passe\", \"IP\" et le \"Port\". Si vous ne connaissez pas votre \"IP\", essayez 127.0.0.1"
+    },
+    "helpS7": {
+        "message": "Cliquez sur \"Les paramètres Сheck\""
     }
 }

@@ -230,3 +230,7 @@ input.button {
     margin-top: 6px;
     display: block;
 }
+ol.help li {
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
