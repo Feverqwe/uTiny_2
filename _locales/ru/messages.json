@@ -498,5 +498,8 @@
     },
     "helpS7": {
         "message": "Нажмите \"Проверить настройки\""
+    },
+    "helpImg": {
+        "message": "images/help_how_to_ru.png"
     }
 }
