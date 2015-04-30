@@ -573,7 +573,7 @@ var engine = {
             engine.settings.lang = engine.settings.lang || lang;
         }
 
-        if (engine.language && engine.language.lang === lang) {
+        if (engine.language.lang === lang) {
             return cb();
         }
 
