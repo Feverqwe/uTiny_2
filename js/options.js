@@ -467,6 +467,8 @@ var options = function() {
 
                     writeLanguage();
 
+                    document.body.classList.remove('loading');
+
                     domCache.folderList = document.getElementById('folderList');
                     folderLoadList(storage.folderList || []);
                     domCache.subPath = document.getElementById('subPath');
