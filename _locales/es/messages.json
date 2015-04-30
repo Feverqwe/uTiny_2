@@ -2,6 +2,9 @@
     "lang": {
         "message": "es"
     },
+    "timeOutList": {
+        "message": "[\"w\", \"d\", \"h\", \"m\", \"s\"]"
+    },
     "OV_COL_NAME": {
         "message": "Nombre"
     },
