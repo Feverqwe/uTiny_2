@@ -507,8 +507,11 @@ var engine = {
         });
     },
     checkAvailableLanguage: function(lang) {
-        lang = lang.substr(0, 2);
-        return ['ru', 'fr', 'en'].indexOf(lang) !== -1 ? lang : 'en';
+        var dblList = ['pt-BR', 'zh-CN'];
+        if (dblList.indexOf(lang) === -1) {
+            lang = lang.substr(0, 2);
+        }
+        return ['ru', 'fr', 'en', 'es'].concat(dblList).indexOf(lang) !== -1 ? lang : 'en';
     },
     getLocale: function() {
         if (engine.getLocale.locale !== undefined) {
@@ -517,7 +520,7 @@ var engine = {
 
         var getLang = mono.isFF ? function() {
             var window = require('sdk/window/utils').getMostRecentBrowserWindow();
-            return String(window.navigator.language).toLowerCase();
+            return String(window.navigator && window.navigator.language).toLowerCase();
         } : function() {
             return String(navigator.language).toLowerCase();
         };
@@ -563,7 +566,7 @@ var engine = {
 
         engine.settings.lang = engine.settings.lang || lang;
 
-        var url = '_locales/' + lang + '/messages.json';
+        var url = '_locales/' + lang.replace('-', '_') + '/messages.json';
         if (mono.isFF) {
             try {
                 engine.language = engine.readChromeLocale(JSON.parse(require('sdk/self').data.load(url)));

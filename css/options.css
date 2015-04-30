@@ -237,3 +237,7 @@ ol.help li {
 .helpImgContainer {
     text-align: center;
 }
+.helpImgContainer img {
+    width: 100%;
+    max-width: 671px;
+}
