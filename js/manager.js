@@ -2751,7 +2751,7 @@ var manager = {
                     }
                 },
                 pause: {
-                    name: manager.language.OV_FL_PAUSED,
+                    name: manager.language.ML_PAUSE,
                     callback: function () {
                         manager.api({list: 1, action: 'pause', hash: manager.varCache.trSelectedHashList});
                         manager.unCheckAll('tr', 1);
