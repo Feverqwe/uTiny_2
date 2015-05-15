@@ -123,6 +123,7 @@ module.exports = function (grunt) {
         'clean:output',
         'clean:builds',
         'chrome',
+        'opera',
         'firefox'
     ]);
 };

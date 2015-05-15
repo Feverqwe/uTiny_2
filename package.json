@@ -16,5 +16,5 @@
     "grunt": ">=0.4.5"
   },
   "outputDir": "output/",
-  "extVersion": "2.4.6"
+  "extVersion": "2.4.7"
 }
