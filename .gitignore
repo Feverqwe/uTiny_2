@@ -3,3 +3,4 @@
 /node_modules/
 /build/
 /build_firefox_sdk/
+/env.json
