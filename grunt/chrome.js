@@ -61,9 +61,10 @@ exports.run = function (grunt) {
         sovetnik && sovetnik.run(grunt);
 
         grunt.task.run([
-            'extensionBaseMin',
+            'extensionBase',
             'chromeManifest',
             'sovetnik',
+            'compressJs',
             'json-format:chromeManifestFormat',
             'compress:chrome'
         ]);
@@ -83,9 +84,10 @@ exports.run = function (grunt) {
         sovetnik && sovetnik.run(grunt);
 
         grunt.task.run([
-            'extensionBaseMin',
+            'extensionBase',
             'chromeManifest',
             'sovetnik',
+            'compressJs',
             'json-format:chromeManifestFormat',
             'compress:chrome'
         ]);

@@ -107,6 +107,7 @@ var options = function() {
 
     var set_place_holder = function() {
         for (var key in options.defaultSettings) {
+            if (key === 'hasMetabar') continue;
             var defaultValue = options.defaultSettings[key];
             var el = document.querySelector('input[data-option="' + key + '"]');
             if (el === null) {
@@ -460,6 +461,10 @@ var options = function() {
                             });
                         });
                     });
+
+                    if (options.settings.hasMetabar) {
+                        document.getElementById('metabar').style.display = 'block';
+                    }
 
                     if (options.language.lang !== "ru") {
                         document.querySelector('.cirilicFixs').style.display = 'none';
