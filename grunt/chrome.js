@@ -29,6 +29,16 @@ exports.run = function (grunt) {
                     }
                 }]
             }
+        },
+        copy: {
+            chromeBase: {
+                cwd: 'src/vendor/chrome/',
+                expand: true,
+                src: [
+                    'js/**'
+                ],
+                dest: '<%= output %><%= vendor %>'
+            }
         }
     });
 
@@ -62,6 +72,7 @@ exports.run = function (grunt) {
 
         grunt.task.run([
             'extensionBase',
+            'copy:chromeBase',
             'chromeManifest',
             'sovetnik',
             'compressJs',
@@ -85,6 +96,7 @@ exports.run = function (grunt) {
 
         grunt.task.run([
             'extensionBase',
+            'copy:chromeBase',
             'chromeManifest',
             'sovetnik',
             'compressJs',

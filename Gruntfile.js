@@ -97,9 +97,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('grunt-closurecompiler');
 
-    require('./grunt/mono.js').run(grunt);
-
-    grunt.registerTask('extensionBase', ['copy:background', 'copy:dataJs', 'mono', 'copy:baseData', 'copy:locales']);
+    grunt.registerTask('extensionBase', ['copy:background', 'copy:dataJs', 'copy:baseData', 'copy:locales']);
 
     require('./grunt/chrome.js').run(grunt);
     require('./grunt/firefox.js').run(grunt);
