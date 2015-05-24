@@ -19,5 +19,5 @@
     "mono": "git://github.com/Feverqwe/Mono.git"
   },
   "outputDir": "output/",
-  "extVersion": "2.4.8"
+  "extVersion": "2.4.9"
 }
