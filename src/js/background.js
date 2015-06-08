@@ -1370,8 +1370,6 @@ var engine = {
                 engine.timer.start();
 
                 engine.createFolderCtxMenu();
-
-                engine.metabar && engine.metabar();
             });
         });
     },
@@ -1472,7 +1470,6 @@ var engine = {
                         engine.varCache.activeCount = 0;
                         engine.setBadgeText('');
                     }
-                    engine.metabar && engine.metabar();
                     response();
                 });
             });
