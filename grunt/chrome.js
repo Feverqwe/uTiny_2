@@ -49,14 +49,6 @@ exports.run = function (grunt) {
         grunt.file.write(manifestPath, JSON.stringify(content));
     });
 
-    var sovetnikPath = 'src/vendor/sovetnik/grunt.js';
-    var sovetnik;
-    if (grunt.file.exists(sovetnikPath)) {
-        sovetnik = require('../' + sovetnikPath);
-    } else {
-        grunt.registerTask('sovetnik', function () {});
-    }
-
     grunt.registerTask('chrome', function () {
         grunt.config.merge({
             browser: 'chrome',
@@ -68,13 +60,10 @@ exports.run = function (grunt) {
             buildName: 'uTorrentEasyClient_<%= pkg.extVersion %>'
         });
 
-        sovetnik && sovetnik.run(grunt);
-
         grunt.task.run([
             'extensionBase',
             'copy:chromeBase',
             'chromeManifest',
-            'sovetnik',
             'compressJs',
             'json-format:chromeManifestFormat',
             'compress:chrome'
@@ -92,13 +81,10 @@ exports.run = function (grunt) {
             buildName: 'uTorrentEasyClient_opera_<%= pkg.extVersion %>'
         });
 
-        sovetnik && sovetnik.run(grunt);
-
         grunt.task.run([
             'extensionBase',
             'copy:chromeBase',
             'chromeManifest',
-            'sovetnik',
             'compressJs',
             'json-format:chromeManifestFormat',
             'compress:chrome'
