@@ -498,5 +498,8 @@
     },
     "helpImg": {
         "message": "images/help_how_to_ru.png"
+    },
+    "badgeColor": {
+        "message": "Цвет уведомления"
     }
 }

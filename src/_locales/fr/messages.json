@@ -481,5 +481,8 @@
     },
     "helpImg": {
         "message": "images/help_how_to_fr.png"
+    },
+    "badgeColor": {
+        "message": "La Notification de la couleur"
     }
 }
