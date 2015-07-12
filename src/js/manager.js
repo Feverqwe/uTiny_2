@@ -3126,6 +3126,10 @@ var manager = {
         var labelTemplate = showNotification.selectLabelTemplate();
         var folderTemplate = showNotification.selectFolderTemplate();
         if (labelTemplate[1].select.append.length === 0 && folderTemplate[1].select.append.length === 0) {
+            manager.options.noSleep = false;
+            if (mono.isFF && !mono.noAddon) {
+                mono.addon.postMessage('isShow');
+            }
             return onClickYes();
         }
         if (labelTemplate[1].select.append.length === 0) {
@@ -3152,7 +3156,7 @@ var manager = {
                     }]
                 ]}}
             ]
-        ], function onClise() {
+        ], function onClose() {
             manager.options.noSleep = false;
         });
     },
