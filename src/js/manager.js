@@ -2703,7 +2703,7 @@ var manager = {
                         hash = undefined;
                         api = [];
                         availActions = {
-                            order: 0,
+                            order: 1,
                             torrent_files: 0
                         };
                         for (var n = 0, hash; hash = manager.varCache.trSelectedHashList[n]; n++) {
