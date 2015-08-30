@@ -3234,7 +3234,7 @@ var manager = {
                         $('<option>', {text: manager.language.defaultPath, value: -1})
                     ];
                     for (var i = 0, item; item = manager.varCache.folderList[i]; i++) {
-                        folderList.push($('<option>', {text: item[1], value: i}));
+                        folderList.push($('<option>', {text: item[2] || item[1], value: i}));
                     }
                     if (folderList.length === 1) {
                         return [];
