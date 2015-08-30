@@ -488,5 +488,8 @@
     },
     "badgeColor": {
         "message": "Notification color"
+    },
+    "addItem": {
+        "message": "Add item"
     }
 }

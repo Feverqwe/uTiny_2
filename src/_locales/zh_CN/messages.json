@@ -476,5 +476,8 @@
     },
     "badgeColor": {
         "message": "通知的颜色"
+    },
+    "addItem": {
+        "message": "添加项目"
     }
 }
