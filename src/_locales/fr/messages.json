@@ -487,5 +487,8 @@
     },
     "addItem": {
         "message": "Ajouter un item"
+    },
+    "title": {
+        "message": "Titre"
     }
 }
