@@ -492,7 +492,7 @@
     "addItem": {
         "message": "Add item"
     },
-    "title": {
-        "message": "Title"
+    "shortName": {
+        "message": "Short name"
     }
 }

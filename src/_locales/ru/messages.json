@@ -505,7 +505,7 @@
     "addItem": {
         "message": "Добавить элемент"
     },
-    "title": {
-        "message": "Ярлык"
+    "shortName": {
+        "message": "Короткое имя"
     }
 }
