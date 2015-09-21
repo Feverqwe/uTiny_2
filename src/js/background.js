@@ -686,6 +686,11 @@ var engine = {
     },
     setBadgeText: mono.isChrome ? function(text) {
         engine.setBadgeText.lastText = text;
+
+        chrome.browserAction.setBadgeText({
+            text: text
+        });
+
         var color = engine.settings.badgeColor.split(',').map(function(i){return parseFloat(i);});
         if (color.length === 4) {
             color.push(parseInt(255 * color.splice(-1)[0]));
@@ -693,12 +698,14 @@ var engine = {
         chrome.browserAction.setBadgeBackgroundColor({
             color: color
         });
-        chrome.browserAction.setBadgeText({
-            text: text
-        });
     } : function(text) {
         engine.setBadgeText.lastText = text;
-        mono.setBadgeText(text);
+
+        mono.ffButton.badge = text;
+
+        var color = engine.settings.badgeColor;
+        var hexColor = mono.rgba2hex.apply(mono, color.split(','));
+        mono.ffButton.badgeColor = hexColor;
     },
     displayActiveItemsCountIcon: function(newTorrentList) {
         var activeCount = 0;
@@ -1513,14 +1520,6 @@ var engine = {
                 return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
             };
 
-            mono.setBadgeText = function(text) {
-                button.badge = text;
-
-                var color = engine.settings.badgeColor;
-                var hexColor = mono.rgba2hex.apply(mono, color.split(','));
-                button.badgeColor = hexColor;
-            };
-
             mono.ffButton = button;
 
             var sdkTimers = require("sdk/timers");
@@ -1535,6 +1534,7 @@ var engine = {
             engine.ajax.xhr = require('sdk/net/xhr').XMLHttpRequest;
         } else {
             engine.ajax.xhr = XMLHttpRequest;
+            engine.setBadgeText.lastText = '';
             chrome.browserAction.setBadgeText({
                 text: ''
             });
