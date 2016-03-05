@@ -1,10 +1,6 @@
-var mono = (typeof mono !== 'undefined') ? mono : undefined;
-
-(function() {
-    if (typeof window !== 'undefined') return;
+typeof window === 'undefined' && (function() {
     var self = require('sdk/self');
     window = require('sdk/window/utils').getMostRecentBrowserWindow();
-    window.isModule = true;
     mono = require('toolkit/loader').main(require('toolkit/loader').Loader({
         paths: {
             'data/': self.data.url('js/')
@@ -17,10 +13,6 @@ var mono = (typeof mono !== 'undefined') ? mono : undefined;
                 switch (path) {
                     case 'sdk/simple-storage':
                         return require('sdk/simple-storage');
-                    case 'sdk/window/utils':
-                        return require('sdk/window/utils');
-                    case 'sdk/self':
-                        return require('sdk/self');
                     default:
                         console.log('Module not found!', path);
                 }
@@ -119,32 +111,35 @@ var engine = {
         folderList: [],
         labelList: []
     },
-    param: function(params) {
-        if (typeof params === 'string') return params;
+    param: function(obj) {
+        if (typeof obj === 'string') return obj;
 
-        var args = [];
-        if (params.token) {
-            args.push(encodeURIComponent('token') + '=' + encodeURIComponent(params.token));
-            delete params.token;
+        var itemsList = [];
+        if (obj && obj.token) {
+            itemsList.push(encodeURIComponent('token') + '=' + encodeURIComponent(obj.token));
+            delete obj.token;
         }
-        for (var key in params) {
-            var value = params[key];
-            if (value === null || value === undefined) {
+        for (var key in obj) {
+            if (!obj.hasOwnProperty(key)) {
                 continue;
+            }
+            var value = obj[key];
+            if (value === undefined || value === null) {
+                obj[key] = '';
             }
             if (Array.isArray(value)) {
                 for (var n = 0, len = value.length; n < len; n++) {
-                    args.push(encodeURIComponent(key) + '=' + encodeURIComponent(value[n]));
+                    itemsList.push(encodeURIComponent(key) + '=' + encodeURIComponent(value[n]));
                 }
                 continue
             }
-            if (engine.settings.fixCirilicTorrentPath && key === 'path' && params.download_dir !== undefined) {
-                args.push(encodeURIComponent(key) + '=' + engine.inCp1251(value));
+            if (engine.settings.fixCirilicTorrentPath && key === 'path' && obj.download_dir !== undefined) {
+                itemsList.push(encodeURIComponent(key) + '=' + engine.inCp1251(value));
                 continue;
             }
-            args.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
+            itemsList.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
         }
-        return args.join('&');
+        return itemsList.join('&');
     },
     publicStatus: function(statusText) {
         if (engine.varCache.lastPublicStatus === statusText) return;
@@ -152,17 +147,87 @@ var engine = {
         engine.varCache.lastPublicStatus = statusText;
         mono.sendMessage({setStatus: statusText});
     },
-    ajax: function(obj) {
+    parseXhrHeader: function(head) {
+        head = head.split(/\r?\n/);
+        var headers = {};
+        head.forEach(function(line) {
+            "use strict";
+            var sep = line.indexOf(':');
+            if (sep === -1) {
+                return;
+            }
+            var key = line.substr(0, sep).trim().toLowerCase();
+            var value = line.substr(sep + 1).trim();
+            headers[key] = value;
+        });
+        return headers;
+    },
+    getTransport: function() {
+        "use strict";
+        if (mono.isModule) {
+            return new (require('sdk/net/xhr').XMLHttpRequest)();
+        }
+
+        return new XMLHttpRequest();
+    },
+    request: function(obj, origCb) {
+        "use strict";
+        var result = {};
+        var cb = function(e, body) {
+            cb = null;
+            if (request.timeoutTimer) {
+                mono.clearTimeout(request.timeoutTimer);
+            }
+
+            var err = null;
+            if (e) {
+                err = String(e.message || e) || 'ERROR';
+            }
+
+            var response = getResponse(body);
+
+            origCb && origCb(err, response, body);
+        };
+
+        var getResponse = function(body) {
+            var response = {
+                statusCode: 0,
+                statusText: '',
+                headers: {},
+                body: ''
+            };
+
+            if (xhr) {
+                response.statusCode = xhr.status;
+                response.statusText = xhr.statusText;
+
+                var headers = null;
+                var allHeaders = xhr.getAllResponseHeaders();
+                if (typeof allHeaders === 'string') {
+                    headers = engine.parseXhrHeader(allHeaders);
+                }
+                response.headers = headers || {};
+
+                response.body = body || '';
+            }
+
+            return response;
+        };
+
+        if (typeof obj !== 'object') {
+            obj = {url: obj};
+        }
+
         var url = obj.url;
 
-        var method = obj.type || 'GET';
-        method.toUpperCase();
+        var method = obj.method || obj.type || 'GET';
+        method = method.toUpperCase();
 
         var data = obj.data;
 
         var isFormData = false;
 
-        if (data && typeof data !== "string") {
+        if (typeof data !== "string") {
             isFormData = String(data) === '[object FormData]';
             if (!isFormData) {
                 data = engine.param(data);
@@ -170,87 +235,144 @@ var engine = {
         }
 
         if (data && method === 'GET') {
-            url += (url.indexOf('?') === -1 ? '?' : '&') + data;
+            url += (/\?/.test(url) ? '&' : '?') + data;
             data = undefined;
         }
 
         if (obj.cache === false && ['GET','HEAD'].indexOf(method) !== -1) {
-            var nc = '_=' + Date.now();
-            url += (url.indexOf('?') === -1 ? '?' : '&') + nc;
+            url += (/\?/.test(url) ? '&' : '?') + '_=' + Date.now();
         }
 
-        var xhr = new engine.ajax.xhr();
+        obj.headers = obj.headers || {};
 
-        xhr.open(method, url, true);
-
-        if (obj.timeout !== undefined) {
-            xhr.timeout = obj.timeout;
+        if (data && !isFormData) {
+            obj.headers["Content-Type"] = obj.contentType || obj.headers["Content-Type"] || 'application/x-www-form-urlencoded; charset=UTF-8';
         }
 
-        if (obj.dataType) {
-            obj.dataType = obj.dataType.toLowerCase();
+        var request = {};
+        request.url = url;
+        request.method = method;
 
-            xhr.responseType = obj.dataType;
+        data && (request.data = data);
+        obj.json && (request.json = true);
+        obj.xml && (request.xml = true);
+        obj.timeout && (request.timeout = obj.timeout);
+        obj.mimeType && (request.mimeType = obj.mimeType);
+        obj.withCredentials && (request.withCredentials = true);
+        Object.keys(obj.headers).length && (request.headers = obj.headers);
+
+        if (request.timeout > 0) {
+            request.timeoutTimer = mono.setTimeout(function() {
+                cb && cb(new Error('ETIMEDOUT'));
+                xhr.abort();
+            }, request.timeout);
         }
 
-        if (!obj.headers) {
-            obj.headers = {};
-        }
-
-        if (obj.contentType) {
-            obj.headers["Content-Type"] = obj.contentType;
-        }
-
-        if (data && !obj.headers["Content-Type"] && !isFormData) {
-            obj.headers["Content-Type"] = 'application/x-www-form-urlencoded; charset=UTF-8';
-        }
-
-        if (obj.mimeType) {
-            xhr.overrideMimeType(obj.mimeType);
-        }
-        if (obj.headers) {
-            for (var key in obj.headers) {
-                xhr.setRequestHeader(key, obj.headers[key]);
-            }
-        }
-
-        if (obj.onTimeout !== undefined) {
-            xhr.ontimeout = obj.onTimeout;
-        }
-
-        xhr.onload = function () {
-            if (xhr.status >= 200 && xhr.status < 300 || xhr.status === 304) {
-                var response = (obj.dataType) ? xhr.response : xhr.responseText;
-                return obj.success && obj.success(response, xhr);
-            }
-            obj.error && obj.error(xhr);
+        var xhrSuccessStatus = {
+            0: 200,
+            1223: 204
         };
 
-        xhr.onerror = function() {
-            obj.error && obj.error(xhr);
+        var xhr = engine.getTransport(obj.localXHR);
+        xhr.open(request.method, request.url, true);
+
+        if (mono.isModule && request.xml) {
+            request.mimeType = 'text/xml';
+        }
+        if (request.mimeType) {
+            xhr.overrideMimeType(request.mimeType);
+        }
+        if (request.withCredentials) {
+            xhr.withCredentials = true;
+        }
+        for (var key in request.headers) {
+            xhr.setRequestHeader(key, request.headers[key]);
+        }
+
+        xhr.onload = function() {
+            var status = xhrSuccessStatus[xhr.status] || xhr.status;
+            try {
+                if (status >= 200 && status < 300 || status === 304) {
+                    var body = xhr.responseText;
+                    if (request.json) {
+                        body = JSON.parse(body);
+                    } else
+                    if (request.xml) {
+                        if (mono.isModule) {
+                            body = xhr.responseXML;
+                        } else {
+                            body = (new DOMParser()).parseFromString(body, "text/xml");
+                        }
+                    } else
+                    if (typeof body !== 'string') {
+                        console.error('Response is not string!', body);
+                        throw new Error('Response is not string!');
+                    }
+                    return cb && cb(null, body);
+                }
+                throw new Error(xhr.status + ' ' + xhr.statusText);
+            } catch (e) {
+                return cb && cb(e);
+            }
         };
 
-        xhr.send(data);
+        var errorCallback = xhr.onerror = function() {
+            cb && cb(new Error(xhr.status + ' ' + xhr.statusText));
+        };
 
-        return xhr;
+        var stateChange = null;
+        if (xhr.onabort !== undefined) {
+            xhr.onabort = errorCallback;
+        } else {
+            stateChange = function () {
+                if (xhr.readyState === 4) {
+                    cb && mono.setTimeout(function () {
+                        return errorCallback();
+                    });
+                }
+            };
+        }
+
+        if (stateChange) {
+            xhr.onreadystatechange = stateChange;
+        }
+
+        try {
+            xhr.send(request.data || null);
+        } catch (e) {
+            mono.setTimeout(function() {
+                cb && cb(e);
+            });
+        }
+
+        result.abort = function() {
+            cb = null;
+            xhr.abort();
+        };
+
+        return result;
     },
     timer: {
-        clearInterval: typeof clearInterval !== 'undefined' ? clearInterval.bind() : undefined,
-        setInterval: typeof setInterval !== 'undefined' ? setInterval.bind() : undefined,
-        timer: undefined,
+        timer: null,
         state: 0,
         start: function() {
             this.state = 1;
-            this.clearInterval(this.timer);
+
+            this.timer && mono.clearInterval(this.timer);
+            this.timer = null;
+
             if (engine.settings.backgroundUpdateInterval <= 1000) {
                 return;
             }
-            this.timer = this.setInterval(function() {
+
+            this.timer = mono.setInterval(function() {
                 engine.updateTrackerList();
             }, engine.settings.backgroundUpdateInterval);
         },
         stop: function() {
-            this.clearInterval(this.timer);
+            this.timer && mono.clearInterval(this.timer);
+            this.timer = null;
+
             this.state = 0;
         }
     },
@@ -263,34 +385,35 @@ var engine = {
 
         engine.publicStatus('Try get token!' + (force ? ' Retry: ' + force : ''));
 
-        engine.ajax({
+        engine.request({
             url: engine.varCache.webUiUrl + 'token.html',
             headers: {
                 Authorization: 'Basic ' + window.btoa(engine.settings.login + ":" + engine.settings.password)
-            },
-            success: function(data) {
-                var token = data.match(/>([^<]+)</);
-                if (token !== null) {
-                    token = token[1];
-                    engine.publicStatus('Token is found!');
-                } else {
-                    engine.publicStatus('Token not found!');
-                }
-                engine.varCache.token = token;
-                engine.publicStatus('');
-                onReady && onReady();
-            },
-            error: function(xhr) {
-                engine.publicStatus('Get token error! Code: '+xhr.status);
-                if (force === undefined) {
-                    force = 0;
-                }
+            }
+        }, function (err, resp, data) {
+            if (err) {
+                engine.publicStatus('Get token error! ' + err);
+                force = force || 0;
                 force++;
+
                 if (force < 4) {
                     return engine.getToken.call(engine, onReady, onError, force);
                 }
-                onError && onError({status: xhr.status, statusText: xhr.statusText});
+
+                return onError && onError(err);
             }
+
+            var token = data.match(/>([^<]+)</);
+            if (token) {
+                token = token[1];
+                engine.publicStatus('Token is found!');
+            } else {
+                engine.publicStatus('Token not found!');
+            }
+
+            engine.varCache.token = token;
+            engine.publicStatus('');
+            onReady && onReady();
         });
     },
     sendAction: function(origData, onLoad, onError, force) {
@@ -326,41 +449,41 @@ var engine = {
             type = 'GET';
         }
 
-        engine.ajax({
+        engine.request({
             type: type,
             url: url,
             headers: {
                 Authorization: 'Basic ' + window.btoa(engine.settings.login + ":" + engine.settings.password)
             },
-            data: data,
-            success: function(data, xhr) {
-                var data = xhr.responseText;
-                try {
-                    if (engine.settings.fixCirilicTitle) {
-                        data = engine.fixCirilicTitle(data);
-                    }
-                    data = JSON.parse(data);
-                } catch (err) {
-                    return engine.publicStatus('Data parse error!');
-                }
-                engine.publicStatus('');
-                onLoad && onLoad(data);
-                engine.readResponse(data, origData.cid);
-            },
-            error: function(xhr) {
-                if (force === undefined) {
-                    force = 0;
-                }
+            data: data
+        }, function(err, resp, data) {
+            if (err) {
+                force = force || 0;
                 force++;
-                if (xhr.status === 400) {
+                if (resp.statusCode === 400) {
                     engine.varCache.token = undefined;
                 }
+
                 if (force < 2) {
                     return engine.sendAction.call(engine, origData, onLoad, onError, force);
                 }
-                engine.publicStatus('Can\'t send action! '+xhr.statusText+' (Code: '+xhr.status+')');
-                onError && onError();
+
+                engine.publicStatus('Can\'t send action! ' + err);
+                return onError && onError();
             }
+
+            try {
+                if (engine.settings.fixCirilicTitle) {
+                    data = engine.fixCirilicTitle(data);
+                }
+                data = JSON.parse(data);
+            } catch (err) {
+                return engine.publicStatus('Data parse error!');
+            }
+
+            engine.publicStatus('');
+            onLoad && onLoad(data);
+            engine.readResponse(data, origData.cid);
         });
     },
     readResponse: function(data, cid) {
@@ -520,12 +643,16 @@ var engine = {
             return engine.getLocale.locale;
         }
 
-        var getLang = mono.isFF ? function() {
-            var window = require('sdk/window/utils').getMostRecentBrowserWindow();
-            return String(window.navigator && window.navigator.language).toLowerCase();
-        } : function() {
+        var getLang = function() {
             return String(navigator.language).toLowerCase();
         };
+
+        if (mono.isModule) {
+            getLang = function() {
+                var window = require('sdk/window/utils').getMostRecentBrowserWindow();
+                return String(window.navigator && window.navigator.language).toLowerCase();
+            };
+        }
 
         var lang = getLang();
         var match = lang.match(/\(([^)]+)\)/);
@@ -545,15 +672,19 @@ var engine = {
         }
         return engine.getLocale.locale = lang;
     },
-    detectLanguage: mono.isChrome ? function() {
-        return chrome.i18n.getMessage('lang');
-    } : window.isModule ? function() {
-        var lang = require("sdk/l10n").get('lang');
-        if (lang !== 'lang') {
-            return lang;
+    detectLanguage: function() {
+        "use strict";
+        if (mono.isChrome) {
+            return chrome.i18n.getMessage('lang');
         }
-        return engine.getLocale();
-    } : function() {
+
+        if (mono.isModule) {
+            var lang = require("sdk/l10n").get('lang');
+            if (lang !== 'lang') {
+                return lang;
+            }
+        }
+
         return engine.getLocale();
     },
     readChromeLocale: function(lang) {
@@ -580,27 +711,29 @@ var engine = {
         }
 
         var url = '_locales/' + lang.replace('-', '_') + '/messages.json';
-        if (mono.isFF) {
+
+        if (mono.isModule) {
             try {
                 engine.setLanguage(engine.readChromeLocale(JSON.parse(require('sdk/self').data.load(url))));
-                cb();
+                return cb();
             } catch (e) {
                 console.error('Can\'t load language!', lang);
-                cb();
+                return cb();
             }
-            return;
         }
-        engine.ajax({
+
+        engine.request({
             url: url,
-            dataType: 'JSON',
-            success: function(data) {
-                engine.setLanguage(engine.readChromeLocale(data));
-                cb();
-            },
-            error: function() {
+            json: true
+        }, function(err, resp, json) {
+            "use strict";
+            if (err || !json) {
                 console.error('Can\'t load language!', lang);
-                cb();
+                return cb();
             }
+
+            engine.setLanguage(engine.readChromeLocale(json));
+            return cb();
         });
     },
     getLanguage: function(cb) {
@@ -627,45 +760,57 @@ var engine = {
             upSpeedList.shift();
         }
     },
-    showNotification: window.isModule ? function(icon, title, desc) {
-        var notification = require("sdk/notifications");
-        notification.notify({title: String(title), text: String(desc), iconURL: icon});
-    } : function(icon, title, desc, id) {
-        var notifyId = 'notify';
-        if (id !== undefined) {
-            notifyId += id;
-        } else {
-            notifyId += Date.now();
-        }
-        var timerId = notifyId + 'Timer';
+    showNotification: function() {
+        var moduleFunc = function(icon, title, desc) {
+            var notification = require("sdk/notifications");
+            notification.notify({title: String(title), text: String(desc), iconURL: icon});
+        };
 
-        var notifyList = engine.varCache.notifyList;
-
-        if (id !== undefined && notifyList[notifyId] !== undefined) {
-            clearTimeout(notifyList[timerId]);
-            delete notifyList[notifyId];
-            chrome.notifications.clear(notifyId, function(){});
-        }
-        /**
-         * @namespace chrome.notifications
-         */
-        chrome.notifications.create(
-            notifyId,
-            {
-                type: 'basic',
-                iconUrl: icon,
-                title: String(title),
-                message: String(desc)
-            },
-            function(id) {
-                notifyList[notifyId] = id;
+        var chromeFunc = function(icon, title, desc, id) {
+            var notifyId = 'notify';
+            if (id !== undefined) {
+                notifyId += id;
+            } else {
+                notifyId += Date.now();
             }
-        );
-        if (engine.settings.notificationTimeout > 0) {
-            notifyList[timerId] = setTimeout(function () {
-                notifyList[notifyId] = undefined;
+            var timerId = notifyId + 'Timer';
+
+            var notifyList = engine.varCache.notifyList;
+
+            if (id !== undefined && notifyList[notifyId] !== undefined) {
+                clearTimeout(notifyList[timerId]);
+                delete notifyList[notifyId];
                 chrome.notifications.clear(notifyId, function(){});
-            }, engine.settings.notificationTimeout);
+            }
+            /**
+             * @namespace chrome.notifications
+             */
+            chrome.notifications.create(
+                notifyId,
+                {
+                    type: 'basic',
+                    iconUrl: icon,
+                    title: String(title),
+                    message: String(desc)
+                },
+                function(id) {
+                    notifyList[notifyId] = id;
+                }
+            );
+            if (engine.settings.notificationTimeout > 0) {
+                notifyList[timerId] = setTimeout(function () {
+                    notifyList[notifyId] = undefined;
+                    chrome.notifications.clear(notifyId, function(){});
+                }, engine.settings.notificationTimeout);
+            }
+        };
+
+        if (mono.isModule) {
+            return moduleFunc.apply(this, arguments);
+        }
+
+        if (mono.isChrome) {
+            return chromeFunc.apply(this, arguments);
         }
     },
     onCompleteNotification: function(oldTorrentList, newTorrentList) {
@@ -684,28 +829,41 @@ var engine = {
             }
         }
     },
-    setBadgeText: mono.isChrome ? function(text) {
-        engine.setBadgeText.lastText = text;
+    setBadgeText: function() {
+        "use strict";
+        var chromeFunc = function(text) {
+            engine.setBadgeText.lastText = text;
 
-        chrome.browserAction.setBadgeText({
-            text: text
-        });
+            chrome.browserAction.setBadgeText({
+                text: text
+            });
 
-        var color = engine.settings.badgeColor.split(',').map(function(i){return parseFloat(i);});
-        if (color.length === 4) {
-            color.push(parseInt(255 * color.splice(-1)[0]));
+            var color = engine.settings.badgeColor.split(',').map(function(i){return parseFloat(i);});
+            if (color.length === 4) {
+                color.push(parseInt(255 * color.splice(-1)[0]));
+            }
+            chrome.browserAction.setBadgeBackgroundColor({
+                color: color
+            });
+        };
+
+        var moduleFunc = function(text) {
+            engine.setBadgeText.lastText = text;
+
+            mono.ffButton.badge = text;
+
+            var color = engine.settings.badgeColor;
+            var hexColor = mono.rgba2hex.apply(mono, color.split(','));
+            mono.ffButton.badgeColor = hexColor;
+        };
+
+        if (mono.isModule) {
+            return moduleFunc.apply(this, arguments);
         }
-        chrome.browserAction.setBadgeBackgroundColor({
-            color: color
-        });
-    } : function(text) {
-        engine.setBadgeText.lastText = text;
 
-        mono.ffButton.badge = text;
-
-        var color = engine.settings.badgeColor;
-        var hexColor = mono.rgba2hex.apply(mono, color.split(','));
-        mono.ffButton.badgeColor = hexColor;
+        if (mono.isChrome) {
+            return chromeFunc.apply(this, arguments);
+        }
     },
     displayActiveItemsCountIcon: function(newTorrentList) {
         var activeCount = 0;
@@ -726,20 +884,20 @@ var engine = {
         engine.settings.showNotificationOnDownloadCompleate && engine.onCompleteNotification(oldTorrentList.slice(0), newTorrentList);
     },
     downloadFile: function (url, cb, referer) {
-        var xhr = new engine.ajax.xhr();
+        var xhr = engine.getTransport();
         xhr.open('GET', url, true);
         xhr.responseType = 'blob';
-        if (referer !== undefined) {
+        if (referer) {
             xhr.setRequestHeader('Referer', referer);
         }
         xhr.onprogress = function (e) {
-            if (e.total > 1048576 * 10 || e.loaded > 1048576 * 10) {
+            if (e.total > 1024 * 1024 * 10 || e.loaded > 1024 * 1024 * 10) {
                 xhr.abort();
                 engine.showNotification(engine.icons.error, engine.language.OV_FL_ERROR, engine.language.fileSizeError);
             }
         };
         xhr.onload = function () {
-            cb(xhr.response);
+            return cb(xhr.response);
         };
         xhr.onerror = function () {
             if (xhr.status === 0) {
@@ -1092,7 +1250,7 @@ var engine = {
 
         return {tree: smartTree, list: tmp_folders_array};
     },
-    createFolderCtxMenu: window.isModule ? (function() {
+    ffCreateFolderCtxMenu: !mono.isModule ? null : (function() {
         var contentScript = (function() {
             var onClick = function() {
                 self.on("click", function(node) {
@@ -1276,92 +1434,103 @@ var engine = {
                 });
             }
         }
-    })() : function() {
-        chrome.contextMenus.removeAll(function () {
-            var enableFolders, enableLabels;
-            if (!(enableFolders = engine.settings.ctxMenuType === 1) && !(enableLabels = engine.settings.ctxMenuType === 2)) {
-                return;
-            }
+    })(),
+    createFolderCtxMenu: function() {
+        if (mono.isModule) {
+            return engine.ffCreateFolderCtxMenu.apply(this, arguments);
+        }
 
-            var contextMenu = engine.createFolderCtxMenu.contextMenu = [];
+        var chromeFunc = function() {
+            chrome.contextMenus.removeAll(function () {
+                var enableFolders, enableLabels;
+                if (!(enableFolders = engine.settings.ctxMenuType === 1) && !(enableLabels = engine.settings.ctxMenuType === 2)) {
+                    return;
+                }
 
-            var folderList = engine.varCache.folderList;
-            var labelList = engine.varCache.labelList;
+                var contextMenu = engine.createFolderCtxMenu.contextMenu = [];
 
-            chrome.contextMenus.create({
-                id: 'main',
-                title: engine.language.addInTorrentClient,
-                contexts: ["link"],
-                onclick: engine.onCtxMenuCall
-            }, function () {
-                if (enableFolders) {
-                    Array.prototype.push.apply(contextMenu, folderList);
-                    if (folderList.length > 0) {
-                        if (engine.settings.treeViewContextMenu) {
-                            var treeList = engine.listToTreeList(folderList.slice(0));
-                            for (var i = 0, item; item = treeList.tree[i]; i++) {
-                                chrome.contextMenus.create({
-                                    id: item.id,
-                                    parentId: item.parentId,
-                                    title: item.title,
-                                    contexts: ["link"],
-                                    onclick: engine.onCtxMenuCall
-                                });
-                            }
-                            contextMenu.splice(0);
-                            Array.prototype.push.apply(contextMenu, treeList.list);
-                        } else {
-                            for (var i = 0, item; item = folderList[i]; i++) {
-                                chrome.contextMenus.create({
-                                    id: String(i),
-                                    parentId: 'main',
-                                    title: item[2] || item[1],
-                                    contexts: ["link"],
-                                    onclick: engine.onCtxMenuCall
-                                });
+                var folderList = engine.varCache.folderList;
+                var labelList = engine.varCache.labelList;
+
+                chrome.contextMenus.create({
+                    id: 'main',
+                    title: engine.language.addInTorrentClient,
+                    contexts: ["link"],
+                    onclick: engine.onCtxMenuCall
+                }, function () {
+                    if (enableFolders) {
+                        Array.prototype.push.apply(contextMenu, folderList);
+                        if (folderList.length > 0) {
+                            if (engine.settings.treeViewContextMenu) {
+                                var treeList = engine.listToTreeList(folderList.slice(0));
+                                for (var i = 0, item; item = treeList.tree[i]; i++) {
+                                    chrome.contextMenus.create({
+                                        id: item.id,
+                                        parentId: item.parentId,
+                                        title: item.title,
+                                        contexts: ["link"],
+                                        onclick: engine.onCtxMenuCall
+                                    });
+                                }
+                                contextMenu.splice(0);
+                                Array.prototype.push.apply(contextMenu, treeList.list);
+                            } else {
+                                for (var i = 0, item; item = folderList[i]; i++) {
+                                    chrome.contextMenus.create({
+                                        id: String(i),
+                                        parentId: 'main',
+                                        title: item[2] || item[1],
+                                        contexts: ["link"],
+                                        onclick: engine.onCtxMenuCall
+                                    });
+                                }
                             }
                         }
-                    }
-                    if (engine.settings.showDefaultFolderContextMenuItem) {
+                        if (engine.settings.showDefaultFolderContextMenuItem) {
+                            chrome.contextMenus.create({
+                                id: 'default',
+                                parentId: 'main',
+                                title: engine.language.defaultPath,
+                                contexts: ["link"],
+                                onclick: engine.onCtxMenuCall
+                            });
+                        }
+                        if (folderList.length > 0 || engine.settings.showDefaultFolderContextMenuItem) {
+                            chrome.contextMenus.create({
+                                id: 'newFolder',
+                                parentId: 'main',
+                                title: engine.language.add + '...',
+                                contexts: ["link"],
+                                onclick: engine.onCtxMenuCall
+                            });
+                        }
+                    } else
+                    if (enableLabels && labelList.length > 0) {
+                        Array.prototype.push.apply(contextMenu, labelList);
+                        for (var i = 0, item; item = labelList[i]; i++) {
+                            chrome.contextMenus.create({
+                                id: String(i),
+                                parentId: 'main',
+                                title: item,
+                                contexts: ["link"],
+                                onclick: engine.onCtxMenuCall
+                            });
+                        }
                         chrome.contextMenus.create({
-                            id: 'default',
+                            id: 'newLabel',
                             parentId: 'main',
-                            title: engine.language.defaultPath,
+                            title: engine.language.add + '...',
                             contexts: ["link"],
                             onclick: engine.onCtxMenuCall
                         });
                     }
-                    if (folderList.length > 0 || engine.settings.showDefaultFolderContextMenuItem) {
-                        chrome.contextMenus.create({
-                            id: 'newFolder',
-                            parentId: 'main',
-                            title: engine.language.add+'...',
-                            contexts: ["link"],
-                            onclick: engine.onCtxMenuCall
-                        });
-                    }
-                } else
-                if (enableLabels && labelList.length > 0) {
-                    Array.prototype.push.apply(contextMenu, labelList);
-                    for (var i = 0, item; item = labelList[i]; i++) {
-                        chrome.contextMenus.create({
-                            id: String(i),
-                            parentId: 'main',
-                            title: item,
-                            contexts: ["link"],
-                            onclick: engine.onCtxMenuCall
-                        });
-                    }
-                    chrome.contextMenus.create({
-                        id: 'newLabel',
-                        parentId: 'main',
-                        title: engine.language.add+'...',
-                        contexts: ["link"],
-                        onclick: engine.onCtxMenuCall
-                    });
-                }
+                });
             });
-        });
+        };
+
+        if (mono.isChrome) {
+            return chromeFunc.apply(this, arguments);
+        }
     },
     run: function() {
         engine.loadSettings(function() {
@@ -1448,6 +1617,15 @@ var engine = {
             mono.storage.set({fileListColumnList: message.data}, response);
         },
         onSendFile: function(message, response) {
+            if (message.base64) {
+                var b64Data = message.base64;
+                var type = message.type;
+                delete message.base64;
+                delete message.type;
+
+                message.url = mono.base64ToUrl(b64Data, type);
+            }
+
             engine.sendFile(message.url, message.folder, message.label);
         },
         getTraffic: function(message, response) {
@@ -1462,9 +1640,9 @@ var engine = {
             engine.loadSettings(function() {
                 engine.getLanguage(function () {
                     engine.getToken(function() {
-                        response({});
-                    }, function(statusObj) {
-                        response({error: statusObj});
+                        return response({});
+                    }, function(err) {
+                        return response({error: err});
                     });
                 });
             });
@@ -1493,48 +1671,47 @@ var engine = {
             engine.settings.badgeColor = message.color;
             engine.setBadgeText(engine.setBadgeText.lastText || '0');
         }
-    }
-};
+    },
+    init: function() {
+        engine.setBadgeText.lastText = '';
 
-//@insert
+        mono.setTimeout = function(cb, delay) {
+            "use strict";
+            if (mono.isModule) {
+                return require("sdk/timers").setTimeout(cb, delay);
+            } else {
+                return setTimeout(cb, delay);
+            }
+        };
 
-(function() {
-    var init = function(addon, button) {
-        if (addon) {
-            mono = mono.init(addon);
+        mono.clearTimeout = function(timeout) {
+            "use strict";
+            if (mono.isModule) {
+                return require("sdk/timers").clearTimeout(timeout);
+            } else {
+                return clearTimeout(timeout);
+            }
+        };
 
-            mono.rgba2hex = function(r, g, b, a) {
-                if (a > 1) {
-                    a = a / 100;
-                }
-                a = parseFloat(a);
-                r = parseInt(r * a);
-                g = parseInt(g * a);
-                b = parseInt(b * a);
+        mono.setInterval = function(cb, delay) {
+            "use strict";
+            if (mono.isModule) {
+                return require("sdk/timers").setInterval(cb, delay);
+            } else {
+                return setInterval(cb, delay);
+            }
+        };
 
-                var componentToHex = function(c) {
-                    var hex = c.toString(16);
-                    return hex.length == 1 ? "0" + hex : hex;
-                };
+        mono.clearInterval = function(timeout) {
+            "use strict";
+            if (mono.isModule) {
+                return require("sdk/timers").clearInterval(timeout);
+            } else {
+                return clearInterval(timeout);
+            }
+        };
 
-                return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-            };
-
-            mono.ffButton = button;
-
-            var sdkTimers = require("sdk/timers");
-            engine.timer.setInterval = sdkTimers.setInterval;
-            engine.timer.clearInterval = sdkTimers.clearInterval;
-
-            var self = require('sdk/self');
-            engine.icons.complete = self.data.url(engine.icons.complete);
-            engine.icons.add = self.data.url(engine.icons.add);
-            engine.icons.error = self.data.url(engine.icons.error);
-
-            engine.ajax.xhr = require('sdk/net/xhr').XMLHttpRequest;
-        } else {
-            engine.ajax.xhr = XMLHttpRequest;
-            engine.setBadgeText.lastText = '';
+        if (mono.isChrome) {
             chrome.browserAction.setBadgeText({
                 text: ''
             });
@@ -1545,10 +1722,72 @@ var engine = {
         mono.onMessage(engine.onMessage);
 
         engine.run();
-    };
-    if (window.isModule) {
-        exports.init = init;
-    } else {
-        init();
     }
-})();
+};
+
+mono.isModule && (function(origFunc){
+    engine.init = function(addon, button) {
+        mono = mono.init(addon);
+
+        mono.rgba2hex = function(r, g, b, a) {
+            if (a > 1) {
+                a = a / 100;
+            }
+            a = parseFloat(a);
+            r = parseInt(r * a);
+            g = parseInt(g * a);
+            b = parseInt(b * a);
+
+            var componentToHex = function(c) {
+                var hex = c.toString(16);
+                return hex.length == 1 ? "0" + hex : hex;
+            };
+
+            return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+        };
+
+        mono.base64ToUrl = function(b64Data, contentType) {
+            "use strict";
+            var sliceSize = 256;
+            contentType = contentType || '';
+            var byteCharacters = window.atob(b64Data);
+
+            var byteCharacters_len = byteCharacters.length;
+            var byteArrays = new Array(Math.ceil(byteCharacters_len / sliceSize));
+            var n = 0;
+            for (var offset = 0; offset < byteCharacters_len; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var slice_len = slice.length;
+                var byteNumbers = new Array(slice_len);
+                for (var i = 0; i < slice_len; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i) & 0xff;
+                }
+
+                byteArrays[n] = new Uint8Array(byteNumbers);
+                n++;
+            }
+
+            var blob = new window.Blob(byteArrays, {type: contentType});
+
+            var blobUrl = window.URL.createObjectURL(blob);
+
+            return blobUrl;
+        };
+
+        mono.ffButton = button;
+
+        var self = require('sdk/self');
+        engine.icons.complete = self.data.url(engine.icons.complete);
+        engine.icons.add = self.data.url(engine.icons.add);
+        engine.icons.error = self.data.url(engine.icons.error);
+
+        origFunc();
+    };
+})(engine.init.bind(engine));
+
+if (mono.isModule) {
+    exports.init = engine.init;
+} else
+mono.onReady(function() {
+    engine.init();
+});

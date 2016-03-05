@@ -1,13 +1,17 @@
 exports.run = function (grunt) {
+    var monoParams = {
+        useChrome: 1,
+        oldChromeSupport: 1,
+        oneMode: 1
+    };
+
     grunt.config.merge({
         'json-format': {
             chromeManifestFormat: {
                 expand: true,
-                src: '<%= output %><%= vendor %>manifest.json',
+                cwd: '<%= output %><%= vendor %>',
+                src: 'manifest.json',
                 dest: '<%= output %><%= vendor %>',
-                rename: function () {
-                    return arguments[0] + arguments[1].substr((grunt.config('output') + grunt.config('vendor')).length);
-                },
                 options: {
                     indent: 4
                 }
@@ -20,13 +24,11 @@ exports.run = function (grunt) {
                     archive: '<%= output %><%= vendor %>../<%= buildName %>.zip'
                 },
                 files: [{
+                    cwd: '<%= output %><%= vendor %>',
                     expand: true,
                     filter: 'isFile',
-                    src: '<%= output %><%= vendor %>/**',
-                    dest: './',
-                    rename: function () {
-                        return arguments[0] + arguments[1].substr((grunt.config('output') + grunt.config('vendor')).length);
-                    }
+                    src: '**',
+                    dest: ''
                 }]
             }
         },
@@ -50,6 +52,8 @@ exports.run = function (grunt) {
     });
 
     grunt.registerTask('chrome', function () {
+        grunt.config('monoParams', monoParams);
+
         grunt.config.merge({
             browser: 'chrome',
             vendor: 'chrome/src/',
@@ -62,6 +66,7 @@ exports.run = function (grunt) {
 
         grunt.task.run([
             'extensionBase',
+            'buildJs',
             'copy:chromeBase',
             'chromeManifest',
             'compressJs',
@@ -71,6 +76,8 @@ exports.run = function (grunt) {
     });
 
     grunt.registerTask('opera', function () {
+        grunt.config('monoParams', monoParams);
+
         grunt.config.merge({
             browser: 'opera',
             vendor: 'opera/src/',
@@ -83,6 +90,7 @@ exports.run = function (grunt) {
 
         grunt.task.run([
             'extensionBase',
+            'buildJs',
             'copy:chromeBase',
             'chromeManifest',
             'compressJs',
