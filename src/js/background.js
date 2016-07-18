@@ -646,10 +646,10 @@ var engine = {
         }
 
         (function getLanguage(locale, cb) {
-            if (locale === 'pt') {
+            if (/^pt/.test(locale)) {
                 locale = 'pt_BR';
             } else
-            if (locale === 'zh') {
+            if (/^zh/.test(locale)) {
                 locale = 'zh_CN';
             }
 
