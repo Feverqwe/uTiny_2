@@ -1,22 +1,9 @@
 exports.run = function (grunt) {
     var monoParams = {
-        useChrome: 1,
-        oldChromeSupport: 1,
-        oneMode: 1
+        browser: 'chrome'
     };
 
     grunt.config.merge({
-        'json-format': {
-            chromeManifestFormat: {
-                expand: true,
-                cwd: '<%= output %><%= vendor %>',
-                src: 'manifest.json',
-                dest: '<%= output %><%= vendor %>',
-                options: {
-                    indent: 4
-                }
-            }
-        },
         compress: {
             chrome: {
                 options: {
@@ -42,6 +29,13 @@ exports.run = function (grunt) {
                 dest: '<%= output %><%= vendor %>'
             }
         }
+    });
+
+    grunt.registerTask('chromeManifestFormat', function() {
+        "use strict";
+        var src = grunt.template.process('<%= output %><%= vendor %>manifest.json');
+        var json = grunt.file.readJSON(src);
+        grunt.file.write(src, JSON.stringify(json, null, 4));
     });
 
     grunt.registerTask('chromeManifest', function() {
@@ -70,7 +64,7 @@ exports.run = function (grunt) {
             'copy:chromeBase',
             'chromeManifest',
             'compressJs',
-            'json-format:chromeManifestFormat',
+            'chromeManifestFormat',
             'compress:chrome'
         ]);
     });
@@ -94,7 +88,7 @@ exports.run = function (grunt) {
             'copy:chromeBase',
             'chromeManifest',
             'compressJs',
-            'json-format:chromeManifestFormat',
+            'chromeManifestFormat',
             'compress:chrome'
         ]);
     });
