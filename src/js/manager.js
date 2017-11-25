@@ -103,10 +103,10 @@ var manager = {
             manager.timer.stop();
             manager.updateHead(type);
             manager.trFullUpdatePrepare([]);
-            mono.sendMessage([
+            utils.joinMessages([
                 {action: 'getRemoteTorrentList'},
                 {action: 'setTrColumnArray', data: manager.varCache.trColumnArray}
-            ], function(data) {
+            ]).then(function(data) {
                 manager.writeTrList({torrents: data.getRemoteTorrentList});
                 manager.timer.start();
             });
@@ -119,10 +119,10 @@ var manager = {
             manager.timer.stop();
             manager.updateHead(type);
             manager.flClearList();
-            mono.sendMessage([
+            utils.joinMessages([
                 {action: 'api', data: flListLayer.param},
                 {action: 'setFlColumnArray', data: manager.varCache.flColumnArray}
-            ], function(data) {
+            ]).then(function(data) {
                 manager.writeFlList(data.api);
                 manager.timer.start();
             });
@@ -163,7 +163,7 @@ var manager = {
         var styleBody = '';
         var width = 0;
         manager.options.trHasSelectCell = false;
-        var head = mono.create('tr', {
+        var head = utils.create('tr', {
             append: (function() {
                 var thList = [];
                 var resizeEl;
@@ -173,7 +173,7 @@ var manager = {
                         continue;
                     }
                     var orderClass = (manager.varCache.trSortColumn !== key) ? undefined : (manager.varCache.trSortBy === 1) ? 'sortDown' : 'sortUp';
-                    thList.push(mono.create('th', {
+                    thList.push(utils.create('th', {
                         class: [key, orderClass],
                         title: manager.language[value.lang],
                         data: {
@@ -187,23 +187,23 @@ var manager = {
                             ['drop', manager.onDrop]
                         ],
                         append: [
-                            (key === 'checkbox') ? mono.create('div', {
-                                append: mono.create('input', {
+                            (key === 'checkbox') ? utils.create('div', {
+                                append: utils.create('input', {
                                     type: 'checkbox'
                                 }),
                                 onCreate: function() {
                                     manager.options.trHasSelectCell = true;
                                 }
-                            }) : mono.create('div', {
+                            }) : utils.create('div', {
                                 text: manager.language[value.lang+'_SHORT'] || manager.language[value.lang]
                             }),
                             resizeEl,
-                            value.order === 0 ? null : mono.create('i', {
+                            value.order === 0 ? null : utils.create('i', {
                                 class: 'arrow'
                             })
                         ]
                     }));
-                    resizeEl = mono.create('div', {
+                    resizeEl = utils.create('div', {
                         class: 'resize-el',
                         draggable: false,
                         on: [
@@ -231,7 +231,7 @@ var manager = {
             manager.varCache['style.torrent-style'].parentNode.removeChild(manager.varCache['style.torrent-style']);
             delete manager.varCache['style.torrent-style'];
         }
-        document.body.appendChild(manager.varCache['style.torrent-style'] = mono.create('style', {
+        document.body.appendChild(manager.varCache['style.torrent-style'] = utils.create('style', {
             class: 'torrent-style',
             text: styleBody
         }));
@@ -248,9 +248,8 @@ var manager = {
                 width = 723;
             }
             document.body.style.width = width + 'px';
-            mono.isFF && mono.sendMessage({action: 'resize', width: width}, null, 'service');
 
-            mono.isChrome && setTimeout(function() {
+            setTimeout(function() {
                 var innerWidth = window.innerWidth;
                 if (innerWidth < 723 && innerWidth < width) {
                     document.body.style.minWidth = innerWidth + 'px';
@@ -270,7 +269,7 @@ var manager = {
         var styleBody = '';
         var width = 0;
         manager.options.flHasSelectCell = false;
-        var head = mono.create('tr', {
+        var head = utils.create('tr', {
             append: (function() {
                 var thList = [];
                 var resizeEl;
@@ -280,7 +279,7 @@ var manager = {
                         continue;
                     }
                     var orderClass = (manager.varCache.flSortColumn !== key) ? undefined : (manager.varCache.flSortBy === 1) ? 'sortDown' : 'sortUp';
-                    thList.push(mono.create('th', {
+                    thList.push(utils.create('th', {
                         class: [key, orderClass],
                         title: manager.language[value.lang],
                         data: {
@@ -294,23 +293,23 @@ var manager = {
                             ['drop', manager.onDrop]
                         ],
                         append: [
-                            (key === 'checkbox') ? mono.create('div', {
-                                append: mono.create('input', {
+                            (key === 'checkbox') ? utils.create('div', {
+                                append: utils.create('input', {
                                     type: 'checkbox'
                                 }),
                                 onCreate: function() {
                                     manager.options.flHasSelectCell = true;
                                 }
-                            }) : mono.create('div', {
+                            }) : utils.create('div', {
                                 text: manager.language[value.lang+'_SHORT'] || manager.language[value.lang]
                             }),
                             resizeEl,
-                            value.order === 0 ? null : mono.create('i', {
+                            value.order === 0 ? null : utils.create('i', {
                                 class: 'arrow'
                             })
                         ]
                     }));
-                    resizeEl = mono.create('div', {
+                    resizeEl = utils.create('div', {
                         class: 'resize-el',
                         on: [
                             ['click', function(e){e.stopPropagation();}],
@@ -373,7 +372,7 @@ var manager = {
             manager.varCache['style.fileList-style'].parentNode.removeChild(manager.varCache['style.fileList-style']);
             delete manager.varCache['style.fileList-style'];
         }
-        document.body.appendChild(manager.varCache['style.fileList-style'] = mono.create('style', {
+        document.body.appendChild(manager.varCache['style.fileList-style'] = utils.create('style', {
             class: 'fileList-style',
             text: styleBody
         }));
@@ -386,7 +385,7 @@ var manager = {
         if (isCustom && item !== 'NOLABEL') {
             hasImage = true;
         }
-        return mono.create('option', {
+        return utils.create('option', {
             value: item,
             text: isCustom ? (item === 'SEEDING') ? manager.language['OV_FL_'+item.toUpperCase()] : manager.language['OV_CAT_'+item.toUpperCase()] : item,
             data: !isCustom ? undefined : {
@@ -456,14 +455,14 @@ var manager = {
         var selectedIndex = manager.domCache.labelBox.selectedIndex;
         var currentLabel = manager.varCache.currentFilter = manager.varCache.labels[selectedIndex];
 
-        mono.storage.set({selectedLabel: currentLabel});
+        mono.storage.local.set({selectedLabel: currentLabel});
 
         if (manager.varCache['style.tr-filter']) {
             manager.varCache['style.tr-filter'].parentNode.removeChild(manager.varCache['style.tr-filter']);
         }
 
         if (!currentLabel.custom) {
-            return document.body.appendChild(manager.varCache['style.tr-filter'] = mono.create('style', {
+            return document.body.appendChild(manager.varCache['style.tr-filter'] = utils.create('style', {
                 class: 'tr-filter',
                 text: '.torrent-table-body tbody > tr:not(.selected) {' +
                     'display: none;' +
@@ -488,7 +487,7 @@ var manager = {
         }
         if (currentLabel.label === 'all') return;
 
-        document.body.appendChild(manager.varCache['style.tr-filter'] = mono.create('style', {
+        document.body.appendChild(manager.varCache['style.tr-filter'] = utils.create('style', {
             class: 'tr-filter',
             text: '.torrent-table-body tbody > tr.filtered:not(.selected){' +
                 'display: none;' +
@@ -629,9 +628,9 @@ var manager = {
     },
     trCreateCell: {
         checkbox: function(columnName, api) {
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: columnName,
-                append: mono.create('input', {
+                append: utils.create('input', {
                     type: 'checkbox'
                 })
             });
@@ -641,10 +640,10 @@ var manager = {
         },
         name: function(key, api) {
             var div, span;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: key,
-                append: div = mono.create('div', {
-                    append: span = mono.create('span')
+                append: div = utils.create('div', {
+                    append: span = utils.create('span')
                 })
             });
             var update = function(api) {
@@ -663,9 +662,9 @@ var manager = {
         },
         order: function(key, api) {
             var div;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: key,
-                append: div = mono.create('div')
+                append: div = utils.create('div')
             });
             var update = function(api) {
                 var text = api[17];
@@ -682,9 +681,9 @@ var manager = {
         },
         size: function(key, api) {
             var div;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: key,
-                append: div = mono.create('div')
+                append: div = utils.create('div')
             });
             var update = function(api) {
                 var text = manager.bytesToText(api[3]);
@@ -699,9 +698,9 @@ var manager = {
         },
         remaining: function(key, api) {
             var div;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: key,
-                append: div = mono.create('div')
+                append: div = utils.create('div')
             });
             var update = function(api) {
                 var text = api[3] - api[5];
@@ -718,15 +717,15 @@ var manager = {
         },
         done: function(key, api) {
             var div1, div2;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: key,
-                append: mono.create('div', {
+                append: utils.create('div', {
                     class: 'progress_b',
                     append: [
-                        div1 = mono.create('div', {
+                        div1 = utils.create('div', {
                             class: 'val'
                         }),
-                        div2 = mono.create('div', {
+                        div2 = utils.create('div', {
                             class: 'progress_b_i'
                         })
                     ]
@@ -746,9 +745,9 @@ var manager = {
         },
         status: function(key, api) {
             var div;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: key,
-                append: div = mono.create('div')
+                append: div = utils.create('div')
             });
             var update = function(api) {
                 var text = manager.trGetStatusInfo(api);
@@ -763,9 +762,9 @@ var manager = {
         },
         seeds: function(key, api) {
             var div;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: key,
-                append: div = mono.create('div')
+                append: div = utils.create('div')
             });
             var update = function(api) {
                 div.textContent = api[15];
@@ -778,9 +777,9 @@ var manager = {
         },
         peers: function(key, api) {
             var div;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: key,
-                append: div = mono.create('div')
+                append: div = utils.create('div')
             });
             var update = function(api) {
                 div.textContent = api[13];
@@ -793,9 +792,9 @@ var manager = {
         },
         seeds_peers: function(key, api) {
             var div;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: key,
-                append: div = mono.create('div')
+                append: div = utils.create('div')
             });
             var update = function(api) {
                 var text = api[14] + '/' + api[12];
@@ -809,9 +808,9 @@ var manager = {
         },
         downspd: function(key, api) {
             var div;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: key,
-                append: div = mono.create('div')
+                append: div = utils.create('div')
             });
             var update = function(api) {
                 var text = manager.bytesToText(api[9], '', 1);
@@ -825,9 +824,9 @@ var manager = {
         },
         upspd: function(key, api) {
             var div;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: key,
-                append: div = mono.create('div')
+                append: div = utils.create('div')
             });
             var update = function(api) {
                 var text = manager.bytesToText(api[8], '', 1);
@@ -841,9 +840,9 @@ var manager = {
         },
         eta: function(key, api) {
             var div;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: key,
-                append: div = mono.create('div')
+                append: div = utils.create('div')
             });
             var update = function(api) {
                 var text = manager.unixTimeToTextOut(api[10]);
@@ -858,9 +857,9 @@ var manager = {
         },
         upped: function(key, api) {
             var div;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: key,
-                append: div = mono.create('div')
+                append: div = utils.create('div')
             });
             var update = function(api) {
                 var text = manager.bytesToText(api[6], 0);
@@ -874,9 +873,9 @@ var manager = {
         },
         downloaded: function(key, api) {
             var div;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: key,
-                append: div = mono.create('div')
+                append: div = utils.create('div')
             });
             var update = function(api) {
                 var text = manager.bytesToText(api[5], 0);
@@ -890,9 +889,9 @@ var manager = {
         },
         shared: function(key, api) {
             var div;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: key,
-                append: div = mono.create('div')
+                append: div = utils.create('div')
             });
             var update = function(api) {
                 var text = api[7] / 1000;
@@ -906,9 +905,9 @@ var manager = {
         },
         avail: function(key, api) {
             var div;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: key,
-                append: div = mono.create('div')
+                append: div = utils.create('div')
             });
             var update = function(api) {
                 var text = Math.round((api[16] / 65535) * 1000) / 1000;
@@ -922,9 +921,9 @@ var manager = {
         },
         label: function(key, api) {
             var div;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: key,
-                append: div = mono.create('div')
+                append: div = utils.create('div')
             });
             var update = function(api) {
                 var text = api[11];
@@ -939,9 +938,9 @@ var manager = {
         },
         added: function(key, api) {
             var div;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: key,
-                append: div = mono.create('div')
+                append: div = utils.create('div')
             });
             var update = function(api) {
                 var text = manager.unixTimeToTimeStamp(api[23]);
@@ -956,9 +955,9 @@ var manager = {
         },
         completed: function(key, api) {
             var div;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: key,
-                append: div = mono.create('div')
+                append: div = utils.create('div')
             });
             var update = function(api) {
                 var text = manager.unixTimeToTimeStamp(api[24]);
@@ -973,22 +972,22 @@ var manager = {
         },
         actions: function(key, api) {
             var div;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: key,
-                append: mono.create('div', {
+                append: utils.create('div', {
                     class: 'btns',
                     append: [
-                        mono.create('a', {
+                        utils.create('a', {
                             href: '#start',
                             title: manager.language['ML_START'],
                             class: 'start'
                         }),
-                        mono.create('a', {
+                        utils.create('a', {
                             href: '#pause',
                             title: manager.language['ML_PAUSE'],
                             class: 'pause'
                         }),
-                        mono.create('a', {
+                        utils.create('a', {
                             href: '#stop',
                             title: manager.language['ML_STOP'],
                             class: 'stop'
@@ -1004,7 +1003,7 @@ var manager = {
     trItemCreate: function(item) {
         var api = item.api;
         item.cell = {};
-        item.node = mono.create('tr', {
+        item.node = utils.create('tr', {
             id: api[0],
             data: {
                 label: api[11],
@@ -1315,7 +1314,7 @@ var manager = {
     setSummSpeed: function(type, value) {
         value = manager.bytesToText(value, '-', 1);
         if (!manager.domCache[type+'Spd']) {
-            return manager.domCache[type+'Speed'].appendChild(manager.domCache[type+'Spd'] = mono.create('span', {
+            return manager.domCache[type+'Speed'].appendChild(manager.domCache[type+'Spd'] = utils.create('span', {
                 class: 'sum '+type,
                 text: value
             }));
@@ -1516,7 +1515,7 @@ var manager = {
         var linkNodeList = document.createDocumentFragment();
         if (level !== 0) {
             var lev = level - 1;
-            linkNodeList.appendChild(mono.create('a', {
+            linkNodeList.appendChild(utils.create('a', {
                 class: 'folder c' + lev,
                 text: '←',
                 href: '#',
@@ -1526,7 +1525,7 @@ var manager = {
             }));
         }
         for (var i = level, link; link = linkList[i]; i++) {
-            linkNodeList.appendChild(mono.create('a', {
+            linkNodeList.appendChild(utils.create('a', {
                 class: 'folder c' + i,
                 text: link.name,
                 href: '#',
@@ -1577,7 +1576,7 @@ var manager = {
         delete manager.varCache['style.fl-filter'];
         style && style.parentNode.removeChild(style);
 
-        document.body.appendChild(manager.varCache['style.fl-filter'] = mono.create('style', {
+        document.body.appendChild(manager.varCache['style.fl-filter'] = utils.create('style', {
             class: 'fl-filter',
             text: '.fl-table-body tbody > tr{' +
                 'display: none;' +
@@ -1589,9 +1588,9 @@ var manager = {
     },
     flCreateCell: {
         checkbox: function(columnName, api) {
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: columnName,
-                append: mono.create('input', {
+                append: utils.create('input', {
                     type: 'checkbox'
                 })
             });
@@ -1601,11 +1600,11 @@ var manager = {
         },
         name: function(columnName, api, item) {
             var span;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: columnName,
-                append: mono.create('div', {
+                append: utils.create('div', {
                     append: [
-                        span = mono.create('span')
+                        span = utils.create('span')
                     ]
                 })
             });
@@ -1624,9 +1623,9 @@ var manager = {
             }
         },
         size: function(columnName, api) {
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: columnName,
-                append: mono.create('div', {
+                append: utils.create('div', {
                     text: manager.bytesToText(api[1], '0')
                 })
             });
@@ -1636,9 +1635,9 @@ var manager = {
         },
         downloaded: function(columnName, api) {
             var div;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: columnName,
-                append: div = mono.create('div')
+                append: div = utils.create('div')
             });
             var update = function(api) {
                 div.textContent = manager.bytesToText(api[2], '0');
@@ -1651,15 +1650,15 @@ var manager = {
         },
         done: function(columnName, api) {
             var div1, div2;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: columnName,
-                append: mono.create('div', {
+                append: utils.create('div', {
                     class: 'progress_b',
                     append: [
-                        div1 = mono.create('div', {
+                        div1 = utils.create('div', {
                             class: 'val'
                         }),
-                        div2 = mono.create('div', {
+                        div2 = utils.create('div', {
                             class: 'progress_b_i'
                         })
                     ]
@@ -1681,9 +1680,9 @@ var manager = {
         prio: function(columnName, api) {
             var priorityList = ['MF_DONT', 'MF_LOW', 'MF_NORMAL', 'MF_HIGH'];
             var div;
-            var node = mono.create('td', {
+            var node = utils.create('td', {
                 class: columnName,
-                append: div = mono.create('div')
+                append: div = utils.create('div')
             });
             var update = function(api) {
                 var priority = manager.language[priorityList[api[3]]];
@@ -1699,7 +1698,7 @@ var manager = {
     },
     flItemCreate: function(item) {
         item.cell = {};
-        item.node = mono.create('tr', {
+        item.node = utils.create('tr', {
             data: {
                 index: item.index
             },
@@ -1845,7 +1844,7 @@ var manager = {
             checkBox.dispatchEvent(new CustomEvent('change', {bubbles: true}));
         }
 
-        document.body.appendChild(flListLayer.closeLayer = mono.create('div', {
+        document.body.appendChild(flListLayer.closeLayer = utils.create('div', {
             class: 'file-list-layer-temp',
             on: ['mousedown', function() {
                 flListLayer.close();
@@ -1853,7 +1852,7 @@ var manager = {
         }));
 
         manager.flWriteHead();
-        manager.domCache.flLayer.appendChild(flListLayer.loading = mono.create('div', {
+        manager.domCache.flLayer.appendChild(flListLayer.loading = utils.create('div', {
             class: 'file-list-loading',
             style: {
                 top: (manager.varCache.flHeight / 2 - 15)+'px',
@@ -1863,7 +1862,7 @@ var manager = {
 
         var folderEl = manager.domCache.flBottom.querySelector('li.path > input');
         var folder = trItem.api[26];
-        mono.create(folderEl, {
+        utils.create(folderEl, {
             title: folder,
             value: folder
         });
@@ -1926,7 +1925,7 @@ var manager = {
         by && node.classList.add('sortDown');
         !by && node.classList.add('sortUp');
 
-        mono.storage.set(storage);
+        mono.storage.local.set(storage);
     },
     updateHead: function(type) {
         var oldHead = manager.domCache[type+'FixedHead'].firstChild;
@@ -1977,7 +1976,7 @@ var manager = {
             'min-width: {size}px;' +
         '}';
 
-        var styleEl = mono.create('style');
+        var styleEl = utils.create('style');
         document.body.appendChild(styleEl);
 
         document.body.style.width = document.body.clientWidth+'px';
@@ -2220,7 +2219,7 @@ var manager = {
         }
         var value = manager.bytesToText(speed * 1024, '-', 1);
         if (speedNode === undefined) {
-            speedNode = manager.varCache.speedLimit[type+'Node'] = mono.create('span', {'class': 'limit '+type, text: value});
+            speedNode = manager.varCache.speedLimit[type+'Node'] = utils.create('span', {'class': 'limit '+type, text: value});
             manager.domCache[type+'Speed'].appendChild(speedNode);
             return;
         }
@@ -2285,10 +2284,10 @@ var manager = {
         columnObj.display = columnObj.display === 1 ? 0 : 1;
         manager.updateHead('tr');
         manager.trFullUpdatePrepare([]);
-        mono.sendMessage([
+        utils.joinMessages([
             {action: 'getRemoteTorrentList'},
             {action: 'setTrColumnArray', data: manager.varCache.trColumnArray}
-        ], function(data) {
+        ]).then(function(data) {
             manager.writeTrList({torrents: data.getRemoteTorrentList});
             manager.timer.start();
         });
@@ -2303,10 +2302,10 @@ var manager = {
         columnObj.display = columnObj.display === 1 ? 0 : 1;
         manager.updateHead('fl');
         manager.flClearList();
-        mono.sendMessage([
+        utils.joinMessages([
             {action: 'api', data: flListLayer.param},
             {action: 'setFlColumnArray', data: manager.varCache.flColumnArray}
-        ], function(data) {
+        ]).then(function(data) {
             manager.writeFlList(data.api);
             manager.timer.start();
         });
@@ -2338,7 +2337,7 @@ var manager = {
 
         var visibleCheckBoxList = [];
         for (var i = 0, el; el = checkBoxList[i]; i++) {
-            if (!mono.isVisibleElement(el)) {
+            if (!utils.isVisibleElement(el)) {
                 continue;
             }
             visibleCheckBoxList.push(el);
@@ -2373,7 +2372,7 @@ var manager = {
             if (!el) {
                 continue;
             }
-            if (isVisible && !mono.isVisibleElement(el)) {
+            if (isVisible && !utils.isVisibleElement(el)) {
                 continue;
             }
             el.checked = true;
@@ -3045,37 +3044,6 @@ var manager = {
             });
         };
 
-        if (mono.isFF) {
-            sendFileToBg = function(file, folderRequest, label) {
-                if (file.size > 10 * 1024 * 1024) {
-                    return console.error('File size more 5mb');
-                }
-
-                var type = file.type;
-                var reader = new FileReader();
-                reader.onloadend = function() {
-                    var fileBase64 = reader.result;
-
-                    var pos = fileBase64.indexOf('base64,') + 7;
-                    var m = fileBase64.substr(0, pos).match(/data:([^;]+);/);
-                    if (m) {
-                        type = type || m[1];
-                    }
-
-                    fileBase64 = fileBase64.substr(pos);
-
-                    mono.sendMessage({
-                        action: 'onSendFile',
-                        base64: fileBase64,
-                        type: type,
-                        folder: folderRequest,
-                        label: label
-                    });
-                };
-                reader.readAsDataURL(file);
-            };
-        }
-
         var onClickYes = function(dataForm) {
             if (!dataForm) {
                 dataForm = {};
@@ -3203,7 +3171,7 @@ var manager = {
                 + '90%{margin-left:6px;}'
                 + '100%{margin-left:2px;}'
                 + '}';
-            styleList.appendChild(manager.varCache.movebleStyleList['style.' + moveName] = mono.create('style', {
+            styleList.appendChild(manager.varCache.movebleStyleList['style.' + moveName] = utils.create('style', {
                 class: moveName,
                 text: ''
                 + '@-webkit-keyframes a_' + moveName
@@ -3265,7 +3233,7 @@ var manager = {
         spaceItem.classList.add('disk');
         spaceItem.title = manager.language.freeSpace + ': ' + size;
         spaceItem.textContent = '';
-        spaceItem.appendChild(mono.create('div', {
+        spaceItem.appendChild(utils.create('div', {
             text: size,
             style: {
                 width: spaceItem.clientWidth + 'px'
@@ -3294,14 +3262,14 @@ var manager = {
             }
         });
 
-        mono.storage.get([
+        mono.storage.local.get([
             'trSortOptions',
             'flSortOptions',
             'selectedLabel',
             'folderList',
             'labelList'
         ], function(storage) {
-            mono.sendMessage([
+            utils.joinMessages([
                 {action: 'getLanguage'},
                 {action: 'getSettings'},
                 {action: 'getTrColumnArray'},
@@ -3311,7 +3279,7 @@ var manager = {
                 {action: 'getRemoteSettings'},
                 {action: 'getPublicStatus'},
                 {action: 'managerIsOpen'}
-            ], function(data) {
+            ]).then(function(data) {
                 debug && console.timeEnd('remote data');
                 debug && console.time('manager render');
 
@@ -3326,24 +3294,15 @@ var manager = {
 
                 manager.options.windowMode = mono.isTab();
 
-                if (mono.isFF && !manager.options.windowMode) {
-                    var popupHeight = manager.settings.popupHeight;
-                    if (popupHeight === 0) {
-                        popupHeight = document.body.clientHeight;
-                    }
-                    document.body.style.overflow = 'hidden';
-                    mono.sendMessage({action: 'resize', height: popupHeight}, null, "service");
-                }
-
                 if (manager.options.trWordWrap) {
-                    document.body.appendChild(mono.create('style', {
+                    document.body.appendChild(utils.create('style', {
                         text: 'div.torrent-list-layer td div {' +
                             'white-space: normal;word-wrap: break-word;' +
                         '}'
                     }));
                 }
                 if (manager.options.flWordWrap) {
-                    document.body.appendChild(mono.create('style', {
+                    document.body.appendChild(utils.create('style', {
                         text: 'div.fl-layer td div {' +
                             'white-space: normal;word-wrap: break-word;' +
                         '}'
@@ -3476,14 +3435,11 @@ var manager = {
                     }
                     if (el.classList.contains('add_file')) {
                         e.preventDefault();
-                        if (mono.isFF && !mono.isTab()) {
-                            mono.addon.postMessage('sleepTimeout');
-                        }
                         if (manager.varCache.selectFileInput !== undefined) {
                             document.body.removeChild(manager.varCache.selectFileInput);
                             delete manager.varCache.selectFileInput;
                         }
-                        document.body.appendChild(manager.varCache.selectFileInput = mono.create('input', {
+                        document.body.appendChild(manager.varCache.selectFileInput = utils.create('input', {
                             type: 'file',
                             multiple: true,
                             accept: 'application/x-bittorrent',
@@ -3787,23 +3743,20 @@ var manager = {
                 });
 
                 manager.varCache.webUiUrl = (manager.settings.useSSL ? 'https://' : 'http://') + encodeURIComponent(manager.settings.login) + ':' + encodeURIComponent(manager.settings.password) + '@' + manager.settings.ip + ':' + manager.settings.port + '/';
-                mono.create(document.querySelector('a.btn.wui'), {
+                utils.create(document.querySelector('a.btn.wui'), {
                     href: manager.varCache.webUiUrl + manager.settings.path
                 });
                 manager.writeLanguage();
 
-                !manager.options.windowMode && manager.domCache.upSpeed.appendChild(mono.create('div', {
+                !manager.options.windowMode && manager.domCache.upSpeed.appendChild(utils.create('div', {
                     class: 'openInTab',
                     title: manager.language.openInTab,
                     on: ['click', function(e) {
                         mono.openTab(location.href);
-                        if (mono.isFF && !mono.isTab()) {
-                            mono.addon.postMessage('hidePopup');
-                        }
                     }]
                 }));
 
-                mono.isChrome && !manager.options.windowMode && setTimeout(function() {
+                !manager.options.windowMode && setTimeout(function() {
                     var popupHeight = manager.settings.popupHeight;
                     if (popupHeight === 0) {
                         popupHeight = document.body.clientHeight;
@@ -3819,7 +3772,7 @@ var manager = {
 
                 setTimeout(function() {
                     debug && console.time('jquery');
-                    document.body.appendChild(mono.create('script', {src: 'js/jquery-2.1.3.min.js'}));
+                    document.body.appendChild(utils.create('script', {src: 'js/jquery-2.1.3.min.js'}));
                 }, 0);
             });
         });
@@ -3831,7 +3784,7 @@ var define = function(name) {
         debug && console.timeEnd('jquery');
 
         debug && console.time('contextMenu');
-        document.body.appendChild(mono.create('script', {src: 'js/jquery.contextMenu.js'}));
+        document.body.appendChild(utils.create('script', {src: 'js/jquery.contextMenu.js'}));
         return;
     }
     if (name === 'contextMenu') {
@@ -3839,7 +3792,7 @@ var define = function(name) {
         manager.onLoadContextMenu();
 
         debug && console.time('quickNotification');
-        document.body.appendChild(mono.create('script', {src: 'js/notifer.js'}));
+        document.body.appendChild(utils.create('script', {src: 'js/notifer.js'}));
         return;
     }
     if (name === 'quickNotification') {
@@ -3848,7 +3801,7 @@ var define = function(name) {
 
         if (manager.settings.showSpeedGraph) {
             debug && console.time('d3js');
-            document.body.appendChild(mono.create('script', {src: 'js/d3.min.js'}));
+            document.body.appendChild(utils.create('script', {src: 'js/d3.min.js'}));
         }
         return;
     }
@@ -3859,7 +3812,7 @@ var define = function(name) {
     if (name.hasOwnProperty('version')) {
         debug && console.timeEnd('d3js');
 
-        document.body.appendChild(mono.create('script', {src: 'js/graph.js'}));
+        document.body.appendChild(utils.create('script', {src: 'js/graph.js'}));
     }
 };
 define.amd = {};

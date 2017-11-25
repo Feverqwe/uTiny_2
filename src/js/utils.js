@@ -1,10 +1,12 @@
+"use strict";
+var utils = {};
+
 /**
  * @param {string|Element|DocumentFragment} tagName
  * @param {Object} obj
  * @returns {Element|DocumentFragment}
  */
-mono.create = function(tagName, obj) {
-    "use strict";
+utils.create = function (tagName, obj) {
     var el;
     var func;
     if (typeof tagName !== 'object') {
@@ -14,7 +16,7 @@ mono.create = function(tagName, obj) {
     }
     for (var attr in obj) {
         var value = obj[attr];
-        if (func = mono.create.hook[attr]) {
+        if (func = utils.create.hook[attr]) {
             func(el, value);
             continue;
         }
@@ -22,19 +24,16 @@ mono.create = function(tagName, obj) {
     }
     return el;
 };
-mono.create.hook = {
-    text: function(el, value) {
-        "use strict";
+utils.create.hook = {
+    text: function (el, value) {
         el.textContent = value;
     },
-    data: function(el, value) {
-        "use strict";
+    data: function (el, value) {
         for (var item in value) {
             el.dataset[item] = value[item];
         }
     },
-    class: function(el, value) {
-        "use strict";
+    class: function (el, value) {
         if (Array.isArray(value)) {
             for (var i = 0, len = value.length; i < len; i++) {
                 el.classList.add(value[i]);
@@ -43,8 +42,7 @@ mono.create.hook = {
             el.setAttribute('class', value);
         }
     },
-    style: function(el, value) {
-        "use strict";
+    style: function (el, value) {
         if (typeof value === 'object') {
             for (var item in value) {
                 var key = item;
@@ -64,8 +62,7 @@ mono.create.hook = {
             el.setAttribute('style', value);
         }
     },
-    append: function(el, value) {
-        "use strict";
+    append: function (el, value) {
         if (!Array.isArray(value)) {
             value = [value];
         }
@@ -80,8 +77,7 @@ mono.create.hook = {
             el.appendChild(node);
         }
     },
-    on: function(el, eventList) {
-        "use strict";
+    on: function (el, eventList) {
         if (typeof eventList[0] !== 'object') {
             eventList = [eventList];
         }
@@ -93,55 +89,30 @@ mono.create.hook = {
             el.addEventListener(args[0], args[1], args[2]);
         }
     },
-    onCreate: function(el, value) {
-        "use strict";
+    onCreate: function (el, value) {
         value.call(el, el);
     }
 };
 
-mono.debounce = function(fn, delay) {
+utils.debounce = function (fn, delay) {
     var timer = null;
     return function () {
         var context = this, args = arguments;
-        mono.clearTimeout(timer);
-        timer = mono.setTimeout(function () {
+        clearTimeout(timer);
+        timer = setTimeout(function () {
             fn.apply(context, args);
         }, delay);
     };
 };
 
-mono.isVisibleElement = function(el) {
+utils.isVisibleElement = function (el) {
     return el.offsetWidth > 0 && el.offsetHeight > 0;
 };
 
-mono.spaceToUnderline = function(string) {
-    return string.replace(/\s/, '_');
-};
-
-mono.param = function(params) {
-    if (typeof params === 'string') return params;
-
-    var args = [];
-    for (var key in params) {
-        var value = params[key];
-        if (value === null || value === undefined) {
-            continue;
-        }
-        if (!Array.isArray(value)) {
-            value = [value];
-        }
-        for (var i = 0, len = value.length; i < len; i++) {
-            args.push(encodeURIComponent(key) + '=' + encodeURIComponent(value[i]));
-        }
-    }
-    return args.join('&');
-};
-
-mono.base64ToUrl = function(b64Data, contentType) {
-    "use strict";
+utils.base64ToUrl = function (b64Data, contentType) {
     var sliceSize = 256;
     contentType = contentType || '';
-    var byteCharacters = mono.atob(b64Data);
+    var byteCharacters = atob(b64Data);
 
     var byteCharacters_len = byteCharacters.length;
     var byteArrays = new Array(Math.ceil(byteCharacters_len / sliceSize));
@@ -158,9 +129,9 @@ mono.base64ToUrl = function(b64Data, contentType) {
         n++;
     }
 
-    var blob = mono.createBlob(byteArrays, {type: contentType});
+    var blob = new Blob(byteArrays, {type: contentType});
 
-    var blobUrl = mono.urlCreateObjectURL(blob);
+    var blobUrl = URL.createObjectURL(blob);
 
     return blobUrl;
 };
@@ -170,6 +141,24 @@ mono.base64ToUrl = function(b64Data, contentType) {
  * @param {object|Array} obj
  * @returns {object|Array}
  */
-mono.cloneObj = function(obj) {
+utils.cloneObj = function (obj) {
     return JSON.parse(JSON.stringify({w: obj})).w;
+};
+
+utils.joinMessages = function (messages) {
+    return Promise.all(messages.map(function (msg) {
+        return new Promise(function (resolve) {
+            mono.sendMessage(msg, resolve);
+        }).then(function (result) {
+            var obj = {};
+            obj[msg.action] = result;
+            return obj;
+        });
+    })).then(function (results) {
+        var result = {};
+        results.forEach(function (item) {
+            Object.assign(result, item);
+        });
+        return result;
+    });
 };

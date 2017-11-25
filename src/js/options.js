@@ -86,19 +86,19 @@ var options = function() {
         obj[key] = value;
 
         var cb = this.cb;
-        mono.storage.set(obj, function() {
+        mono.storage.local.set(obj, function() {
             mono.sendMessage({action: 'reloadSettings'}, cb);
         });
     };
 
     var getBackupJson = function(cb) {
-        mono.storage.get(null, function(storage) {
+        mono.storage.local.get(null, function(storage) {
             cb && cb(JSON.stringify(storage));
         });
     };
 
     var restoreSettings = function(storage) {
-        mono.storage.clear();
+        mono.storage.local.clear();
         var data = {};
         for (var item in storage) {
             var value = storage[item];
@@ -107,7 +107,7 @@ var options = function() {
             }
             data[item] = value;
         }
-        mono.storage.set(data, function() {
+        mono.storage.local.set(data, function() {
             mono.sendMessage({action: 'reloadSettings'}, function() {
                 window.location.reload();
             });
@@ -215,7 +215,7 @@ var options = function() {
                 return;
             }
             for (var i = 0, item; item = dirList[i]; i++) {
-                select.appendChild(mono.create('option', {
+                select.appendChild(utils.create('option', {
                     value: i,
                     text: item.path,
                     data: {
@@ -230,7 +230,7 @@ var options = function() {
 
     var folderLoadList = function(folderList) {
         for (var i = 0, item; item = folderList[i]; i++) {
-            domCache.folderList.appendChild(mono.create('option', {
+            domCache.folderList.appendChild(utils.create('option', {
                 text: (item[2] ? '[' + item[2] + '] ' : '') + item[1],
                 data: {
                     dir: item[0],
@@ -247,14 +247,14 @@ var options = function() {
         for (var i = 0, item; item = optionNodeList[i]; i++) {
             optionList.push([item.dataset.dir, item.dataset.subPath, item.dataset.label]);
         }
-        mono.storage.set({folderList: optionList}, function() {
+        mono.storage.local.set({folderList: optionList}, function() {
             mono.sendMessage({action: 'reloadSettings'});
         });
     };
 
     var labelLoadList = function(labelList) {
         for (var i = 0, item; item = labelList[i]; i++) {
-            domCache.labelList.appendChild(mono.create('option', {
+            domCache.labelList.appendChild(utils.create('option', {
                 text: item,
                 data: {
                     label: item
@@ -269,7 +269,7 @@ var options = function() {
         for (var i = 0, item; item = optionNodeList[i]; i++) {
             optionList.push(item.dataset.label);
         }
-        mono.storage.set({labelList: optionList}, function() {
+        mono.storage.local.set({labelList: optionList}, function() {
             mono.sendMessage({action: 'reloadSettings'});
         });
     };
@@ -367,22 +367,20 @@ var options = function() {
 
     return {
         start: function() {
-            mono.storage.get([
+            mono.storage.local.get([
                 'folderList',
                 'labelList'
             ], function(storage) {
-                mono.sendMessage([
+                utils.joinMessages([
                     {action: 'getLanguage'},
                     {action: 'getSettings'},
                     {action: 'getTrColumnArray'},
                     {action: 'getFlColumnArray'},
                     {action: 'getDefaultSettings'}
-                ], function (data) {
+                ]).then(function (data) {
                     options.settings = data.getSettings;
                     options.defaultSettings = data.getDefaultSettings;
                     options.language = data.getLanguage;
-
-                    !(mono.isFF && mono.isTab()) && mono.sendMessage({action: 'resize', height: 480, width: 800}, null, "service");
 
                     var langSelect = document.getElementById("language");
                     var langPos = ['ru', 'en', 'fr', 'zh-CN', 'es', 'pt-BR'].indexOf(options.language.lang);
@@ -394,7 +392,7 @@ var options = function() {
                         var index = langSelect.selectedIndex;
                         var option = langSelect.childNodes[index];
                         var lang = option.value;
-                        mono.storage.set({language: lang}, function() {
+                        mono.storage.local.set({language: lang}, function() {
                             mono.sendMessage({action: 'reloadSettings'}, function() {
                                 location.reload();
                             });
@@ -425,7 +423,7 @@ var options = function() {
                             return;
                         }
                         var label = domCache.pathLabel.value;
-                        domCache.folderList.appendChild(mono.create('option', {
+                        domCache.folderList.appendChild(utils.create('option', {
                             text: (label ? '[' + label + '] ' : '') + subPath,
                             data: {
                                 dir: dir,
@@ -458,7 +456,7 @@ var options = function() {
                         if (!label) {
                             return;
                         }
-                        domCache.labelList.appendChild(mono.create('option', {
+                        domCache.labelList.appendChild(utils.create('option', {
                             text: label,
                             data: {
                                 label: label
@@ -500,12 +498,6 @@ var options = function() {
 
                     setColorPicker();
 
-                    if (!mono.isChrome) {
-                        domCache.saveInCloudBtn.hide();
-                        domCache.getFromCloudBtn.hide();
-                        domCache.clearCloudStorageBtn.hide();
-                    }
-
                     makeBackupForm();
 
                     domCache.menu = document.querySelector('.menu');
@@ -545,21 +537,21 @@ var options = function() {
                     domCache.clientCheckBtn.addEventListener('click', function(e) {
                         var statusEl = document.getElementById('clientStatus');
                         statusEl.textContent = '';
-                        statusEl.appendChild(mono.create('img', {
+                        statusEl.appendChild(utils.create('img', {
                             src: 'images/loading.gif'
                         }));
                         mono.sendMessage({action: 'checkSettings'}, function(response) {
                             statusEl.textContent = '';
                             var span;
                             if (response.error) {
-                                span = mono.create('span', {
+                                span = utils.create('span', {
                                     text: response.error,
                                     style: {
                                         color: 'red'
                                     }
                                 });
                             } else {
-                                span = mono.create('span', {
+                                span = utils.create('span', {
                                     text: options.language.DLG_BTN_OK,
                                     style: {
                                         color: 'green'
@@ -611,7 +603,7 @@ var options = function() {
                     var inputList = document.querySelectorAll('input[type=text], input[type=password], input[type=number]');
 
                     for (var i = 0, el; el = inputList[i]; i++) {
-                        el.addEventListener('keyup', mono.debounce(saveChange, 500));
+                        el.addEventListener('keyup', utils.debounce(saveChange, 500));
                     }
 
                     document.body.addEventListener('click', saveChange);

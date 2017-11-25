@@ -2,6 +2,9 @@ exports.run = function (grunt) {
     var monoParams = {
         browser: 'chrome'
     };
+  var monoParamsFf = {
+    browser: 'firefox'
+  };
 
     grunt.config.merge({
         compress: {
@@ -60,7 +63,6 @@ exports.run = function (grunt) {
 
         grunt.task.run([
             'extensionBase',
-            'buildJs',
             'copy:chromeBase',
             'chromeManifest',
             'compressJs',
@@ -84,7 +86,6 @@ exports.run = function (grunt) {
 
         grunt.task.run([
             'extensionBase',
-            'buildJs',
             'copy:chromeBase',
             'chromeManifest',
             'compressJs',
@@ -92,4 +93,47 @@ exports.run = function (grunt) {
             'compress:chrome'
         ]);
     });
+
+  grunt.registerTask('firefoxCreateManifest', function() {
+    var src = grunt.template.process('<%= output %><%= vendor %>manifest.json');
+    var manifest = grunt.file.readJSON(src);
+
+    manifest.applications = {
+      gecko: {
+        id: grunt.config('geckoId'),
+        strict_min_version: '48.0'
+      }
+    };
+
+    manifest.options_ui = {};
+    manifest.options_ui.page = manifest.options_page;
+    manifest.options_ui.open_in_tab = true;
+
+    delete manifest.options_page;
+
+    grunt.file.write(src, JSON.stringify(manifest, null, 4));
+  });
+
+  grunt.registerTask('firefox', function () {
+    grunt.config('monoParams', monoParamsFf);
+
+    grunt.config.merge({
+      geckoId: 'jid1-xJrt4U23zkSdbA@jetpack',
+      browser: 'firefox',
+      vendor: 'firefox/src/',
+      libFolder: 'js/',
+      dataJsFolder: 'js/',
+      includesFolder: 'includes/',
+      dataFolder: '',
+      buildName: 'uTorrentEasyClient_firefox_<%= pkg.extVersion %>'
+    });
+
+    grunt.task.run([
+      'extensionBase',
+      'chromeManifest',
+      'firefoxCreateManifest',
+      'compressJs',
+      'compress:chrome'
+    ]);
+  });
 };

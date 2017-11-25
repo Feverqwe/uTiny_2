@@ -1,7 +1,3 @@
-typeof window === 'undefined' && (function() {
-    mono = require('./../data/js/mono.js');
-})();
-
 var engine = {
     settings: {},
     defaultSettings: {
@@ -142,21 +138,13 @@ var engine = {
         });
         return headers;
     },
-    getTransport: function() {
-        "use strict";
-        if (mono.isModule) {
-            return new (require('sdk/net/xhr').XMLHttpRequest)();
-        }
-
-        return new XMLHttpRequest();
-    },
     request: function(obj, origCb) {
         "use strict";
         var result = {};
         var cb = function(e, body) {
             cb = null;
             if (request.timeoutTimer) {
-                mono.clearTimeout(request.timeoutTimer);
+                clearTimeout(request.timeoutTimer);
             }
 
             var err = null;
@@ -242,7 +230,7 @@ var engine = {
         Object.keys(obj.headers).length && (request.headers = obj.headers);
 
         if (request.timeout > 0) {
-            request.timeoutTimer = mono.setTimeout(function() {
+            request.timeoutTimer = setTimeout(function() {
                 cb && cb(new Error('ETIMEDOUT'));
                 xhr.abort();
             }, request.timeout);
@@ -253,12 +241,9 @@ var engine = {
             1223: 204
         };
 
-        var xhr = engine.getTransport(obj.localXHR);
+        var xhr = new XMLHttpRequest();
         xhr.open(request.method, request.url, true);
 
-        if (mono.isModule && request.xml) {
-            request.mimeType = 'text/xml';
-        }
         if (request.mimeType) {
             xhr.overrideMimeType(request.mimeType);
         }
@@ -278,11 +263,7 @@ var engine = {
                         body = JSON.parse(body);
                     } else
                     if (request.xml) {
-                        if (mono.isModule) {
-                            body = xhr.responseXML;
-                        } else {
-                            body = (new DOMParser()).parseFromString(body, "text/xml");
-                        }
+                        body = (new DOMParser()).parseFromString(body, "text/xml");
                     } else
                     if (typeof body !== 'string') {
                         console.error('Response is not string!', body);
@@ -306,7 +287,7 @@ var engine = {
         } else {
             stateChange = function () {
                 if (xhr.readyState === 4) {
-                    cb && mono.setTimeout(function () {
+                    cb && setTimeout(function () {
                         return errorCallback();
                     });
                 }
@@ -320,7 +301,7 @@ var engine = {
         try {
             xhr.send(request.data || null);
         } catch (e) {
-            mono.setTimeout(function() {
+            setTimeout(function() {
                 cb && cb(e);
             });
         }
@@ -338,19 +319,19 @@ var engine = {
         start: function() {
             this.state = 1;
 
-            this.timer && mono.clearInterval(this.timer);
+            this.timer && clearInterval(this.timer);
             this.timer = null;
 
             if (engine.settings.backgroundUpdateInterval <= 1000) {
                 return;
             }
 
-            this.timer = mono.setInterval(function() {
+            this.timer = setInterval(function() {
                 engine.updateTrackerList();
             }, engine.settings.backgroundUpdateInterval);
         },
         stop: function() {
-            this.timer && mono.clearInterval(this.timer);
+            this.timer && clearInterval(this.timer);
             this.timer = null;
 
             this.state = 0;
@@ -368,7 +349,7 @@ var engine = {
         engine.request({
             url: engine.varCache.webUiUrl + 'token.html',
             headers: {
-                Authorization: 'Basic ' + mono.btoa(engine.settings.login + ":" + engine.settings.password)
+                Authorization: 'Basic ' + btoa(engine.settings.login + ":" + engine.settings.password)
             }
         }, function (err, resp, data) {
             if (err) {
@@ -414,7 +395,7 @@ var engine = {
         var type;
         if (data.hasOwnProperty('torrent_file')) {
             type = 'POST';
-            var formData = mono.getFormData();
+            var formData = new FormData();
             var file = data.torrent_file;
             formData.append("torrent_file", file);
 
@@ -433,7 +414,7 @@ var engine = {
             type: type,
             url: url,
             headers: {
-                Authorization: 'Basic ' + mono.btoa(engine.settings.login + ":" + engine.settings.password)
+                Authorization: 'Basic ' + btoa(engine.settings.login + ":" + engine.settings.password)
             },
             data: data
         }, function(err, resp, data) {
@@ -554,7 +535,7 @@ var engine = {
         optionsList.push('ut_path');
         optionsList.push('ssl');
 
-        mono.storage.get(optionsList, function(storage) {
+        mono.storage.local.get(optionsList, function(storage) {
             var settings = {};
 
             // migration >>>
@@ -622,7 +603,7 @@ var engine = {
      */
     getNavLanguage: function () {
         var language = '';
-        var navLanguage = mono.getNavigator().language;
+        var navLanguage = navigator.language;
         if (/^\w{2}-|^\w{2}$/.test(navLanguage)) {
             language = navLanguage;
         }
@@ -636,14 +617,6 @@ var engine = {
             customLang = customLang.substr(0, 2);
         }
         var locale = customLang || mono.getLoadedLocale();
-        if (!locale) {
-            var navLanguage = engine.getNavLanguage().substr(0, 2).toLowerCase();
-            if (langList.indexOf(navLanguage) !== -1) {
-                locale = navLanguage;
-            } else {
-                locale = defaultLocale;
-            }
-        }
 
         (function getLanguage(locale, cb) {
             if (/^pt/.test(locale)) {
@@ -744,7 +717,7 @@ var engine = {
         engine.settings.showNotificationOnDownloadCompleate && engine.onCompleteNotification(oldTorrentList.slice(0), newTorrentList);
     },
     downloadFile: function (url, cb, referer) {
-        var xhr = engine.getTransport();
+        var xhr = new XMLHttpRequest();
         try {
             xhr.open('GET', url, true);
         } catch (e) {
@@ -809,7 +782,7 @@ var engine = {
                 engine.sendAction({action: 'setprops', s: 'label', hash: item[0], v: label});
             }
             if (engine.settings.selectDownloadCategoryOnAddItemFromContextMenu) {
-                mono.storage.set({selectedLabel: {label: 'DL', custom: 1}});
+                mono.storage.local.set({selectedLabel: {label: 'DL', custom: 1}});
             }
             engine.showNotification(
                 engine.icons.add,
@@ -824,7 +797,7 @@ var engine = {
             if (url.substr(0, 7).toLowerCase() !== 'magnet:') {
                 engine.downloadFile(url, function (file) {
                     if (url.substr(0,5).toLowerCase() === 'blob:') {
-                        mono.urlRevokeObjectURL(url);
+                        URL.revokeObjectURL(url);
                     }
                     engine.sendFile(file, folder, label, referer);
                 }, referer);
@@ -950,7 +923,7 @@ var engine = {
         var contextMenu = engine.createFolderCtxMenu.contextMenu;
         var defaultItem = contextMenu[0] ? contextMenu[0] : ['0', '', ''];
         if (id === 'newFolder') {
-            var path = mono.prompt(engine.language.enterNewDirPath, defaultItem[1]);
+            var path = prompt(engine.language.enterNewDirPath, defaultItem[1]);
             if (!path) {
                 return;
             }
@@ -970,7 +943,7 @@ var engine = {
             }
         }
         if (id === 'newLabel') {
-            var newLabel = mono.prompt(engine.language.enterNewLabel);
+            var newLabel = prompt(engine.language.enterNewLabel);
             if (!newLabel) {
                 return;
             }
@@ -999,7 +972,7 @@ var engine = {
             dir = {download_dir: item[0], path: item[1]};
         }
         if (updateMenu) {
-            mono.storage.set({
+            mono.storage.local.set({
                 folderList: engine.varCache.folderList,
                 labelList: engine.varCache.labelList
             }, function() {
@@ -1235,9 +1208,14 @@ var engine = {
             engine.getLanguage(function() {
                 engine.varCache.isReady = 1;
 
-                var msg;
-                while ( msg = engine.varCache.msgStack.shift() ) {
-                    engine.onMessage.apply(engine, msg);
+                var msgStack = engine.varCache.msgStack;
+                var result = null;
+                var args = null;
+                while (args = msgStack.shift()) {
+                    result = engine.onMessage.apply(engine, args);
+                    if (result !== true) {
+                        args[2](null);
+                    }
                 }
 
                 engine.updateTrackerList();
@@ -1248,31 +1226,13 @@ var engine = {
             });
         });
     },
-    onMessage: function(msgList, response) {
+    onMessage: function(msgList, sender, response) {
         if (engine.varCache.isReady !== 1) {
-            return engine.varCache.msgStack.push([msgList, response]);
-        }
-        if (Array.isArray(msgList)) {
-            var c_wait = msgList.length;
-            var c_ready = 0;
-            var resultList = {};
-            var ready = function(key, data) {
-                c_ready++;
-                resultList[key] = data;
-                if (c_wait === c_ready) {
-                    response(resultList);
-                }
-            };
-            msgList.forEach(function(message) {
-                var fn = engine.actionList[message.action];
-                fn && fn(message, function(response) {
-                    ready(message.action, response);
-                });
-            });
-            return;
+            engine.varCache.msgStack.push(arguments);
+            return true;
         }
         var fn = engine.actionList[msgList.action];
-        fn && fn(msgList, response);
+        return fn && fn(msgList, response);
     },
     storageCache: {},
     actionList: {
@@ -1305,14 +1265,17 @@ var engine = {
         },
         api: function(message, response) {
             engine.sendAction(message.data, response);
+            return true;
         },
         setTrColumnArray: function(message, response) {
             engine.torrentListColumnList = message.data;
-            mono.storage.set({torrentListColumnList: message.data}, response);
+            mono.storage.local.set({torrentListColumnList: message.data}, response);
+            return true;
         },
         setFlColumnArray: function(message, response) {
             engine.fileListColumnList = message.data;
-            mono.storage.set({fileListColumnList: message.data}, response);
+            mono.storage.local.set({fileListColumnList: message.data}, response);
+            return true;
         },
         onSendFile: function(message, response) {
             if (message.base64) {
@@ -1321,7 +1284,7 @@ var engine = {
                 delete message.base64;
                 delete message.type;
 
-                message.url = mono.base64ToUrl(b64Data, type);
+                message.url = utils.base64ToUrl(b64Data, type);
             }
 
             engine.sendFile(message.url, message.folder, message.label);
@@ -1333,6 +1296,7 @@ var engine = {
             engine.sendAction({action: 'list-dirs'}, response, function() {
                 response({});
             });
+            return true;
         },
         checkSettings: function(message, response) {
             engine.loadSettings(function() {
@@ -1344,6 +1308,7 @@ var engine = {
                     });
                 });
             });
+            return true;
         },
         reloadSettings: function(message, response) {
             engine.loadSettings(function() {
@@ -1357,12 +1322,12 @@ var engine = {
                     response();
                 });
             });
+            return true;
         },
         managerIsOpen: function(message, response) {
             if (engine.timer.state !== 1) {
                 engine.timer.start();
             }
-            response();
         },
         changeBadgeColor: function(message) {
             engine.settings.badgeColor = message.color;
@@ -1380,22 +1345,6 @@ var engine = {
     }
 };
 
-engine.initModule = function(addon, button) {
-    mono = mono.init(addon);
-
-    mono.ffButton = button;
-
-    var self = require('sdk/self');
-    engine.icons.complete = self.data.url(engine.icons.complete);
-    engine.icons.add = self.data.url(engine.icons.add);
-    engine.icons.error = self.data.url(engine.icons.error);
-
-    engine.init();
-};
-
-if (mono.isModule) {
-    exports.init = engine.initModule;
-} else
 mono.onReady(function() {
     engine.init();
 });
