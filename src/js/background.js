@@ -71,9 +71,6 @@ var engine = {
     add: require('!file-loader!../assets/img/notification_add.png'),
     error: require('!file-loader!../assets/img/notification_error.png')
   },
-  capitalize: function (string) {
-    return string.substr(0, 1).toUpperCase() + string.substr(1);
-  },
   varCache: {
     webUiUrl: undefined,
     token: undefined,
@@ -549,7 +546,7 @@ var engine = {
       engine.settings = settings;
 
       columnList.forEach(function (item) {
-        var defItem = 'default' + engine.capitalize(item);
+        var defItem = 'default' + capitalize(item);
         engine[item] = storage.hasOwnProperty(item) ? storage[item] : engine[defItem];
         if (engine[defItem].length !== engine[item].length) {
           for (var n = 0, dItem; dItem = engine[defItem][n]; n++) {
@@ -1327,6 +1324,11 @@ const setBadgeBackgroundColor = (color) => {
   chrome.browserAction.setBadgeBackgroundColor({
     color: chColor
   });
+};
+
+
+const capitalize = (string) => {
+  return string.substr(0, 1).toUpperCase() + string.substr(1);
 };
 
 engine.init();
