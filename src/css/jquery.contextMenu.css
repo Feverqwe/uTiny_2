@@ -107,7 +107,7 @@ li.context-menu-item ul.context-menu-list {
     display: inline-block;
     width: 16px;
     height: 16px;
-    background-image: url(../images/arrow_up.svg);
+    background-image: url(../assets/img/arrow_up.svg);
     background-size: 22px;
     transform: rotate(90deg);
     position: absolute;
@@ -132,13 +132,13 @@ li.context-menu-item ul.context-menu-list {
  */
 /*
 .context-menu-item.icon { min-height: 18px; background-repeat: no-repeat; background-position: 4px 2px; }
-.context-menu-item.icon-edit { background-image: url(images/page_white_edit.png); }
-.context-menu-item.icon-cut { background-image: url(images/cut.png); }
-.context-menu-item.icon-copy { background-image: url(images/page_white_copy.png); }
-.context-menu-item.icon-paste { background-image: url(images/page_white_paste.png); }
-.context-menu-item.icon-delete { background-image: url(images/page_white_delete.png); }
-.context-menu-item.icon-add { background-image: url(images/page_white_add.png); }
-.context-menu-item.icon-quit { background-image: url(images/door.png); }
+.context-menu-item.icon-edit { background-image: url(assets/img/page_white_edit.png); }
+.context-menu-item.icon-cut { background-image: url(assets/img/cut.png); }
+.context-menu-item.icon-copy { background-image: url(assets/img/page_white_copy.png); }
+.context-menu-item.icon-paste { background-image: url(assets/img/page_white_paste.png); }
+.context-menu-item.icon-delete { background-image: url(assets/img/page_white_delete.png); }
+.context-menu-item.icon-add { background-image: url(assets/img/page_white_add.png); }
+.context-menu-item.icon-quit { background-image: url(assets/img/door.png); }
 */
 
 /* vertically align inside labels */

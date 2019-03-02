@@ -1,24 +1,22 @@
 {
     "manifest_version": 2,
     "browser_action": {
-        "default_icon": "images/icon.png",
+        "default_icon": "assets/icons/icon.png",
         "default_popup": "manager.html",
         "default_title": "uTorrent easy client"
     },
     "background": {
         "scripts": [
-            "js/utils.js",
-            "js/mono.js",
-            "js/background.js"
+            "bg.js"
         ]
     },
     "icons": {
-        "128": "images/icon_128.png"
+        "128": "assets/icons/icon_128.png"
     },
     "permissions": [ "http://*/*", "https://*/*", "storage", "notifications", "tabs", "contextMenus" ],
     "name": "uTorrent easy client",
     "description": "__MSG_appDesc__",
     "default_locale": "en",
     "options_page": "options.html",
-    "version": "2.4.7"
+    "version": "2.7.0"
 }

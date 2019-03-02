@@ -483,9 +483,6 @@
     "helpS7": {
         "message": "Press the button \"Сheck the settings\""
     },
-    "helpImg": {
-        "message": "images/help_how_to_en.png"
-    },
     "badgeColor": {
         "message": "Notification color"
     },

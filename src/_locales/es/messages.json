@@ -482,9 +482,6 @@
     "helpS7": {
         "message": "Presiona el boton \"Сheck the settings\""
     },
-    "helpImg": {
-        "message": "images/help_how_to_en.png"
-    },
     "badgeColor": {
         "message": "Notificación de color"
     },

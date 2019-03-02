@@ -471,9 +471,6 @@
     "helpS7": {
         "message": "按下按钮 \"Сheck the settings\""
     },
-    "helpImg": {
-        "message": "images/help_how_to_en.png"
-    },
     "badgeColor": {
         "message": "通知的颜色"
     },

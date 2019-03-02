@@ -1,6 +1,2 @@
-/.idea/
-/output/
+/dist/
 /node_modules/
-/env.json
-/src/vendor/sovetnik
-package-lock.json
