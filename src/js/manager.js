@@ -3354,12 +3354,6 @@ var manager = {
 
         manager.settings = data.getSettings;
 
-        if (manager.settings.login === null || manager.settings.password === null) {
-          debug && console.timeEnd('manager render');
-          debug && console.timeEnd('manager');
-          return window.location = "options.html";
-        }
-
         manager.options.windowMode = !chrome.extension.getViews({
           type: 'popup'
         }).some(function (_window) {

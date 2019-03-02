@@ -1,76 +1,87 @@
 import utils from "./utils";
+import storageGet from "../tools/storageGet";
+import utFixCirilic from "../tools/utFixCirilic";
+import toCp1251 from "../tools/toCp1251";
+
+const defaultTorrentListColumnList = [
+  {column: 'checkbox', display: 1, order: 0, width: 19, lang: 'selectAll'},
+  {column: 'name', display: 1, order: 1, width: 200, lang: 'OV_COL_NAME'},
+  {column: 'order', display: 0, order: 1, width: 20, lang: 'OV_COL_ORDER'},
+  {column: 'size', display: 1, order: 1, width: 60, lang: 'OV_COL_SIZE'},
+  {column: 'remaining', display: 0, order: 1, width: 60, lang: 'OV_COL_REMAINING'},
+  {column: 'done', display: 1, order: 1, width: 70, lang: 'OV_COL_DONE'},
+  {column: 'status', display: 1, order: 1, width: 70, lang: 'OV_COL_STATUS'},
+  {column: 'seeds', display: 0, order: 1, width: 30, lang: 'OV_COL_SEEDS'},
+  {column: 'peers', display: 0, order: 1, width: 30, lang: 'OV_COL_PEERS'},
+  {column: 'seeds_peers', display: 1, order: 1, width: 40, lang: 'OV_COL_SEEDS_PEERS'},
+  {column: 'downspd', display: 1, order: 1, width: 60, lang: 'OV_COL_DOWNSPD'},
+  {column: 'upspd', display: 1, order: 1, width: 60, lang: 'OV_COL_UPSPD'},
+  {column: 'eta', display: 1, order: 1, width: 70, lang: 'OV_COL_ETA'},
+  {column: 'upped', display: 0, order: 1, width: 60, lang: 'OV_COL_UPPED'},
+  {column: 'downloaded', display: 0, order: 1, width: 60, lang: 'OV_COL_DOWNLOADED'},
+  {column: 'shared', display: 0, order: 1, width: 60, lang: 'OV_COL_SHARED'},
+  {column: 'avail', display: 0, order: 1, width: 60, lang: 'OV_COL_AVAIL'},
+  {column: 'label', display: 0, order: 1, width: 100, lang: 'OV_COL_LABEL'},
+  {column: 'added', display: 0, order: 1, width: 120, lang: 'OV_COL_DATE_ADDED'},
+  {column: 'completed', display: 0, order: 1, width: 120, lang: 'OV_COL_DATE_COMPLETED'},
+  {column: 'actions', display: 1, order: 0, width: 57, lang: 'Actions'}
+];
+
+const defaultFileListColumnList = [
+  {column: 'checkbox', display: 1, order: 0, width: 19, lang: 'selectAll'},
+  {column: 'name', display: 1, order: 1, width: 300, lang: 'FI_COL_NAME'},
+  {column: 'size', display: 1, order: 1, width: 60, lang: 'FI_COL_SIZE'},
+  {column: 'downloaded', display: 1, order: 1, width: 60, lang: 'OV_COL_DOWNLOADED'},
+  {column: 'done', display: 1, order: 1, width: 70, lang: 'OV_COL_DONE'},
+  {column: 'prio', display: 1, order: 1, width: 74, lang: 'FI_COL_PRIO'}
+];
+
+const defaultSettings = {
+  useSSL: 0,
+  ip: "127.0.0.1",
+  port: 8080,
+  path: "gui/",
+  displayActiveTorrentCountIcon: 1,
+  showNotificationOnDownloadCompleate: 1,
+  notificationTimeout: 5000,
+  backgroundUpdateInterval: 120000,
+  popupUpdateInterval: 1000,
+
+  login: '',
+  password: '',
+
+  hideSeedStatusItem: 0,
+  hideFnishStatusItem: 0,
+  showSpeedGraph: 1,
+  popupHeight: 350,
+  selectDownloadCategoryOnAddItemFromContextMenu: 0,
+
+  ctxMenuType: 1,
+  treeViewContextMenu: 0,
+  showDefaultFolderContextMenuItem: 0,
+
+  badgeColor: '0,0,0,0.40',
+
+  showFreeSpace: 1,
+
+  fixCirilicTitle: 0,
+  fixCirilicTorrentPath: 0,
+
+  folderList: [],
+  labelList: [],
+
+  torrentListColumnList: defaultTorrentListColumnList,
+  fileListColumnList: defaultFileListColumnList,
+};
+
+const notificationIcons = {
+  complete: require('!file-loader!../assets/img/notification_done.png'),
+  add: require('!file-loader!../assets/img/notification_add.png'),
+  error: require('!file-loader!../assets/img/notification_error.png')
+};
 
 var engine = {
-  settings: {},
-  defaultSettings: {
-    useSSL: 0,
-    ip: "127.0.0.1",
-    port: 8080,
-    path: "gui/",
-    displayActiveTorrentCountIcon: 1,
-    showNotificationOnDownloadCompleate: 1,
-    notificationTimeout: 5000,
-    backgroundUpdateInterval: 120000,
-    popupUpdateInterval: 1000,
-
-    login: null,
-    password: null,
-
-    hideSeedStatusItem: 0,
-    hideFnishStatusItem: 0,
-    showSpeedGraph: 1,
-    popupHeight: 350,
-    selectDownloadCategoryOnAddItemFromContextMenu: 0,
-
-    ctxMenuType: 1,
-    treeViewContextMenu: 0,
-    showDefaultFolderContextMenuItem: 0,
-
-    badgeColor: '0,0,0,0.40',
-
-    showFreeSpace: 1,
-
-    fixCirilicTitle: 0,
-    fixCirilicTorrentPath: 0
-  },
-  torrentListColumnList: {},
-  defaultTorrentListColumnList: [
-    {column: 'checkbox', display: 1, order: 0, width: 19, lang: 'selectAll'},
-    {column: 'name', display: 1, order: 1, width: 200, lang: 'OV_COL_NAME'},
-    {column: 'order', display: 0, order: 1, width: 20, lang: 'OV_COL_ORDER'},
-    {column: 'size', display: 1, order: 1, width: 60, lang: 'OV_COL_SIZE'},
-    {column: 'remaining', display: 0, order: 1, width: 60, lang: 'OV_COL_REMAINING'},
-    {column: 'done', display: 1, order: 1, width: 70, lang: 'OV_COL_DONE'},
-    {column: 'status', display: 1, order: 1, width: 70, lang: 'OV_COL_STATUS'},
-    {column: 'seeds', display: 0, order: 1, width: 30, lang: 'OV_COL_SEEDS'},
-    {column: 'peers', display: 0, order: 1, width: 30, lang: 'OV_COL_PEERS'},
-    {column: 'seeds_peers', display: 1, order: 1, width: 40, lang: 'OV_COL_SEEDS_PEERS'},
-    {column: 'downspd', display: 1, order: 1, width: 60, lang: 'OV_COL_DOWNSPD'},
-    {column: 'upspd', display: 1, order: 1, width: 60, lang: 'OV_COL_UPSPD'},
-    {column: 'eta', display: 1, order: 1, width: 70, lang: 'OV_COL_ETA'},
-    {column: 'upped', display: 0, order: 1, width: 60, lang: 'OV_COL_UPPED'},
-    {column: 'downloaded', display: 0, order: 1, width: 60, lang: 'OV_COL_DOWNLOADED'},
-    {column: 'shared', display: 0, order: 1, width: 60, lang: 'OV_COL_SHARED'},
-    {column: 'avail', display: 0, order: 1, width: 60, lang: 'OV_COL_AVAIL'},
-    {column: 'label', display: 0, order: 1, width: 100, lang: 'OV_COL_LABEL'},
-    {column: 'added', display: 0, order: 1, width: 120, lang: 'OV_COL_DATE_ADDED'},
-    {column: 'completed', display: 0, order: 1, width: 120, lang: 'OV_COL_DATE_COMPLETED'},
-    {column: 'actions', display: 1, order: 0, width: 57, lang: 'Actions'}
-  ],
-  fileListColumnList: {},
-  defaultFileListColumnList: [
-    {column: 'checkbox', display: 1, order: 0, width: 19, lang: 'selectAll'},
-    {column: 'name', display: 1, order: 1, width: 300, lang: 'FI_COL_NAME'},
-    {column: 'size', display: 1, order: 1, width: 60, lang: 'FI_COL_SIZE'},
-    {column: 'downloaded', display: 1, order: 1, width: 60, lang: 'OV_COL_DOWNLOADED'},
-    {column: 'done', display: 1, order: 1, width: 70, lang: 'OV_COL_DONE'},
-    {column: 'prio', display: 1, order: 1, width: 74, lang: 'FI_COL_PRIO'}
-  ],
-  icons: {
-    complete: require('!file-loader!../assets/img/notification_done.png'),
-    add: require('!file-loader!../assets/img/notification_add.png'),
-    error: require('!file-loader!../assets/img/notification_error.png')
-  },
+  settings: null,
   varCache: {
     webUiUrl: undefined,
     token: undefined,
@@ -81,40 +92,7 @@ var engine = {
     lastPublicStatus: '-_-',
     trafficList: [{name: 'download', values: []}, {name: 'upload', values: []}],
     startTime: parseInt(Date.now() / 1000),
-    activeCount: 0,
-
-    folderList: [],
-    labelList: []
-  },
-  param: function (obj) {
-    if (typeof obj === 'string') return obj;
-
-    var itemsList = [];
-    if (obj && obj.token) {
-      itemsList.push(encodeURIComponent('token') + '=' + encodeURIComponent(obj.token));
-      delete obj.token;
-    }
-    for (var key in obj) {
-      if (!obj.hasOwnProperty(key)) {
-        continue;
-      }
-      var value = obj[key];
-      if (value === undefined || value === null) {
-        obj[key] = '';
-      }
-      if (Array.isArray(value)) {
-        for (var n = 0, len = value.length; n < len; n++) {
-          itemsList.push(encodeURIComponent(key) + '=' + encodeURIComponent(value[n]));
-        }
-        continue
-      }
-      if (engine.settings.fixCirilicTorrentPath && key === 'path' && obj.download_dir !== undefined) {
-        itemsList.push(encodeURIComponent(key) + '=' + engine.inCp1251(value));
-        continue;
-      }
-      itemsList.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
-    }
-    return itemsList.join('&');
+    activeCount: 0
   },
   publicStatus: function (statusText) {
     if (engine.varCache.lastPublicStatus === statusText) return;
@@ -197,7 +175,7 @@ var engine = {
     if (typeof data !== "string") {
       isFormData = String(data) === '[object FormData]';
       if (!isFormData) {
-        data = engine.param(data);
+        data = engine.queryStringify(data || {});
       }
     }
 
@@ -337,12 +315,6 @@ var engine = {
     }
   },
   getToken: function (onReady, onError, force) {
-    if (engine.settings.login === null || engine.settings.password === null) {
-      var errorText = 'Login or password is not found!';
-      onError && onError({status: 0, statusText: errorText});
-      return engine.publicStatus(errorText);
-    }
-
     engine.publicStatus('Try get token!' + (force ? ' Retry: ' + force : ''));
 
     engine.request({
@@ -403,7 +375,7 @@ var engine = {
         data[key] = origData[key];
       }
       delete data.torrent_file;
-      url += '?' + engine.param(data);
+      url += '?' + engine.queryStringify(data);
       data = formData;
     } else {
       type = 'GET';
@@ -434,7 +406,7 @@ var engine = {
 
       try {
         if (engine.settings.fixCirilicTitle) {
-          data = engine.fixCirilicTitle(data);
+          data = utFixCirilic(data);
         }
         data = JSON.parse(data);
       } catch (err) {
@@ -512,65 +484,23 @@ var engine = {
       engine.timer.stop();
     });
   },
-  loadSettings: function (cb) {
-    var defaultSettings = engine.defaultSettings;
+  loadSettings() {
+    return storageGet(defaultSettings).then((settings) => {
+      [{
+        key: 'fileListColumnList',
+        defColumns: defaultFileListColumnList,
+      }, {
+        key: 'torrentListColumnList',
+        defColumns: defaultTorrentListColumnList,
+      }].forEach(({key, defColumns}) => {
+        const columns = settings[key];
 
-    var optionsList = [];
-    for (var item in defaultSettings) {
-      optionsList.push(item);
-    }
-
-    var columnList = ['fileListColumnList', 'torrentListColumnList'];
-    columnList.forEach(function (item) {
-      optionsList.push(item);
-    });
-
-    optionsList.push('folderList');
-    optionsList.push('labelList');
-
-    optionsList.push('ut_port');
-    optionsList.push('ut_ip');
-    optionsList.push('ut_path');
-    optionsList.push('ssl');
-
-    chrome.storage.local.get(optionsList, function (storage) {
-      var settings = {};
-
-      for (var item in defaultSettings) {
-        settings[item] = storage.hasOwnProperty(item) ? storage[item] : defaultSettings[item];
-      }
-
-      engine.varCache.folderList = storage.folderList || engine.varCache.folderList;
-      engine.varCache.labelList = storage.labelList || engine.varCache.labelList;
+        mergeColumns(columns, defColumns);
+      });
 
       engine.settings = settings;
 
-      columnList.forEach(function (item) {
-        var defItem = 'default' + capitalize(item);
-        engine[item] = storage.hasOwnProperty(item) ? storage[item] : engine[defItem];
-        if (engine[defItem].length !== engine[item].length) {
-          for (var n = 0, dItem; dItem = engine[defItem][n]; n++) {
-            var found = false;
-            for (var g = 0, nItem; nItem = engine[item][g]; g++) {
-              if (nItem.column === dItem.column) {
-                found = true;
-                break;
-              }
-            }
-            if (!found) {
-              if (dItem.column === 'checkbox') {
-                engine[item].unshift(dItem);
-              } else {
-                engine[item].push(dItem);
-              }
-            }
-          }
-        }
-      });
-
       engine.varCache.webUiUrl = (settings.useSSL ? 'https://' : 'http://') + settings.ip + ':' + settings.port + '/' + settings.path;
-
-      return cb();
     });
   },
   trafficCounter: function (torrentList) {
@@ -610,7 +540,7 @@ var engine = {
         }
         var desc = (newItem[21] !== undefined) ? chrome.i18n.getMessage('OV_COL_STATUS') + ': ' + newItem[21] : '';
         engine.showNotification(
-          engine.icons.complete,
+          notificationIcons.complete,
           newItem[2],
           desc
         );
@@ -623,7 +553,7 @@ var engine = {
 
     setBadgeText(text);
 
-    if (engine.settings.badgeColor) {
+    if (engine.settings && engine.settings.badgeColor) {
       setBadgeBackgroundColor(engine.settings.badgeColor);
     }
   },
@@ -651,7 +581,7 @@ var engine = {
       xhr.open('GET', url, true);
     } catch (e) {
       engine.showNotification(
-        engine.icons.error,
+        notificationIcons.error,
         xhr.status,
         chrome.i18n.getMessage('unexpectedError')
       );
@@ -665,7 +595,7 @@ var engine = {
       if (e.total > 1024 * 1024 * 10 || e.loaded > 1024 * 1024 * 10) {
         xhr.abort();
         engine.showNotification(
-          engine.icons.error,
+          notificationIcons.error,
           chrome.i18n.getMessage('OV_FL_ERROR'),
           chrome.i18n.getMessage('fileSizeError')
         );
@@ -677,13 +607,13 @@ var engine = {
     xhr.onerror = function () {
       if (xhr.status === 0) {
         engine.showNotification(
-          engine.icons.error,
+          notificationIcons.error,
           xhr.status,
           chrome.i18n.getMessage('unexpectedError')
         );
       } else {
         engine.showNotification(
-          engine.icons.error,
+          notificationIcons.error,
           xhr.status,
           xhr.statusText
         );
@@ -697,7 +627,7 @@ var engine = {
       delete engine.varCache.newFileListener;
       if (newFile.length === 0) {
         engine.showNotification(
-          engine.icons.error,
+          notificationIcons.error,
           chrome.i18n.getMessage('torrentFileExists'),
           ''
         );
@@ -714,7 +644,7 @@ var engine = {
         chrome.storage.local.set({selectedLabel: {label: 'DL', custom: 1}});
       }
       engine.showNotification(
-        engine.icons.add,
+        notificationIcons.add,
         item[2],
         chrome.i18n.getMessage('torrentAdded')
       );
@@ -750,7 +680,7 @@ var engine = {
       engine.sendAction(args, function (data) {
         if (data.error !== undefined) {
           engine.showNotification(
-            engine.icons.error,
+            notificationIcons.error,
             chrome.i18n.getMessage('OV_FL_ERROR'),
             data.error
           );
@@ -760,85 +690,6 @@ var engine = {
         engine.sendAction({list: 1, cid: cid});
       });
     });
-  },
-  fixCirilicTitle: function () {
-    var cirilic = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
-    var chars = ("\\u037777777720\\u037777777620 \\u037777777720\\u037777777621 " +
-      "\\u037777777720\\u037777777622 \\u037777777720\\u037777777623 " +
-      "\\u037777777720\\u037777777624 \\u037777777720\\u037777777625 " +
-      "\\u037777777720\\u037777777601 \\u037777777720\\u037777777626 " +
-      "\\u037777777720\\u037777777627 \\u037777777720\\u037777777630 " +
-      "\\u037777777720\\u037777777631 \\u037777777720\\u037777777632 " +
-      "\\u037777777720\\u037777777633 \\u037777777720\\u037777777634 " +
-      "\\u037777777720\\u037777777635 \\u037777777720\\u037777777636 " +
-      "\\u037777777720\\u037777777637 \\u037777777720\\u037777777640 " +
-      "\\u037777777720\\u037777777641 \\u037777777720\\u037777777642 " +
-      "\\u037777777720\\u037777777643 \\u037777777720\\u037777777644 " +
-      "\\u037777777720\\u037777777645 \\u037777777720\\u037777777646 " +
-      "\\u037777777720\\u037777777647 \\u037777777720\\u037777777650 " +
-      "\\u037777777720\\u037777777651 \\u037777777720\\u037777777652 " +
-      "\\u037777777720\\u037777777653 \\u037777777720\\u037777777654 " +
-      "\\u037777777720\\u037777777655 \\u037777777720\\u037777777656 " +
-      "\\u037777777720\\u037777777657 \\u037777777720\\u037777777660 " +
-      "\\u037777777720\\u037777777661 \\u037777777720\\u037777777662 " +
-      "\\u037777777720\\u037777777663 \\u037777777720\\u037777777664 " +
-      "\\u037777777720\\u037777777665 \\u037777777721\\u037777777621 " +
-      "\\u037777777720\\u037777777666 \\u037777777720\\u037777777667 " +
-      "\\u037777777720\\u037777777670 \\u037777777720\\u037777777671 " +
-      "\\u037777777720\\u037777777672 \\u037777777720\\u037777777673 " +
-      "\\u037777777720\\u037777777674 \\u037777777720\\u037777777675 " +
-      "\\u037777777720\\u037777777676 \\u037777777720\\u037777777677 " +
-      "\\u037777777721\\u037777777600 \\u037777777721\\u037777777601 " +
-      "\\u037777777721\\u037777777602 \\u037777777721\\u037777777603 " +
-      "\\u037777777721\\u037777777604 \\u037777777721\\u037777777605 " +
-      "\\u037777777721\\u037777777606 \\u037777777721\\u037777777607 " +
-      "\\u037777777721\\u037777777610 \\u037777777721\\u037777777611 " +
-      "\\u037777777721\\u037777777612 \\u037777777721\\u037777777613 " +
-      "\\u037777777721\\u037777777614 \\u037777777721\\u037777777615 " +
-      "\\u037777777721\\u037777777616 \\u037777777721\\u037777777617").split(' ');
-    return function (data) {
-      if (data.indexOf("\\u03777777772") === -1) {
-        return data;
-      }
-      for (var i = 0, char_item; char_item = chars[i]; i++) {
-        while (data.indexOf(char_item) !== -1) {
-          data = data.replace(char_item, cirilic[i]);
-        }
-      }
-      return data;
-    };
-  }(),
-  inCp1251: function (sValue) {
-    var text = "", Ucode, ExitValue, s;
-    for (var i = 0, sValue_len = sValue.length; i < sValue_len; i++) {
-      s = sValue.charAt(i);
-      Ucode = s.charCodeAt(0);
-      var Acode = Ucode;
-      if (Ucode > 1039 && Ucode < 1104) {
-        Acode -= 848;
-        ExitValue = "%" + Acode.toString(16);
-      } else
-      if (Ucode === 1025) {
-        Acode = 168;
-        ExitValue = "%" + Acode.toString(16);
-      } else
-      if (Ucode === 1105) {
-        Acode = 184;
-        ExitValue = "%" + Acode.toString(16);
-      } else
-      if (Ucode === 32) {
-        Acode = 32;
-        ExitValue = "%" + Acode.toString(16);
-      } else
-      if (Ucode === 10) {
-        Acode = 10;
-        ExitValue = "%0A";
-      } else {
-        ExitValue = s;
-      }
-      text = text + ExitValue;
-    }
-    return text;
   },
   onCtxMenuCall: function (e) {
     /**
@@ -866,7 +717,7 @@ var engine = {
       if (id === -1) {
         id = contextMenu.length;
         contextMenu.push([download_dir, path, '']);
-        engine.varCache.folderList.push([download_dir, path, '']);
+        engine.settings.folderList.push([download_dir, path, '']);
         updateMenu = true;
       }
     }
@@ -885,7 +736,7 @@ var engine = {
       if (id === -1) {
         id = contextMenu.length;
         contextMenu.push(newLabel);
-        engine.varCache.labelList.push(newLabel);
+        engine.settings.labelList.push(newLabel);
         updateMenu = true;
       }
     }
@@ -901,8 +752,8 @@ var engine = {
     }
     if (updateMenu) {
       chrome.storage.local.set({
-        folderList: engine.varCache.folderList,
-        labelList: engine.varCache.labelList
+        folderList: engine.settings.folderList,
+        labelList: engine.settings.labelList
       }, function () {
         engine.createFolderCtxMenu();
       });
@@ -1053,8 +904,8 @@ var engine = {
 
       var contextMenu = engine.createFolderCtxMenu.contextMenu = [];
 
-      var folderList = engine.varCache.folderList;
-      var labelList = engine.varCache.labelList;
+      var folderList = engine.settings.folderList;
+      var labelList = engine.settings.labelList;
 
       chrome.contextMenus.create({
         id: 'main',
@@ -1132,7 +983,7 @@ var engine = {
     });
   },
   run: function () {
-    engine.loadSettings(function () {
+    return engine.loadSettings().then(function () {
       engine.varCache.isReady = 1;
 
       var msgStack = engine.varCache.msgStack;
@@ -1160,19 +1011,18 @@ var engine = {
     var fn = engine.actionList[msgList.action];
     return fn && fn(msgList, response);
   },
-  storageCache: {},
   actionList: {
     getSettings: function (message, response) {
       response(engine.settings);
     },
     getDefaultSettings: function (message, response) {
-      response(engine.defaultSettings);
+      response(defaultSettings);
     },
     getTrColumnArray: function (message, response) {
-      response(engine.torrentListColumnList);
+      response(engine.settings.torrentListColumnList);
     },
     getFlColumnArray: function (message, response) {
-      response(engine.fileListColumnList);
+      response(engine.settings.fileListColumnList);
     },
     getRemoteTorrentList: function (message, response) {
       response(engine.varCache.torrents);
@@ -1191,12 +1041,12 @@ var engine = {
       return true;
     },
     setTrColumnArray: function (message, response) {
-      engine.torrentListColumnList = message.data;
+      engine.settings.torrentListColumnList = message.data;
       chrome.storage.local.set({torrentListColumnList: message.data}, response);
       return true;
     },
     setFlColumnArray: function (message, response) {
-      engine.fileListColumnList = message.data;
+      engine.settings.fileListColumnList = message.data;
       chrome.storage.local.set({fileListColumnList: message.data}, response);
       return true;
     },
@@ -1222,7 +1072,7 @@ var engine = {
       return true;
     },
     checkSettings: function (message, response) {
-      engine.loadSettings(function () {
+      engine.loadSettings().then(function () {
         engine.getToken(function () {
           return response({});
         }, function (err) {
@@ -1232,7 +1082,7 @@ var engine = {
       return true;
     },
     reloadSettings: function (message, response) {
-      engine.loadSettings(function () {
+      engine.loadSettings().then(function () {
         engine.createFolderCtxMenu();
         if (!engine.settings.displayActiveTorrentCountIcon
           && engine.varCache.activeCount > 0) {
@@ -1253,6 +1103,34 @@ var engine = {
       engine.setBadgeText(engine.setBadgeText.lastText || '0');
     }
   },
+  queryStringify(params) {
+    const result = [];
+
+    if (params.token) {
+      result.push([encodeURIComponent('token'), encodeURIComponent(params.token)]);
+    }
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (key === 'token') return;
+
+      if (value === undefined || value === null) {
+        value = '';
+      }
+
+      if (Array.isArray(value)) {
+        value.forEach((value) => {
+          result.push([encodeURIComponent(key), encodeURIComponent(value)]);
+        });
+      } else
+      if (engine.settings.fixCirilicTorrentPath && key === 'path' && params.download_dir !== undefined) {
+        result.push([encodeURIComponent(key), toCp1251(value)]);
+      } else {
+        result.push([encodeURIComponent(key), encodeURIComponent(value)]);
+      }
+    });
+
+    return result.map(keyValue => keyValue.join('=')).join('&');
+  },
   init: function () {
     engine.setBadgeText('');
 
@@ -1260,7 +1138,7 @@ var engine = {
 
     chrome.runtime.onMessage.addListener(engine.onMessage);
 
-    engine.run();
+    return engine.run();
   }
 };
 
@@ -1327,8 +1205,34 @@ const setBadgeBackgroundColor = (color) => {
 };
 
 
-const capitalize = (string) => {
-  return string.substr(0, 1).toUpperCase() + string.substr(1);
+const mergeColumns = (columns, defColumns) => {
+  const defIdIndex = {};
+
+  const defIdColumn = defColumns.reduce((result, item, index) => {
+    defIdIndex[item.column] = index;
+    result[item.column] = item;
+    return result;
+  }, {});
+
+  const removedIds = Object.keys(defIdColumn);
+
+  columns.forEach((column) => {
+    const id = column.column;
+
+    const pos = removedIds.indexOf(id);
+    if (pos !== -1) {
+      removedIds.splice(pos, 1);
+    }
+
+    const normColumn = Object.assign({}, defIdColumn[id], column);
+
+    Object.assign(column, normColumn);
+  });
+
+  removedIds.forEach((id) => {
+    const column = Object.assign({}, defIdColumn[id]);
+    columns.splice(defIdIndex[id], 0, column);
+  });
 };
 
 engine.init();
