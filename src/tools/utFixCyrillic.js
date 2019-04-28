@@ -33,7 +33,7 @@ const chars = ("\\u037777777720\\u037777777620 \\u037777777720\\u037777777621 " 
   "\\u037777777721\\u037777777614 \\u037777777721\\u037777777615 " +
   "\\u037777777721\\u037777777616 \\u037777777721\\u037777777617").split(' ');
 
-const utFixCirilic = (data) => {
+const utFixCyrillic = (data) => {
   if (data.indexOf("\\u03777777772") !== -1) {
     for (let i = 0, len = chars.length; i < len; i++) {
       const char_item = chars[i];
@@ -45,4 +45,4 @@ const utFixCirilic = (data) => {
   return data;
 };
 
-export default utFixCirilic;
+export default utFixCyrillic;

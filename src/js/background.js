@@ -1,78 +1,10 @@
 import utils from "./utils";
-import storageGet from "../tools/storageGet";
-import utFixCirilic from "../tools/utFixCirilic";
-import toCp1251 from "../tools/toCp1251";
+import utFixCyrillic from "../tools/utFixCyrillic";
+import encodeCp1251 from "../tools/encodeCp1251";
+import getLogger from "../tools/getLogger";
+import loadConfig from "../tools/loadConfig";
 
-const defaultTorrentListColumnList = [
-  {column: 'checkbox', display: 1, order: 0, width: 19, lang: 'selectAll'},
-  {column: 'name', display: 1, order: 1, width: 200, lang: 'OV_COL_NAME'},
-  {column: 'order', display: 0, order: 1, width: 20, lang: 'OV_COL_ORDER'},
-  {column: 'size', display: 1, order: 1, width: 60, lang: 'OV_COL_SIZE'},
-  {column: 'remaining', display: 0, order: 1, width: 60, lang: 'OV_COL_REMAINING'},
-  {column: 'done', display: 1, order: 1, width: 70, lang: 'OV_COL_DONE'},
-  {column: 'status', display: 1, order: 1, width: 70, lang: 'OV_COL_STATUS'},
-  {column: 'seeds', display: 0, order: 1, width: 30, lang: 'OV_COL_SEEDS'},
-  {column: 'peers', display: 0, order: 1, width: 30, lang: 'OV_COL_PEERS'},
-  {column: 'seeds_peers', display: 1, order: 1, width: 40, lang: 'OV_COL_SEEDS_PEERS'},
-  {column: 'downspd', display: 1, order: 1, width: 60, lang: 'OV_COL_DOWNSPD'},
-  {column: 'upspd', display: 1, order: 1, width: 60, lang: 'OV_COL_UPSPD'},
-  {column: 'eta', display: 1, order: 1, width: 70, lang: 'OV_COL_ETA'},
-  {column: 'upped', display: 0, order: 1, width: 60, lang: 'OV_COL_UPPED'},
-  {column: 'downloaded', display: 0, order: 1, width: 60, lang: 'OV_COL_DOWNLOADED'},
-  {column: 'shared', display: 0, order: 1, width: 60, lang: 'OV_COL_SHARED'},
-  {column: 'avail', display: 0, order: 1, width: 60, lang: 'OV_COL_AVAIL'},
-  {column: 'label', display: 0, order: 1, width: 100, lang: 'OV_COL_LABEL'},
-  {column: 'added', display: 0, order: 1, width: 120, lang: 'OV_COL_DATE_ADDED'},
-  {column: 'completed', display: 0, order: 1, width: 120, lang: 'OV_COL_DATE_COMPLETED'},
-  {column: 'actions', display: 1, order: 0, width: 57, lang: 'Actions'}
-];
-
-const defaultFileListColumnList = [
-  {column: 'checkbox', display: 1, order: 0, width: 19, lang: 'selectAll'},
-  {column: 'name', display: 1, order: 1, width: 300, lang: 'FI_COL_NAME'},
-  {column: 'size', display: 1, order: 1, width: 60, lang: 'FI_COL_SIZE'},
-  {column: 'downloaded', display: 1, order: 1, width: 60, lang: 'OV_COL_DOWNLOADED'},
-  {column: 'done', display: 1, order: 1, width: 70, lang: 'OV_COL_DONE'},
-  {column: 'prio', display: 1, order: 1, width: 74, lang: 'FI_COL_PRIO'}
-];
-
-const defaultSettings = {
-  useSSL: 0,
-  ip: "127.0.0.1",
-  port: 8080,
-  path: "gui/",
-  displayActiveTorrentCountIcon: 1,
-  showNotificationOnDownloadCompleate: 1,
-  notificationTimeout: 5000,
-  backgroundUpdateInterval: 120000,
-  popupUpdateInterval: 1000,
-
-  login: '',
-  password: '',
-
-  hideSeedStatusItem: 0,
-  hideFnishStatusItem: 0,
-  showSpeedGraph: 1,
-  popupHeight: 350,
-  selectDownloadCategoryOnAddItemFromContextMenu: 0,
-
-  ctxMenuType: 1,
-  treeViewContextMenu: 0,
-  showDefaultFolderContextMenuItem: 0,
-
-  badgeColor: '0,0,0,0.40',
-
-  showFreeSpace: 1,
-
-  fixCirilicTitle: 0,
-  fixCirilicTorrentPath: 0,
-
-  folderList: [],
-  labelList: [],
-
-  torrentListColumnList: defaultTorrentListColumnList,
-  fileListColumnList: defaultFileListColumnList,
-};
+const logger = getLogger('background');
 
 const notificationIcons = {
   complete: require('!file-loader!../assets/img/notification_done.png'),
@@ -406,7 +338,7 @@ var engine = {
 
       try {
         if (engine.settings.fixCirilicTitle) {
-          data = utFixCirilic(data);
+          data = utFixCyrillic(data);
         }
         data = JSON.parse(data);
       } catch (err) {
@@ -485,19 +417,7 @@ var engine = {
     });
   },
   loadSettings() {
-    return storageGet(defaultSettings).then((settings) => {
-      [{
-        key: 'fileListColumnList',
-        defColumns: defaultFileListColumnList,
-      }, {
-        key: 'torrentListColumnList',
-        defColumns: defaultTorrentListColumnList,
-      }].forEach(({key, defColumns}) => {
-        const columns = settings[key];
-
-        mergeColumns(columns, defColumns);
-      });
-
+    return loadConfig().then((settings) => {
       engine.settings = settings;
 
       engine.varCache.webUiUrl = (settings.useSSL ? 'https://' : 'http://') + settings.ip + ':' + settings.port + '/' + settings.path;
@@ -1123,7 +1043,7 @@ var engine = {
         });
       } else
       if (engine.settings.fixCirilicTorrentPath && key === 'path' && params.download_dir !== undefined) {
-        result.push([encodeURIComponent(key), toCp1251(value)]);
+        result.push([encodeURIComponent(key), encodeCp1251(value)]);
       } else {
         result.push([encodeURIComponent(key), encodeURIComponent(value)]);
       }
@@ -1204,45 +1124,5 @@ const setBadgeBackgroundColor = (color) => {
   });
 };
 
-
-const mergeColumns = (columns, defColumns) => {
-  const defIdIndex = {};
-
-  const defIdColumn = defColumns.reduce((result, item, index) => {
-    defIdIndex[item.column] = index;
-    result[item.column] = item;
-    return result;
-  }, {});
-
-  const removedIds = Object.keys(defIdColumn);
-  const unknownColumns = [];
-
-  columns.forEach((column) => {
-    const id = column.column;
-
-    const pos = removedIds.indexOf(id);
-    if (pos !== -1) {
-      removedIds.splice(pos, 1);
-    } else {
-      unknownColumns.push(column);
-    }
-
-    const normColumn = Object.assign({}, defIdColumn[id], column);
-
-    Object.assign(column, normColumn);
-  });
-
-  removedIds.forEach((id) => {
-    const column = Object.assign({}, defIdColumn[id]);
-    columns.splice(defIdIndex[id], 0, column);
-  });
-
-  unknownColumns.forEach((column) => {
-    const pos = columns.indexOf(column);
-    if (pos !== -1) {
-      columns.splice(pos, 1);
-    }
-  });
-};
 
 engine.init();
