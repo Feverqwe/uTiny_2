@@ -155,6 +155,10 @@ class ContextMenu {
     const tree = {};
     places.forEach((place) => {
       const parts = place.split('/');
+      if (parts[0] === '') {
+        parts.unshift([parts.shift(), parts.shift()].join('/'));
+      }
+
       let parentThree = tree;
       parts.forEach((part, index) => {
         const lowPart = parts.slice(0, index + 1).join('/').toLowerCase();
@@ -173,7 +177,7 @@ class ContextMenu {
       });
     });
 
-    const joinSingleParts = (tree, part, deep) => {
+    const joinSingleParts = (tree, part) => {
       if (typeof tree !== 'object') return;
       const subTree = tree[part];
       const subParts = Object.keys(subTree);
@@ -182,19 +186,20 @@ class ContextMenu {
         if (subPart === './') {
           tree[part] = subTree[subPart];
         } else {
-          const joinedPart = part + (deep ? '/' : '') + subPart;
+          const joinedPart = part + '/' + subPart;
           delete tree[part];
           tree[joinedPart] = subTree[subPart];
-          joinSingleParts(tree, joinedPart, deep);
+          joinSingleParts(tree, joinedPart);
         }
       } else {
         subParts.forEach((part) => {
-          joinSingleParts(subTree, part, deep + 1);
+          joinSingleParts(subTree, part);
         });
       }
     };
-    const rootTree = {'': tree};
-    joinSingleParts(rootTree, '', 0);
+    Object.keys(tree).forEach((part) => {
+      joinSingleParts(tree, part);
+    });
 
     const menus = [];
     const makeMenuItems = (tree, parentId) => {
@@ -220,7 +225,7 @@ class ContextMenu {
         }
       });
     };
-    makeMenuItems(rootTree);
+    makeMenuItems(tree);
 
     return menus;
   }
