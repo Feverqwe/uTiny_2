@@ -32,13 +32,18 @@ const config = {
           name: "commons",
           chunks: chunk => ['bg', 'popup', 'options'].indexOf(chunk.name) !== -1,
           minChunks: 3,
-          priority: 0
+          priority: 5
         },
-        'commons_ui': {
+        commons_ui: {
           name: "commons-ui",
           chunks: chunk => ['popup', 'options'].indexOf(chunk.name) !== -1,
           minChunks: 2,
-          priority: -10
+          priority: 10
+        },
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
         },
       }
     }
@@ -104,12 +109,12 @@ const config = {
     new HtmlWebpackPlugin({
       filename: 'manager.html',
       template: './src/templates/manager.html',
-      chunks: ['commons', 'commons-ui', 'popup']
+      chunks: ['vendors', 'commons', 'commons-ui', 'popup']
     }),
     new HtmlWebpackPlugin({
       filename: 'options.html',
       template: './src/templates/options.html',
-      chunks: ['commons', 'commons-ui', 'options']
+      chunks: ['vendors', 'commons', 'commons-ui', 'options']
     }),
     new DefinePlugin({
       'BUILD_ENV': Object.entries(BUILD_ENV).reduce((obj, [key, value]) => {
@@ -134,16 +139,6 @@ if (mode === 'production') {
       canPrint: true
     }),
   );
-  Object.keys(config.entry).forEach(entryName => {
-    let value = config.entry[entryName];
-    if (!Array.isArray(value)) {
-      value = [value];
-    }
-    // value.unshift('babel-polyfill');
-    value.unshift('whatwg-fetch');
-
-    config.entry[entryName] = value;
-  });
 }
 
 module.exports = config;

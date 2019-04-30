@@ -140,7 +140,10 @@ const ConfigStruct = struct({
   fixCyrillicTorrentName: 'boolean',
   fixCyrillicDownloadPath: 'boolean',
 
-  folders: ['string'],
+  folders: [{
+    name: 'string',
+    path: 'string'
+  }],
   labels: ['string'],
 
   torrentColumns: ColumnsStruct,

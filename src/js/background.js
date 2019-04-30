@@ -3,7 +3,11 @@ import utFixCyrillic from "../tools/utFixCyrillic";
 import encodeCp1251 from "../tools/encodeCp1251";
 import getLogger from "../tools/getLogger";
 import loadConfig from "../tools/loadConfig";
+import UTorrentClient from "./UTorrentClient";
+import Daemon from "./Daemon";
+import ContextMenu from "./ContextMenu";
 
+const serializeError = require('serialize-error');
 const logger = getLogger('background');
 
 const notificationIcons = {
@@ -11,6 +15,119 @@ const notificationIcons = {
   add: require('!file-loader!../assets/img/notification_add.png'),
   error: require('!file-loader!../assets/img/notification_error.png')
 };
+
+class Bg {
+  constructor() {
+    this.state = 'idle';
+    this.config = null;
+    this.client = null;
+    this.daemon = null;
+
+    this.initPromise = null;
+
+    this.init().catch((err) => {
+      logger.error('init error', err);
+    });
+  }
+
+  whenReady() {
+    return this.initPromise;
+  }
+
+  handleMessage = (message, sender, response) => {
+    let promise = null;
+
+    switch (message && message.action) {
+      case '': {
+        promise = this.whenReady().then(() => {
+
+        });
+        break;
+      }
+      default: {
+        promise = Promise.reject(new Error('Unknown request'));
+      }
+    }
+
+    if (promise) {
+      promise.then((result) => {
+        response({result});
+      }, (err) => {
+        response({error: serializeError(err)});
+      }).catch((err) => {
+        logger.error('Send response error', err);
+      });
+      return true;
+    }
+  };
+
+  init() {
+    this.state = 'pending';
+
+    chrome.runtime.onMessage.addListener(this.handleMessage);
+
+    setBadgeText('');
+
+    return this.initPromise = loadConfig().then((config) => {
+      this.config = config;
+      this.client = new UTorrentClient(this);
+      this.daemon = new Daemon(this);
+      this.contextMenu = new ContextMenu(this);
+    }).then(() => {
+      this.state = 'done';
+    }, (err) => {
+      this.state = 'error';
+      throw err;
+    });
+  }
+
+  handleTorrentAdded(torrent) {
+    const icon = notificationIcons.add;
+    const statusText = chrome.i18n.getMessage('torrentAdded');
+    showNotification(torrent.id, icon, torrent.name, statusText);
+  }
+
+  handleTorrentExists() {
+    const icon = notificationIcons.error;
+    const title = chrome.i18n.getMessage('torrentFileExists');
+    showNotification(icon, title);
+  }
+
+  handleTorrentComplete(torrent) {
+    const icon = notificationIcons.complete;
+    let statusText = '';
+    if (torrent.status) {
+      statusText = chrome.i18n.getMessage('OV_COL_STATUS') + ': ' + torrent.status;
+    }
+    showNotification(torrent.id, icon, torrent.name, statusText);
+  }
+
+  handleTorrentError(message) {
+    const icon = notificationIcons.error;
+    const title = chrome.i18n.getMessage('OV_FL_ERROR');
+    showNotification(icon, title, message);
+  }
+
+  setActiveCountBadge(count) {
+    if (this.config.showActiveCountBadge) {
+      setBadgeText('' + count);
+
+      if (this.config.badgeColor) {
+        setBadgeBackgroundColor(this.config.badgeColor);
+      }
+    }
+  }
+}
+
+function setBadgeText(text) {
+  chrome.browserAction.setBadgeText({
+    text: text
+  });
+}
+
+const bg = window.bg = new Bg();
+
+export default bg;
 
 var engine = {
   settings: null,
@@ -444,7 +561,7 @@ var engine = {
   showNotification: function (icon, title, desc, details) {
     details = details || {};
     details.notificationTimeout = engine.settings.notificationTimeout;
-    showNotification(icon, title, desc, details);
+    showNotificationOld(icon, title, desc, details);
   },
   onCompleteNotification: function (oldTorrentList, newTorrentList) {
     if (oldTorrentList.length === 0) {
@@ -1063,7 +1180,7 @@ var engine = {
 };
 
 var notificationIdList = {};
-const showNotification = (icon, title, desc, details) => {
+const showNotificationOld = (icon, title, desc, details) => {
   details = details || {};
   var id = details.id;
   var timeout = details.notificationTimeout;
@@ -1106,9 +1223,12 @@ const showNotification = (icon, title, desc, details) => {
   }
 };
 
-const setBadgeText = (text) => {
-  chrome.browserAction.setBadgeText({
-    text: text
+const showNotification = (id, iconUrl, title = '', message = '') => {
+  chrome.notifications.create(id, {
+    type: 'basic',
+    iconUrl: iconUrl,
+    title: title,
+    message: message
   });
 };
 
@@ -1123,6 +1243,3 @@ const setBadgeBackgroundColor = (color) => {
     color: chColor
   });
 };
-
-
-engine.init();

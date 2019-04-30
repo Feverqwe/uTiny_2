@@ -13,7 +13,7 @@ global.BUILD_ENV = {
   version: version,
   babelEnvOptions: {
     targets: {
-      chrome: mode === 'development' ? '71' : '49',
+      chrome: mode === 'development' ? '74' : '49',
     },
     useBuiltIns: mode === 'development' ? false : 'usage',
   },

@@ -7,6 +7,7 @@
     },
     "background": {
         "scripts": [
+            "chunk-vendors.js",
             "bg.js"
         ]
     },
