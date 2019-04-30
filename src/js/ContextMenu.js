@@ -139,9 +139,14 @@ class ContextMenu {
   transformFoldersToTree(folders) {
     const placeFolderMap = {};
     const places = [];
+
+    let sep = null;
     
     folders.forEach((folder) => {
       const place = folder.path;
+      if (sep === null) {
+        sep = /\//.test(place) ? '/' : '\\';
+      }
       let normPath = place.split(/[\\/]/).join('/');
       normPath = path.normalize(normPath);
       if (/\/$/.test(normPath)) {
@@ -156,7 +161,7 @@ class ContextMenu {
     places.forEach((place) => {
       const parts = place.split('/');
       if (parts[0] === '') {
-        parts.unshift([parts.shift(), parts.shift()].join('/'));
+        parts.unshift([parts.shift(), parts.shift()].join(sep));
       }
 
       let parentThree = tree;
@@ -186,7 +191,7 @@ class ContextMenu {
         if (subPart === './') {
           tree[part] = subTree[subPart];
         } else {
-          const joinedPart = part + '/' + subPart;
+          const joinedPart = part + sep + subPart;
           delete tree[part];
           tree[joinedPart] = subTree[subPart];
           joinSingleParts(tree, joinedPart);
