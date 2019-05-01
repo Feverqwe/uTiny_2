@@ -161,7 +161,7 @@ class ContextMenu {
     places.forEach((place) => {
       const parts = place.split('/');
       if (parts[0] === '') {
-        parts.unshift([parts.shift(), parts.shift()].join(sep));
+        parts.unshift(parts.splice(0, 2).join(sep));
       }
 
       let parentThree = tree;
