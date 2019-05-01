@@ -1,5 +1,4 @@
 import {types} from "mobx-state-tree";
-import SpeedRoll from "../SpeedRoll";
 import SpeedRollStore from "./SpeedRollStore";
 
 /**
