@@ -208,16 +208,19 @@ class UTorrentClient {
       this.bg.bgStore.client.removeTorrentByIds(result.removedTorrentIds);
     }
 
+    let torrentsChanged = false;
     if (response.torrentp) {
       // sync part of list
       result.changedTorernts = response.torrentp.map(this.normalizeTorrent);
       this.bg.bgStore.client.syncChanges(result.changedTorernts);
+      torrentsChanged = true;
     }
 
     if (response.torrents) {
       // sync full list
       result.torrents = response.torrents.map(this.normalizeTorrent);
       this.bg.bgStore.client.sync(result.torrents);
+      torrentsChanged = true;
     }
 
     if (response.label) {
@@ -248,6 +251,11 @@ class UTorrentClient {
         this.bg.handleTorrentComplete(torrent);
       }
     });
+
+    if (torrentsChanged) {
+      const {downloadSpeed, uploadSpeed} = this.bg.bgStore.client.currentSpeed;
+      this.bg.bgStore.client.speedRoll.add(downloadSpeed, uploadSpeed);
+    }
 
     return result;
   };

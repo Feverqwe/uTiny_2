@@ -1,4 +1,6 @@
 import {types} from "mobx-state-tree";
+import SpeedRoll from "../SpeedRoll";
+import SpeedRollStore from "./SpeedRollStore";
 
 /**
  * @typedef {{}} TorrentStore
@@ -116,6 +118,7 @@ const ClientStore = types.model('ClientStore', {
   files: types.map(types.array(FileStore)),
   labels: types.maybe(types.array(LabelStore)),
   settings: types.maybe(SettingsStore),
+  speedRoll: types.optional(SpeedRollStore, {}),
 }).actions((self) => {
   return {
     removeTorrentByIds(ids) {
