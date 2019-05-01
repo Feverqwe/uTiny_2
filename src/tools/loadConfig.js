@@ -1,5 +1,4 @@
 import getLogger from "./getLogger";
-import {struct} from "superstruct";
 import storageGet from "./storageGet";
 
 const logger = getLogger('loadConfig');
@@ -53,7 +52,7 @@ const defaultConfig = {
   uiUpdateInterval: 1000,
 
   hideSeedingTorrents: false,
-  hideFnishedTorrents: false,
+  hideFinishedTorrents: false,
   showSpeedGraph: true,
 
   popupHeight: 350,
@@ -86,7 +85,7 @@ const oldConfigMap = {
   showNotificationOnDownloadCompleate: 'showDownloadCompleteNotifications',
   popupUpdateInterval: 'uiUpdateInterval',
   hideSeedStatusItem: 'hideSeedingTorrents',
-  hideFnishStatusItem: 'hideFnishedTorrents',
+  hideFnishStatusItem: 'hideFinishedTorrents',
   selectDownloadCategoryOnAddItemFromContextMenu: 'selectDownloadCategoryAfterPutTorrentFromContextMenu',
   ctxMenuType: 'contextMenuType',
   showDefaultFolderContextMenuItem: 'putDefaultPathInContextMenu',
@@ -100,60 +99,6 @@ const oldConfigMap = {
 
 const oldConfigDefaults = Object.keys(oldConfigMap);
 
-const ColumnsStruct = struct([{
-  column: 'string',
-  display: 'number',
-  order: 'number',
-  width: 'number',
-  lang: 'string',
-}]);
-
-const ConfigStruct = struct({
-  hostname: 'string',
-  ssl: 'boolean',
-  port: 'number',
-  pathname: 'string',
-
-  authenticationRequired: 'boolean',
-  login: 'string',
-  password: 'string',
-
-  showActiveCountBadge: 'boolean',
-  showDownloadCompleteNotifications: 'boolean',
-  backgroundUpdateInterval: 'number',
-  uiUpdateInterval: 'number',
-
-  hideSeedingTorrents: 'boolean',
-  hideFnishedTorrents: 'boolean',
-  showSpeedGraph: 'boolean',
-
-  popupHeight: 'number',
-  selectDownloadCategoryAfterPutTorrentFromContextMenu: 'boolean',
-  contextMenuType: struct.enum(['folder', 'label']),
-  treeViewContextMenu: 'boolean',
-  putDefaultPathInContextMenu: 'boolean',
-
-  badgeColor: 'string',
-
-  showFreeSpace: 'boolean',
-
-  fixCyrillicTorrentName: 'boolean',
-  fixCyrillicDownloadPath: 'boolean',
-
-  folders: [{
-    name: 'string',
-    path: 'string'
-  }],
-  labels: ['string'],
-
-  torrentColumns: ColumnsStruct,
-  filesColumns: ColumnsStruct,
-
-  configVersion: 'number?'
-}, {
-  configVersion: 2
-});
-
 const loadConfig = () => {
   return storageGet(defaultConfig).then((config) => {
     if (config.configVersion !== 2) {
@@ -163,11 +108,8 @@ const loadConfig = () => {
     }
     return config;
   }).then((config) => {
-    try {
-      config = ConfigStruct(config);
-    } catch(err) {
-      logger.error('Load config error, use default', err);
-      config = JSON.parse(JSON.stringify(defaultConfig));
+    if (!config.configVersion) {
+      config.configVersion = 2;
     }
 
     [{
@@ -187,24 +129,6 @@ const loadConfig = () => {
 
       config[key] = columns;
     });
-
-    config.useSSL = config.ssl;
-    config.ip = config.hostname;
-    config.path = config.pathname;
-    config.displayActiveTorrentCountIcon = config.showActiveCountBadge;
-    config.showNotificationOnDownloadCompleate = config.showDownloadCompleteNotifications;
-    config.popupUpdateInterval = config.uiUpdateInterval;
-    config.hideSeedStatusItem = config.hideSeedingTorrents;
-    config.hideFnishStatusItem = config.hideFnishedTorrents;
-    config.selectDownloadCategoryOnAddItemFromContextMenu = config.selectDownloadCategoryAfterPutTorrentFromContextMenu;
-    config.ctxMenuType = config.contextMenuType === 'folder';
-    config.showDefaultFolderContextMenuItem = config.putDefaultPathInContextMenu;
-    config.fixCirilicTitle = config.fixCyrillicTorrentName;
-    config.fixCirilicTorrentPath = config.fixCyrillicDownloadPath;
-    config.folderList = config.folders;
-    config.labelList = config.labels;
-    config.torrentListColumnList = config.torrentColumns;
-    config.fileListColumnList = config.filesColumns;
 
     return config;
   });
@@ -288,3 +212,4 @@ function mergeColumns(columns, defColumns) {
 }
 
 export default loadConfig;
+export {defaultConfig};

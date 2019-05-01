@@ -1,7 +1,6 @@
 import "whatwg-fetch";
 import ErrorWithCode from "../tools/errorWithCode";
 import utFixCyrillic from "../tools/utFixCyrillic";
-import ClientStore from "./stores/ClientStore";
 import getLogger from "../tools/getLogger";
 import queryStringify from "../tools/utQueryStringify";
 
@@ -13,9 +12,6 @@ class UTorrentClient {
   constructor(/**Bg*/bg) {
     this.bg = bg;
 
-    /**@type ClientStore*/
-    this.clientStore = ClientStore.create();
-
     this.token = null;
     this.cid = null;
     this.url = this.getUrl();
@@ -24,10 +20,10 @@ class UTorrentClient {
 
   getUrl() {
     return url.format({
-      protocol: this.bg.config.ssl ? 'https' : 'http',
-      port: this.bg.config.port,
-      hostname: this.bg.config.hostname,
-      pathname: this.bg.config.pathname,
+      protocol: this.bg.bgStore.config.ssl ? 'https' : 'http',
+      port: this.bg.bgStore.config.port,
+      hostname: this.bg.bgStore.config.hostname,
+      pathname: this.bg.bgStore.config.pathname,
     });
   }
 
@@ -49,7 +45,7 @@ class UTorrentClient {
 
   sendAction(query, body) {
     return this.retryIfTokenInvalid((token) => {
-      const params = queryStringify(Object.assign({token}, query), this.bg.config.fixCyrillicDownloadPath);
+      const params = queryStringify(Object.assign({token}, query), this.bg.bgStore.config.fixCyrillicDownloadPath);
 
       const init = {};
       if (body) {
@@ -68,7 +64,7 @@ class UTorrentClient {
           throw error;
         }
 
-        if (this.bg.config.fixCyrillicTorrentName) {
+        if (this.bg.bgStore.config.fixCyrillicTorrentName) {
           return response.text().then((body) => {
             return JSON.parse(utFixCyrillic(body));
           });
@@ -115,19 +111,19 @@ class UTorrentClient {
   putTorrent({file, magnet}, directory, label) {
     return this.sendAction({list: 1}).then((result) => {
       const cid = result.cid;
-      const previousTorrentIds = this.clientStore.torrentIds;
+      const previousTorrentIds = this.bg.bgStore.client.torrentIds;
 
       return this.sendFile({file, magnet}, directory).then(() => {
         return this.sendAction({list: 1, cid});
       }).then(() => {
-        const torrentIds = this.clientStore.torrentIds;
+        const torrentIds = this.bg.bgStore.client.torrentIds;
         const newIds = arrayDifferent(torrentIds, previousTorrentIds);
         if (!newIds.length) {
           this.bg.handleTorrentExists();
         } else {
           return Promise.all(newIds.map((torrentId) => {
             // new
-            const torrent = this.clientStore.torrents.get(torrentId);
+            const torrent = this.bg.bgStore.client.torrents.get(torrentId);
             if (torrent) {
               this.bg.handleTorrentAdded(torrent);
 
@@ -165,11 +161,11 @@ class UTorrentClient {
   }
 
   sign(fetchOptions = {}) {
-    if (this.bg.config.authenticationRequired) {
+    if (this.bg.bgStore.config.authenticationRequired) {
       if (!fetchOptions.headers) {
         fetchOptions.headers = {};
       }
-      fetchOptions.headers.Authorization = 'Basic ' + btoa([this.bg.config.login, this.bg.config.password].join(':'));
+      fetchOptions.headers.Authorization = 'Basic ' + btoa([this.bg.bgStore.config.login, this.bg.bgStore.config.password].join(':'));
     }
     return fetchOptions;
   }
@@ -194,7 +190,7 @@ class UTorrentClient {
   }
 
   normalizeResponse = (response) => {
-    const previousActiveTorrentIds = this.clientStore.activeTorrentIds;
+    const previousActiveTorrentIds = this.bg.bgStore.client.activeTorrentIds;
 
     const result = {};
 
@@ -209,31 +205,31 @@ class UTorrentClient {
     if (response.torrentm) {
       // Removed torrents
       result.removedTorrentIds = response.torrentm;
-      this.clientStore.removeTorrentByIds(result.removedTorrentIds);
+      this.bg.bgStore.client.removeTorrentByIds(result.removedTorrentIds);
     }
 
     if (response.torrentp) {
       // sync part of list
       result.changedTorernts = response.torrentp.map(this.normalizeTorrent);
-      this.clientStore.syncChanges(result.changedTorernts);
+      this.bg.bgStore.client.syncChanges(result.changedTorernts);
     }
 
     if (response.torrents) {
       // sync full list
       result.torrents = response.torrents.map(this.normalizeTorrent);
-      this.clientStore.sync(result.torrents);
+      this.bg.bgStore.client.sync(result.torrents);
     }
 
     if (response.label) {
       // labels
       result.labels = response.label.map(this.normalizeLabel);
-      this.clientStore.setLabels(result.labels);
+      this.bg.bgStore.client.setLabels(result.labels);
     }
 
     if (response.settings) {
       // settings
       result.settings = this.normalizeSettings(response.settings);
-      this.clientStore.setSettings(result.settings);
+      this.bg.bgStore.client.setSettings(result.settings);
     }
 
     if (response.files) {
@@ -241,19 +237,17 @@ class UTorrentClient {
       result.files = {
         [torrentId]: files.map(this.normalizeFile)
       };
-      // this.clientStore.setFileList(torrentId, files.map(this.normalizeFile));
+      // this.bg.bgStore.client.setFileList(torrentId, files.map(this.normalizeFile));
     }
 
-    const activeTorrentIds = this.clientStore.activeTorrentIds;
+    const activeTorrentIds = this.bg.bgStore.client.activeTorrentIds;
     arrayDifferent(previousActiveTorrentIds, activeTorrentIds).forEach((torrentId) => {
       // not active anymore
-      const torrent = this.clientStore.torrents.get(torrentId);
+      const torrent = this.bg.bgStore.client.torrents.get(torrentId);
       if (torrent) {
         this.bg.handleTorrentComplete(torrent);
       }
     });
-
-    this.bg.setActiveCountBadge(activeTorrentIds.length);
 
     return result;
   };

@@ -9,8 +9,6 @@ class Daemon {
     this.isActive = false;
     this.intervalId = null;
     this.inProgress = false;
-
-    this.start();
   }
 
   handleFire() {
@@ -28,12 +26,11 @@ class Daemon {
   start() {
     this.stop();
 
-    if (this.bg.config.backgroundUpdateInterval >= 1000) {
+    if (this.bg.bgStore.config.backgroundUpdateInterval >= 1000) {
       this.isActive = true;
       this.intervalId = setInterval(() => {
         this.handleFire();
-      }, this.bg.config.backgroundUpdateInterval);
-      this.handleFire();
+      }, this.bg.bgStore.config.backgroundUpdateInterval);
     }
   }
 

@@ -4,7 +4,6 @@ class ContextMenu {
   constructor(/**Bg*/bg) {
     this.bg = bg;
 
-    this.create();
     this.bindClick();
   }
 
@@ -36,12 +35,12 @@ class ContextMenu {
         break;
       }
       case 'folder': {
-        const folder = this.bg.config.folders[itemInfo.index];
+        const folder = this.bg.bgStore.config.folders[itemInfo.index];
         console.log('folder', folder);
         break;
       }
       case 'label': {
-        const label = this.bg.config.labels[itemInfo.index];
+        const label = this.bg.bgStore.config.labels[itemInfo.index];
         console.log('label', label);
         break;
       }
@@ -56,7 +55,7 @@ class ContextMenu {
         title: chrome.i18n.getMessage('addInTorrentClient'),
         contexts: ['link']
       }, () => {
-        switch (this.bg.config.contextMenuType) {
+        switch (this.bg.bgStore.config.contextMenuType) {
           case 'folder': {
             this.createFolderMenu(menuId);
             break;
@@ -71,8 +70,8 @@ class ContextMenu {
   }
 
   createFolderMenu(parentId) {
-    const folders = this.bg.config.folders;
-    if (this.bg.config.treeViewContextMenu) {
+    const folders = this.bg.bgStore.config.folders;
+    if (this.bg.bgStore.config.treeViewContextMenu) {
       this.transformFoldersToTree(folders).forEach((folder) => {
         let name = folder.name;
         if (name === './') {
@@ -97,7 +96,7 @@ class ContextMenu {
     }
 
     if (folders.length) {
-      if (this.bg.config.putDefaultPathInContextMenu) {
+      if (this.bg.bgStore.config.putDefaultPathInContextMenu) {
         chrome.contextMenus.create({
           id: JSON.stringify({type: 'action', name: 'default', source: 'folder'}),
           parentId: parentId,
@@ -116,7 +115,7 @@ class ContextMenu {
   }
 
   createLabelMenu(parentId) {
-    const labels = this.bg.config.labels;
+    const labels = this.bg.bgStore.config.labels;
     labels.forEach((label, index) => {
       chrome.contextMenus.create({
         id: JSON.stringify({type: 'label', index}),
@@ -233,6 +232,10 @@ class ContextMenu {
     makeMenuItems(tree);
 
     return menus;
+  }
+
+  destroy() {
+
   }
 }
 
