@@ -30,6 +30,35 @@ const SpeedRollStore = types.model('SpeedRollStore', {
       }
     }
   };
+}).views((self) => {
+  return {
+    get graph() {
+      const timeline = [];
+      const timeSummaryMap = new Map();
+
+      for (let i = 0, item; item = self.data[i]; i++) {
+        const {time: timeMs, download, upload} = item;
+        const time = Math.trunc(timeMs / 1000);
+        let summary = timeSummaryMap.get(time);
+        if (!summary) {
+          timeline.push(time);
+          timeSummaryMap.set(time, summary = {count: 0, download: 0, upload: 0});
+        }
+        summary.count++;
+        summary.download += download;
+        summary.upload += upload;
+      }
+
+      return timeline.map((time) => {
+        const summary = timeSummaryMap.get(time);
+        return {
+          time,
+          download: summary.count / summary.download,
+          upload: summary.count / summary.upload
+        };
+      });
+    }
+  };
 });
 
 export default SpeedRollStore;
