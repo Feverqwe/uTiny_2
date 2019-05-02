@@ -1,29 +1,17 @@
 import React from 'react';
-import {Redirect} from "react-router-dom";
-import ComponentLoader from "./components/ComponentLoader";
 import Index from "./pages";
+import ComponentLoader from "./components/ComponentLoader";
 
 const routes = [
   {
     path: '/index.html',
-    render: () => {
-      return (
-        <Index/>
-      );
-    },
+    component: Index,
   },
   {
     path: '/options.html',
     render: () => {
       return (
         <ComponentLoader load-page={'options'}/>
-      );
-    },
-  },
-  {
-    render: () => {
-      return (
-        <Redirect to={"/index.html"}/>
       );
     },
   }
