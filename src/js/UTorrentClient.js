@@ -18,12 +18,19 @@ class UTorrentClient {
     this.tokenUrl = this.getTokenUrl();
   }
 
+  /**
+   * @return {BgStore}
+   */
+  get bgStore() {
+    return this.bg.bgStore;
+  }
+
   getUrl() {
     return url.format({
-      protocol: this.bg.bgStore.config.ssl ? 'https' : 'http',
-      port: this.bg.bgStore.config.port,
-      hostname: this.bg.bgStore.config.hostname,
-      pathname: this.bg.bgStore.config.pathname,
+      protocol: this.bgStore.config.ssl ? 'https' : 'http',
+      port: this.bgStore.config.port,
+      hostname: this.bgStore.config.hostname,
+      pathname: this.bgStore.config.pathname,
     });
   }
 
@@ -45,7 +52,7 @@ class UTorrentClient {
 
   sendAction(query, body) {
     return this.retryIfTokenInvalid((token) => {
-      const params = queryStringify(Object.assign({token}, query), this.bg.bgStore.config.fixCyrillicDownloadPath);
+      const params = queryStringify(Object.assign({token}, query), this.bgStore.config.fixCyrillicDownloadPath);
 
       const init = {};
       if (body) {
@@ -64,7 +71,7 @@ class UTorrentClient {
           throw error;
         }
 
-        if (this.bg.bgStore.config.fixCyrillicTorrentName) {
+        if (this.bgStore.config.fixCyrillicTorrentName) {
           return response.text().then((body) => {
             return JSON.parse(utFixCyrillic(body));
           });
@@ -111,19 +118,19 @@ class UTorrentClient {
   putTorrent({file, magnet}, directory, label) {
     return this.sendAction({list: 1}).then((result) => {
       const cid = result.cid;
-      const previousTorrentIds = this.bg.bgStore.client.torrentIds;
+      const previousTorrentIds = this.bgStore.client.torrentIds;
 
       return this.sendFile({file, magnet}, directory).then(() => {
         return this.sendAction({list: 1, cid});
       }).then(() => {
-        const torrentIds = this.bg.bgStore.client.torrentIds;
+        const torrentIds = this.bgStore.client.torrentIds;
         const newIds = arrayDifferent(torrentIds, previousTorrentIds);
         if (!newIds.length) {
           this.bg.handleTorrentExists();
         } else {
           return Promise.all(newIds.map((torrentId) => {
             // new
-            const torrent = this.bg.bgStore.client.torrents.get(torrentId);
+            const torrent = this.bgStore.client.torrents.get(torrentId);
             if (torrent) {
               this.bg.handleTorrentAdded(torrent);
 
@@ -161,11 +168,11 @@ class UTorrentClient {
   }
 
   sign(fetchOptions = {}) {
-    if (this.bg.bgStore.config.authenticationRequired) {
+    if (this.bgStore.config.authenticationRequired) {
       if (!fetchOptions.headers) {
         fetchOptions.headers = {};
       }
-      fetchOptions.headers.Authorization = 'Basic ' + btoa([this.bg.bgStore.config.login, this.bg.bgStore.config.password].join(':'));
+      fetchOptions.headers.Authorization = 'Basic ' + btoa([this.bgStore.config.login, this.bgStore.config.password].join(':'));
     }
     return fetchOptions;
   }
@@ -190,7 +197,7 @@ class UTorrentClient {
   }
 
   normalizeResponse = (response) => {
-    const previousActiveTorrentIds = this.bg.bgStore.client.activeTorrentIds;
+    const previousActiveTorrentIds = this.bgStore.client.activeTorrentIds;
 
     const result = {};
 
@@ -205,34 +212,34 @@ class UTorrentClient {
     if (response.torrentm) {
       // Removed torrents
       result.removedTorrentIds = response.torrentm;
-      this.bg.bgStore.client.removeTorrentByIds(result.removedTorrentIds);
+      this.bgStore.client.removeTorrentByIds(result.removedTorrentIds);
     }
 
     let torrentsChanged = false;
     if (response.torrentp) {
       // sync part of list
       result.changedTorernts = response.torrentp.map(this.normalizeTorrent);
-      this.bg.bgStore.client.syncChanges(result.changedTorernts);
+      this.bgStore.client.syncChanges(result.changedTorernts);
       torrentsChanged = true;
     }
 
     if (response.torrents) {
       // sync full list
       result.torrents = response.torrents.map(this.normalizeTorrent);
-      this.bg.bgStore.client.sync(result.torrents);
+      this.bgStore.client.sync(result.torrents);
       torrentsChanged = true;
     }
 
     if (response.label) {
       // labels
       result.labels = response.label.map(this.normalizeLabel);
-      this.bg.bgStore.client.setLabels(result.labels);
+      this.bgStore.client.setLabels(result.labels);
     }
 
     if (response.settings) {
       // settings
       result.settings = this.normalizeSettings(response.settings);
-      this.bg.bgStore.client.setSettings(result.settings);
+      this.bgStore.client.setSettings(result.settings);
     }
 
     if (response.files) {
@@ -240,21 +247,21 @@ class UTorrentClient {
       result.files = {
         [torrentId]: files.map(this.normalizeFile)
       };
-      // this.bg.bgStore.client.setFileList(torrentId, files.map(this.normalizeFile));
+      // this.bgStore.client.setFileList(torrentId, files.map(this.normalizeFile));
     }
 
-    const activeTorrentIds = this.bg.bgStore.client.activeTorrentIds;
+    const activeTorrentIds = this.bgStore.client.activeTorrentIds;
     arrayDifferent(previousActiveTorrentIds, activeTorrentIds).forEach((torrentId) => {
       // not active anymore
-      const torrent = this.bg.bgStore.client.torrents.get(torrentId);
+      const torrent = this.bgStore.client.torrents.get(torrentId);
       if (torrent) {
         this.bg.handleTorrentComplete(torrent);
       }
     });
 
     if (torrentsChanged) {
-      const {downloadSpeed, uploadSpeed} = this.bg.bgStore.client.currentSpeed;
-      this.bg.bgStore.client.speedRoll.add(downloadSpeed, uploadSpeed);
+      const {downloadSpeed, uploadSpeed} = this.bgStore.client.currentSpeed;
+      this.bgStore.client.speedRoll.add(downloadSpeed, uploadSpeed);
     }
 
     return result;

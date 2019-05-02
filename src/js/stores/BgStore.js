@@ -9,7 +9,7 @@ const logger = getLogger('BgStore');
 /**
  * @typedef {{}} BgStore
  * @property {ConfigStore|undefined} config
- * @property {ClientStore|undefined} client
+ * @property {ClientStore} [client]
  * @property {function:Promise} fetchConfig
  * @property {function} flushClient
  * @property {function} legacyConfig

@@ -102,12 +102,14 @@ const SettingsStore = types.model('SettingsStore', {
  * @property {Map<*,FileStore[]>} files
  * @property {LabelStore[]|undefined} labels
  * @property {SettingsStore|undefined} settings
+ * @property {SpeedRollStore} [speedRoll]
  * @property {function} removeTorrentByIds
  * @property {function} sync
  * @property {function} syncChanges
  * @property {function} setFileList
  * @property {function} setLabels
  * @property {function} setSettings
+ * @property {*} torrentIds
  * @property {*} activeTorrentIds
  * @property {*} activeCount
  * @property {*} currentSpeed
@@ -157,7 +159,7 @@ const ClientStore = types.model('ClientStore', {
     },
     setSettings(settings) {
       self.settings = settings;
-    }
+    },
   };
 }).views((self) => {
   return {

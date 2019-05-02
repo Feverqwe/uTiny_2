@@ -58,6 +58,9 @@ const FolderStore = types.model('FolderStore', {
  * @property {ColumnsStore[]} torrentColumns
  * @property {ColumnsStore[]} filesColumns
  * @property {number} configVersion
+ * @property {function} patchOptions
+ * @property {function} afterCreate
+ * @property {function} beforeDestroy
  */
 const ConfigStore = types.model('ConfigStore', {
   hostname: types.string,

@@ -7,6 +7,13 @@ class ContextMenu {
     this.bindClick();
   }
 
+  /**
+   * @return {BgStore}
+   */
+  get bgStore() {
+    return this.bg.bgStore;
+  }
+
   bindClick() {
     if (!chrome.contextMenus.onClicked.hasListener(this.handleClick)) {
       chrome.contextMenus.onClicked.addListener(this.handleClick);
@@ -35,12 +42,12 @@ class ContextMenu {
         break;
       }
       case 'folder': {
-        const folder = this.bg.bgStore.config.folders[itemInfo.index];
+        const folder = this.bgStore.config.folders[itemInfo.index];
         console.log('folder', folder);
         break;
       }
       case 'label': {
-        const label = this.bg.bgStore.config.labels[itemInfo.index];
+        const label = this.bgStore.config.labels[itemInfo.index];
         console.log('label', label);
         break;
       }
@@ -55,7 +62,7 @@ class ContextMenu {
         title: chrome.i18n.getMessage('addInTorrentClient'),
         contexts: ['link']
       }, () => {
-        switch (this.bg.bgStore.config.contextMenuType) {
+        switch (this.bgStore.config.contextMenuType) {
           case 'folder': {
             this.createFolderMenu(menuId);
             break;
@@ -70,8 +77,8 @@ class ContextMenu {
   }
 
   createFolderMenu(parentId) {
-    const folders = this.bg.bgStore.config.folders;
-    if (this.bg.bgStore.config.treeViewContextMenu) {
+    const folders = this.bgStore.config.folders;
+    if (this.bgStore.config.treeViewContextMenu) {
       this.transformFoldersToTree(folders).forEach((folder) => {
         let name = folder.name;
         if (name === './') {
@@ -96,7 +103,7 @@ class ContextMenu {
     }
 
     if (folders.length) {
-      if (this.bg.bgStore.config.putDefaultPathInContextMenu) {
+      if (this.bgStore.config.putDefaultPathInContextMenu) {
         chrome.contextMenus.create({
           id: JSON.stringify({type: 'action', name: 'default', source: 'folder'}),
           parentId: parentId,
@@ -115,7 +122,7 @@ class ContextMenu {
   }
 
   createLabelMenu(parentId) {
-    const labels = this.bg.bgStore.config.labels;
+    const labels = this.bgStore.config.labels;
     labels.forEach((label, index) => {
       chrome.contextMenus.create({
         id: JSON.stringify({type: 'label', index}),

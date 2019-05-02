@@ -16,7 +16,6 @@ const notificationIcons = {
 
 class Bg {
   constructor() {
-    this.state = 'idle';
     /**@type BgStore*/
     this.bgStore = BgStore.create();
     this.client = null;
@@ -31,21 +30,21 @@ class Bg {
   }
 
   init() {
-    this.state = 'pending';
-
     chrome.runtime.onMessage.addListener(this.handleMessage);
 
     return this.initPromise = this.bgStore.fetchConfig().then(() => {
       this.daemon = new Daemon(this);
       this.contextMenu = new ContextMenu(this);
 
+      const logger = getLogger('autorun');
+
       autorun(() => {
-        logger('autorun', 'daemon');
+        logger('daemon');
         this.daemon.start();
       });
 
       autorun(() => {
-        logger('autorun', 'client');
+        logger('client');
         const dep = [
           this.bgStore.config.ssl,
           this.bgStore.config.port,
@@ -58,12 +57,14 @@ class Bg {
         if (dep.length) {
           this.bgStore.flushClient();
           this.client = new UTorrentClient(this);
-          this.client.updateTorrents();
+          this.client.updateTorrents().catch((err) => {
+            logger.error('client', 'updateTorrents error', err);
+          });
         }
       });
 
       autorun(() => {
-        logger('autorun', 'badge');
+        logger('badge');
         if (this.bgStore.config.showActiveCountBadge) {
           const count = this.bgStore.client.activeCount;
           if (count > 0) {
@@ -75,12 +76,12 @@ class Bg {
       });
 
       autorun(() => {
-        logger('autorun', 'badgeColor');
+        logger('badgeColor');
         setBadgeBackgroundColor(this.bgStore.config.badgeColor);
       });
 
       autorun(() => {
-        logger('autorun', 'contextMenu');
+        logger('contextMenu');
         const dep = [
           this.bgStore.config.folders,
           this.bgStore.config.labels,
@@ -93,11 +94,6 @@ class Bg {
           this.contextMenu.create();
         }
       });
-    }).then(() => {
-      this.state = 'done';
-    }, (err) => {
-      this.state = 'error';
-      throw err;
     });
   }
 

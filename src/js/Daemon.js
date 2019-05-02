@@ -11,7 +11,15 @@ class Daemon {
     this.inProgress = false;
   }
 
+  /**
+   * @return {BgStore}
+   */
+  get bgStore() {
+    return this.bg.bgStore;
+  }
+
   handleFire() {
+    logger.info('Fire');
     if (this.inProgress) return;
     this.inProgress = true;
 
@@ -24,22 +32,27 @@ class Daemon {
   }
 
   start() {
-    this.stop();
+    logger.info('Start');
+    this.stop(true);
 
-    if (this.bg.bgStore.config.backgroundUpdateInterval >= 1000) {
+    if (this.bgStore.config.backgroundUpdateInterval >= 1000) {
       this.isActive = true;
       this.intervalId = setInterval(() => {
         this.handleFire();
-      }, this.bg.bgStore.config.backgroundUpdateInterval);
+      }, this.bgStore.config.backgroundUpdateInterval);
     }
   }
 
-  stop() {
+  stop(force) {
+    if (!force) {
+      logger.info('Stop');
+    }
     this.isActive = false;
     clearInterval(this.intervalId);
   }
 
   destroy() {
+    logger.info('Destroyed');
     this.stop();
   }
 }

@@ -5,7 +5,6 @@ import {types} from "mobx-state-tree";
  * @property {{download:number,upload:number,time:number}[]} data
  * @property {function} add
  * @property {function} clean
- * @property {function} flush
  */
 const SpeedRollStore = types.model('SpeedRollStore', {
   data: types.array(types.model({
