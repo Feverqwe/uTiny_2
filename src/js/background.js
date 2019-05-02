@@ -128,19 +128,19 @@ class Bg {
     }
   };
 
-  handleTorrentAdded(torrent) {
+  torrentAddedNotify(torrent) {
     const icon = notificationIcons.add;
     const statusText = chrome.i18n.getMessage('torrentAdded');
     showNotification(torrent.id, icon, torrent.name, statusText);
   }
 
-  handleTorrentExists() {
+  torrentExistsNotify() {
     const icon = notificationIcons.error;
     const title = chrome.i18n.getMessage('torrentFileExists');
     showNotification(icon, title);
   }
 
-  handleTorrentComplete(torrent) {
+  torrentCompleteNotify(torrent) {
     const icon = notificationIcons.complete;
     let statusText = '';
     if (torrent.status) {
@@ -149,7 +149,7 @@ class Bg {
     showNotification(torrent.id, icon, torrent.name, statusText);
   }
 
-  handleTorrentError(message) {
+  torrentErrorNotify(message) {
     const icon = notificationIcons.error;
     const title = chrome.i18n.getMessage('OV_FL_ERROR');
     showNotification(icon, title, message);

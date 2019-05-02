@@ -99,9 +99,9 @@ class UTorrentClient {
       }
     }).catch((err) => {
       if (err.code === 'UTORRENT_ERROR') {
-        this.bg.handleTorrentError(err.message);
+        this.bg.torrentErrorNotify(err.message);
       } else {
-        this.bg.handleTorrentError('Unexpected error');
+        this.bg.torrentErrorNotify('Unexpected error');
       }
       throw err;
     });
@@ -126,13 +126,13 @@ class UTorrentClient {
         const torrentIds = this.bgStore.client.torrentIds;
         const newIds = arrayDifferent(torrentIds, previousTorrentIds);
         if (!newIds.length) {
-          this.bg.handleTorrentExists();
+          this.bg.torrentExistsNotify();
         } else {
           return Promise.all(newIds.map((torrentId) => {
             // new
             const torrent = this.bgStore.client.torrents.get(torrentId);
             if (torrent) {
-              this.bg.handleTorrentAdded(torrent);
+              this.bg.torrentAddedNotify(torrent);
 
               if (label && !torrent.label) {
                 return this.sendAction({action: 'setprops', s: 'label', hash: torrent.id, v: label}).catch((err) => {
@@ -255,7 +255,7 @@ class UTorrentClient {
       // not active anymore
       const torrent = this.bgStore.client.torrents.get(torrentId);
       if (torrent) {
-        this.bg.handleTorrentComplete(torrent);
+        this.bg.torrentCompleteNotify(torrent);
       }
     });
 
