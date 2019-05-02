@@ -1,6 +1,6 @@
 import {applyPatch, types} from "mobx-state-tree";
-import {defaultConfig} from "../../tools/loadConfig";
-import mobxCompare from "../../tools/mobxCompare";
+import {defaultConfig} from "../tools/loadConfig";
+import mobxCompare from "../tools/mobxCompare";
 
 /**
  * @typedef {{}} ColumnsStore

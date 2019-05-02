@@ -14,14 +14,13 @@ const babelEnvOptions = BUILD_ENV.babelEnvOptions;
 
 const config = {
   entry: {
-    bg: './src/js/background',
-    popup: './src/js/manager',
-    options: './src/js/options',
+    bg: './src/bg/bg',
+    app: './src/App',
   },
   output: {
-    path: path.join(outputPath, 'dist'),
     filename: '[name].js',
-    chunkFilename: 'chunk-[name].js',
+    chunkFilename: '[name].chunk.js',
+    path: outputPath,
   },
   mode: mode,
   devtool: devtool,
@@ -30,20 +29,8 @@ const config = {
       cacheGroups: {
         commons: {
           name: "commons",
-          chunks: chunk => ['bg', 'popup', 'options'].indexOf(chunk.name) !== -1,
-          minChunks: 3,
-          priority: 5
-        },
-        commons_ui: {
-          name: "commons-ui",
-          chunks: chunk => ['popup', 'options'].indexOf(chunk.name) !== -1,
-          minChunks: 2,
-          priority: 10
-        },
-        vendors: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
           chunks: 'all',
+          minChunks: 2
         },
       }
     }
@@ -88,14 +75,61 @@ const config = {
             limit: 8192
           }
         }]
-      }
+      },
+      {
+        test: /[\\/]src[\\/]templates[\\/]index\.html$/,
+        use: [{
+          loader: path.resolve('./builder/cacheDependencyLoader.js'),
+          options: {
+            dependencies: [
+              path.resolve('./src/AppPrerender')
+            ]
+          }
+        }, {
+          loader: 'prerender-loader',
+          options: {
+            string: true,
+            params: {
+              location: {
+                pathname: '/index.html'
+              }
+            }
+          }
+        }]
+      },
+      {
+        test: /[\\/]src[\\/]templates[\\/]options\.html$/,
+        use: [{
+          loader: path.resolve('./builder/cacheDependencyLoader.js'),
+          options: {
+            dependencies: [
+              path.resolve('./src/AppPrerender')
+            ]
+          }
+        }, {
+          loader: 'prerender-loader',
+          options: {
+            string: true,
+            params: {
+              location: {
+                pathname: '/options.html'
+              }
+            },
+          }
+        }]
+      },
     ]
   },
   resolve: {
     extensions: ['.js', '.jsx'],
   },
   plugins: [
-    new CleanWebpackPlugin(outputPath),
+    new CleanWebpackPlugin({
+      cleanStaleWebpackAssets: false,
+      cleanOnceBeforeBuildPatterns: [
+        outputPath
+      ]
+    }),
     new CopyWebpackPlugin([
       {from: './src/manifest.json',},
       {from: './src/assets/img', to: './assets/img'},
@@ -104,24 +138,24 @@ const config = {
     ]),
     new MiniCssExtractPlugin({
       filename: '[name].css',
-      chunkFilename: "chunk-[id].css"
+      chunkFilename: '[name].chunk.css'
     }),
     new HtmlWebpackPlugin({
-      filename: 'manager.html',
-      template: './src/templates/manager.html',
-      chunks: ['vendors', 'commons', 'commons-ui', 'popup']
+      filename: 'index.html',
+      template: './src/templates/index.html',
+      chunks: ['commons', 'app']
     }),
     new HtmlWebpackPlugin({
       filename: 'options.html',
       template: './src/templates/options.html',
-      chunks: ['vendors', 'commons', 'commons-ui', 'options']
+      chunks: ['commons', 'app']
     }),
     new DefinePlugin({
       'BUILD_ENV': Object.entries(BUILD_ENV).reduce((obj, [key, value]) => {
         obj[key] = JSON.stringify(value);
         return obj;
       }, {}),
-    })
+    }),
   ]
 };
 

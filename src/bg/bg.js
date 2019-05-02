@@ -2,7 +2,7 @@ import getLogger from "../tools/getLogger";
 import UTorrentClient from "./uTorrentClient";
 import Daemon from "./daemon";
 import ContextMenu from "./contextMenu";
-import BgStore from "./stores/BgStore";
+import BgStore from "../stores/BgStore";
 import {autorun} from "mobx";
 
 const serializeError = require('serialize-error');

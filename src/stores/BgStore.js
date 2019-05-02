@@ -1,7 +1,7 @@
 import {flow, types} from "mobx-state-tree";
 import ConfigStore from "./ConfigStore";
-import getLogger from "../../tools/getLogger";
-import loadConfig, {defaultConfig} from "../../tools/loadConfig";
+import getLogger from "../tools/getLogger";
+import loadConfig, {defaultConfig} from "../tools/loadConfig";
 import ClientStore from "./ClientStore";
 
 const logger = getLogger('BgStore');

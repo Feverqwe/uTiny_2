@@ -40,7 +40,7 @@
   width: 100px;
   height: 100px;
   cursor: crosshair;
-  background-image: url("../assets/img/bootstrap-colorpicker/saturation.png");
+  background-image: url("../img/bootstrap-colorpicker/saturation.png");
 }
 
 .colorpicker-saturation i {
@@ -91,12 +91,12 @@
 }
 
 .colorpicker-hue {
-  background-image: url("../assets/img/bootstrap-colorpicker/hue.png");
+  background-image: url("../img/bootstrap-colorpicker/hue.png");
 }
 
 .colorpicker-alpha {
   display: none;
-  background-image: url("../assets/img/bootstrap-colorpicker/alpha.png");
+  background-image: url("../img/bootstrap-colorpicker/alpha.png");
 }
 
 .colorpicker-saturation,
@@ -169,7 +169,7 @@
   height: 10px;
   margin-top: 5px;
   clear: both;
-  background-image: url("../assets/img/bootstrap-colorpicker/alpha.png");
+  background-image: url("../img/bootstrap-colorpicker/alpha.png");
   background-position: 0 100%;
 }
 
@@ -231,11 +231,11 @@
 }
 
 .colorpicker.colorpicker-horizontal .colorpicker-hue {
-  background-image: url("../assets/img/bootstrap-colorpicker/hue-horizontal.png");
+  background-image: url("../img/bootstrap-colorpicker/hue-horizontal.png");
 }
 
 .colorpicker.colorpicker-horizontal .colorpicker-alpha {
-  background-image: url("../assets/img/bootstrap-colorpicker/alpha-horizontal.png");
+  background-image: url("../img/bootstrap-colorpicker/alpha-horizontal.png");
 }
 
 .colorpicker.colorpicker-hidden {

@@ -65,27 +65,27 @@ ul.menu a.btn:active {
     opacity: 0.7;
 }
 ul.menu a.refresh{
-    background-image: url("../assets/img/refresh.svg");
+    background-image: url("../img/refresh.svg");
     background-size: 27px;
 }
 ul.menu a.wui{
-    background-image: url("../assets/img/wui.png");
+    background-image: url("../img/wui.png");
     background-size: 28px;
 }
 ul.menu a.start_all{
-    background-image: url("../assets/img/play_all.png");
+    background-image: url("../img/play_all.png");
     background-size: 28px;
 }
 ul.menu a.pause_all{
-    background-image: url("../assets/img/pause_all.png");
+    background-image: url("../img/pause_all.png");
     background-size: 28px;
 }
 ul.menu a.add_file{
-    background-image: url("../assets/img/add.png");
+    background-image: url("../img/add.png");
     background-size: 28px;
 }
 ul.menu a.add_magnet{
-    background-image: url("../assets/img/magnet.png");
+    background-image: url("../img/magnet.png");
     background-size: 28px;
 }
 ul.menu a.btn:hover {
@@ -93,7 +93,7 @@ ul.menu a.btn:hover {
 }
 
 table.status-panel td.space.disk {
-    background-image: url(../assets/img/free_space.png);
+    background-image: url(../img/free_space.png);
 }
 
 @media
@@ -103,27 +103,27 @@ only screen and (        min-device-pixel-ratio: 2),
 only screen and (                min-resolution: 192dpi),
 only screen and (                min-resolution: 2dppx) {
     ul.menu a.wui{
-        background-image: url("../assets/img/wui@2x.png");
+        background-image: url("../img/wui@2x.png");
         background-size: 28px;
     }
     ul.menu a.start_all{
-        background-image: url("../assets/img/play_all@2x.png");
+        background-image: url("../img/play_all@2x.png");
         background-size: 28px;
     }
     ul.menu a.pause_all{
-        background-image: url("../assets/img/pause_all@2x.png");
+        background-image: url("../img/pause_all@2x.png");
         background-size: 28px;
     }
     ul.menu a.add_file{
-        background-image: url("../assets/img/add@2x.png");
+        background-image: url("../img/add@2x.png");
         background-size: 28px;
     }
     ul.menu a.add_magnet{
-        background-image: url("../assets/img/magnet@2x.png");
+        background-image: url("../img/magnet@2x.png");
         background-size: 28px;
     }
     table.status-panel td.space.disk {
-        background-image: url(../assets/img/free_space@2x.png);
+        background-image: url(../img/free_space@2x.png);
         background-size: 16px;
     }
 }
@@ -308,13 +308,13 @@ div.torrent-list-layer table tr.selected td.actions div.btns > a{
     filter: invert(100%);
 }
 div.torrent-list-layer table td.actions div.btns > a.start {
-    background-image: url('../assets/img/play.svg');
+    background-image: url('../img/play.svg');
 }
 div.torrent-list-layer table td.actions div.btns > a.pause {
-    background-image: url('../assets/img/pause.svg');
+    background-image: url('../img/pause.svg');
 }
 div.torrent-list-layer table td.actions div.btns > a.stop {
-    background-image: url('../assets/img/stop.svg');
+    background-image: url('../img/stop.svg');
 }
 div.torrent-list-layer table td.actions div.btns > a:hover {
     opacity: 1 !important;
@@ -361,12 +361,12 @@ table.status-panel td.space div {
     cursor: pointer;
 }
 table.status-panel td.download {
-    background-image: url(../assets/img/arrowDown.svg);
+    background-image: url(../img/arrowDown.svg);
     background-position: left center;
     background-size: 13px;
 }
 table.status-panel td.upload {
-    background-image: url(../assets/img/arrowUp.svg);
+    background-image: url(../img/arrowUp.svg);
     background-position: left center;
     background-size: 13px;
 }
@@ -392,7 +392,7 @@ div.file-list-loading {
     width: 30px;
     height: 30px;
     z-index: 5;
-    background-image: url('../assets/img/loading.gif')
+    background-image: url('../img/loading.gif')
 }
 div.fl-layer {
     border-bottom: 1px #c0c0c0 solid;
@@ -467,11 +467,11 @@ div.file-list ul.bottom-menu a {
     border: 1px solid #fff;
 }
 div.file-list ul.bottom-menu a.update{
-    background-image: url("../assets/img/refresh.svg");
+    background-image: url("../img/refresh.svg");
     background-size: 20px;
 }
 div.file-list ul.bottom-menu a.close{
-    background-image: url('../assets/img/close.svg');
+    background-image: url('../img/close.svg');
     background-size: 20px;
     margin-right:  2px;
 }
@@ -539,11 +539,11 @@ table thead .arrow {
     opacity: 0.5;
 }
 table thead .sortDown .arrow {
-    background-image: url('../assets/img/arrow_up.svg');
+    background-image: url('../img/arrow_up.svg');
     background-position-y: -5px;
 }
 table thead .sortUp .arrow {
-    background-image: url('../assets/img/arrow_up.svg');
+    background-image: url('../img/arrow_up.svg');
     transform: rotate(180deg);
     background-position-y: -5px;
 }
@@ -561,27 +561,27 @@ li.select div[data-image] .image,
 }
 li.select div[data-image=ALL] .image,
 .simple-select-box-menu div[data-image=ALL] .image {
-    background-image: url('../assets/img/c_all.png');
+    background-image: url('../img/c_all.png');
 }
 li.select div[data-image=DL] .image,
 .simple-select-box-menu div[data-image=DL] .image {
-    background-image: url('../assets/img/c_down.png');
+    background-image: url('../img/c_down.png');
 }
 li.select div[data-image=SEEDING] .image,
 .simple-select-box-menu div[data-image=SEEDING] .image {
-    background-image: url('../assets/img/c_uplo.png');
+    background-image: url('../img/c_uplo.png');
 }
 li.select div[data-image=COMPL] .image,
 .simple-select-box-menu div[data-image=COMPL] .image {
-    background-image: url('../assets/img/c_comp.png');
+    background-image: url('../img/c_comp.png');
 }
 li.select div[data-image=ACTIVE] .image,
 .simple-select-box-menu div[data-image=ACTIVE] .image {
-    background-image: url('../assets/img/c_active.png');
+    background-image: url('../img/c_active.png');
 }
 li.select div[data-image=INACTIVE] .image,
 .simple-select-box-menu div[data-image=INACTIVE] .image {
-    background-image: url('../assets/img/c_iact.png');
+    background-image: url('../img/c_iact.png');
 }
 
 .appriseOverlay {
@@ -683,7 +683,7 @@ div.drop_layer {
     height: 100%;
     z-index: 5;
     background-color: rgba(0, 0, 0, 0.3);
-    background-image: url(../assets/img/drag.png);
+    background-image: url(../img/drag.png);
     background-repeat: no-repeat;
     background-position: center;
 }
@@ -695,7 +695,7 @@ div.btn.setup {
     float: right;
     width: 16px;
     height: 16px;
-    background-image: url(../assets/img/settings.png);
+    background-image: url(../img/settings.png);
     background-repeat: no-repeat;
     background-position: center;
     cursor: pointer;
@@ -727,7 +727,7 @@ div.btn.setup {
     float: right;
     margin-right: 2px;
 
-    background-image: url(../assets/img/openInTab.svg);
+    background-image: url(../img/openInTab.svg);
     background-size: 16px;
     transition: opacity 0.2s;
 }
