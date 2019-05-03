@@ -30,69 +30,72 @@ const FolderStore = types.model('FolderStore', {
 
 /**
  * @typedef {{}} ConfigStore
- * @property {string} hostname
- * @property {boolean} ssl
- * @property {number} port
- * @property {string} pathname
- * @property {boolean} authenticationRequired
- * @property {string} login
- * @property {string} password
- * @property {boolean} showActiveCountBadge
- * @property {boolean} showDownloadCompleteNotifications
- * @property {number} backgroundUpdateInterval
- * @property {number} uiUpdateInterval
- * @property {boolean} hideSeedingTorrents
- * @property {boolean} hideFinishedTorrents
- * @property {boolean} showSpeedGraph
- * @property {number} popupHeight
- * @property {boolean} selectDownloadCategoryAfterPutTorrentFromContextMenu
- * @property {string} contextMenuType
- * @property {boolean} treeViewContextMenu
- * @property {boolean} putDefaultPathInContextMenu
- * @property {string} badgeColor
- * @property {boolean} showFreeSpace
- * @property {boolean} fixCyrillicTorrentName
- * @property {boolean} fixCyrillicDownloadPath
+ * @property {string} [hostname]
+ * @property {boolean} [ssl]
+ * @property {number} [port]
+ * @property {string} [pathname]
+ * @property {boolean} [authenticationRequired]
+ * @property {string} [login]
+ * @property {string} [password]
+ * @property {boolean} [showActiveCountBadge]
+ * @property {boolean} [showDownloadCompleteNotifications]
+ * @property {number} [backgroundUpdateInterval]
+ * @property {number} [uiUpdateInterval]
+ * @property {boolean} [hideSeedingTorrents]
+ * @property {boolean} [hideFinishedTorrents]
+ * @property {boolean} [showSpeedGraph]
+ * @property {number} [popupHeight]
+ * @property {boolean} [selectDownloadCategoryAfterPutTorrentFromContextMenu]
+ * @property {string} [contextMenuType]
+ * @property {boolean} [treeViewContextMenu]
+ * @property {boolean} [putDefaultPathInContextMenu]
+ * @property {string} [badgeColor]
+ * @property {boolean} [showFreeSpace]
+ * @property {boolean} [fixCyrillicTorrentName]
+ * @property {boolean} [fixCyrillicDownloadPath]
  * @property {FolderStore[]} folders
  * @property {string[]} labels
  * @property {ColumnsStore[]} torrentColumns
  * @property {ColumnsStore[]} filesColumns
- * @property {number} configVersion
+ * @property {{by:string,[direction]:number}} [torrentsSort]
+ * @property {{by:string,[direction]:number}} [filesSort]
+ * @property {{label:string,custom:boolean}} [selectedLabel]
+ * @property {number} [configVersion]
  * @property {function} patchOptions
  * @property {function} afterCreate
  * @property {function} beforeDestroy
  */
 const ConfigStore = types.model('ConfigStore', {
-  hostname: types.string,
-  ssl: types.boolean,
-  port: types.number,
-  pathname: types.string,
+  hostname: types.optional(types.string, ''),
+  ssl: types.optional(types.boolean, false),
+  port: types.optional(types.number, 8080),
+  pathname: types.optional(types.string, '/gui/'),
 
-  authenticationRequired: types.boolean,
-  login: types.string,
-  password: types.string,
+  authenticationRequired: types.optional(types.boolean, true),
+  login: types.optional(types.string, ''),
+  password: types.optional(types.string, ''),
 
-  showActiveCountBadge: types.boolean,
-  showDownloadCompleteNotifications: types.boolean,
-  backgroundUpdateInterval: types.number,
-  uiUpdateInterval: types.number,
+  showActiveCountBadge: types.optional(types.boolean, true),
+  showDownloadCompleteNotifications: types.optional(types.boolean, true),
+  backgroundUpdateInterval: types.optional(types.number, 120000),
+  uiUpdateInterval: types.optional(types.number, 1000),
 
-  hideSeedingTorrents: types.boolean,
-  hideFinishedTorrents: types.boolean,
-  showSpeedGraph: types.boolean,
+  hideSeedingTorrents: types.optional(types.boolean, false),
+  hideFinishedTorrents: types.optional(types.boolean, false),
+  showSpeedGraph: types.optional(types.boolean, true),
 
-  popupHeight: types.number,
-  selectDownloadCategoryAfterPutTorrentFromContextMenu: types.boolean,
-  contextMenuType: types.enumeration(['folder', 'label']),
-  treeViewContextMenu: types.boolean,
-  putDefaultPathInContextMenu: types.boolean,
+  popupHeight: types.optional(types.number, 350),
+  selectDownloadCategoryAfterPutTorrentFromContextMenu: types.optional(types.boolean, false),
+  contextMenuType: types.optional(types.enumeration(['folder', 'label']), 'folder'),
+  treeViewContextMenu: types.optional(types.boolean, false),
+  putDefaultPathInContextMenu: types.optional(types.boolean, false),
 
-  badgeColor: types.string,
+  badgeColor: types.optional(types.string, '0,0,0,0.40'),
 
-  showFreeSpace: types.boolean,
+  showFreeSpace: types.optional(types.boolean, true),
 
-  fixCyrillicTorrentName: types.boolean,
-  fixCyrillicDownloadPath: types.boolean,
+  fixCyrillicTorrentName: types.optional(types.boolean, false),
+  fixCyrillicDownloadPath: types.optional(types.boolean, false),
 
   folders: types.array(FolderStore),
   labels: types.array(types.string),
@@ -100,7 +103,22 @@ const ConfigStore = types.model('ConfigStore', {
   torrentColumns: types.array(ColumnsStore),
   filesColumns: types.array(ColumnsStore),
 
-  configVersion: types.number,
+  torrentsSort: types.optional(types.model({
+    by: types.string,
+    direction: types.optional(types.number, 1)
+  }), {by: 'name'}),
+
+  filesSort: types.optional(types.model({
+    by: types.string,
+    direction: types.optional(types.number, 1)
+  }), {by: 'name'}),
+
+  selectedLabel: types.optional(types.model({
+    label: types.string,
+    custom: types.boolean
+  }), {label: 'ALL', custom: true}),
+
+  configVersion: types.optional(types.number, 2),
 }).actions((self) => {
   return {
     patchOptions(patch) {

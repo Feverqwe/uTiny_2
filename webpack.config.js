@@ -15,7 +15,8 @@ const babelEnvOptions = BUILD_ENV.babelEnvOptions;
 const config = {
   entry: {
     bg: './src/bg/bg',
-    app: './src/App',
+    index: './src/pages/Index',
+    options: './src/pages/Options',
   },
   output: {
     filename: '[name].js',
@@ -29,8 +30,15 @@ const config = {
       cacheGroups: {
         commons: {
           name: "commons",
-          chunks: 'all',
-          minChunks: 2
+          chunks: chunk => ['bg', 'index', 'options'].includes(chunk.name),
+          minChunks: 3,
+          priority: 10,
+        },
+        commons_ui: {
+          name: "commons-ui",
+          chunks: chunk => ['index', 'options'].includes(chunk.name),
+          minChunks: 2,
+          priority: 5,
         },
       }
     }
@@ -76,48 +84,6 @@ const config = {
           }
         }]
       },
-      {
-        test: /[\\/]src[\\/]templates[\\/]index\.html$/,
-        use: [{
-          loader: path.resolve('./builder/cacheDependencyLoader.js'),
-          options: {
-            dependencies: [
-              path.resolve('./src/AppPrerender')
-            ]
-          }
-        }, {
-          loader: 'prerender-loader',
-          options: {
-            string: true,
-            params: {
-              location: {
-                pathname: '/index.html'
-              }
-            }
-          }
-        }]
-      },
-      {
-        test: /[\\/]src[\\/]templates[\\/]options\.html$/,
-        use: [{
-          loader: path.resolve('./builder/cacheDependencyLoader.js'),
-          options: {
-            dependencies: [
-              path.resolve('./src/AppPrerender')
-            ]
-          }
-        }, {
-          loader: 'prerender-loader',
-          options: {
-            string: true,
-            params: {
-              location: {
-                pathname: '/options.html'
-              }
-            },
-          }
-        }]
-      },
     ]
   },
   resolve: {
@@ -127,7 +93,7 @@ const config = {
     new CleanWebpackPlugin({
       cleanStaleWebpackAssets: false,
       cleanOnceBeforeBuildPatterns: [
-        outputPath
+        path.join(outputPath, '*')
       ]
     }),
     new CopyWebpackPlugin([
@@ -143,12 +109,12 @@ const config = {
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: './src/templates/index.html',
-      chunks: ['commons', 'app']
+      chunks: ['commons', 'commons-ui', 'index']
     }),
     new HtmlWebpackPlugin({
       filename: 'options.html',
       template: './src/templates/options.html',
-      chunks: ['commons', 'app']
+      chunks: ['commons', 'commons-ui', 'options']
     }),
     new DefinePlugin({
       'BUILD_ENV': Object.entries(BUILD_ENV).reduce((obj, [key, value]) => {

@@ -1,5 +1,6 @@
 import getLogger from "./getLogger";
 import storageGet from "./storageGet";
+import storageSet from "./storageSet";
 
 const logger = getLogger('loadConfig');
 
@@ -37,42 +38,46 @@ const defaultFileListColumnList = [
 ];
 
 const defaultConfig = {
-  hostname: '127.0.0.1',
-  ssl: false,
-  port: 8080,
-  pathname: '/gui/',
+  hostname: undefined,
+  ssl: undefined,
+  port: undefined,
+  pathname: undefined,
 
-  authenticationRequired: true,
-  login: '',
-  password: '',
+  authenticationRequired: undefined,
+  login: undefined,
+  password: undefined,
 
-  showActiveCountBadge: true,
-  showDownloadCompleteNotifications: true,
-  backgroundUpdateInterval: 120000,
-  uiUpdateInterval: 1000,
+  showActiveCountBadge: undefined,
+  showDownloadCompleteNotifications: undefined,
+  backgroundUpdateInterval: undefined,
+  uiUpdateInterval: undefined,
 
-  hideSeedingTorrents: false,
-  hideFinishedTorrents: false,
-  showSpeedGraph: true,
+  hideSeedingTorrents: undefined,
+  hideFinishedTorrents: undefined,
+  showSpeedGraph: undefined,
 
-  popupHeight: 350,
-  selectDownloadCategoryAfterPutTorrentFromContextMenu: false,
-  contextMenuType: 'folder', // label
-  treeViewContextMenu: false,
-  putDefaultPathInContextMenu: false,
+  popupHeight: undefined,
+  selectDownloadCategoryAfterPutTorrentFromContextMenu: undefined,
+  contextMenuType: undefined,
+  treeViewContextMenu: undefined,
+  putDefaultPathInContextMenu: undefined,
 
-  badgeColor: '0,0,0,0.40',
+  badgeColor: undefined,
 
-  showFreeSpace: true,
+  showFreeSpace: undefined,
 
-  fixCyrillicTorrentName: false,
-  fixCyrillicDownloadPath: false,
+  fixCyrillicTorrentName: undefined,
+  fixCyrillicDownloadPath: undefined,
 
-  folders: [],
-  labels: [],
+  folders: undefined,
+  labels: undefined,
 
   torrentColumns: defaultTorrentListColumnList,
   filesColumns: defaultFileListColumnList,
+
+  torrentsSort: undefined,
+  filesSort: undefined,
+  selectedLabel: undefined,
 
   configVersion: undefined
 };
@@ -101,17 +106,16 @@ const oldConfigDefaults = Object.keys(oldConfigMap);
 
 const loadConfig = () => {
   return storageGet(defaultConfig).then((config) => {
-    if (config.configVersion !== 2) {
+    if (config.configVersion === undefined) {
       return storageGet(oldConfigDefaults).then((oldConfig) => {
         return migrateConfig(oldConfig, config);
+      }).then((config) => {
+        config.configVersion = 2;
+        return storageSet(config).then(() => config);
       });
     }
     return config;
   }).then((config) => {
-    if (!config.configVersion) {
-      config.configVersion = 2;
-    }
-
     [{
       key: 'filesColumns',
       defColumns: defaultFileListColumnList,
