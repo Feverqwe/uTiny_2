@@ -115,7 +115,7 @@ const ConfigStore = types.model('ConfigStore', {
 
   selectedLabel: types.optional(types.model({
     label: types.string,
-    custom: types.boolean
+    custom: types.boolean,
   }), {label: 'ALL', custom: true}),
 
   configVersion: types.optional(types.number, 2),
@@ -145,7 +145,21 @@ const ConfigStore = types.model('ConfigStore', {
     }
   };
 
+  const customLabels = ['ALL', 'DL', 'SEEDING', 'COMPL', 'ACTIVE', 'INACTIVE', 'NOLABEL'];
+
   return {
+    get visibleTorrentColumns() {
+      return self.torrentColumns.filter(column => column.display);
+    },
+    get allLabels() {
+      const cLabels = customLabels.map((label) => {
+        return {label, custom: true};
+      });
+      const labels = self.labels.map((label) => {
+        return {label, custom: false};
+      });
+      return [].concat(cLabels, labels);
+    },
     afterCreate() {
       chrome.storage.onChanged.addListener(storageChangeListener);
     },

@@ -105,9 +105,15 @@ class Bg {
     let promise = null;
 
     switch (message && message.action) {
-      case '': {
+      case 'getClientStore': {
         promise = this.whenReady().then(() => {
-
+          return this.bgStore.client.toJSON();
+        });
+        break;
+      }
+      case 'getConfigStore': {
+        promise = this.whenReady().then(() => {
+          return this.bgStore.config.toJSON();
         });
         break;
       }

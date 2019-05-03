@@ -1,37 +1,56 @@
-import {flow, isAlive, types} from "mobx-state-tree";
+import {flow, types} from "mobx-state-tree";
 import ConfigStore from "./ConfigStore";
 import getLogger from "../tools/getLogger";
-import loadConfig, {defaultConfig} from "../tools/loadConfig";
+import ClientStore from "./ClientStore";
+import callApi from "../tools/callApi";
 
 const logger = getLogger('RootStore');
 
 /**
  * @typedef {{}} RootStore
+ * @property {string} [state]
  * @property {ConfigStore|undefined} config
- * @property {function:Promise} fetchConfig
+ * @property {ClientStore|undefined} client
+ * @property {function:Promise} init
+ * @property {*} isPopup
  */
 const RootStore = types.model('RootStore', {
+  state: types.optional(types.enumeration(['idle', 'pending', 'done', 'error']), 'idle'),
   config: types.maybe(ConfigStore),
-  configState: types.optional(types.enumeration(['idle', 'pending', 'done', 'error']), 'idle'),
+  client: types.maybe(ClientStore),
 }).actions((self) => {
   return {
-    fetchConfig: flow(function* () {
-      if (self.configState === 'pending') return;
-      self.configState = 'pending';
+    init: flow(function* () {
+      if (self.state === 'pending') return;
+      self.state = 'pending';
       try {
-        self.config = yield loadConfig();
-        if (isAlive(self)) {
-          self.configState = 'done';
-        }
+        self.config = yield fetchConfig();
+        self.client = yield fetchClient();
+        self.state = 'done';
       } catch (err) {
-        logger.error('fetchConfig error, use default config', err);
-        if (isAlive(self)) {
-          self.config = defaultConfig;
-          self.configState = 'error';
-        }
+        logger.error('init error', err);
+        self.state = 'error';
       }
     }),
   };
+}).views(() => {
+  return {
+    get isPopup() {
+      return location.hash === '#popup';
+    }
+  };
 });
+
+const fetchClient = () => {
+  return callApi({
+    action: 'getClientStore'
+  });
+};
+
+const fetchConfig = () => {
+  return callApi({
+    action: 'getConfigStore'
+  });
+};
 
 export default RootStore;

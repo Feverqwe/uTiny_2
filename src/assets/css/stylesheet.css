@@ -446,6 +446,10 @@ div.fl-layer table .prio div {
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+div.fl-layer td div {
+    white-space: normal;
+    word-wrap: break-word;
+}
 div.file-list ul.bottom-menu {
     margin-top: 2px;
 }

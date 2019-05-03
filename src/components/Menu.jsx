@@ -1,4 +1,6 @@
 import React from "react";
+import {inject, observer} from "mobx-react";
+import PropTypes from "prop-types";
 
 class Menu extends React.Component {
   handleRefresh = (e) => {
@@ -55,8 +57,63 @@ class Menu extends React.Component {
              className="btn pause_all" href="#pause_all"/>
         </li>
         <li className="graph"/>
-        <li className="select"><select className="prepare"/></li>
+        <LabelSelect/>
       </ul>
+    );
+  }
+}
+
+@inject('rootStore')
+@observer
+class LabelSelect extends React.Component {
+  static propTypes = {
+    rootStore: PropTypes.object,
+  };
+
+  /**@return {RootStore}*/
+  get rootStore() {
+    return this.props.rootStore;
+  }
+
+  render() {
+    const selectedLabel = this.rootStore.config.selectedLabel;
+
+    const options = this.rootStore.config.allLabels.map((label) => {
+      let text = null;
+      const name = label.label;
+      const custom = label.custom;
+      if (custom) {
+        if (name === 'SEEDING') {
+          text = chrome.i18n.getMessage('OV_FL_' + name.toUpperCase());
+        } else {
+          text = chrome.i18n.getMessage('OV_CAT_' + name.toUpperCase());
+        }
+      } else {
+        text = name;
+      }
+
+      let dataType = null;
+      let dataImage = null;
+      if (custom) {
+        dataType = 'custom';
+        if (name !== 'NOLABEL') {
+          dataImage = name;
+        }
+      }
+
+      return (
+        <option key={`${name}_${custom}`} value={`${!!custom}_${name}`} data-type={dataType} data-image={dataImage}>{text}</option>
+      );
+    });
+
+    const selectedValue = `${!!selectedLabel.custom}_${selectedLabel.label}`;
+
+    return (
+      <li className="select">
+        <select defaultValue={selectedValue}>
+          {options}
+        </select>
+      </li>
     );
   }
 }

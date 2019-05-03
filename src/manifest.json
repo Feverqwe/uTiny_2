@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "browser_action": {
         "default_icon": "assets/icons/icon.png",
-        "default_popup": "index.html",
+        "default_popup": "index.html#popup",
         "default_title": "uTorrent easy client"
     },
     "background": {
