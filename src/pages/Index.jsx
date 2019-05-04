@@ -8,7 +8,6 @@ import PropTypes from "prop-types";
 import ReactDOM from "react-dom";
 import RootStore from "../stores/RootStore";
 import TorrentTable from "../components/TorrentTable";
-import FileTable from "../components/FileTable";
 
 @inject('rootStore')
 @observer
@@ -55,14 +54,6 @@ class Index extends React.Component {
           </tr>
           </tfoot>
         </table>
-        <div className="file-list">
-          <FileTable/>
-          <ul className="bottom-menu">
-            <li className="path"><input type="text" readOnly="readonly"/></li>
-            <li className="btn"><a className="close" data-lang="DLG_BTN_CLOSE,title"/></li>
-            <li className="btn"><a className="update" data-lang="refresh,title"/></li>
-          </ul>
-        </div>
       </>
     );
   }
