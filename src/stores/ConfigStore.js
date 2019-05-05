@@ -1,5 +1,6 @@
-import {types} from "mobx-state-tree";
+import {types, resolveIdentifier} from "mobx-state-tree";
 import {defaultConfig} from "../tools/loadConfig";
+import storageSet from "../tools/storageSet";
 
 /**
  * @typedef {{}} ColumnsStore
@@ -10,12 +11,15 @@ import {defaultConfig} from "../tools/loadConfig";
  * @property {string} lang
  */
 const ColumnsStore =  types.model('ColumnsStore', {
-  column: types.string,
+  column: types.identifier,
   display: types.number,
   order: types.number,
   width: types.number,
   lang: types.string,
 });
+
+const TorrentsColumnsStore = types.compose('TorrentsColumnsStore', ColumnsStore, types.model({}));
+const FilesColumnsStore = types.compose('FilesColumnsStore', ColumnsStore, types.model({}));
 
 /**
  * @typedef {{}} FolderStore
@@ -101,8 +105,8 @@ const ConfigStore = types.model('ConfigStore', {
   folders: types.array(FolderStore),
   labels: types.array(types.string),
 
-  torrentColumns: types.array(ColumnsStore),
-  filesColumns: types.array(ColumnsStore),
+  torrentColumns: types.array(TorrentsColumnsStore),
+  filesColumns: types.array(FilesColumnsStore),
 
   torrentsSort: types.optional(types.model({
     by: types.string,
@@ -124,18 +128,38 @@ const ConfigStore = types.model('ConfigStore', {
   return {
     addFolder(volume, path, name = '') {
       self.folders.push({volume, path, name});
-      chrome.storage.local.set({
+      storageSet({
         folders: self.folders.toJSON()
       });
     },
     addLabel(label) {
       self.labels.push(label);
-      chrome.storage.local.set({
+      storageSet({
         labels: self.labels.toJSON()
       });
     },
     setKeyValue(keyValue) {
       Object.assign(self, keyValue);
+    },
+    moveTorrensColumn(from, to) {
+      const torrentColumns = self.torrentColumns.slice(0);
+      const column = resolveIdentifier(TorrentsColumnsStore, self, from);
+      const columnTarget = resolveIdentifier(TorrentsColumnsStore, self, to);
+
+      const pos = torrentColumns.indexOf(column);
+      const posTarget = torrentColumns.indexOf(columnTarget);
+
+      torrentColumns.splice(pos, 1);
+
+      if (pos < posTarget) {
+        torrentColumns.splice(torrentColumns.indexOf(columnTarget) + 1, 0, column);
+      } else {
+        torrentColumns.splice(torrentColumns.indexOf(columnTarget), 0, column);
+      }
+
+      storageSet({
+        torrentColumns: torrentColumns
+      });
     }
   };
 }).views((self) => {

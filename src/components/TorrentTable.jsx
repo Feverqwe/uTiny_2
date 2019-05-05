@@ -59,6 +59,10 @@ class TorrentTableHead extends React.Component {
     return this.props.rootStore;
   }
 
+  handleMoveColumn = (from, to) => {
+    this.rootStore.config.moveTorrensColumn(from, to);
+  };
+
   render() {
     const torrentsSort = this.rootStore.config.torrentsSort;
     const torrentColumns = this.rootStore.config.visibleTorrentColumns;
@@ -69,7 +73,9 @@ class TorrentTableHead extends React.Component {
       columns.push(
         <TorrentTableHeadColumn key={column.column} column={column}
           isSorted={torrentsSort.by === column.column} sortDirection={torrentsSort.direction}
-          isFirst={index === 0} isLast={index === torrentColumns.length - 1}/>
+          isFirst={index === 0} isLast={index === torrentColumns.length - 1}
+          handleMoveColumn={this.handleMoveColumn}
+        />
       );
     });
 
@@ -90,6 +96,7 @@ class TorrentTableHeadColumn extends React.Component {
     sortDirection: PropTypes.number.isRequired,
     isFirst: PropTypes.bool.isRequired,
     isLast: PropTypes.bool.isRequired,
+    handleMoveColumn: PropTypes.func.isRequired,
   };
 
   handleDragStart = (e) => {
@@ -100,7 +107,7 @@ class TorrentTableHeadColumn extends React.Component {
   };
 
   handleDragOver = (e) => {
-    var el = e.target;
+    const el = e.target;
     if (el.tagName !== 'TH' && el.parentNode.tagName !== 'TH') return;
     e.preventDefault();
     e.stopPropagation();
@@ -127,7 +134,7 @@ class TorrentTableHeadColumn extends React.Component {
     const fromName = e.dataTransfer.getData("name");
     if (toName === fromName) return;
 
-    // manager.moveColumn(type, fromName, toName);
+    this.props.handleMoveColumn(fromName, toName)
   };
 
   handleResizeClick = (e) => {
