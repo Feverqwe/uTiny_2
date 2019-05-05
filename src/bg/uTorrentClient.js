@@ -82,7 +82,7 @@ class UTorrentClient {
     }).then(this.normalizeResponse);
   }
 
-  sendFile({file, url}, directory) {
+  sendFile({blob, url}, directory) {
     return Promise.resolve().then(() => {
       if (url) {
         return this.sendAction(putDirectory({
@@ -91,7 +91,7 @@ class UTorrentClient {
         }));
       } else {
         const formData = new FormData();
-        formData.append("torrent_file", file);
+        formData.append("torrent_file", blob);
 
         return this.sendAction(putDirectory({
           action: 'add-file',
@@ -115,12 +115,12 @@ class UTorrentClient {
     }
   }
 
-  putTorrent({file, magnet}, directory, label) {
+  putTorrent({blob, url}, directory, label) {
     return this.sendAction({list: 1}).then((result) => {
       const cid = result.cid;
       const previousTorrentIds = this.bgStore.client.torrentIds;
 
-      return this.sendFile({file, magnet}, directory).then(() => {
+      return this.sendFile({blob, url}, directory).then(() => {
         return this.sendAction({list: 1, cid});
       }).then(() => {
         const torrentIds = this.bgStore.client.torrentIds;

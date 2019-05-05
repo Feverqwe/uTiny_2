@@ -34,19 +34,10 @@ const RootStore = types.model('RootStore', {
     }),
   };
 }).views(() => {
-  let updateInterval = null;
-
   return {
+
     get isPopup() {
       return location.hash === '#popup';
-    },
-    afterCreate() {
-      updateInterval = setInterval(() => {
-
-      });
-    },
-    beforeDestroy() {
-      clearInterval(updateInterval);
     }
   };
 });

@@ -129,7 +129,7 @@ const ClientStore = types.model('ClientStore', {
       });
     },
     sync(torrents) {
-      const removedIds = Object.keys(self.torrents);
+      const removedIds = Array.from(self.torrents.keys());
 
       torrents.forEach((torrent) => {
         const id = torrent.id;
@@ -146,9 +146,7 @@ const ClientStore = types.model('ClientStore', {
     },
     syncChanges(torrents) {
       torrents.forEach((torrent) => {
-        if (self.torrents.has(torrent.id)) {
-          self.torrents.set(torrent.id, torrent);
-        }
+        self.torrents.set(torrent.id, torrent);
       });
     },
     setFileList(torrentId, files) {

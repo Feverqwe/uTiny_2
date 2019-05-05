@@ -105,7 +105,13 @@ const oldConfigMap = {
 const oldConfigDefaults = Object.keys(oldConfigMap);
 
 const loadConfig = () => {
-  return storageGet(defaultConfig).then((config) => {
+  return storageGet(Object.keys(defaultConfig)).then((config) => {
+    Object.entries(config).forEach(([key, value]) => {
+      if (value === undefined) {
+        config[key] = defaultConfig[key];
+      }
+    });
+
     if (config.configVersion === undefined) {
       return storageGet(oldConfigDefaults).then((oldConfig) => {
         return migrateConfig(oldConfig, config);

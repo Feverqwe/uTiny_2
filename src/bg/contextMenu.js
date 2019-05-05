@@ -1,4 +1,10 @@
+import "whatwg-fetch";
+import getLogger from "../tools/getLogger";
+import downloadFileFromTab from "../tools/downloadFileFromTab";
+
 const path = require('path');
+
+const logger = getLogger('ContextMenu');
 
 class ContextMenu {
   constructor(/**Bg*/bg) {
@@ -20,6 +26,49 @@ class ContextMenu {
     }
   }
 
+  onCreateFolder() {
+    const folders = this.bg.bgStore.config.folders;
+    const firstFolder = this.bg.bgStore.config.folders[0];
+    const volume = firstFolder.volume;
+    const path = prompt(chrome.i18n.getMessage('enterNewDirPath'), firstFolder.path);
+    if (path) {
+      const found = folders.some((folder) => {
+        return folder.volume === volume && folder.path === path;
+      });
+
+      if (!found) {
+        this.bg.bgStore.config.addFolder(volume, path);
+      }
+    }
+  }
+
+  onCreateLabel() {
+    const labels = this.bg.bgStore.config.labels;
+    const label = prompt(chrome.i18n.getMessage('enterNewLabel'));
+    if (label) {
+      if (!labels.includes(label)) {
+        this.bg.bgStore.config.addLabel(label);
+      }
+    }
+  }
+
+  onSendLink(url, tabId, frameId, directory, label) {
+    return downloadFileFromTab(url, tabId, frameId).catch((err) => {
+      if (err.code === 'FILE_SIZE_EXCEEDED') {
+        this.bg.torrentErrorNotify(chrome.i18n.getMessage('fileSizeError'));
+        throw err;
+      }
+      if (err.code !== 'LINK_IS_NOT_SUPPORTED') {
+        logger.error('downloadFileFromTab error, fallback to url', err);
+      }
+      return {url};
+    }).then((data) => {
+      return this.bg.client.putTorrent(data, directory, label);
+    }).catch((err) => {
+      logger.error('onSendLink error', err);
+    });
+  }
+
   handleClick = (info, tab) => {
     const {menuItemId, linkUrl, frameId} = info;
     const itemInfo = JSON.parse(menuItemId);
@@ -28,14 +77,17 @@ class ContextMenu {
         switch (itemInfo.name) {
           case 'default': {
             console.log('default');
+            this.onSendLink(linkUrl, tab.id, frameId);
             break;
           }
           case 'createFolder': {
             console.log('createFolder');
+            this.onCreateFolder();
             break;
           }
           case 'createLabel': {
             console.log('createLabel');
+            this.onCreateLabel();
             break;
           }
         }
@@ -44,11 +96,13 @@ class ContextMenu {
       case 'folder': {
         const folder = this.bgStore.config.folders[itemInfo.index];
         console.log('folder', folder);
+        this.onSendLink(linkUrl, tab.id, frameId, folder);
         break;
       }
       case 'label': {
         const label = this.bgStore.config.labels[itemInfo.index];
         console.log('label', label);
+        this.onSendLink(linkUrl, tab.id, frameId, undefined, label);
         break;
       }
     }

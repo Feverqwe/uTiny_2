@@ -69,6 +69,8 @@ class Bg {
           const count = this.bgStore.client.activeCount;
           if (count > 0) {
             setBadgeText('' + count);
+          } else {
+            setBadgeText('');
           }
         } else {
           setBadgeText('');
@@ -143,7 +145,7 @@ class Bg {
   torrentExistsNotify() {
     const icon = notificationIcons.error;
     const title = chrome.i18n.getMessage('torrentFileExists');
-    showNotification(icon, title);
+    showNotification(null, icon, title);
   }
 
   torrentCompleteNotify(torrent) {
@@ -158,7 +160,7 @@ class Bg {
   torrentErrorNotify(message) {
     const icon = notificationIcons.error;
     const title = chrome.i18n.getMessage('OV_FL_ERROR');
-    showNotification(icon, title, message);
+    showNotification(null, icon, title, message);
   }
 }
 

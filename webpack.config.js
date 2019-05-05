@@ -17,6 +17,7 @@ const config = {
     bg: './src/bg/bg',
     index: './src/pages/Index',
     options: './src/pages/Options',
+    tabUrlFetch: './src/tabUrlFetch',
   },
   output: {
     filename: '[name].js',

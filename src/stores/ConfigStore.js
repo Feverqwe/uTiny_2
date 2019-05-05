@@ -1,6 +1,5 @@
-import {applyPatch, types} from "mobx-state-tree";
+import {types} from "mobx-state-tree";
 import {defaultConfig} from "../tools/loadConfig";
-import mobxCompare from "../tools/mobxCompare";
 
 /**
  * @typedef {{}} ColumnsStore
@@ -20,10 +19,12 @@ const ColumnsStore =  types.model('ColumnsStore', {
 
 /**
  * @typedef {{}} FolderStore
+ * @property {string} volume
  * @property {string} name
  * @property {string} path
  */
 const FolderStore = types.model('FolderStore', {
+  volume: types.string,
   name: types.string,
   path: types.string
 });
@@ -121,27 +122,32 @@ const ConfigStore = types.model('ConfigStore', {
   configVersion: types.optional(types.number, 2),
 }).actions((self) => {
   return {
-    patchOptions(patch) {
-      applyPatch(self, patch);
+    addFolder(volume, path, name = '') {
+      self.folders.push({volume, path, name});
+      chrome.storage.local.set({
+        folders: self.folders.toJSON()
+      });
+    },
+    addLabel(label) {
+      self.labels.push(label);
+      chrome.storage.local.set({
+        labels: self.labels.toJSON()
+      });
+    },
+    setKeyValue(keyValue) {
+      Object.assign(self, keyValue);
     }
   };
 }).views((self) => {
   const storageChangeListener = (changes, namespace) => {
     if (namespace === 'local') {
-      let hasChanges = false;
-      const currentOptions = {};
-      const options = {};
+      const keyValue = {};
       Object.entries(changes).forEach(([key, {newValue}]) => {
         if (defaultConfig.hasOwnProperty(key)) {
-          hasChanges = true;
-          options[key] = newValue;
-          currentOptions[key] = self[key].toJSON();
+          keyValue[key] = newValue;
         }
       });
-      if (hasChanges) {
-        const diff = mobxCompare(currentOptions, options);
-        self.patchOptions(diff);
-      }
+      self.setKeyValue(keyValue);
     }
   };
 
