@@ -28,6 +28,10 @@ const SpeedRollStore = types.model('SpeedRollStore', {
       while (self.data.length && self.data[0].time < oldestTime) {
         self.data.shift();
       }
+    },
+
+    setData(data) {
+      self.data = data;
     }
   };
 }).views((self) => {

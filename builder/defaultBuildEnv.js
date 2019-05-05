@@ -9,7 +9,7 @@ global.BUILD_ENV = {
   distName: `uTiny-${version}`,
   outputPath: path.join(__dirname, '../dist/'),
   mode: mode,
-  devtool: mode === 'development' ? 'source-map' : 'none',
+  devtool: mode === 'development' ? 'inline-source-map' : 'none',
   version: version,
   babelEnvOptions: {
     targets: {

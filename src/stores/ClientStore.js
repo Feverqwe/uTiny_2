@@ -1,5 +1,9 @@
-import {types} from "mobx-state-tree";
+import {types, getSnapshot} from "mobx-state-tree";
 import SpeedRollStore from "./SpeedRollStore";
+import fecha from "fecha";
+import getUTorrentStatusText from "../tools/getUTorrentStatusText";
+
+const filesize = require('filesize');
 
 /**
  * @typedef {{}} TorrentStore
@@ -58,11 +62,62 @@ const TorrentStore = types.model('TorrentStore', {
     get remaining() {
       return self.size - self.downloaded;
     },
+    get remainingStr() {
+      return filesize(self.remaining);
+    },
     get isCompleted() {
       return this.progress === 1000 || !!this.completedTime;
+    },
+    get sizeStr() {
+      return filesize(self.size);
+    },
+    get uploadSpeedStr() {
+      return speedToStr(self.uploadSpeed);
+    },
+    get downloadSpeedStr() {
+      return speedToStr(self.downloadSpeed);
+    },
+    get uploadedStr() {
+      return filesize(self.uploaded);
+    },
+    get downloadedStr() {
+      return filesize(self.downloaded);
+    },
+    get availableStr() {
+      return Math.round((self.available / 65535) * 1000) / 1000;
+    },
+    get addedTimeStr() {
+      if (!self.addedTime) {
+        return '';
+      } else {
+        return fecha(self.addedTime, 'YYYY-MM-DD HH:mm:ss');
+      }
+    },
+    get completedTimeStr() {
+      if (!self.completedTime) {
+        return '';
+      } else {
+        return fecha(self.completedTime, 'YYYY-MM-DD HH:mm:ss');
+      }
+    },
+    get stateText() {
+      return getUTorrentStatusText(self);
     }
   };
 });
+
+function speedToStr(speed) {
+  let speedText = null;
+  if (speed < 0) {
+    speedText = '';
+  } else {
+    const [size, symbol] = filesize(speed, {
+      output: 'array'
+    });
+    speedText = `${size} ${symbol}/s`;
+  }
+  return speedText;
+}
 
 /**
  * @typedef {{}} FileStore
@@ -152,6 +207,9 @@ const ClientStore = types.model('ClientStore', {
     setFileList(torrentId, files) {
       self.files.set(torrentId, files);
     },
+    setTorrents(torrents) {
+      self.torrents = torrents;
+    },
     setLabels(labels) {
       self.labels = labels;
     },
@@ -188,6 +246,9 @@ const ClientStore = types.model('ClientStore', {
         uploadSpeed
       };
     },
+    getSnapshot() {
+      return getSnapshot(self);
+    }
   };
 });
 

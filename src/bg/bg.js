@@ -119,6 +119,14 @@ class Bg {
         });
         break;
       }
+      case 'updateTorrentList': {
+        promise = this.whenReady().then(() => {
+          return this.client.updateTorrents().then(() => {
+            return this.bgStore.client.getSnapshot();
+          });
+        });
+        break;
+      }
       default: {
         promise = Promise.reject(new Error('Unknown request'));
       }

@@ -106,8 +106,8 @@ const oldConfigDefaults = Object.keys(oldConfigMap);
 
 const loadConfig = () => {
   return storageGet(Object.keys(defaultConfig)).then((config) => {
-    Object.entries(config).forEach(([key, value]) => {
-      if (value === undefined) {
+    ['torrentColumns', 'filesColumns'].forEach((key) => {
+      if (config[key] === undefined) {
         config[key] = defaultConfig[key];
       }
     });

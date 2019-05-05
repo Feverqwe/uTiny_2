@@ -2,6 +2,8 @@ import React from "react";
 import {inject, observer} from "mobx-react";
 import PropTypes from "prop-types";
 
+const filesize = require('filesize');
+
 @inject('rootStore')
 @observer
 class TorrentTable extends React.Component {
@@ -261,7 +263,7 @@ class TorrentTableTorrentsTorrent extends React.Component {
       switch (name) {
         case 'checkbox': {
           columns.push(
-            <td className={name}>
+            <td key={name} className={name}>
               <input onChange={this.handleSelect} type="checkbox"/>
             </td>
           );
@@ -269,7 +271,7 @@ class TorrentTableTorrentsTorrent extends React.Component {
         }
         case 'name': {
           columns.push(
-            <td className={name}>
+            <td key={name} className={name}>
               <div>
                 <span>{torrent.name}</span>
               </div>
@@ -284,7 +286,7 @@ class TorrentTableTorrentsTorrent extends React.Component {
           }
 
           columns.push(
-            <td className={name}>
+            <td key={name} className={name}>
               <div>{value}</div>
             </td>
           );
@@ -292,21 +294,16 @@ class TorrentTableTorrentsTorrent extends React.Component {
         }
         case 'size': {
           columns.push(
-            <td className={name}>
-              <div title={torrent.size}>{torrent.size}</div>
+            <td key={name} className={name}>
+              <div title={torrent.sizeStr}>{torrent.sizeStr}</div>
             </td>
           );
           break;
         }
         case 'remaining': {
-          let value = torrent.remaining;
-          if (value < 0) {
-            value = 0;
-          }
-
           columns.push(
-            <td className={name}>
-              <div>{value}</div>
+            <td key={name} className={name}>
+              <div>{torrent.remainingStr}</div>
             </td>
           );
           break;
@@ -315,7 +312,7 @@ class TorrentTableTorrentsTorrent extends React.Component {
           const color = (torrent.status === 201 && torrent.progress === 1000) ? '#41B541' : '#3687ED';
 
           columns.push(
-            <td className={name}>
+            <td key={name} className={name}>
               <div className="progress_b">
                 <div className="val"/>
                 <div style={{color}} className="progress_b_i"/>
@@ -326,15 +323,15 @@ class TorrentTableTorrentsTorrent extends React.Component {
         }
         case 'status': {
           columns.push(
-            <td className={name}>
-              <div title={torrent.status}>{torrent.status}</div>
+            <td key={name} className={name}>
+              <div title={torrent.stateText}>{torrent.stateText}</div>
             </td>
           );
           break;
         }
         case 'seeds': {
           columns.push(
-            <td className={name}>
+            <td key={name} className={name}>
               <div>{torrent.seeds}</div>
             </td>
           );
@@ -342,7 +339,7 @@ class TorrentTableTorrentsTorrent extends React.Component {
         }
         case 'peers': {
           columns.push(
-            <td className={name}>
+            <td key={name} className={name}>
               <div>{torrent.peers}</div>
             </td>
           );
@@ -350,7 +347,7 @@ class TorrentTableTorrentsTorrent extends React.Component {
         }
         case 'seeds_peers': {
           columns.push(
-            <td className={name}>
+            <td key={name} className={name}>
               <div>{torrent.activePeers} / {torrent.activeSeeds}</div>
             </td>
           );
@@ -358,23 +355,23 @@ class TorrentTableTorrentsTorrent extends React.Component {
         }
         case 'downspd': {
           columns.push(
-            <td className={name}>
-              <div>{torrent.downloadSpeed}</div>
+            <td key={name} className={name}>
+              <div>{torrent.downloadSpeedStr}</div>
             </td>
           );
           break;
         }
         case 'upspd': {
           columns.push(
-            <td className={name}>
-              <div>{torrent.uploadSpeed}</div>
+            <td key={name} className={name}>
+              <div>{torrent.uploadSpeedStr}</div>
             </td>
           );
           break;
         }
         case 'eta': {
           columns.push(
-            <td className={name}>
+            <td key={name} className={name}>
               <div title={torrent.eta}>{torrent.eta}</div>
             </td>
           );
@@ -382,23 +379,23 @@ class TorrentTableTorrentsTorrent extends React.Component {
         }
         case 'upped': {
           columns.push(
-            <td className={name}>
-              <div>{torrent.uploaded}</div>
+            <td key={name} className={name}>
+              <div>{torrent.uploadedStr}</div>
             </td>
           );
           break;
         }
         case 'downloaded': {
           columns.push(
-            <td className={name}>
-              <div>{torrent.downloaded}</div>
+            <td key={name} className={name}>
+              <div>{torrent.downloadedStr}</div>
             </td>
           );
           break;
         }
         case 'shared': {
           columns.push(
-            <td className={name}>
+            <td key={name} className={name}>
               <div>{torrent.shared / 1000}</div>
             </td>
           );
@@ -406,15 +403,15 @@ class TorrentTableTorrentsTorrent extends React.Component {
         }
         case 'avail': {
           columns.push(
-            <td className={name}>
-              <div>{Math.round((torrent.available / 65535) * 1000) / 1000}</div>
+            <td key={name} className={name}>
+              <div>{torrent.availableStr}</div>
             </td>
           );
           break;
         }
         case 'label': {
           columns.push(
-            <td className={name}>
+            <td key={name} className={name}>
               <div title={torrent.label}>{torrent.label}</div>
             </td>
           );
@@ -422,23 +419,23 @@ class TorrentTableTorrentsTorrent extends React.Component {
         }
         case 'added': {
           columns.push(
-            <td className={name}>
-              <div title={torrent.addedTime}>{torrent.addedTime}</div>
+            <td key={name} className={name}>
+              <div title={torrent.addedTimeStr}>{torrent.addedTimeStr}</div>
             </td>
           );
           break;
         }
         case 'completed': {
           columns.push(
-            <td className={name}>
-              <div title={torrent.completedTime}>{torrent.completedTime}</div>
+            <td key={name} className={name}>
+              <div title={torrent.completedTimeStr}>{torrent.completedTimeStr}</div>
             </td>
           );
           break;
         }
         case 'actions': {
           columns.push(
-            <td className={name}>
+            <td key={name} className={name}>
               <div className="btns">
                 <a onClick={this.handleStart} title={chrome.i18n.getMessage('ML_START')} className="start" href="#start"/>
                 <a onClick={this.handlePause} title={chrome.i18n.getMessage('ML_PAUSE')} className="pause" href="#pause"/>

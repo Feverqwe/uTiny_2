@@ -1,8 +1,10 @@
+import {autorun} from "mobx";
 import {flow, types} from "mobx-state-tree";
 import ConfigStore from "./ConfigStore";
 import getLogger from "../tools/getLogger";
 import ClientStore from "./ClientStore";
 import callApi from "../tools/callApi";
+import mobxCompare from "../tools/mobxCompare";
 
 const logger = getLogger('RootStore');
 
@@ -26,6 +28,7 @@ const RootStore = types.model('RootStore', {
       try {
         self.config = yield fetchConfig();
         self.client = yield fetchClient();
+        self.handleReady();
         self.state = 'done';
       } catch (err) {
         logger.error('init error', err);
@@ -33,14 +36,41 @@ const RootStore = types.model('RootStore', {
       }
     }),
   };
-}).views(() => {
-  return {
+}).views((self) => {
+  let intervalId = null;
 
+  const handleReady = () => {
+    autorun(() => {
+      clearInterval(intervalId);
+      intervalId = setInterval(() =>{
+        self.updateTorrentList();
+      }, self.config.uiUpdateInterval);
+    });
+  };
+
+  return {
+    handleReady() {
+      handleReady();
+    },
+    updateTorrentList() {
+      return updateTorrentList().then((client) => {
+        self.client.setTorrents(client.torrents);
+        self.client.setLabels(client.labels);
+        self.client.setSettings(client.settings);
+        self.client.speedRoll.setData(client.speedRoll.data);
+      });
+    },
     get isPopup() {
       return location.hash === '#popup';
     }
   };
 });
+
+const updateTorrentList = () => {
+  return callApi({
+    action: 'updateTorrentList'
+  });
+};
 
 const fetchClient = () => {
   return callApi({
