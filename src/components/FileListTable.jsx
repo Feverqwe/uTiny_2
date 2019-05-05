@@ -88,6 +88,10 @@ class FilesTableHead extends React.Component {
     return this.props.rootStore;
   }
 
+  handleSort = (column, directoin) => {
+    this.rootStore.config.setFilesSort(column, directoin);
+  };
+
   handleMoveColumn = (from, to) => {
     this.rootStore.config.moveFilesColumn(from, to);
   };
@@ -103,6 +107,7 @@ class FilesTableHead extends React.Component {
         <FilesTableHeadColumn key={column.column} column={column}
           isSorted={sort.by === column.column} sortDirection={sort.direction}
           handleMoveColumn={this.handleMoveColumn}
+          handleSort={this.handleSort}
         />
       );
     });
@@ -160,7 +165,7 @@ class FilesTableHeadColumn extends TableHeadColumn {
     }
 
     return (
-      <th ref={this.refTh} onDragStart={this.handleDragStart} onDragOver={this.handleDragOver} onDrop={this.handleDrop} className={classList.join(' ')} title={chrome.i18n.getMessage(column.lang)} draggable={true}>
+      <th ref={this.refTh} onClick={this.handleSort} onDragStart={this.handleDragStart} onDragOver={this.handleDragOver} onDrop={this.handleDrop} className={classList.join(' ')} title={chrome.i18n.getMessage(column.lang)} draggable={true}>
         {body}
         <div className="resize-el" draggable={false} onClick={this.handleResizeClick} onMouseDown={this.handleResizeMouseDown}/>
         {arraw}
@@ -183,7 +188,7 @@ class FileListTableFiles extends React.Component {
   }
 
   render() {
-    const torrens = this.rootStore.fileList.files.map((file) => {
+    const torrens = this.rootStore.fileList.sortedFiles.map((file) => {
       return (
         <FileListTableFile key={file.name} file={file}/>
       );

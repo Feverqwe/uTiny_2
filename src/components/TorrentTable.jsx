@@ -58,6 +58,10 @@ class TorrentTableHead extends React.Component {
     return this.props.rootStore;
   }
 
+  handleSort = (column, directoin) => {
+    this.rootStore.config.setTorrentsSort(column, directoin);
+  };
+
   handleMoveColumn = (from, to) => {
     this.rootStore.config.moveTorrensColumn(from, to);
   };
@@ -67,12 +71,11 @@ class TorrentTableHead extends React.Component {
     const torrentColumns = this.rootStore.config.visibleTorrentColumns;
     const columns = [];
     torrentColumns.forEach((column, index) => {
-      if (!column.display) return;
-
       columns.push(
         <TorrentTableHeadColumn key={column.column} column={column}
           isSorted={torrentsSort.by === column.column} sortDirection={torrentsSort.direction}
           handleMoveColumn={this.handleMoveColumn}
+          handleSort={this.handleSort}
         />
       );
     });
@@ -130,7 +133,7 @@ class TorrentTableHeadColumn extends TableHeadColumn {
     }
 
     return (
-      <th ref={this.refTh} onDragStart={this.handleDragStart} onDragOver={this.handleDragOver} onDrop={this.handleDrop} className={classList.join(' ')} title={chrome.i18n.getMessage(column.lang)} draggable={true}>
+      <th ref={this.refTh} onClick={this.handleSort} onDragStart={this.handleDragStart} onDragOver={this.handleDragOver} onDrop={this.handleDrop} className={classList.join(' ')} title={chrome.i18n.getMessage(column.lang)} draggable={true}>
         {body}
         <div className="resize-el" draggable={false} onClick={this.handleResizeClick} onMouseDown={this.handleResizeMouseDown}/>
         {arraw}
@@ -153,13 +156,11 @@ class TorrentTableTorrents extends React.Component {
   }
 
   render() {
-    const torrens = [];
-
-    for (const torrent of this.rootStore.client.torrents.values()) {
-      torrens.push((
+    const torrens = this.rootStore.client.sortedTorrents.map((torrent) => {
+      return (
         <TorrentTableTorrentsTorrent key={torrent.id} torrent={torrent}/>
-      ));
-    }
+      );
+    });
 
     return (
       <tbody>

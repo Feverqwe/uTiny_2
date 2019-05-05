@@ -7,6 +7,7 @@ class TableHeadColumn extends React.Component {
     isSorted: PropTypes.bool.isRequired,
     sortDirection: PropTypes.number.isRequired,
     handleMoveColumn: PropTypes.func.isRequired,
+    handleSort: PropTypes.func.isRequired,
   };
 
   type = null;
@@ -87,6 +88,15 @@ class TableHeadColumn extends React.Component {
   };
 
   refTh = React.createRef();
+
+  handleSort = (e) => {
+    e.preventDefault();
+    let direction = 1;
+    if (this.props.isSorted) {
+      direction =  this.props.sortDirection === 1 ? 0 : 1;
+    }
+    this.props.handleSort(this.props.column.column, direction);
+  };
 }
 
 export default TableHeadColumn;

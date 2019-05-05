@@ -396,7 +396,6 @@ div.file-list-layer-temp {
     justify-content: center;
 }
 div.fl-layer {
-    z-index: 4;
     border-bottom: 1px #c0c0c0 solid;
     position: relative;
     overflow: auto;
@@ -421,6 +420,7 @@ table.fl-table-head {
     user-select: none;
 }
 div.file-list {
+    z-index: 4;
     margin-top: 34px;
     margin-bottom: 20px;
     background: #fff;

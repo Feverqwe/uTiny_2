@@ -180,6 +180,16 @@ const ConfigStore = types.model('ConfigStore', {
       storageSet({
         filesColumns: columns
       });
+    },
+    setTorrentsSort(by, direction) {
+      storageSet({
+        torrentsSort: {by, direction}
+      });
+    },
+    setFilesSort(by, direction) {
+      storageSet({
+        filesSort: {by, direction}
+      });
     }
   };
 }).views((self) => {

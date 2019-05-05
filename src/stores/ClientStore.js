@@ -1,4 +1,4 @@
-import {types, getSnapshot} from "mobx-state-tree";
+import {types, getSnapshot, getRoot} from "mobx-state-tree";
 import SpeedRollStore from "./SpeedRollStore";
 import fecha from "fecha";
 import getUTorrentStatusText from "../tools/getUTorrentStatusText";
@@ -8,6 +8,16 @@ import callApi from "../tools/callApi";
 const filesize = require('filesize');
 
 const priorityLocaleMap = ['MF_DONT', 'MF_LOW', 'MF_NORMAL', 'MF_HIGH'];
+
+const byColumnMap = {
+  done: 'progress',
+  downspd: 'downloadSpeed',
+  upspd: 'uploadSpeed',
+  upped: 'uploaded',
+  avail: 'available',
+  added: 'addedTime',
+  completed: 'completedTime',
+};
 
 /**
  * @typedef {{}} TorrentStore
@@ -279,6 +289,34 @@ const ClientStore = types.model('ClientStore', {
   return {
     get torrentIds() {
       return Array.from(self.torrents.keys());
+    },
+    get sortedTorrents() {
+      /**@type RootStore*/const rootStore = getRoot(self);
+      const {by, direction} = rootStore.config.torrentsSort;
+      const torrents = Array.from(self.torrents.values());
+
+      const byColumn = byColumnMap[by] || by;
+
+      const upDown = [-1, 1];
+      if (direction === 1) {
+        upDown.reverse();
+      }
+
+      torrents.sort((aa, bb) => {
+        const a = aa[byColumn];
+        const b = bb[byColumn];
+        const [up, down] = upDown;
+
+        if (a === b) {
+          return 0;
+        }
+        if (a > b) {
+          return up;
+        }
+        return down;
+      });
+
+      return torrents;
     },
     get activeTorrentIds() {
       const result = [];

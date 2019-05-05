@@ -5,6 +5,10 @@ import getLogger from "../tools/getLogger";
 
 const logger = getLogger('FileListStore');
 
+const byColumnMap = {
+  done: 'progress',
+};
+
 /**
  * @typedef {{}} FileListStore
  * @property {string} [state]
@@ -43,6 +47,34 @@ const FileListStore = types.model('FileListStore', {
   return {
     get torrent() {
       return resolveIdentifier(TorrentStore, self, self.id);
+    },
+    get sortedFiles() {
+      /**@type RootStore*/const rootStore = getRoot(self);
+      const {by, direction} = rootStore.config.filesSort;
+      const files = self.files.slice(0);
+
+      const byColumn = byColumnMap[by] || by;
+
+      const upDown = [-1, 1];
+      if (direction === 1) {
+        upDown.reverse();
+      }
+
+      files.sort((aa, bb) => {
+        const a = aa[byColumn];
+        const b = bb[byColumn];
+        const [up, down] = upDown;
+
+        if (a === b) {
+          return 0;
+        }
+        if (a > b) {
+          return up;
+        }
+        return down;
+      });
+
+      return files;
     },
     afterCreate() {
       /**@type RootStore*/const rootStore = getRoot(self);
