@@ -1,4 +1,4 @@
-const getUTorrentStatusText = (torrent) => {
+const utStateToText = (torrent) => {
   const {state, progress, progressStr, status} = torrent;
   if (state & 32) { // paused
     if (state & 2) {
@@ -55,4 +55,4 @@ const getUTorrentStatusText = (torrent) => {
   }
 };
 
-export default getUTorrentStatusText;
+export default utStateToText;

@@ -1,7 +1,7 @@
 import {types, getSnapshot, getRoot} from "mobx-state-tree";
 import SpeedRollStore from "./SpeedRollStore";
 import fecha from "fecha";
-import getUTorrentStatusText from "../tools/getUTorrentStatusText";
+import utStateToText from "../tools/utStateToText";
 import getEta from "../tools/getEta";
 import callApi from "../tools/callApi";
 
@@ -146,7 +146,7 @@ const TorrentStore = types.model('TorrentStore', {
       }
     },
     get stateText() {
-      return getUTorrentStatusText(self);
+      return utStateToText(self);
     }
   };
 });
