@@ -1,4 +1,4 @@
-import {types, flow, isAlive, resolveIdentifier} from "mobx-state-tree";
+import {types, flow, isAlive, resolveIdentifier, getRoot} from "mobx-state-tree";
 import {FileStore, TorrentStore} from "./ClientStore";
 import callApi from "../tools/callApi";
 import getLogger from "../tools/getLogger";
@@ -15,8 +15,8 @@ const logger = getLogger('FileListStore');
  * @property {function} beforeDestroy
  */
 const FileListStore = types.model('FileListStore', {
+  id: types.identifier,
   state: types.optional(types.enumeration(['idle', 'pending', 'done', 'error']), 'idle'),
-  id: types.string,
   files: types.array(FileStore),
   isLoading: types.optional(types.boolean, true),
 }).actions((self) => {
@@ -45,9 +45,11 @@ const FileListStore = types.model('FileListStore', {
       return resolveIdentifier(TorrentStore, self, self.id);
     },
     afterCreate() {
+      /**@type RootStore*/const rootStore = getRoot(self);
       intervalId = setInterval(() => {
         self.fetchFiles();
-      });
+      }, rootStore.config.uiUpdateInterval);
+      self.fetchFiles();
     },
     beforeDestroy() {
       clearInterval(intervalId);

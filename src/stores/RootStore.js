@@ -42,7 +42,7 @@ const RootStore = types.model('RootStore', {
       }
     }),
     createFileList(id) {
-      return self.fileList = FileListStore.create({id});
+      return self.fileList = {id};
     },
     destroyFileList() {
       self.fileList = undefined;

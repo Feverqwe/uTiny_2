@@ -10,7 +10,7 @@ const SpeedRollStore = types.model('SpeedRollStore', {
   data: types.array(types.model({
     download: types.number,
     upload: types.number,
-    time: types.number
+    time: types.identifierNumber
   }))
 }).actions((self) => {
   return {

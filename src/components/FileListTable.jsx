@@ -7,7 +7,8 @@ import PropTypes from "prop-types";
 @observer
 class FileListTable extends React.Component {
   handleScroll = (e) => {
-    this.refFixedHead.current.style.left = `${e.currentTarget.scrollLeft * -1}px`;
+    // todo: fix me
+    // this.refFixedHead.current.style.left = `${e.currentTarget.scrollLeft * -1}px`;
   };
 
   /**@return {RootStore}*/
@@ -44,30 +45,32 @@ class FileListTable extends React.Component {
 
     return (
       <>
-        <div className="file-list">
-          <div onScroll={this.handleScroll} className="fl-layer">
-            {spinner}
-            <table ref={this.refFixedHead} className="fl-table-head" border="0" cellSpacing="0" cellPadding="0">
-              <FilesTableHead/>
-            </table>
-            <table className="fl-table-body" border="0" cellSpacing="0" cellPadding="0">
-              <FilesTableHead/>
-              <FileListTableFiles/>
-            </table>
+        <div className="file-list-warpper">
+          <div className="file-list">
+            <div onScroll={this.handleScroll} className="fl-layer">
+              {spinner}
+              <table ref={this.refFixedHead} className="fl-table-head" border="0" cellSpacing="0" cellPadding="0">
+                <FilesTableHead/>
+              </table>
+              <table className="fl-table-body" border="0" cellSpacing="0" cellPadding="0">
+                <FilesTableHead/>
+                <FileListTableFiles/>
+              </table>
+            </div>
+            <ul className="bottom-menu">
+              <li className="path">
+                <input type="text" value={directory} readOnly="readonly"/>
+              </li>
+              <li className="btn">
+                <a onClick={this.handleClose} className="close" title={chrome.i18n.getMessage('DLG_BTN_CLOSE')}/>
+              </li>
+              <li className="btn">
+                <a className="update" title={chrome.i18n.getMessage('refresh')}/>
+              </li>
+            </ul>
           </div>
-          <ul className="bottom-menu">
-            <li className="path">
-              <input type="text" value={directory} readOnly="readonly"/>
-            </li>
-            <li className="btn">
-              <a onClick={this.handleClose} className="close" title={chrome.i18n.getMessage('DLG_BTN_CLOSE')}/>
-            </li>
-            <li className="btn">
-              <a className="update" title={chrome.i18n.getMessage('refresh')}/>
-            </li>
-          </ul>
+          <div className="file-list-layer-temp" onClick={this.handleClose}/>
         </div>
-        <div className="file-list-layer-temp" onClick={this.handleClose}/>
       </>
     );
   }
