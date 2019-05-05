@@ -407,7 +407,6 @@ table.fl-table-head {
     user-select: none;
 }
 div.file-list {
-    display: none;
     position: absolute;
     z-index: 4;
     background: #fff;

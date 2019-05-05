@@ -50,6 +50,16 @@ class UTorrentClient {
     });
   }
 
+  getFileList(id) {
+    return this.sendAction({action: 'getfiles', hash: id}).then((result) => {
+      const files = result.files[id];
+      if (!files) {
+        throw new ErrorWithCode('Files don\'t received');
+      }
+      return files;
+    });
+  }
+
   sendAction(query, body) {
     return this.retryIfTokenInvalid((token) => {
       const params = queryStringify(Object.assign({token}, query), this.bgStore.config.fixCyrillicDownloadPath);

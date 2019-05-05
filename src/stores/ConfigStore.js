@@ -9,6 +9,7 @@ import storageSet from "../tools/storageSet";
  * @property {number} order
  * @property {number} width
  * @property {string} lang
+ * @property {function} setWidth
  */
 const ColumnsStore =  types.model('ColumnsStore', {
   column: types.identifier,
@@ -24,7 +25,14 @@ const ColumnsStore =  types.model('ColumnsStore', {
   };
 });
 
+/**
+ * @typedef {ColumnsStore} TorrentsColumnsStore
+ */
 const TorrentsColumnsStore = types.compose('TorrentsColumnsStore', ColumnsStore, types.model({}));
+
+/**
+ * @typedef {ColumnsStore} FilesColumnsStore
+ */
 const FilesColumnsStore = types.compose('FilesColumnsStore', ColumnsStore, types.model({}));
 
 /**
@@ -66,13 +74,19 @@ const FolderStore = types.model('FolderStore', {
  * @property {boolean} [fixCyrillicDownloadPath]
  * @property {FolderStore[]} folders
  * @property {string[]} labels
- * @property {ColumnsStore[]} torrentColumns
- * @property {ColumnsStore[]} filesColumns
+ * @property {TorrentsColumnsStore[]} torrentColumns
+ * @property {FilesColumnsStore[]} filesColumns
  * @property {{by:string,[direction]:number}} [torrentsSort]
  * @property {{by:string,[direction]:number}} [filesSort]
  * @property {{label:string,custom:boolean}} [selectedLabel]
  * @property {number} [configVersion]
- * @property {function} patchOptions
+ * @property {function} addFolder
+ * @property {function} addLabel
+ * @property {function} setKeyValue
+ * @property {function} moveTorrensColumn
+ * @property {function} moveFilesColumn
+ * @property {*} visibleTorrentColumns
+ * @property {*} allLabels
  * @property {function} afterCreate
  * @property {function} beforeDestroy
  */
@@ -148,23 +162,23 @@ const ConfigStore = types.model('ConfigStore', {
       Object.assign(self, keyValue);
     },
     moveTorrensColumn(from, to) {
-      const torrentColumns = self.torrentColumns.slice(0);
       const column = resolveIdentifier(TorrentsColumnsStore, self, from);
       const columnTarget = resolveIdentifier(TorrentsColumnsStore, self, to);
 
-      const pos = torrentColumns.indexOf(column);
-      const posTarget = torrentColumns.indexOf(columnTarget);
-
-      torrentColumns.splice(pos, 1);
-
-      if (pos < posTarget) {
-        torrentColumns.splice(torrentColumns.indexOf(columnTarget) + 1, 0, column);
-      } else {
-        torrentColumns.splice(torrentColumns.indexOf(columnTarget), 0, column);
-      }
+      const columns = moveColumn(self.torrentColumns.slice(0), column, columnTarget);
 
       storageSet({
-        torrentColumns: torrentColumns
+        torrentColumns: columns
+      });
+    },
+    moveFilesColumn(from, to) {
+      const column = resolveIdentifier(FilesColumnsStore, self, from);
+      const columnTarget = resolveIdentifier(FilesColumnsStore, self, to);
+
+      const columns = moveColumn(self.filesColumns.slice(0), column, columnTarget);
+
+      storageSet({
+        filesColumns: columns
       });
     }
   };
@@ -187,6 +201,9 @@ const ConfigStore = types.model('ConfigStore', {
     get visibleTorrentColumns() {
       return self.torrentColumns.filter(column => column.display);
     },
+    get visibleFileColumns() {
+      return self.filesColumns.filter(column => column.display);
+    },
     get allLabels() {
       const cLabels = customLabels.map((label) => {
         return {label, custom: true};
@@ -204,5 +221,20 @@ const ConfigStore = types.model('ConfigStore', {
     },
   };
 });
+
+function moveColumn(columns, column, columnTarget) {
+  const pos = columns.indexOf(column);
+  const posTarget = columns.indexOf(columnTarget);
+
+  columns.splice(pos, 1);
+
+  if (pos < posTarget) {
+    columns.splice(columns.indexOf(columnTarget) + 1, 0, column);
+  } else {
+    columns.splice(columns.indexOf(columnTarget), 0, column);
+  }
+
+  return columns;
+}
 
 export default ConfigStore;

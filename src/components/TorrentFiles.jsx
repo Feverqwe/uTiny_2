@@ -1,4 +1,4 @@
-import FileTable from "./FileTable";
+import FileListTable from "./FileListTable";
 import React from "react";
 
 class TorrentFiles extends React.Component {
@@ -6,7 +6,7 @@ class TorrentFiles extends React.Component {
     return (
 
       <div className="file-list">
-        <FileTable/>
+        <FileListTable/>
         <ul className="bottom-menu">
           <li className="path"><input type="text" readOnly="readonly"/></li>
           <li className="btn"><a className="close" data-lang="DLG_BTN_CLOSE,title"/></li>

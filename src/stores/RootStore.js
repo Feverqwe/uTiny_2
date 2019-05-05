@@ -4,7 +4,7 @@ import ConfigStore from "./ConfigStore";
 import getLogger from "../tools/getLogger";
 import ClientStore from "./ClientStore";
 import callApi from "../tools/callApi";
-import mobxCompare from "../tools/mobxCompare";
+import FileListStore from "./FileListSore";
 
 const logger = getLogger('RootStore');
 
@@ -13,13 +13,19 @@ const logger = getLogger('RootStore');
  * @property {string} [state]
  * @property {ConfigStore|undefined} config
  * @property {ClientStore|undefined} client
+ * @property {FileListStore|undefined} fileList
  * @property {function:Promise} init
+ * @property {function} createFileList
+ * @property {function} destroyFileList
+ * @property {function} handleReady
+ * @property {function} updateTorrentList
  * @property {*} isPopup
  */
 const RootStore = types.model('RootStore', {
   state: types.optional(types.enumeration(['idle', 'pending', 'done', 'error']), 'idle'),
   config: types.maybe(ConfigStore),
   client: types.maybe(ClientStore),
+  fileList: types.maybe(FileListStore),
 }).actions((self) => {
   return {
     init: flow(function* () {
@@ -35,6 +41,12 @@ const RootStore = types.model('RootStore', {
         self.state = 'error';
       }
     }),
+    createFileList(id) {
+      return self.fileList = FileListStore.create({id});
+    },
+    destroyFileList() {
+      self.fileList = undefined;
+    }
   };
 }).views((self) => {
   let intervalId = null;

@@ -8,6 +8,7 @@ import PropTypes from "prop-types";
 import ReactDOM from "react-dom";
 import RootStore from "../stores/RootStore";
 import TorrentTable from "../components/TorrentTable";
+import FileListTable from "../components/FileListTable";
 
 @inject('rootStore')
 @observer
@@ -39,6 +40,13 @@ class Index extends React.Component {
       return `Loading: ${this.rootStore.state}`;
     }
 
+    let fileList = null;
+    if (this.rootStore.fileList) {
+      fileList = (
+        <FileListTable/>
+      );
+    }
+
     const {downloadSpeedStr, uploadSpeedStr} = this.rootStore.client.currentSpeedStr;
 
     return (
@@ -58,6 +66,7 @@ class Index extends React.Component {
           </tr>
           </tfoot>
         </table>
+        {fileList}
       </>
     );
   }

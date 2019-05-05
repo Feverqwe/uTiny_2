@@ -143,6 +143,10 @@ class Bg {
         promise = this.client.stop(message.id);
         break;
       }
+      case 'getFileList': {
+        promise = this.client.getFileList(message.id);
+        break;
+      }
       default: {
         promise = Promise.reject(new Error('Unknown request'));
       }

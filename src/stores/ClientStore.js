@@ -7,6 +7,8 @@ import callApi from "../tools/callApi";
 
 const filesize = require('filesize');
 
+const priorityLocaleMap = ['MF_DONT', 'MF_LOW', 'MF_NORMAL', 'MF_HIGH'];
+
 /**
  * @typedef {{}} TorrentStore
  * @property {string} id
@@ -98,7 +100,7 @@ const TorrentStore = types.model('TorrentStore', {
       if (progress < 100) {
         return progress.toFixed(1) + '%';
       } else {
-        return parseInt(progress, 10) + '%';
+        return Math.round(progress) + '%';
       }
     },
     get uploadSpeedStr() {
@@ -160,10 +162,33 @@ function speedToStr(speed) {
  * @property {number} priority
  */
 const FileStore = types.model('FileStore', {
-  name: types.string,
+  name: types.identifier,
   size: types.number,
   downloaded: types.number,
   priority: types.number,
+}).views((self) => {
+  return {
+    get progress() {
+      return Math.round((self.downloaded * 100 / self.size) * 10) / 10;
+    },
+    get progressStr() {
+      const progress = self.progress;
+      if (progress < 100) {
+        return progress.toFixed(1) + '%';
+      } else {
+        return Math.round(progress) + '%';
+      }
+    },
+    get sizeStr() {
+      return filesize(self.size);
+    },
+    get downloadedStr() {
+      return filesize(self.downloaded);
+    },
+    get priorityStr() {
+      return chrome.i18n.getMessage(priorityLocaleMap[self.priority]);
+    }
+  };
 });
 
 /**
@@ -204,7 +229,7 @@ const SettingsStore = types.model('SettingsStore', {
  */
 const ClientStore = types.model('ClientStore', {
   torrents: types.map(TorrentStore),
-  files: types.map(types.array(FileStore)),
+  // files: types.map(types.array(FileStore)),
   labels: types.maybe(types.array(LabelStore)),
   settings: types.maybe(SettingsStore),
   speedRoll: types.optional(SpeedRollStore, {}),
@@ -293,3 +318,4 @@ const ClientStore = types.model('ClientStore', {
 });
 
 export default ClientStore;
+export {FileStore, TorrentStore};

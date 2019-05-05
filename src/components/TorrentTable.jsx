@@ -1,8 +1,7 @@
 import React from "react";
 import {inject, observer} from "mobx-react";
 import PropTypes from "prop-types";
-
-const filesize = require('filesize');
+import TableHeadColumn from "./TableHeadColumn";
 
 @inject('rootStore')
 @observer
@@ -89,91 +88,8 @@ class TorrentTableHead extends React.Component {
 }
 
 @observer
-class TorrentTableHeadColumn extends React.Component {
-  static propTypes = {
-    column: PropTypes.object.isRequired,
-    isSorted: PropTypes.bool.isRequired,
-    sortDirection: PropTypes.number.isRequired,
-    handleMoveColumn: PropTypes.func.isRequired,
-  };
-
-  handleDragStart = (e) => {
-    const {column} = this.props;
-
-    e.dataTransfer.setData('name', column.column);
-    e.dataTransfer.setData('type', 'tr');
-  };
-
-  handleDragOver = (e) => {
-    const el = e.target;
-    if (el.tagName !== 'TH' && el.parentNode.tagName !== 'TH') return;
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    let el = e.target;
-    if (el.tagName !== 'TH') {
-      el = el.parentNode;
-    }
-    if (el.tagName !== 'TH') {
-      return;
-    }
-
-    const {column} = this.props;
-
-    const type = 'tr';
-    if (type !== e.dataTransfer.getData("type")) {
-      return;
-    }
-    const toName = column.column;
-    const fromName = e.dataTransfer.getData("name");
-    if (toName === fromName) return;
-
-    this.props.handleMoveColumn(fromName, toName)
-  };
-
-  handleResizeClick = (e) => {
-    e.stopPropagation();
-  };
-
-  handleBodyMouseMove = (e) => {
-    const delta = e.clientX - this.resizeStartClientX - 6;
-    let newSize = this.resizeStartSize + delta;
-    if (newSize < 16) {
-      newSize = 16;
-    }
-    this.props.column.setWidth(newSize);
-  };
-
-  handleBodyMouseUp = (e) => {
-    e.stopPropagation();
-
-    document.body.removeEventListener('mousemove', this.handleBodyMouseMove);
-    document.body.removeEventListener('mouseup', this.handleBodyMouseUp);
-
-    this.refTh.current.draggable = true;
-  };
-
-  resizeStartSize = null;
-  resizeStartClientX = null;
-
-  handleResizeMouseDown = (e) => {
-    e.stopPropagation();
-    if (e.button !== 0) return;
-
-    this.refTh.current.draggable = false;
-
-    this.resizeStartSize = this.refTh.current.clientWidth;
-    this.resizeStartClientX = e.clientX;
-
-    document.body.addEventListener('mousemove', this.handleBodyMouseMove);
-    document.body.addEventListener('mouseup', this.handleBodyMouseUp);
-  };
-
-  refTh = React.createRef();
+class TorrentTableHeadColumn extends TableHeadColumn {
+  type = 'tr';
 
   render() {
     const {column, isSorted, sortDirection} = this.props;
@@ -206,10 +122,18 @@ class TorrentTableHeadColumn extends React.Component {
       max-width: ${column.width}px;
     }`;
 
+    let arraw = null;
+    if (column.order !== 0) {
+      arraw = (
+        <i className="arrow"/>
+      );
+    }
+
     return (
       <th ref={this.refTh} onDragStart={this.handleDragStart} onDragOver={this.handleDragOver} onDrop={this.handleDrop} className={classList.join(' ')} title={chrome.i18n.getMessage(column.lang)} draggable={true}>
         {body}
         <div className="resize-el" draggable={false} onClick={this.handleResizeClick} onMouseDown={this.handleResizeMouseDown}/>
+        {arraw}
         <style>{styleText}</style>
       </th>
     );
@@ -280,6 +204,11 @@ class TorrentTableTorrentsTorrent extends React.Component {
   handleStop = (e) => {
     e.preventDefault();
     this.torrentStore.stop();
+  };
+
+  handleDblClick = (e) => {
+    e.preventDefault();
+    this.rootStore.createFileList(this.torrentStore.id);
   };
 
   render() {
@@ -478,7 +407,7 @@ class TorrentTableTorrentsTorrent extends React.Component {
     });
 
     return (
-      <tr id={torrent.id}>
+      <tr id={torrent.id} onDoubleClick={this.handleDblClick}>
         {columns}
       </tr>
     );
