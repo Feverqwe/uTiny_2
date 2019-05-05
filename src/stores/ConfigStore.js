@@ -16,6 +16,12 @@ const ColumnsStore =  types.model('ColumnsStore', {
   order: types.number,
   width: types.number,
   lang: types.string,
+}).actions((self) => {
+  return {
+    setWidth(value) {
+      self.width = value;
+    }
+  };
 });
 
 const TorrentsColumnsStore = types.compose('TorrentsColumnsStore', ColumnsStore, types.model({}));

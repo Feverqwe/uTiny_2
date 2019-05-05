@@ -73,7 +73,6 @@ class TorrentTableHead extends React.Component {
       columns.push(
         <TorrentTableHeadColumn key={column.column} column={column}
           isSorted={torrentsSort.by === column.column} sortDirection={torrentsSort.direction}
-          isFirst={index === 0} isLast={index === torrentColumns.length - 1}
           handleMoveColumn={this.handleMoveColumn}
         />
       );
@@ -89,13 +88,12 @@ class TorrentTableHead extends React.Component {
   }
 }
 
+@observer
 class TorrentTableHeadColumn extends React.Component {
   static propTypes = {
     column: PropTypes.object.isRequired,
     isSorted: PropTypes.bool.isRequired,
     sortDirection: PropTypes.number.isRequired,
-    isFirst: PropTypes.bool.isRequired,
-    isLast: PropTypes.bool.isRequired,
     handleMoveColumn: PropTypes.func.isRequired,
   };
 
@@ -141,9 +139,41 @@ class TorrentTableHeadColumn extends React.Component {
     e.stopPropagation();
   };
 
-  handleResizeMouseDown = (e) => {
-    // manager.tableResize(e);
+  handleBodyMouseMove = (e) => {
+    const delta = e.clientX - this.resizeStartClientX - 6;
+    let newSize = this.resizeStartSize + delta;
+    if (newSize < 16) {
+      newSize = 16;
+    }
+    this.props.column.setWidth(newSize);
   };
+
+  handleBodyMouseUp = (e) => {
+    e.stopPropagation();
+
+    document.body.removeEventListener('mousemove', this.handleBodyMouseMove);
+    document.body.removeEventListener('mouseup', this.handleBodyMouseUp);
+
+    this.refTh.current.draggable = true;
+  };
+
+  resizeStartSize = null;
+  resizeStartClientX = null;
+
+  handleResizeMouseDown = (e) => {
+    e.stopPropagation();
+    if (e.button !== 0) return;
+
+    this.refTh.current.draggable = false;
+
+    this.resizeStartSize = this.refTh.current.clientWidth;
+    this.resizeStartClientX = e.clientX;
+
+    document.body.addEventListener('mousemove', this.handleBodyMouseMove);
+    document.body.addEventListener('mouseup', this.handleBodyMouseUp);
+  };
+
+  refTh = React.createRef();
 
   render() {
     const {column, isSorted, sortDirection} = this.props;
@@ -154,18 +184,6 @@ class TorrentTableHeadColumn extends React.Component {
       } else {
         classList.push('sortUp');
       }
-    }
-
-    let resizeEl = null;
-    if (!this.props.isFirst) {
-      const resizeElClassList = ['resize-el'];
-      if (this.props.isLast) {
-        resizeElClassList.push('last');
-      }
-
-      resizeEl = (
-        <div className={resizeElClassList.join(' ')} draggable={false} onClick={this.handleResizeClick} onMouseDown={this.handleResizeMouseDown}/>
-      );
     }
 
     let body = null;
@@ -189,9 +207,9 @@ class TorrentTableHeadColumn extends React.Component {
     }`;
 
     return (
-      <th onDragStart={this.handleDragStart} onDragOver={this.handleDragOver} onDrop={this.handleDrop} className={classList.join(' ')} title={chrome.i18n.getMessage(column.lang)} draggable={true}>
+      <th ref={this.refTh} onDragStart={this.handleDragStart} onDragOver={this.handleDragOver} onDrop={this.handleDrop} className={classList.join(' ')} title={chrome.i18n.getMessage(column.lang)} draggable={true}>
         {body}
-        {resizeEl}
+        <div className="resize-el" draggable={false} onClick={this.handleResizeClick} onMouseDown={this.handleResizeMouseDown}/>
         <style>{styleText}</style>
       </th>
     );

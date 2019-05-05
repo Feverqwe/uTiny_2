@@ -711,7 +711,7 @@ div.btn.setup {
     width: 6px;
     margin-right: 2px;
     cursor: col-resize;
-    left: 0;
+    right: 0;
     top: 0;
     position: absolute !important;
     opacity: 0;
