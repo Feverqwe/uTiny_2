@@ -127,6 +127,22 @@ class Bg {
         });
         break;
       }
+      case 'start': {
+        promise = this.client.start(message.id);
+        break;
+      }
+      case 'unpause': {
+        promise = this.client.unpause(message.id);
+        break;
+      }
+      case 'pause': {
+        promise = this.client.pause(message.id);
+        break;
+      }
+      case 'stop': {
+        promise = this.client.stop(message.id);
+        break;
+      }
       default: {
         promise = Promise.reject(new Error('Unknown request'));
       }

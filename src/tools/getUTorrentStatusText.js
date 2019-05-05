@@ -1,9 +1,9 @@
 const getUTorrentStatusText = (torrent) => {
-  const {state, progress, status} = torrent;
+  const {state, progress, progressStr, status} = torrent;
   if (state & 32) { // paused
     if (state & 2) {
       //OV_FL_CHECKED //Progress
-      return chrome.i18n.getMessage('OV_FL_CHECKED') + ' ' + progressOneFixed(progress);
+      return chrome.i18n.getMessage('OV_FL_CHECKED') + ' ' + progressStr;
     } else {
       //OV_FL_PAUSED
       return chrome.i18n.getMessage('OV_FL_PAUSED');
@@ -26,7 +26,7 @@ const getUTorrentStatusText = (torrent) => {
   } else
   if (state & 2) { // checking
     //OV_FL_CHECKED //Progress
-    return chrome.i18n.getMessage('OV_FL_CHECKED') + ' ' + progressOneFixed(progress);
+    return chrome.i18n.getMessage('OV_FL_CHECKED') + ' ' + progressStr;
   } else
   if (state & 16) { // error
     //OV_FL_ERROR //Progress
@@ -54,9 +54,5 @@ const getUTorrentStatusText = (torrent) => {
     return chrome.i18n.getMessage('OV_FL_STOPPED');
   }
 };
-
-function progressOneFixed(progress) {
-  return Math.round(progress / 10) + '%';
-}
 
 export default getUTorrentStatusText;

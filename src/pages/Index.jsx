@@ -24,6 +24,8 @@ class Index extends React.Component {
     if (!this.rootStore.isPopup) {
       document.body.parentNode.style.height = '100%';
       document.body.style.height = '100%';
+      const root = document.getElementById('root');
+      root.style.height = '100%';
     }
   }
 
@@ -37,6 +39,8 @@ class Index extends React.Component {
       return `Loading: ${this.rootStore.state}`;
     }
 
+    const {downloadSpeedStr, uploadSpeedStr} = this.rootStore.client.currentSpeedStr;
+
     return (
       <>
         <Menu/>
@@ -49,8 +53,8 @@ class Index extends React.Component {
               <div/>
             </td>
             <td className="space"/>
-            <td className="speed download"/>
-            <td className="speed upload"/>
+            <td className="speed download">{downloadSpeedStr}</td>
+            <td className="speed upload">{uploadSpeedStr}</td>
           </tr>
           </tfoot>
         </table>

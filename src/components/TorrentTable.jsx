@@ -244,14 +244,17 @@ class TorrentTableTorrentsTorrent extends React.Component {
 
   handleStart = (e) => {
     e.preventDefault();
+    this.torrentStore.start();
   };
 
   handlePause = (e) => {
     e.preventDefault();
+    this.torrentStore.pause();
   };
 
   handleStop = (e) => {
     e.preventDefault();
+    this.torrentStore.stop();
   };
 
   render() {
@@ -310,12 +313,13 @@ class TorrentTableTorrentsTorrent extends React.Component {
         }
         case 'done': {
           const color = (torrent.status === 201 && torrent.progress === 1000) ? '#41B541' : '#3687ED';
+          const width = torrent.progressStr;
 
           columns.push(
             <td key={name} className={name}>
               <div className="progress_b">
-                <div className="val"/>
-                <div style={{color}} className="progress_b_i"/>
+                <div className="val">{torrent.progressStr}</div>
+                <div style={{color, width}} className="progress_b_i"/>
               </div>
             </td>
           );
@@ -372,7 +376,7 @@ class TorrentTableTorrentsTorrent extends React.Component {
         case 'eta': {
           columns.push(
             <td key={name} className={name}>
-              <div title={torrent.eta}>{torrent.eta}</div>
+              <div title={torrent.etaStr}>{torrent.etaStr}</div>
             </td>
           );
           break;

@@ -146,6 +146,72 @@ class UTorrentClient {
     });
   }
 
+  start(id) {
+    return this.sendAction({list: 1, cid: this.cid, action: 'start', hash: id});
+  }
+
+  forcestart(id) {
+    return this.sendAction({list: 1, cid: this.cid, action: 'forcestart', hash: id});
+  }
+
+  unpause(id) {
+    return this.sendAction({list: 1, cid: this.cid, action: 'unpause', hash: id});
+  }
+
+  pause(id) {
+    return this.sendAction({list: 1, cid: this.cid, action: 'pause', hash: id});
+  }
+
+  stop(id) {
+    return this.sendAction({list: 1, cid: this.cid, action: 'stop', hash: id});
+  }
+
+  recheck(id) {
+    return this.sendAction({list: 1, cid: this.cid, action: 'recheck', hash: id});
+  }
+
+  remove(id) {
+    return this.sendAction({list: 1, cid: this.cid, action: 'remove', hash: id});
+  }
+
+  removetorrent(id) {
+    const torrent = this.bg.client.torrents.get(id);
+    if (torrent && torrent.status === undefined) {
+      // fallback
+      // todo: fix me, add version check when removetorrent
+      return this.remove(id);
+    } else {
+      return this.sendAction({list: 1, cid: this.cid, action: 'removetorrent', hash: id});
+    }
+  }
+
+  removedata(id) {
+    return this.sendAction({list: 1, cid: this.cid, action: 'removedata', hash: id});
+  }
+
+  removedatatorrent(id) {
+    const torrent = this.bg.client.torrents.get(id);
+    if (torrent && torrent.status === undefined) {
+      // fallback
+      // todo: fix me, add version check when removedatatorrent
+      return this.removedata(id);
+    } else {
+      return this.sendAction({list: 1, cid: this.cid, action: 'removedatatorrent', hash: id});
+    }
+  }
+
+  queueUp(id) {
+    return this.sendAction({list: 1, cid: this.cid, action: 'queueup', hash: id});
+  }
+
+  queueDown(id) {
+    return this.sendAction({list: 1, cid: this.cid, action: 'queuedown', hash: id});
+  }
+
+  setLabel(id, label = '') {
+    return this.sendAction({list: 1, cid: this.cid, action: 'setprops', s: 'label', v: label, hash: id});
+  }
+
   retryIfTokenInvalid(callback) {
     return this.getValidToken().then(callback).catch((err) => {
       if (err.code === 'INVALID_TOKEN') {

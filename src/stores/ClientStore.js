@@ -2,6 +2,8 @@ import {types, getSnapshot} from "mobx-state-tree";
 import SpeedRollStore from "./SpeedRollStore";
 import fecha from "fecha";
 import getUTorrentStatusText from "../tools/getUTorrentStatusText";
+import getEta from "../tools/getEta";
+import callApi from "../tools/callApi";
 
 const filesize = require('filesize');
 
@@ -31,7 +33,18 @@ const filesize = require('filesize');
  * @property {number|undefined} completedTime
  * @property {string|undefined} directory
  * @property {*} remaining
+ * @property {*} remainingStr
  * @property {*} isCompleted
+ * @property {*} sizeStr
+ * @property {*} progressStr
+ * @property {*} uploadSpeedStr
+ * @property {*} downloadSpeedStr
+ * @property {*} uploadedStr
+ * @property {*} downloadedStr
+ * @property {*} availableStr
+ * @property {*} addedTimeStr
+ * @property {*} completedTimeStr
+ * @property {*} stateText
  */
 const TorrentStore = types.model('TorrentStore', {
   id: types.identifier,
@@ -59,6 +72,15 @@ const TorrentStore = types.model('TorrentStore', {
   directory: types.maybe(types.string),
 }).views((self) => {
   return {
+    start() {
+      return callApi({action: 'start', id: self.id});
+    },
+    pause() {
+      return callApi({action: 'pause', id: self.id});
+    },
+    stop() {
+      return callApi({action: 'stop', id: self.id});
+    },
     get remaining() {
       return self.size - self.downloaded;
     },
@@ -66,16 +88,27 @@ const TorrentStore = types.model('TorrentStore', {
       return filesize(self.remaining);
     },
     get isCompleted() {
-      return this.progress === 1000 || !!this.completedTime;
+      return self.progress === 1000 || !!self.completedTime;
     },
     get sizeStr() {
       return filesize(self.size);
+    },
+    get progressStr() {
+      let progress = self.progress / 10;
+      if (progress < 100) {
+        return progress.toFixed(1) + '%';
+      } else {
+        return parseInt(progress, 10) + '%';
+      }
     },
     get uploadSpeedStr() {
       return speedToStr(self.uploadSpeed);
     },
     get downloadSpeedStr() {
       return speedToStr(self.downloadSpeed);
+    },
+    get etaStr() {
+      return getEta(self.eta);
     },
     get uploadedStr() {
       return filesize(self.uploaded);
@@ -244,6 +277,13 @@ const ClientStore = types.model('ClientStore', {
       return {
         downloadSpeed,
         uploadSpeed
+      };
+    },
+    get currentSpeedStr() {
+      const {downloadSpeed,uploadSpeed} = self.currentSpeed;
+      return {
+        downloadSpeedStr: speedToStr(downloadSpeed),
+        uploadSpeedStr: speedToStr(uploadSpeed),
       };
     },
     getSnapshot() {
