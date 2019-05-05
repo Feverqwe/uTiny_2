@@ -1,3 +1,6 @@
+html {
+    height: 100%;
+}
 body {
     margin: 0;
     font-family: Arial,sans-serif;
@@ -6,13 +9,19 @@ body {
     -webkit-user-select: none;
     -moz-user-select: none;
     user-select: none;
+    height: 100%;
+}
+#root {
+    height: 100%;
+    min-height: 135px;
+    display: flex;
+    flex-direction: column;
 }
 ul {
     padding: 0;
     margin: 0;
 }
 ul.menu {
-    overflow: hidden;
     height: 33px;
     position: relative;
 }
@@ -129,9 +138,11 @@ only screen and (                min-resolution: 2dppx) {
 }
 
 .torrent-list-layer {
+    position: relative;
     overflow: auto;
     border-top: 1px #c0c0c0 solid;
-    max-width: 800px;
+    flex-grow: 1;
+    min-height: 20px;
 }
 
 table thead {
@@ -168,7 +179,6 @@ table thead th {
     font-weight: normal;
 }
 table tr {
-    height: 18px;
     cursor: default;
 }
 table tbody tr:hover {
@@ -245,6 +255,9 @@ table.torrent-table-head {
     -webkit-user-select: none;
     -moz-user-select: none;
     user-select: none;
+}
+.torrent-table-body {
+    // position: absolute;
 }
 table.torrent-table-body thead {
     visibility: hidden;
@@ -324,7 +337,6 @@ div.torrent-list-layer table td.actions div.btns > a:active {
 }
 table.status-panel {
     border-top: 1px #c0c0c0 solid;
-    padding-left: 2px;
 }
 table.status-panel td {
     line-height: 16px;
@@ -721,7 +733,7 @@ div.btn.setup {
 .resize-el {
     display: block;
     height: 100%;
-    width: 6px;
+    width: 12px;
     margin-right: 2px;
     cursor: col-resize;
     right: 0;

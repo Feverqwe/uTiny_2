@@ -28,6 +28,10 @@ class FileListTable extends React.Component {
     this.rootStore.destroyFileList();
   };
 
+  stopPropagation = (e) => {
+    e.stopPropagation();
+  };
+
   render() {
     const torrent = this.fileListStore.torrent;
 
@@ -45,15 +49,15 @@ class FileListTable extends React.Component {
 
     return (
       <>
-        <div className="file-list-warpper">
-          <div className="file-list">
+        <div onClick={this.handleClose} className="file-list-warpper">
+          <div onClick={this.stopPropagation} className="file-list">
             <div onScroll={this.handleScroll} className="fl-layer">
               {spinner}
               <table ref={this.refFixedHead} className="fl-table-head" border="0" cellSpacing="0" cellPadding="0">
-                <FilesTableHead/>
+                <FileListTableHead/>
               </table>
               <table className="fl-table-body" border="0" cellSpacing="0" cellPadding="0">
-                <FilesTableHead/>
+                <FileListTableHead/>
                 <FileListTableFiles/>
               </table>
             </div>
@@ -69,7 +73,6 @@ class FileListTable extends React.Component {
               </li>
             </ul>
           </div>
-          <div className="file-list-layer-temp" onClick={this.handleClose}/>
         </div>
       </>
     );
@@ -78,7 +81,7 @@ class FileListTable extends React.Component {
 
 @inject('rootStore')
 @observer
-class FilesTableHead extends React.Component {
+class FileListTableHead extends React.Component {
   static propTypes = {
     rootStore: PropTypes.object,
   };
@@ -96,6 +99,10 @@ class FilesTableHead extends React.Component {
     this.rootStore.config.moveFilesColumn(from, to);
   };
 
+  handleSaveColumns = () => {
+    this.rootStore.config.saveFilesColumns();
+  };
+
   render() {
     const sort = this.rootStore.config.filesSort;
     const fileColumns = this.rootStore.config.visibleFileColumns;
@@ -104,10 +111,11 @@ class FilesTableHead extends React.Component {
       if (!column.display) return;
 
       columns.push(
-        <FilesTableHeadColumn key={column.column} column={column}
+        <FileListTableHeadColumn key={column.column} column={column}
           isSorted={sort.by === column.column} sortDirection={sort.direction}
-          handleMoveColumn={this.handleMoveColumn}
-          handleSort={this.handleSort}
+          onMoveColumn={this.handleMoveColumn}
+          onSort={this.handleSort}
+          onSaveColumns={this.handleSaveColumns}
         />
       );
     });
@@ -123,7 +131,7 @@ class FilesTableHead extends React.Component {
 }
 
 @observer
-class FilesTableHeadColumn extends TableHeadColumn {
+class FileListTableHeadColumn extends TableHeadColumn {
   type = 'fl';
 
   render() {

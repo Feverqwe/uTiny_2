@@ -7,7 +7,7 @@ import {inject, observer, Provider} from "mobx-react";
 import PropTypes from "prop-types";
 import ReactDOM from "react-dom";
 import RootStore from "../stores/RootStore";
-import TorrentTable from "../components/TorrentTable";
+import TorrentListTable from "../components/TorrentListTable";
 import FileListTable from "../components/FileListTable";
 
 @inject('rootStore')
@@ -21,13 +21,6 @@ class Index extends React.Component {
     super(props);
 
     this.rootStore.init();
-
-    if (!this.rootStore.isPopup) {
-      document.body.parentNode.style.height = '100%';
-      document.body.style.height = '100%';
-      const root = document.getElementById('root');
-      root.style.height = '100%';
-    }
   }
 
   /**@return {RootStore}*/
@@ -53,7 +46,7 @@ class Index extends React.Component {
       <>
         <Menu/>
         <div className="drop_layer"/>
-        <TorrentTable/>
+        <TorrentListTable/>
         <table className="status-panel" width="100%" border="0" cellSpacing="0" cellPadding="0">
           <tfoot>
           <tr>
@@ -66,8 +59,34 @@ class Index extends React.Component {
           </tr>
           </tfoot>
         </table>
+        <SetPopupHeight rootStore={this.rootStore}/>
         {fileList}
       </>
+    );
+  }
+}
+
+class SetPopupHeight extends React.PureComponent {
+  static propTypes = {
+    rootStore: PropTypes.object,
+  };
+
+  constructor(props) {
+    super(props);
+
+    if (this.rootStore.isPopup) {
+      document.getElementById('root').style.minHeight = this.rootStore.config.popupHeight + 'px';
+    }
+  }
+
+  /**@return {RootStore}*/
+  get rootStore() {
+    return this.props.rootStore;
+  }
+
+  render() {
+    return (
+      null
     );
   }
 }

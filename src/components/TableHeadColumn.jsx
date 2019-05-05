@@ -6,8 +6,9 @@ class TableHeadColumn extends React.Component {
     column: PropTypes.object.isRequired,
     isSorted: PropTypes.bool.isRequired,
     sortDirection: PropTypes.number.isRequired,
-    handleMoveColumn: PropTypes.func.isRequired,
-    handleSort: PropTypes.func.isRequired,
+    onMoveColumn: PropTypes.func.isRequired,
+    onSort: PropTypes.func.isRequired,
+    onSaveColumns: PropTypes.func.isRequired,
   };
 
   type = null;
@@ -46,7 +47,7 @@ class TableHeadColumn extends React.Component {
     const fromName = e.dataTransfer.getData('name');
     if (toName === fromName) return;
 
-    this.props.handleMoveColumn(fromName, toName)
+    this.props.onMoveColumn(fromName, toName)
   };
 
   handleResizeClick = (e) => {
@@ -69,6 +70,8 @@ class TableHeadColumn extends React.Component {
     document.body.removeEventListener('mouseup', this.handleBodyMouseUp);
 
     this.refTh.current.draggable = true;
+
+    this.props.onSaveColumns();
   };
 
   resizeStartSize = null;
@@ -95,7 +98,7 @@ class TableHeadColumn extends React.Component {
     if (this.props.isSorted) {
       direction =  this.props.sortDirection === 1 ? 0 : 1;
     }
-    this.props.handleSort(this.props.column.column, direction);
+    this.props.onSort(this.props.column.column, direction);
   };
 }
 

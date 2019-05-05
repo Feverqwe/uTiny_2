@@ -109,7 +109,7 @@ const ConfigStore = types.model('ConfigStore', {
   hideFinishedTorrents: types.optional(types.boolean, false),
   showSpeedGraph: types.optional(types.boolean, true),
 
-  popupHeight: types.optional(types.number, 350),
+  popupHeight: types.optional(types.number, 300),
   selectDownloadCategoryAfterPutTorrentFromContextMenu: types.optional(types.boolean, false),
   contextMenuType: types.optional(types.enumeration(['folder', 'label']), 'folder'),
   treeViewContextMenu: types.optional(types.boolean, false),
@@ -171,6 +171,11 @@ const ConfigStore = types.model('ConfigStore', {
         torrentColumns: columns
       });
     },
+    saveTorrentsColumns() {
+      storageSet({
+        torrentColumns: self.torrentColumns.slice(0),
+      });
+    },
     moveFilesColumn(from, to) {
       const column = resolveIdentifier(FilesColumnsStore, self, from);
       const columnTarget = resolveIdentifier(FilesColumnsStore, self, to);
@@ -179,6 +184,11 @@ const ConfigStore = types.model('ConfigStore', {
 
       storageSet({
         filesColumns: columns
+      });
+    },
+    saveFilesColumns() {
+      storageSet({
+        filesColumns: self.filesColumns.slice(0),
       });
     },
     setTorrentsSort(by, direction) {

@@ -303,9 +303,27 @@ const ClientStore = types.model('ClientStore', {
       }
 
       torrents.sort((aa, bb) => {
-        const a = aa[byColumn];
-        const b = bb[byColumn];
+        let a = aa[byColumn];
+        let b = bb[byColumn];
         const [up, down] = upDown;
+
+        if (byColumn === 'eta') {
+          if (a === -1) {
+            a = Infinity;
+          }
+          if (b === -1) {
+            b = Infinity;
+          }
+        }
+
+        if (byColumn === 'added' || byColumn === 'completed') {
+          if (!a) {
+            a = Infinity;
+          }
+          if (!b) {
+            b = Infinity;
+          }
+        }
 
         if (a === b) {
           return 0;

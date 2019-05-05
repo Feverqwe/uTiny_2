@@ -3,18 +3,8 @@ import {inject, observer} from "mobx-react";
 import PropTypes from "prop-types";
 import TableHeadColumn from "./TableHeadColumn";
 
-@inject('rootStore')
 @observer
-class TorrentTable extends React.Component {
-  static propTypes = {
-    rootStore: PropTypes.object,
-  };
-
-  /**@return {RootStore}*/
-  get rootStore() {
-    return this.props.rootStore;
-  }
-
+class TorrentListTable extends React.Component {
   handleScroll = (e) => {
     this.refFixedHead.current.style.left = `${e.currentTarget.scrollLeft * -1}px`;
   };
@@ -22,24 +12,14 @@ class TorrentTable extends React.Component {
   refFixedHead = React.createRef();
 
   render() {
-    const listStyle = {};
-    if (this.rootStore.isPopup) {
-      listStyle.minHeight = this.rootStore.config.popupHeight - 54;
-      listStyle.maxHeight = this.rootStore.config.popupHeight - 54;
-    } else {
-      listStyle.maxHeight = 'calc(100% - 54px)';
-      listStyle.minHeight = 'calc(100% - 54px)';
-      listStyle.maxWidth = 'initial';
-    }
-
     return (
-      <div onScroll={this.handleScroll} className="torrent-list-layer" style={listStyle}>
+      <div onScroll={this.handleScroll} className="torrent-list-layer">
         <table ref={this.refFixedHead} className="torrent-table-head" border="0" cellSpacing="0" cellPadding="0">
-          <TorrentTableHead/>
+          <TorrentListTableHead/>
         </table>
         <table className="torrent-table-body" border="0" cellSpacing="0" cellPadding="0">
-          <TorrentTableHead/>
-          <TorrentTableTorrents/>
+          <TorrentListTableHead/>
+          <TorrentListTableTorrents/>
         </table>
       </div>
     );
@@ -48,7 +28,7 @@ class TorrentTable extends React.Component {
 
 @inject('rootStore')
 @observer
-class TorrentTableHead extends React.Component {
+class TorrentListTableHead extends React.Component {
   static propTypes = {
     rootStore: PropTypes.object,
   };
@@ -66,16 +46,21 @@ class TorrentTableHead extends React.Component {
     this.rootStore.config.moveTorrensColumn(from, to);
   };
 
+  handleSaveColumns = () => {
+    this.rootStore.config.saveTorrentsColumns();
+  };
+
   render() {
     const torrentsSort = this.rootStore.config.torrentsSort;
     const torrentColumns = this.rootStore.config.visibleTorrentColumns;
     const columns = [];
-    torrentColumns.forEach((column, index) => {
+    torrentColumns.forEach((column) => {
       columns.push(
-        <TorrentTableHeadColumn key={column.column} column={column}
+        <TorrentListTableHeadColumn key={column.column} column={column}
           isSorted={torrentsSort.by === column.column} sortDirection={torrentsSort.direction}
-          handleMoveColumn={this.handleMoveColumn}
-          handleSort={this.handleSort}
+          onMoveColumn={this.handleMoveColumn}
+          onSort={this.handleSort}
+          onSaveColumns={this.handleSaveColumns}
         />
       );
     });
@@ -91,7 +76,7 @@ class TorrentTableHead extends React.Component {
 }
 
 @observer
-class TorrentTableHeadColumn extends TableHeadColumn {
+class TorrentListTableHeadColumn extends TableHeadColumn {
   type = 'tr';
 
   render() {
@@ -145,7 +130,7 @@ class TorrentTableHeadColumn extends TableHeadColumn {
 
 @inject('rootStore')
 @observer
-class TorrentTableTorrents extends React.Component {
+class TorrentListTableTorrents extends React.Component {
   static propTypes = {
     rootStore: PropTypes.object,
   };
@@ -158,7 +143,7 @@ class TorrentTableTorrents extends React.Component {
   render() {
     const torrens = this.rootStore.client.sortedTorrents.map((torrent) => {
       return (
-        <TorrentTableTorrentsTorrent key={torrent.id} torrent={torrent}/>
+        <TorrentListTableTorrent key={torrent.id} torrent={torrent}/>
       );
     });
 
@@ -172,7 +157,7 @@ class TorrentTableTorrents extends React.Component {
 
 @inject('rootStore')
 @observer
-class TorrentTableTorrentsTorrent extends React.Component {
+class TorrentListTableTorrent extends React.Component {
   static propTypes = {
     torrent: PropTypes.object.isRequired,
     rootStore: PropTypes.object,
@@ -415,4 +400,4 @@ class TorrentTableTorrentsTorrent extends React.Component {
   }
 }
 
-export default TorrentTable;
+export default TorrentListTable;
