@@ -1,8 +1,9 @@
 import {types, flow, isAlive, resolveIdentifier, getRoot} from "mobx-state-tree";
-import {FileStore, TorrentStore} from "./ClientStore";
 import callApi from "../tools/callApi";
 import getLogger from "../tools/getLogger";
 import ListSelectStore from "./ListSelectStore";
+import FileStore from "./FileStore";
+import TorrentStore from "./TorrentStore";
 
 const logger = getLogger('FileListStore');
 
@@ -12,6 +13,10 @@ const byColumnMap = {
 
 /**
  * @typedef {ListSelectStore} FileListStore
+ * @property {string} id
+ * @property {string} [state]
+ * @property {FileStore[]} files
+ * @property {boolean} [isLoading]
  * @property {function:Promise} fetchFiles
  * @property {*} torrent
  * @property {*} sortedFiles

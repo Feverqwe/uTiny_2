@@ -128,19 +128,55 @@ class Bg {
         break;
       }
       case 'start': {
-        promise = this.client.start(message.id);
+        promise = this.client.start(message.ids);
+        break;
+      }
+      case 'forcestart': {
+        promise = this.client.forcestart(message.ids);
         break;
       }
       case 'unpause': {
-        promise = this.client.unpause(message.id);
+        promise = this.client.unpause(message.ids);
         break;
       }
       case 'pause': {
-        promise = this.client.pause(message.id);
+        promise = this.client.pause(message.ids);
         break;
       }
       case 'stop': {
-        promise = this.client.stop(message.id);
+        promise = this.client.stop(message.ids);
+        break;
+      }
+      case 'recheck': {
+        promise = this.client.recheck(message.ids);
+        break;
+      }
+      case 'remove': {
+        promise = this.client.remove(message.ids);
+        break;
+      }
+      case 'removetorrent': {
+        promise = this.client.removetorrent(message.ids);
+        break;
+      }
+      case 'removedata': {
+        promise = this.client.removedata(message.ids);
+        break;
+      }
+      case 'removedatatorrent': {
+        promise = this.client.removedatatorrent(message.ids);
+        break;
+      }
+      case 'queueUp': {
+        promise = this.client.queueUp(message.ids);
+        break;
+      }
+      case 'queueDown': {
+        promise = this.client.queueDown(message.ids);
+        break;
+      }
+      case 'setLabel': {
+        promise = this.client.setLabel(message.ids, message.label);
         break;
       }
       case 'getFileList': {

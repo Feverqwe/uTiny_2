@@ -3,7 +3,7 @@ import {inject, observer} from "mobx-react";
 import PropTypes from "prop-types";
 import TableHeadColumn from "./TableHeadColumn";
 import TorrentListTableItem from "./TorrentListTableItem";
-import {Item, Menu, Separator, Submenu} from "react-contexify";
+import TorrentMenu from "./TorrentMenu";
 
 @inject('rootStore')
 @observer
@@ -198,69 +198,6 @@ class TorrentListTableTorrents extends React.Component {
         {torrens}
         <TorrentMenu/>
       </tbody>
-    );
-  }
-}
-
-const TorrentMenu = React.memo((props) => {
-  return (
-    <Menu id="torrent_menu">
-      <TorrentMenuBody/>
-    </Menu>
-  )
-});
-
-@inject('rootStore')
-@observer
-class TorrentMenuBody extends React.Component {
-  static propTypes = {
-    rootStore: PropTypes.object,
-    propsFromTrigger: PropTypes.object,
-  };
-
-  state = {
-    onHide: null
-  };
-
-  static getDerivedStateFromProps(nextProps, prevState) {
-    const nextOnHide = nextProps.propsFromTrigger && nextProps.propsFromTrigger.onHide;
-    if (prevState.onHide !== nextOnHide) {
-      if (prevState.onHide) {
-        prevState.onHide();
-      }
-      return {
-        onHide: nextOnHide
-      };
-    }
-    return null;
-  }
-
-  /**@return {RootStore}*/
-  get rootStore() {
-    return this.props.rootStore;
-  }
-
-  /**@return {TorrentListStore}*/
-  get torrentListStore() {
-    return this.rootStore.torrentList;
-  }
-
-  componentWillUnmount() {
-    if (this.props.propsFromTrigger && this.props.propsFromTrigger.onHide) {
-      this.props.propsFromTrigger.onHide();
-    }
-  }
-
-  render() {
-    return (
-      <div>
-        <Item>Foo</Item>
-        <Separator/>
-        <Item>{this.torrentListStore.selectedIds.join(' ')}</Item>
-        <Submenu label={"Submenu label"}>
-          <Item>Some item</Item>
-        </Submenu>
-      </div>
     );
   }
 }

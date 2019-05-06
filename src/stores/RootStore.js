@@ -14,11 +14,10 @@ const logger = getLogger('RootStore');
  * @property {string} [state]
  * @property {ConfigStore|undefined} config
  * @property {ClientStore|undefined} client
- * @property {TorrentListStore|undefined} torrentList
+ * @property {TorrentListStore} [torrentList]
  * @property {FileListStore|undefined} fileList
  * @property {function:Promise} init
- * @property {function} createTorrentList
- * @property {function} destroyTorrentList
+ * @property {function} flushTorrentList
  * @property {function} createFileList
  * @property {function} destroyFileList
  * @property {function} handleReady

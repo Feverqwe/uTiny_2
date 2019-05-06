@@ -156,70 +156,74 @@ class UTorrentClient {
     });
   }
 
-  start(id) {
-    return this.sendAction({list: 1, cid: this.cid, action: 'start', hash: id});
+  start(ids) {
+    return this.sendAction({list: 1, cid: this.cid, action: 'start', hash: ids});
   }
 
-  forcestart(id) {
-    return this.sendAction({list: 1, cid: this.cid, action: 'forcestart', hash: id});
+  forcestart(ids) {
+    return this.sendAction({list: 1, cid: this.cid, action: 'forcestart', hash: ids});
   }
 
-  unpause(id) {
-    return this.sendAction({list: 1, cid: this.cid, action: 'unpause', hash: id});
+  unpause(ids) {
+    return this.sendAction({list: 1, cid: this.cid, action: 'unpause', hash: ids});
   }
 
-  pause(id) {
-    return this.sendAction({list: 1, cid: this.cid, action: 'pause', hash: id});
+  pause(ids) {
+    return this.sendAction({list: 1, cid: this.cid, action: 'pause', hash: ids});
   }
 
-  stop(id) {
-    return this.sendAction({list: 1, cid: this.cid, action: 'stop', hash: id});
+  stop(ids) {
+    return this.sendAction({list: 1, cid: this.cid, action: 'stop', hash: ids});
   }
 
-  recheck(id) {
-    return this.sendAction({list: 1, cid: this.cid, action: 'recheck', hash: id});
+  recheck(ids) {
+    return this.sendAction({list: 1, cid: this.cid, action: 'recheck', hash: ids});
   }
 
-  remove(id) {
-    return this.sendAction({list: 1, cid: this.cid, action: 'remove', hash: id});
+  remove(ids) {
+    return this.sendAction({list: 1, cid: this.cid, action: 'remove', hash: ids});
   }
 
-  removetorrent(id) {
-    const torrent = this.bg.client.torrents.get(id);
+  async removetorrent(ids) {
+    if (!ids.length) return;
+
+    const torrent = this.bg.client.torrents.get(ids[0]);
     if (torrent && torrent.status === undefined) {
       // fallback
       // todo: fix me, add version check when removetorrent
-      return this.remove(id);
+      return this.remove(ids);
     } else {
-      return this.sendAction({list: 1, cid: this.cid, action: 'removetorrent', hash: id});
+      return this.sendAction({list: 1, cid: this.cid, action: 'removetorrent', hash: ids});
     }
   }
 
-  removedata(id) {
-    return this.sendAction({list: 1, cid: this.cid, action: 'removedata', hash: id});
+  removedata(ids) {
+    return this.sendAction({list: 1, cid: this.cid, action: 'removedata', hash: ids});
   }
 
-  removedatatorrent(id) {
-    const torrent = this.bg.client.torrents.get(id);
+  async removedatatorrent(ids) {
+    if (!ids.length) return;
+
+    const torrent = this.bg.client.torrents.get(ids[0]);
     if (torrent && torrent.status === undefined) {
       // fallback
       // todo: fix me, add version check when removedatatorrent
-      return this.removedata(id);
+      return this.removedata(ids);
     } else {
-      return this.sendAction({list: 1, cid: this.cid, action: 'removedatatorrent', hash: id});
+      return this.sendAction({list: 1, cid: this.cid, action: 'removedatatorrent', hash: ids});
     }
   }
 
-  queueUp(id) {
-    return this.sendAction({list: 1, cid: this.cid, action: 'queueup', hash: id});
+  queueUp(ids) {
+    return this.sendAction({list: 1, cid: this.cid, action: 'queueup', hash: ids});
   }
 
-  queueDown(id) {
-    return this.sendAction({list: 1, cid: this.cid, action: 'queuedown', hash: id});
+  queueDown(ids) {
+    return this.sendAction({list: 1, cid: this.cid, action: 'queuedown', hash: ids});
   }
 
-  setLabel(id, label = '') {
-    return this.sendAction({list: 1, cid: this.cid, action: 'setprops', s: 'label', v: label, hash: id});
+  setLabel(ids, label = '') {
+    return this.sendAction({list: 1, cid: this.cid, action: 'setprops', s: 'label', hash: ids, v: label});
   }
 
   retryIfTokenInvalid(callback) {

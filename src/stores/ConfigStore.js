@@ -84,8 +84,13 @@ const FolderStore = types.model('FolderStore', {
  * @property {function} addLabel
  * @property {function} setKeyValue
  * @property {function} moveTorrensColumn
+ * @property {function} saveTorrentsColumns
  * @property {function} moveFilesColumn
+ * @property {function} saveFilesColumns
+ * @property {function} setTorrentsSort
+ * @property {function} setFilesSort
  * @property {*} visibleTorrentColumns
+ * @property {*} visibleFileColumns
  * @property {*} allLabels
  * @property {function} afterCreate
  * @property {function} beforeDestroy

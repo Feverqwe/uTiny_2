@@ -1,13 +1,8 @@
-import {types, getSnapshot, getRoot} from "mobx-state-tree";
+import {getRoot, getSnapshot, types} from "mobx-state-tree";
 import SpeedRollStore from "./SpeedRollStore";
-import fecha from "fecha";
-import utStateToText from "../tools/utStateToText";
-import getEta from "../tools/getEta";
+import speedToStr from "../tools/speedToStr";
+import TorrentStore from "./TorrentStore";
 import callApi from "../tools/callApi";
-
-const filesize = require('filesize');
-
-const priorityLocaleMap = ['MF_DONT', 'MF_LOW', 'MF_NORMAL', 'MF_HIGH'];
 
 const byColumnMap = {
   done: 'progress',
@@ -20,201 +15,11 @@ const byColumnMap = {
 };
 
 /**
- * @typedef {{}} TorrentStore
- * @property {string} id
- * @property {number} state
- * @property {string} name
- * @property {number} size
- * @property {number} progress
- * @property {number} downloaded
- * @property {number} uploaded
- * @property {number} shared
- * @property {number} uploadSpeed
- * @property {number} downloadSpeed
- * @property {number} eta
- * @property {string} label
- * @property {number} activePeers
- * @property {number} peers
- * @property {number} activeSeeds
- * @property {number} seeds
- * @property {number} available
- * @property {number} order
- * @property {string|undefined} status
- * @property {string|undefined} sid
- * @property {number|undefined} addedTime
- * @property {number|undefined} completedTime
- * @property {string|undefined} directory
- * @property {*} remaining
- * @property {*} remainingStr
- * @property {*} isCompleted
- * @property {*} sizeStr
- * @property {*} progressStr
- * @property {*} uploadSpeedStr
- * @property {*} downloadSpeedStr
- * @property {*} uploadedStr
- * @property {*} downloadedStr
- * @property {*} availableStr
- * @property {*} addedTimeStr
- * @property {*} completedTimeStr
- * @property {*} stateText
- */
-const TorrentStore = types.model('TorrentStore', {
-  id: types.identifier,
-  state: types.number,
-  name: types.string,
-  size: types.number,
-  progress: types.number,
-  downloaded: types.number,
-  uploaded: types.number,
-  shared: types.number,
-  uploadSpeed: types.number,
-  downloadSpeed: types.number,
-  eta: types.number,
-  label: types.string,
-  activePeers: types.number,
-  peers: types.number,
-  activeSeeds: types.number,
-  seeds: types.number,
-  available: types.number,
-  order: types.number,
-  status: types.maybe(types.string),
-  sid: types.maybe(types.string),
-  addedTime: types.maybe(types.number),
-  completedTime: types.maybe(types.number),
-  directory: types.maybe(types.string),
-}).views((self) => {
-  return {
-    start() {
-      return callApi({action: 'start', id: self.id});
-    },
-    pause() {
-      return callApi({action: 'pause', id: self.id});
-    },
-    stop() {
-      return callApi({action: 'stop', id: self.id});
-    },
-    get remaining() {
-      return self.size - self.downloaded;
-    },
-    get remainingStr() {
-      return filesize(self.remaining);
-    },
-    get isCompleted() {
-      return self.progress === 1000 || !!self.completedTime;
-    },
-    get sizeStr() {
-      return filesize(self.size);
-    },
-    get progressStr() {
-      let progress = self.progress / 10;
-      if (progress < 100) {
-        return progress.toFixed(1) + '%';
-      } else {
-        return Math.round(progress) + '%';
-      }
-    },
-    get uploadSpeedStr() {
-      return speedToStr(self.uploadSpeed);
-    },
-    get downloadSpeedStr() {
-      return speedToStr(self.downloadSpeed);
-    },
-    get etaStr() {
-      return getEta(self.eta);
-    },
-    get uploadedStr() {
-      return filesize(self.uploaded);
-    },
-    get downloadedStr() {
-      return filesize(self.downloaded);
-    },
-    get availableStr() {
-      return Math.round((self.available / 65535) * 1000) / 1000;
-    },
-    get addedTimeStr() {
-      if (!self.addedTime) {
-        return '';
-      } else {
-        return fecha(self.addedTime, 'YYYY-MM-DD HH:mm:ss');
-      }
-    },
-    get completedTimeStr() {
-      if (!self.completedTime) {
-        return '';
-      } else {
-        return fecha(self.completedTime, 'YYYY-MM-DD HH:mm:ss');
-      }
-    },
-    get stateText() {
-      return utStateToText(self);
-    },
-    get selected() {
-      /**@type RootStore*/const rootStore = getRoot(self);
-      return rootStore.torrentList.selectedIds.indexOf(self.id) !== -1;
-    }
-  };
-});
-
-function speedToStr(speed) {
-  let speedText = null;
-  if (speed < 0) {
-    speedText = '';
-  } else {
-    const [size, symbol] = filesize(speed, {
-      output: 'array'
-    });
-    speedText = `${size} ${symbol}/s`;
-  }
-  return speedText;
-}
-
-/**
- * @typedef {{}} FileStore
- * @property {string} name
- * @property {number} size
- * @property {number} downloaded
- * @property {number} priority
- */
-const FileStore = types.model('FileStore', {
-  name: types.identifier,
-  size: types.number,
-  downloaded: types.number,
-  priority: types.number,
-}).views((self) => {
-  return {
-    get progress() {
-      return Math.round((self.downloaded * 100 / self.size) * 10) / 10;
-    },
-    get progressStr() {
-      const progress = self.progress;
-      if (progress < 100) {
-        return progress.toFixed(1) + '%';
-      } else {
-        return Math.round(progress) + '%';
-      }
-    },
-    get sizeStr() {
-      return filesize(self.size);
-    },
-    get downloadedStr() {
-      return filesize(self.downloaded);
-    },
-    get priorityStr() {
-      return chrome.i18n.getMessage(priorityLocaleMap[self.priority]);
-    },
-    get selected() {
-      /**@type RootStore*/const rootStore = getRoot(self);
-      return rootStore.fileList.selectedIds.indexOf(self.name) !== -1;
-    }
-  };
-});
-
-/**
  * @typedef {{}} LabelStore
  * @property {string} name
  */
 const LabelStore = types.model('LabelStore', {
-  name: types.string,
+  name: types.identifier,
 });
 
 /**
@@ -230,7 +35,6 @@ const SettingsStore = types.model('SettingsStore', {
 /**
  * @typedef {{}} ClientStore
  * @property {Map<*,TorrentStore>} torrents
- * @property {Map<*,FileStore[]>} files
  * @property {LabelStore[]|undefined} labels
  * @property {SettingsStore|undefined} settings
  * @property {SpeedRollStore} [speedRoll]
@@ -238,12 +42,31 @@ const SettingsStore = types.model('SettingsStore', {
  * @property {function} sync
  * @property {function} syncChanges
  * @property {function} setFileList
+ * @property {function} setTorrents
  * @property {function} setLabels
  * @property {function} setSettings
  * @property {*} torrentIds
+ * @property {*} sortedTorrents
+ * @property {*} sortedTorrentIds
  * @property {*} activeTorrentIds
  * @property {*} activeCount
  * @property {*} currentSpeed
+ * @property {*} currentSpeedStr
+ * @property {*} allLabels
+ * @property {function} torrentsStart
+ * @property {function} torrentsForceStart
+ * @property {function} torrentsPause
+ * @property {function} torrentsUnpause
+ * @property {function} torrentsStop
+ * @property {function} torrentsRecheck
+ * @property {function} torrentsRemove
+ * @property {function} torrentsRemoveTorrent
+ * @property {function} torrentsRemoveFiles
+ * @property {function} torrentsRemoveTorrentFiles
+ * @property {function} torrentsQueueUp
+ * @property {function} torrentsQueueDown
+ * @property {function} torrentsSetLabel
+ * @property {function} getSnapshot
  */
 const ClientStore = types.model('ClientStore', {
   torrents: types.map(TorrentStore),
@@ -378,6 +201,55 @@ const ClientStore = types.model('ClientStore', {
         uploadSpeedStr: speedToStr(uploadSpeed),
       };
     },
+    get allLabels() {
+      /**@type RootStore*/const rootStore = getRoot(self);
+      const result = rootStore.config.labels.slice(0);
+      self.labels.forEach(({name}) => {
+        if (result.indexOf(name) === -1) {
+          result.push(name);
+        }
+      });
+      return result;
+    },
+    torrentsStart(ids) {
+      return callApi({action: 'start', ids: ids});
+    },
+    torrentsForceStart(ids) {
+      return callApi({action: 'forcestart', ids: ids});
+    },
+    torrentsPause(ids) {
+      return callApi({action: 'pause', ids: ids});
+    },
+    torrentsUnpause(ids) {
+      return callApi({action: 'unpause', ids: ids});
+    },
+    torrentsStop(ids) {
+      return callApi({action: 'stop', ids: ids});
+    },
+    torrentsRecheck(ids) {
+      return callApi({action: 'recheck', ids: ids});
+    },
+    torrentsRemove(ids) {
+      return callApi({action: 'remove', ids: ids});
+    },
+    torrentsRemoveTorrent(ids) {
+      return callApi({action: 'removetorrent', ids: ids});
+    },
+    torrentsRemoveFiles(ids) {
+      return callApi({action: 'removedata', ids: ids});
+    },
+    torrentsRemoveTorrentFiles(ids) {
+      return callApi({action: 'removedatatorrent', ids: ids});
+    },
+    torrentsQueueUp(ids) {
+      return callApi({action: 'queueUp', ids: ids});
+    },
+    torrentsQueueDown(ids) {
+      return callApi({action: 'queueDown', ids: ids});
+    },
+    torrentsSetLabel(ids, label) {
+      return callApi({action: 'setLabel', label, ids: ids});
+    },
     getSnapshot() {
       return getSnapshot(self);
     }
@@ -385,4 +257,3 @@ const ClientStore = types.model('ClientStore', {
 });
 
 export default ClientStore;
-export {FileStore, TorrentStore};
