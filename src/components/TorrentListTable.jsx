@@ -15,7 +15,7 @@ class TorrentListTable extends React.Component {
     return (
       <div onScroll={this.handleScroll} className="torrent-list-layer">
         <table ref={this.refFixedHead} className="torrent-table-head" border="0" cellSpacing="0" cellPadding="0">
-          <TorrentListTableHead/>
+          <TorrentListTableHead withStyle={true}/>
         </table>
         <table className="torrent-table-body" border="0" cellSpacing="0" cellPadding="0">
           <TorrentListTableHead/>
@@ -31,6 +31,7 @@ class TorrentListTable extends React.Component {
 class TorrentListTableHead extends React.Component {
   static propTypes = {
     rootStore: PropTypes.object,
+    withStyle: PropTypes.bool,
   };
 
   /**@return {RootStore}*/
@@ -61,6 +62,7 @@ class TorrentListTableHead extends React.Component {
           onMoveColumn={this.handleMoveColumn}
           onSort={this.handleSort}
           onSaveColumns={this.handleSaveColumns}
+          withStyle={this.props.withStyle}
         />
       );
     });
@@ -105,10 +107,16 @@ class TorrentListTableHeadColumn extends TableHeadColumn {
       );
     }
 
-    const styleText = `.torrent-list-layer th.${column.column}, .torrent-list-layer td.${column.column} {
-      min-width: ${column.width}px;
-      max-width: ${column.width}px;
-    }`;
+    let style = null;
+    if (this.props.withStyle) {
+      const styleText = `.torrent-list-layer th.${column.column}, .torrent-list-layer td.${column.column} {
+        min-width: ${column.width}px;
+        max-width: ${column.width}px;
+      }`;
+      style = (
+        <style>{styleText}</style>
+      );
+    }
 
     let arraw = null;
     if (column.order !== 0) {
@@ -122,7 +130,7 @@ class TorrentListTableHeadColumn extends TableHeadColumn {
         {body}
         <div className="resize-el" draggable={false} onClick={this.handleResizeClick} onMouseDown={this.handleResizeMouseDown}/>
         {arraw}
-        <style>{styleText}</style>
+        {style}
       </th>
     );
   }

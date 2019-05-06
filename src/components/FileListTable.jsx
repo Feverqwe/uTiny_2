@@ -54,7 +54,7 @@ class FileListTable extends React.Component {
             <div onScroll={this.handleScroll} className="fl-layer">
               {spinner}
               <table ref={this.refFixedHead} className="fl-table-head" border="0" cellSpacing="0" cellPadding="0">
-                <FileListTableHead/>
+                <FileListTableHead withStyle={true}/>
               </table>
               <table className="fl-table-body" border="0" cellSpacing="0" cellPadding="0">
                 <FileListTableHead/>
@@ -84,6 +84,7 @@ class FileListTable extends React.Component {
 class FileListTableHead extends React.Component {
   static propTypes = {
     rootStore: PropTypes.object,
+    withStyle: PropTypes.bool,
   };
 
   /**@return {RootStore}*/
@@ -116,6 +117,7 @@ class FileListTableHead extends React.Component {
           onMoveColumn={this.handleMoveColumn}
           onSort={this.handleSort}
           onSaveColumns={this.handleSaveColumns}
+          withStyle={this.props.withStyle}
         />
       );
     });
@@ -160,10 +162,16 @@ class FileListTableHeadColumn extends TableHeadColumn {
       );
     }
 
-    const styleText = `.fl-layer th.${column.column}, .fl-layer td.${column.column} {
-      min-width: ${column.width}px;
-      max-width: ${column.width}px;
-    }`;
+    let style = null;
+    if (this.props.withStyle) {
+      const styleText = `.fl-layer th.${column.column}, .fl-layer td.${column.column} {
+        min-width: ${column.width}px;
+        max-width: ${column.width}px;
+      }`;
+      style = (
+        <style>{styleText}</style>
+      );
+    }
 
     let arraw = null;
     if (column.order !== 0) {
@@ -177,7 +185,7 @@ class FileListTableHeadColumn extends TableHeadColumn {
         {body}
         <div className="resize-el" draggable={false} onClick={this.handleResizeClick} onMouseDown={this.handleResizeMouseDown}/>
         {arraw}
-        <style>{styleText}</style>
+        {style}
       </th>
     );
   }

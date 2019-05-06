@@ -9,6 +9,7 @@ class TableHeadColumn extends React.Component {
     onMoveColumn: PropTypes.func.isRequired,
     onSort: PropTypes.func.isRequired,
     onSaveColumns: PropTypes.func.isRequired,
+    withStyle: PropTypes.bool,
   };
 
   type = null;
