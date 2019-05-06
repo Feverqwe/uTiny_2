@@ -1,4 +1,4 @@
-import "../assets/css/stylesheet.css";
+import "../assets/css/stylesheet.less";
 import "../assets/css/jquery.contextMenu.css";
 import "../assets/css/selectBox.css";
 import React from "react";
@@ -21,6 +21,10 @@ class Index extends React.Component {
     super(props);
 
     this.rootStore.init();
+
+    if (this.rootStore.isPopup) {
+      document.body.classList.add('popup');
+    }
   }
 
   /**@return {RootStore}*/
