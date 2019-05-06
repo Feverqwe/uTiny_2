@@ -133,9 +133,24 @@ class FileListTableHead extends React.Component {
   }
 }
 
+@inject('rootStore')
 @observer
 class FileListTableHeadColumn extends TableHeadColumn {
   type = 'fl';
+
+  /**@return {RootStore}*/
+  get rootStore() {
+    return this.props.rootStore;
+  }
+
+  /**@return {FileListStore}*/
+  get fileListStore() {
+    return this.rootStore.fileList;
+  }
+
+  handleSelectAll = (e) => {
+    this.fileListStore.toggleSelectAll();
+  };
 
   render() {
     const {column, isSorted, sortDirection} = this.props;
@@ -152,7 +167,7 @@ class FileListTableHeadColumn extends TableHeadColumn {
     if (column.column === 'checkbox') {
       body = (
         <div>
-          <input type="checkbox"/>
+          <input checked={this.fileListStore.isSelectedAll} onChange={this.handleSelectAll} type="checkbox"/>
         </div>
       );
     } else {

@@ -1,6 +1,7 @@
 import {inject, observer} from "mobx-react";
 import React from "react";
 import PropTypes from "prop-types";
+import {contextMenu} from 'react-contexify';
 
 @inject('rootStore')
 @observer
@@ -20,8 +21,21 @@ class TorrentListTableItem extends React.Component {
     return this.props.torrent;
   }
 
+  /**@return {TorrentListStore}*/
+  get torrentListStore() {
+    return this.rootStore.torrentList;
+  }
+
   handleSelect = (e) => {
-    // e.currentTarget
+    if (!this.torrentStore.selected) {
+      if (e.nativeEvent.shiftKey) {
+        this.torrentListStore.addMultipleSelectedId(this.torrentStore.id);
+      } else {
+        this.torrentListStore.addSelectedId(this.torrentStore.id);
+      }
+    } else {
+      this.torrentListStore.removeSelectedId(this.torrentStore.id);
+    }
   };
 
   handleStart = (e) => {
@@ -44,6 +58,28 @@ class TorrentListTableItem extends React.Component {
     this.rootStore.createFileList(this.torrentStore.id);
   };
 
+  handleContextMenu = (e) => {
+    e.preventDefault();
+
+    let onHide = null;
+    if (!this.torrentStore.selected) {
+      onHide = this.handleContextMenuHide;
+      this.torrentListStore.addSelectedId(this.torrentStore.id);
+    }
+
+    contextMenu.show({
+      id: 'torrent_menu',
+      event: e,
+      props: {
+        onHide: onHide
+      }
+    });
+  };
+
+  handleContextMenuHide = () => {
+    this.torrentListStore.removeSelectedId(this.torrentStore.id);
+  };
+
   render() {
     const torrent = this.torrentStore;
     const visibleTorrentColumns = this.rootStore.config.visibleTorrentColumns;
@@ -54,7 +90,7 @@ class TorrentListTableItem extends React.Component {
         case 'checkbox': {
           columns.push(
             <td key={name} className={name}>
-              <input onChange={this.handleSelect} type="checkbox"/>
+              <input checked={this.torrentStore.selected} onChange={this.handleSelect} type="checkbox"/>
             </td>
           );
           break;
@@ -241,8 +277,13 @@ class TorrentListTableItem extends React.Component {
       }
     });
 
+    const classList = [];
+    if (this.torrentStore.selected) {
+      classList.push('selected');
+    }
+
     return (
-      <tr id={torrent.id} onDoubleClick={this.handleDblClick}>
+      <tr className={classList.join(' ')} id={torrent.id} onDoubleClick={this.handleDblClick} onContextMenu={this.handleContextMenu}>
         {columns}
       </tr>
     );

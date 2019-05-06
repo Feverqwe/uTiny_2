@@ -1,5 +1,5 @@
+import "react-contexify/dist/ReactContexify.min.css";
 import "../assets/css/stylesheet.less";
-import "../assets/css/jquery.contextMenu.css";
 import "../assets/css/selectBox.css";
 import React from "react";
 import Menu from "../components/Menu";

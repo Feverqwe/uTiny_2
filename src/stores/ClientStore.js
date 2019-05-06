@@ -147,6 +147,10 @@ const TorrentStore = types.model('TorrentStore', {
     },
     get stateText() {
       return utStateToText(self);
+    },
+    get selected() {
+      /**@type RootStore*/const rootStore = getRoot(self);
+      return rootStore.torrentList.selectedIds.indexOf(self.id) !== -1;
     }
   };
 });
@@ -197,6 +201,10 @@ const FileStore = types.model('FileStore', {
     },
     get priorityStr() {
       return chrome.i18n.getMessage(priorityLocaleMap[self.priority]);
+    },
+    get selected() {
+      /**@type RootStore*/const rootStore = getRoot(self);
+      return rootStore.fileList.selectedIds.indexOf(self.name) !== -1;
     }
   };
 });
@@ -335,6 +343,9 @@ const ClientStore = types.model('ClientStore', {
       });
 
       return torrents;
+    },
+    get sortedTorrentIds() {
+      return self.sortedTorrents.map(torrent => torrent.id);
     },
     get activeTorrentIds() {
       const result = [];

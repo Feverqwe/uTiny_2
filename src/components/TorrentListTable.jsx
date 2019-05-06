@@ -3,9 +3,26 @@ import {inject, observer} from "mobx-react";
 import PropTypes from "prop-types";
 import TableHeadColumn from "./TableHeadColumn";
 import TorrentListTableItem from "./TorrentListTableItem";
+import {Item, Menu, Separator, Submenu} from "react-contexify";
 
+@inject('rootStore')
 @observer
 class TorrentListTable extends React.Component {
+  static propTypes = {
+    rootStore: PropTypes.object,
+  };
+
+  constructor(props) {
+    super(props);
+
+    this.rootStore.flushTorrentList();
+  }
+
+  /**@return {RootStore}*/
+  get rootStore() {
+    return this.props.rootStore;
+  }
+
   handleScroll = (e) => {
     this.refFixedHead.current.style.left = `${e.currentTarget.scrollLeft * -1}px`;
   };
@@ -78,9 +95,24 @@ class TorrentListTableHead extends React.Component {
   }
 }
 
+@inject('rootStore')
 @observer
 class TorrentListTableHeadColumn extends TableHeadColumn {
   type = 'tr';
+
+  /**@return {RootStore}*/
+  get rootStore() {
+    return this.props.rootStore;
+  }
+
+  /**@return {TorrentListStore}*/
+  get torrentListStore() {
+    return this.rootStore.torrentList;
+  }
+
+  handleSelectAll = (e) => {
+    this.torrentListStore.toggleSelectAll();
+  };
 
   render() {
     const {column, isSorted, sortDirection} = this.props;
@@ -97,7 +129,7 @@ class TorrentListTableHeadColumn extends TableHeadColumn {
     if (column.column === 'checkbox') {
       body = (
         <div>
-          <input type="checkbox"/>
+          <input checked={this.torrentListStore.isSelectedAll} onChange={this.handleSelectAll} type="checkbox"/>
         </div>
       );
     } else {
@@ -149,8 +181,13 @@ class TorrentListTableTorrents extends React.Component {
     return this.props.rootStore;
   }
 
+  /**@return {ClientStore}*/
+  get clientStore() {
+    return this.rootStore.client;
+  }
+
   render() {
-    const torrens = this.rootStore.client.sortedTorrents.map((torrent) => {
+    const torrens = this.clientStore.sortedTorrents.map((torrent) => {
       return (
         <TorrentListTableItem key={torrent.id} torrent={torrent}/>
       );
@@ -159,7 +196,71 @@ class TorrentListTableTorrents extends React.Component {
     return (
       <tbody>
         {torrens}
+        <TorrentMenu/>
       </tbody>
+    );
+  }
+}
+
+const TorrentMenu = React.memo((props) => {
+  return (
+    <Menu id="torrent_menu">
+      <TorrentMenuBody/>
+    </Menu>
+  )
+});
+
+@inject('rootStore')
+@observer
+class TorrentMenuBody extends React.Component {
+  static propTypes = {
+    rootStore: PropTypes.object,
+    propsFromTrigger: PropTypes.object,
+  };
+
+  state = {
+    onHide: null
+  };
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    const nextOnHide = nextProps.propsFromTrigger && nextProps.propsFromTrigger.onHide;
+    if (prevState.onHide !== nextOnHide) {
+      if (prevState.onHide) {
+        prevState.onHide();
+      }
+      return {
+        onHide: nextOnHide
+      };
+    }
+    return null;
+  }
+
+  /**@return {RootStore}*/
+  get rootStore() {
+    return this.props.rootStore;
+  }
+
+  /**@return {TorrentListStore}*/
+  get torrentListStore() {
+    return this.rootStore.torrentList;
+  }
+
+  componentWillUnmount() {
+    if (this.props.propsFromTrigger && this.props.propsFromTrigger.onHide) {
+      this.props.propsFromTrigger.onHide();
+    }
+  }
+
+  render() {
+    return (
+      <div>
+        <Item>Foo</Item>
+        <Separator/>
+        <Item>{this.torrentListStore.selectedIds.join(' ')}</Item>
+        <Submenu label={"Submenu label"}>
+          <Item>Some item</Item>
+        </Submenu>
+      </div>
     );
   }
 }

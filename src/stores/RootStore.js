@@ -5,6 +5,7 @@ import getLogger from "../tools/getLogger";
 import ClientStore from "./ClientStore";
 import callApi from "../tools/callApi";
 import FileListStore from "./FileListSore";
+import TorrentListStore from "./TorrentListStore";
 
 const logger = getLogger('RootStore');
 
@@ -13,8 +14,11 @@ const logger = getLogger('RootStore');
  * @property {string} [state]
  * @property {ConfigStore|undefined} config
  * @property {ClientStore|undefined} client
+ * @property {TorrentListStore|undefined} torrentList
  * @property {FileListStore|undefined} fileList
  * @property {function:Promise} init
+ * @property {function} createTorrentList
+ * @property {function} destroyTorrentList
  * @property {function} createFileList
  * @property {function} destroyFileList
  * @property {function} handleReady
@@ -25,6 +29,7 @@ const RootStore = types.model('RootStore', {
   state: types.optional(types.enumeration(['idle', 'pending', 'done', 'error']), 'idle'),
   config: types.maybe(ConfigStore),
   client: types.maybe(ClientStore),
+  torrentList: types.optional(TorrentListStore, {}),
   fileList: types.maybe(FileListStore),
 }).actions((self) => {
   return {
@@ -41,6 +46,9 @@ const RootStore = types.model('RootStore', {
         self.state = 'error';
       }
     }),
+    flushTorrentList() {
+      return self.torrentList = {};
+    },
     createFileList(id) {
       return self.fileList = {id};
     },

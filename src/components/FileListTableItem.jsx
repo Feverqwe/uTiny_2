@@ -15,17 +15,30 @@ class FileListTableItem extends React.Component {
     return this.props.rootStore;
   }
 
+  /**@return {FileListStore}*/
+  get fileListStore() {
+    return this.rootStore.fileList;
+  }
+
   /**@return {FileStore}*/
   get fileStore() {
     return this.props.file;
   }
 
   handleSelect = (e) => {
-    // e.currentTarget
+    if (!this.fileStore.selected) {
+      if (e.nativeEvent.shiftKey) {
+        this.fileListStore.addMultipleSelectedId(this.fileStore.name);
+      } else {
+        this.fileListStore.addSelectedId(this.fileStore.name);
+      }
+    } else {
+      this.fileListStore.removeSelectedId(this.fileStore.name);
+    }
   };
 
   render() {
-    const file = this.fileStore;
+    const fileStore = this.fileStore;
     const visibleFileColumns = this.rootStore.config.visibleFileColumns;
 
     const columns = [];
@@ -34,7 +47,7 @@ class FileListTableItem extends React.Component {
         case 'checkbox': {
           columns.push(
             <td key={name} className={name}>
-              <input onChange={this.handleSelect} type="checkbox"/>
+              <input checked={fileStore.selected} onChange={this.handleSelect} type="checkbox"/>
             </td>
           );
           break;
@@ -43,7 +56,7 @@ class FileListTableItem extends React.Component {
           columns.push(
             <td key={name} className={name}>
               <div>
-                <span>{file.name}</span>
+                <span>{fileStore.name}</span>
               </div>
             </td>
           );
@@ -52,7 +65,7 @@ class FileListTableItem extends React.Component {
         case 'size': {
           columns.push(
             <td key={name} className={name}>
-              <div>{file.sizeStr}</div>
+              <div>{fileStore.sizeStr}</div>
             </td>
           );
           break;
@@ -60,19 +73,19 @@ class FileListTableItem extends React.Component {
         case 'downloaded': {
           columns.push(
             <td key={name} className={name}>
-              <div>{file.downloadedStr}</div>
+              <div>{fileStore.downloadedStr}</div>
             </td>
           );
           break;
         }
         case 'done': {
-          const backgroundColor = (file.size === file.downloaded && file.priority !== 0) ? '#41B541' : '#3687ED';
-          const width = file.progressStr;
+          const backgroundColor = (fileStore.size === fileStore.downloaded && fileStore.priority !== 0) ? '#41B541' : '#3687ED';
+          const width = fileStore.progressStr;
 
           columns.push(
             <td key={name} className={name}>
               <div className="progress_b">
-                <div className="val">{file.progressStr}</div>
+                <div className="val">{fileStore.progressStr}</div>
                 <div className="progress_b_i" style={{backgroundColor, width}}/>
               </div>
             </td>
@@ -82,7 +95,7 @@ class FileListTableItem extends React.Component {
         case 'prio': {
           columns.push(
             <td key={name} className={name}>
-              <div>{file.priorityStr}</div>
+              <div>{fileStore.priorityStr}</div>
             </td>
           );
           break;
@@ -90,8 +103,13 @@ class FileListTableItem extends React.Component {
       }
     });
 
+    const classList = [];
+    if (fileStore.selected) {
+      classList.push('selected');
+    }
+
     return (
-      <tr>
+      <tr className={classList.join(' ')}>
         {columns}
       </tr>
     );

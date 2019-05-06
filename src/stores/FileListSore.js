@@ -2,6 +2,7 @@ import {types, flow, isAlive, resolveIdentifier, getRoot} from "mobx-state-tree"
 import {FileStore, TorrentStore} from "./ClientStore";
 import callApi from "../tools/callApi";
 import getLogger from "../tools/getLogger";
+import ListSelectStore from "./ListSelectStore";
 
 const logger = getLogger('FileListStore');
 
@@ -10,20 +11,21 @@ const byColumnMap = {
 };
 
 /**
- * @typedef {{}} FileListStore
- * @property {string} [state]
- * @property {string} id
- * @property {FileStore[]} files
+ * @typedef {ListSelectStore} FileListStore
  * @property {function:Promise} fetchFiles
+ * @property {*} torrent
+ * @property {*} sortedFiles
+ * @property {*} _sortedIds
+ * @property {*} isSelectedAll
  * @property {function} afterCreate
  * @property {function} beforeDestroy
  */
-const FileListStore = types.model('FileListStore', {
+const FileListStore = types.compose('FileListStore', ListSelectStore, types.model({
   id: types.identifier,
   state: types.optional(types.enumeration(['idle', 'pending', 'done', 'error']), 'idle'),
   files: types.array(FileStore),
   isLoading: types.optional(types.boolean, true),
-}).actions((self) => {
+})).actions((self) => {
   return {
     fetchFiles: flow(function* () {
       if (self.state === 'pending') return;
@@ -75,6 +77,16 @@ const FileListStore = types.model('FileListStore', {
       });
 
       return files;
+    },
+    get _sortedIds() {
+      return self.sortedFiles.map(file => file.name);
+    },
+    get isSelectedAll() {
+      const ids = self._sortedIds;
+      if (!self.isLoading && self.selectedIds.length === ids.length) {
+        return self.selectedIds.every(id => ids.indexOf(id) !== -1);
+      }
+      return false;
     },
     afterCreate() {
       /**@type RootStore*/const rootStore = getRoot(self);
