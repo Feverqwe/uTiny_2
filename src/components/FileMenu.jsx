@@ -133,17 +133,23 @@ class PriorityItem extends React.PureComponent {
     }
 
     let name = null;
-    if (this.props.level === 3) {
-      name = chrome.i18n.getMessage('MF_HIGH');
-    } else
-    if (this.props.level === 2) {
-      name = chrome.i18n.getMessage('MF_NORMAL');
-    } else
-    if (this.props.level === 1) {
-      name = chrome.i18n.getMessage('MF_LOW');
-    } else
-    if (this.props.level === 0) {
-      name = chrome.i18n.getMessage('MF_DONT');
+    switch (this.props.level) {
+      case 3: {
+        name = chrome.i18n.getMessage('MF_HIGH');
+        break;
+      }
+      case 2: {
+        name = chrome.i18n.getMessage('MF_NORMAL');
+        break;
+      }
+      case 1: {
+        name = chrome.i18n.getMessage('MF_LOW');
+        break;
+      }
+      case 0: {
+        name = chrome.i18n.getMessage('MF_DONT');
+        break;
+      }
     }
 
     return (
