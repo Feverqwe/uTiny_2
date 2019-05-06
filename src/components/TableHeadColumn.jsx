@@ -56,7 +56,7 @@ class TableHeadColumn extends React.Component {
   };
 
   handleBodyMouseMove = (e) => {
-    const delta = e.clientX - this.resizeStartClientX - 6;
+    const delta = e.clientX - this.resizeStartClientX;
     let newSize = this.resizeStartSize + delta;
     if (newSize < 16) {
       newSize = 16;
@@ -84,7 +84,7 @@ class TableHeadColumn extends React.Component {
 
     this.refTh.current.draggable = false;
 
-    this.resizeStartSize = this.refTh.current.clientWidth;
+    this.resizeStartSize = this.refTh.current.clientWidth + 1; // + 1 - border right
     this.resizeStartClientX = e.clientX;
 
     document.body.addEventListener('mousemove', this.handleBodyMouseMove);

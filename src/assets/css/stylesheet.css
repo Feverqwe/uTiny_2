@@ -164,6 +164,7 @@ table thead th,
 table tbody td {
     padding-left: 2px;
     padding-right: 2px;
+    box-sizing: border-box;
 }
 table thead th:first-child {
     padding-right: 1px;
