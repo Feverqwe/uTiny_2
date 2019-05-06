@@ -2,6 +2,7 @@ import React from "react";
 import {Item, Menu, Separator, Submenu} from "react-contexify";
 import {inject, observer} from "mobx-react";
 import PropTypes from "prop-types";
+import ContextMenuBody from "./ContextMenuBody";
 
 const torrentMenuItems = [
   'start', 'forcestart', 'pause', 'unpause',
@@ -19,29 +20,7 @@ const TorrentMenu = React.memo(() => {
 
 @inject('rootStore')
 @observer
-class TorrentMenuBody extends React.Component {
-  static propTypes = {
-    rootStore: PropTypes.object,
-    propsFromTrigger: PropTypes.object,
-  };
-
-  state = {
-    onHide: null
-  };
-
-  static getDerivedStateFromProps(nextProps, prevState) {
-    const nextOnHide = nextProps.propsFromTrigger && nextProps.propsFromTrigger.onHide;
-    if (prevState.onHide !== nextOnHide) {
-      if (prevState.onHide) {
-        prevState.onHide();
-      }
-      return {
-        onHide: nextOnHide
-      };
-    }
-    return null;
-  }
-
+class TorrentMenuBody extends ContextMenuBody {
   /**@return {RootStore}*/
   get rootStore() {
     return this.props.rootStore;
@@ -50,12 +29,6 @@ class TorrentMenuBody extends React.Component {
   /**@return {TorrentListStore}*/
   get torrentListStore() {
     return this.rootStore.torrentList;
-  }
-
-  componentWillUnmount() {
-    if (this.props.propsFromTrigger && this.props.propsFromTrigger.onHide) {
-      this.props.propsFromTrigger.onHide();
-    }
   }
 
   handleStart = ({event: e, props}) => {

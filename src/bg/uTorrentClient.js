@@ -3,6 +3,7 @@ import ErrorWithCode from "../tools/errorWithCode";
 import utFixCyrillic from "../tools/utFixCyrillic";
 import getLogger from "../tools/getLogger";
 import queryStringify from "../tools/utQueryStringify";
+import splitByPart from "../tools/splitByPart";
 
 const url = require('url');
 
@@ -14,8 +15,8 @@ class UTorrentClient {
 
     this.token = null;
     this.cid = null;
-    this.url = this.getUrl();
-    this.tokenUrl = this.getTokenUrl();
+    this.url = this.bgStore.config.url;
+    this.tokenUrl = new URL('token.html', this.url).toString();
   }
 
   /**
@@ -23,19 +24,6 @@ class UTorrentClient {
    */
   get bgStore() {
     return this.bg.bgStore;
-  }
-
-  getUrl() {
-    return url.format({
-      protocol: this.bgStore.config.ssl ? 'https' : 'http',
-      port: this.bgStore.config.port,
-      hostname: this.bgStore.config.hostname,
-      pathname: this.bgStore.config.pathname,
-    });
-  }
-
-  getTokenUrl() {
-    return new URL('token.html', this.url).toString();
   }
 
   updateTorrents() {
@@ -224,6 +212,12 @@ class UTorrentClient {
 
   setLabel(ids, label = '') {
     return this.sendAction({list: 1, cid: this.cid, action: 'setprops', s: 'label', hash: ids, v: label});
+  }
+
+  setPriority(id, level, idxs) {
+    return Promise.all(splitByPart(idxs, 500).map((idxs) => {
+      return this.sendAction({action: 'setprio', p: level, hash: id, f: idxs});
+    }));
   }
 
   retryIfTokenInvalid(callback) {

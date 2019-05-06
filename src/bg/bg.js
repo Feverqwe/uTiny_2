@@ -179,6 +179,10 @@ class Bg {
         promise = this.client.setLabel(message.ids, message.label);
         break;
       }
+      case 'setPriority': {
+        promise = this.client.setPriority(message.id, message.level, message.fileIdxs);
+        break;
+      }
       case 'getFileList': {
         promise = this.client.getFileList(message.id);
         break;

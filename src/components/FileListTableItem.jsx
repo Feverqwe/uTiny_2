@@ -1,6 +1,7 @@
 import {inject, observer} from "mobx-react";
 import React from "react";
 import PropTypes from "prop-types";
+import {contextMenu} from "react-contexify";
 
 @inject('rootStore')
 @observer
@@ -35,6 +36,28 @@ class FileListTableItem extends React.Component {
     } else {
       this.fileListStore.removeSelectedId(this.fileStore.name);
     }
+  };
+
+  handleContextMenu = (e) => {
+    e.preventDefault();
+
+    let onHide = null;
+    if (!this.fileStore.selected) {
+      onHide = this.handleContextMenuHide;
+      this.fileListStore.addSelectedId(this.fileStore.name);
+    }
+
+    contextMenu.show({
+      id: 'file_menu',
+      event: e,
+      props: {
+        onHide: onHide
+      }
+    });
+  };
+
+  handleContextMenuHide = () => {
+    this.fileListStore.removeSelectedId(this.fileStore.name);
   };
 
   render() {
@@ -109,7 +132,7 @@ class FileListTableItem extends React.Component {
     }
 
     return (
-      <tr className={classList.join(' ')}>
+      <tr onContextMenu={this.handleContextMenu} className={classList.join(' ')}>
         {columns}
       </tr>
     );

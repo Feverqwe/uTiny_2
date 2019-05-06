@@ -5,6 +5,8 @@ import ListSelectStore from "./ListSelectStore";
 import FileStore from "./FileStore";
 import TorrentStore from "./TorrentStore";
 
+const qs = require('querystring');
+
 const logger = getLogger('FileListStore');
 
 const byColumnMap = {
@@ -18,10 +20,14 @@ const byColumnMap = {
  * @property {FileStore[]} files
  * @property {boolean} [isLoading]
  * @property {function:Promise} fetchFiles
+ * @property {function} getFileById
+ * @property {function} getFileIndexById
+ * @property {function} getDownloadUrlById
  * @property {*} torrent
  * @property {*} sortedFiles
  * @property {*} _sortedIds
  * @property {*} isSelectedAll
+ * @property {*} selectedIndexes
  * @property {function} afterCreate
  * @property {function} beforeDestroy
  */
@@ -52,6 +58,33 @@ const FileListStore = types.compose('FileListStore', ListSelectStore, types.mode
   let intervalId = null;
 
   return {
+    getFileById(name) {
+      return resolveIdentifier(FileStore, self, name);
+    },
+    getFileIndexById(name) {
+      const file = self.getFileById(name);
+      if (file) {
+        return self.files.indexOf(file);
+      }
+      return null;
+    },
+    getDownloadUrlById(name) {
+      const torrent = self.torrent;
+      if (torrent && torrent.sid) {
+        const index = self.getFileIndexById(name);
+        if (index !== null) {
+          /**@type RootStore*/const rootStore = getRoot(self);
+          return new URL('proxy?' + qs.stringify({
+            sid: torrent.sid,
+            file: index,
+            disposition: 'ATTACHMENT',
+            service: 'DOWNLOAD',
+            qos: 0
+          }), rootStore.config.url).toString();
+        }
+      }
+      return null;
+    },
     get torrent() {
       return resolveIdentifier(TorrentStore, self, self.id);
     },
@@ -92,6 +125,9 @@ const FileListStore = types.compose('FileListStore', ListSelectStore, types.mode
         return self.selectedIds.every(id => ids.indexOf(id) !== -1);
       }
       return false;
+    },
+    get selectedIndexes() {
+      return self.selectedIds.map(name => self.getFileIndexById(name));
     },
     afterCreate() {
       /**@type RootStore*/const rootStore = getRoot(self);

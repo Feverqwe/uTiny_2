@@ -250,6 +250,9 @@ const ClientStore = types.model('ClientStore', {
     torrentsSetLabel(ids, label) {
       return callApi({action: 'setLabel', label, ids: ids});
     },
+    filesSetPriority(id, fileIdxs, level) {
+      return callApi({action: 'setPriority', level, id: id, fileIdxs});
+    },
     getSnapshot() {
       return getSnapshot(self);
     }

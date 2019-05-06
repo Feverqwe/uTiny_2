@@ -2,6 +2,8 @@ import {types, resolveIdentifier} from "mobx-state-tree";
 import {defaultConfig} from "../tools/loadConfig";
 import storageSet from "../tools/storageSet";
 
+const url = require('url');
+
 /**
  * @typedef {{}} ColumnsStore
  * @property {string} column
@@ -223,6 +225,14 @@ const ConfigStore = types.model('ConfigStore', {
   const customLabels = ['ALL', 'DL', 'SEEDING', 'COMPL', 'ACTIVE', 'INACTIVE', 'NOLABEL'];
 
   return {
+    get url() {
+      return url.format({
+        protocol: self.ssl ? 'https' : 'http',
+        port: self.port,
+        hostname: self.hostname,
+        pathname: self.pathname,
+      });
+    },
     get visibleTorrentColumns() {
       return self.torrentColumns.filter(column => column.display);
     },

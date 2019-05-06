@@ -3,6 +3,7 @@ import {inject, observer} from "mobx-react";
 import TableHeadColumn from "./TableHeadColumn";
 import PropTypes from "prop-types";
 import FileListTableItem from "./FileListTableItem";
+import FileMenu from "./FileMenu";
 
 @inject('rootStore')
 @observer
@@ -220,7 +221,7 @@ class FileListTableFiles extends React.Component {
   }
 
   render() {
-    const torrens = this.rootStore.fileList.sortedFiles.map((file) => {
+    const files = this.rootStore.fileList.sortedFiles.map((file) => {
       return (
         <FileListTableItem key={file.name} file={file}/>
       );
@@ -228,7 +229,8 @@ class FileListTableFiles extends React.Component {
 
     return (
       <tbody>
-      {torrens}
+      {files}
+      <FileMenu/>
       </tbody>
     );
   }

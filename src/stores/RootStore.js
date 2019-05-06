@@ -4,7 +4,7 @@ import ConfigStore from "./ConfigStore";
 import getLogger from "../tools/getLogger";
 import ClientStore from "./ClientStore";
 import callApi from "../tools/callApi";
-import FileListStore from "./FileListSore";
+import FileListStore from "./FileListStore";
 import TorrentListStore from "./TorrentListStore";
 
 const logger = getLogger('RootStore');
