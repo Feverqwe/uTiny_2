@@ -4,6 +4,8 @@ import TableHeadColumn from "./TableHeadColumn";
 import PropTypes from "prop-types";
 import FileListTableItem from "./FileListTableItem";
 import FileMenu from "./FileMenu";
+import FileColumnMenu from "./FileColumnMenu";
+import {contextMenu} from "react-contexify";
 
 @inject('rootStore')
 @observer
@@ -62,6 +64,7 @@ class FileListTable extends React.Component {
                 <FileListTableHead/>
                 <FileListTableFiles/>
               </table>
+              <FileColumnMenu/>
             </div>
             <ul className="bottom-menu">
               <li className="path">
@@ -153,6 +156,15 @@ class FileListTableHeadColumn extends TableHeadColumn {
     this.fileListStore.toggleSelectAll();
   };
 
+  handleContextMenu = (e) => {
+    e.preventDefault();
+
+    contextMenu.show({
+      id: 'file_column_menu',
+      event: e
+    });
+  };
+
   render() {
     const {column, isSorted, sortDirection} = this.props;
     const classList = [column.column];
@@ -198,7 +210,7 @@ class FileListTableHeadColumn extends TableHeadColumn {
     }
 
     return (
-      <th ref={this.refTh} onClick={this.handleSort} onDragStart={this.handleDragStart} onDragOver={this.handleDragOver} onDrop={this.handleDrop} className={classList.join(' ')} title={chrome.i18n.getMessage(column.lang)} draggable={true}>
+      <th ref={this.refTh} onClick={this.handleSort} onContextMenu={this.handleContextMenu} onDragStart={this.handleDragStart} onDragOver={this.handleDragOver} onDrop={this.handleDrop} className={classList.join(' ')} title={chrome.i18n.getMessage(column.lang)} draggable={true}>
         {body}
         <div className="resize-el" draggable={false} onClick={this.handleResizeClick} onMouseDown={this.handleResizeMouseDown}/>
         {arraw}

@@ -1,11 +1,11 @@
-import {types, resolveIdentifier} from "mobx-state-tree";
+import {resolveIdentifier, types} from "mobx-state-tree";
 import {defaultConfig} from "../tools/loadConfig";
 import storageSet from "../tools/storageSet";
 
 const url = require('url');
 
 /**
- * @typedef {{}} ColumnsStore
+ * @typedef {{}} ColumnStore
  * @property {string} column
  * @property {number} display
  * @property {number} order
@@ -13,7 +13,7 @@ const url = require('url');
  * @property {string} lang
  * @property {function} setWidth
  */
-const ColumnsStore =  types.model('ColumnsStore', {
+const ColumnStore =  types.model('ColumnsStore', {
   column: types.identifier,
   display: types.number,
   order: types.number,
@@ -23,19 +23,22 @@ const ColumnsStore =  types.model('ColumnsStore', {
   return {
     setWidth(value) {
       self.width = value;
+    },
+    toggleDisplay() {
+      self.display = self.display ? 0 : 1;
     }
   };
 });
 
 /**
- * @typedef {ColumnsStore} TorrentsColumnsStore
+ * @typedef {ColumnStore} TorrentsColumnStore
  */
-const TorrentsColumnsStore = types.compose('TorrentsColumnsStore', ColumnsStore, types.model({}));
+const TorrentsColumnStore = types.compose('TorrentsColumnsStore', ColumnStore, types.model({}));
 
 /**
- * @typedef {ColumnsStore} FilesColumnsStore
+ * @typedef {ColumnStore} FilesColumnStore
  */
-const FilesColumnsStore = types.compose('FilesColumnsStore', ColumnsStore, types.model({}));
+const FilesColumnStore = types.compose('FilesColumnsStore', ColumnStore, types.model({}));
 
 /**
  * @typedef {{}} FolderStore
@@ -76,8 +79,8 @@ const FolderStore = types.model('FolderStore', {
  * @property {boolean} [fixCyrillicDownloadPath]
  * @property {FolderStore[]} folders
  * @property {string[]} labels
- * @property {TorrentsColumnsStore[]} torrentColumns
- * @property {FilesColumnsStore[]} filesColumns
+ * @property {TorrentsColumnStore[]} torrentColumns
+ * @property {FilesColumnStore[]} filesColumns
  * @property {{by:string,[direction]:number}} [torrentsSort]
  * @property {{by:string,[direction]:number}} [filesSort]
  * @property {{label:string,custom:boolean}} [selectedLabel]
@@ -132,8 +135,8 @@ const ConfigStore = types.model('ConfigStore', {
   folders: types.array(FolderStore),
   labels: types.array(types.string),
 
-  torrentColumns: types.array(TorrentsColumnsStore),
-  filesColumns: types.array(FilesColumnsStore),
+  torrentColumns: types.array(TorrentsColumnStore),
+  filesColumns: types.array(FilesColumnStore),
 
   torrentsSort: types.optional(types.model({
     by: types.string,
@@ -169,8 +172,8 @@ const ConfigStore = types.model('ConfigStore', {
       Object.assign(self, keyValue);
     },
     moveTorrensColumn(from, to) {
-      const column = resolveIdentifier(TorrentsColumnsStore, self, from);
-      const columnTarget = resolveIdentifier(TorrentsColumnsStore, self, to);
+      const column = resolveIdentifier(TorrentsColumnStore, self, from);
+      const columnTarget = resolveIdentifier(TorrentsColumnStore, self, to);
 
       const columns = moveColumn(self.torrentColumns.slice(0), column, columnTarget);
 
@@ -184,8 +187,8 @@ const ConfigStore = types.model('ConfigStore', {
       });
     },
     moveFilesColumn(from, to) {
-      const column = resolveIdentifier(FilesColumnsStore, self, from);
-      const columnTarget = resolveIdentifier(FilesColumnsStore, self, to);
+      const column = resolveIdentifier(FilesColumnStore, self, from);
+      const columnTarget = resolveIdentifier(FilesColumnStore, self, to);
 
       const columns = moveColumn(self.filesColumns.slice(0), column, columnTarget);
 

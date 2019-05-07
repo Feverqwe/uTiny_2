@@ -1,4 +1,4 @@
-import {types, flow, isAlive, resolveIdentifier, getRoot} from "mobx-state-tree";
+import {flow, getRoot, isAlive, resolveIdentifier, types} from "mobx-state-tree";
 import callApi from "../tools/callApi";
 import getLogger from "../tools/getLogger";
 import ListSelectStore from "./ListSelectStore";

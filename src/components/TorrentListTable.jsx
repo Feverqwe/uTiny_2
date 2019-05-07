@@ -4,6 +4,8 @@ import PropTypes from "prop-types";
 import TableHeadColumn from "./TableHeadColumn";
 import TorrentListTableItem from "./TorrentListTableItem";
 import TorrentMenu from "./TorrentMenu";
+import TorrentColumnMenu from "./TorrentColumnMenu";
+import {contextMenu} from "react-contexify";
 
 @inject('rootStore')
 @observer
@@ -39,6 +41,7 @@ class TorrentListTable extends React.Component {
           <TorrentListTableHead/>
           <TorrentListTableTorrents/>
         </table>
+        <TorrentColumnMenu/>
       </div>
     );
   }
@@ -114,6 +117,15 @@ class TorrentListTableHeadColumn extends TableHeadColumn {
     this.torrentListStore.toggleSelectAll();
   };
 
+  handleContextMenu = (e) => {
+    e.preventDefault();
+
+    contextMenu.show({
+      id: 'torrent_column_menu',
+      event: e
+    });
+  };
+
   render() {
     const {column, isSorted, sortDirection} = this.props;
     const classList = [column.column];
@@ -159,7 +171,7 @@ class TorrentListTableHeadColumn extends TableHeadColumn {
     }
 
     return (
-      <th ref={this.refTh} onClick={this.handleSort} onDragStart={this.handleDragStart} onDragOver={this.handleDragOver} onDrop={this.handleDrop} className={classList.join(' ')} title={chrome.i18n.getMessage(column.lang)} draggable={true}>
+      <th ref={this.refTh} onClick={this.handleSort} onContextMenu={this.handleContextMenu} onDragStart={this.handleDragStart} onDragOver={this.handleDragOver} onDrop={this.handleDrop} className={classList.join(' ')} title={chrome.i18n.getMessage(column.lang)} draggable={true}>
         {body}
         <div className="resize-el" draggable={false} onClick={this.handleResizeClick} onMouseDown={this.handleResizeMouseDown}/>
         {arraw}

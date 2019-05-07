@@ -135,49 +135,49 @@ class TorrentMenuBody extends ContextMenuBody {
       switch (action) {
         case 'start': {
           buttons.push(
-            <Item key={'start'} onClick={this.handleStart}>{chrome.i18n.getMessage('ML_START')}</Item>
+            <Item key={action} onClick={this.handleStart}>{chrome.i18n.getMessage('ML_START')}</Item>
           );
           break;
         }
         case 'forcestart': {
           buttons.push(
-            <Item key={'forcestart'} onClick={this.handleForceStart}>{chrome.i18n.getMessage('ML_FORCE_START')}</Item>
+            <Item key={action} onClick={this.handleForceStart}>{chrome.i18n.getMessage('ML_FORCE_START')}</Item>
           );
           break;
         }
         case 'pause': {
           buttons.push(
-            <Item key={'pause'} onClick={this.handlePause}>{chrome.i18n.getMessage('ML_PAUSE')}</Item>
+            <Item key={action} onClick={this.handlePause}>{chrome.i18n.getMessage('ML_PAUSE')}</Item>
           );
           break;
         }
         case 'unpause': {
           buttons.push(
-            <Item key={'unpause'} onClick={this.handleUnpause}>{chrome.i18n.getMessage('resume')}</Item>
+            <Item key={action} onClick={this.handleUnpause}>{chrome.i18n.getMessage('resume')}</Item>
           );
           break;
         }
         case 'stop': {
           buttons.push(
-            <Item key={'stop'} onClick={this.handleStop}>{chrome.i18n.getMessage('ML_STOP')}</Item>
+            <Item key={action} onClick={this.handleStop}>{chrome.i18n.getMessage('ML_STOP')}</Item>
           );
           break;
         }
         case 'recheck': {
           buttons.push(
-            <Item key={'recheck'} onClick={this.handleRecheck}>{chrome.i18n.getMessage('ML_FORCE_RECHECK')}</Item>
+            <Item key={action} onClick={this.handleRecheck}>{chrome.i18n.getMessage('ML_FORCE_RECHECK')}</Item>
           );
           break;
         }
         case 'remove': {
           buttons.push(
-            <Item key={'remove'} onClick={this.handleRemove}>{chrome.i18n.getMessage('ML_REMOVE')}</Item>
+            <Item key={action} onClick={this.handleRemove}>{chrome.i18n.getMessage('ML_REMOVE')}</Item>
           );
           break;
         }
         case 'remove_with': {
           buttons.push(
-            <Submenu key={'remove_with'} label={chrome.i18n.getMessage('ML_REMOVE_AND')}>
+            <Submenu key={action} label={chrome.i18n.getMessage('ML_REMOVE_AND')}>
               <Item onClick={this.handleRemoveTorrent}>{chrome.i18n.getMessage('ML_DELETE_TORRENT')}</Item>
               <Item onClick={this.handleRemoveFiles}>{chrome.i18n.getMessage('ML_DELETE_DATA')}</Item>
               <Item onClick={this.handleRemoveTorrentFiles}>{chrome.i18n.getMessage('ML_DELETE_DATATORRENT')}</Item>
@@ -187,7 +187,7 @@ class TorrentMenuBody extends ContextMenuBody {
         }
         case 'order': {
           buttons.push(
-            <Submenu key={'order'} label={chrome.i18n.getMessage('OV_COL_ORDER')}>
+            <Submenu key={action} label={chrome.i18n.getMessage('OV_COL_ORDER')}>
               <Item onClick={this.handleQueueUp}>{chrome.i18n.getMessage('up')}</Item>
               <Item onClick={this.handleQueueDown}>{chrome.i18n.getMessage('down')}</Item>
             </Submenu>
@@ -196,7 +196,7 @@ class TorrentMenuBody extends ContextMenuBody {
         }
         case 'torrent_files': {
           buttons.push(
-            <Item key={'torrent_files'} onClick={this.handleShowFiles}>{chrome.i18n.getMessage('showFileList')}</Item>
+            <Item key={action} onClick={this.handleShowFiles}>{chrome.i18n.getMessage('showFileList')}</Item>
           );
           break;
         }
@@ -215,17 +215,17 @@ class TorrentMenuBody extends ContextMenuBody {
 
           if (subButtons.length) {
             subButtons.unshift(
-              <Separator key={'separator'}/>
+              <Separator key={`_`}/>
             );
           }
 
           if (selectedIds.length > 1 || firstTorrent.label) {
             subButtons.unshift(
-              <Item key={'remove'} onClick={this.handleRemoveLabel}>{chrome.i18n.getMessage('OV_REMOVE_LABEL')}</Item>
+              <Item key={`remove`} onClick={this.handleRemoveLabel}>{chrome.i18n.getMessage('OV_REMOVE_LABEL')}</Item>
             );
           } else {
             subButtons.unshift(
-              <Item key={'create'} onClick={this.handleCreateLabel}>{chrome.i18n.getMessage('OV_NEW_LABEL')}</Item>
+              <Item key={`create`} onClick={this.handleCreateLabel}>{chrome.i18n.getMessage('OV_NEW_LABEL')}</Item>
             );
           }
 
@@ -242,7 +242,7 @@ class TorrentMenuBody extends ContextMenuBody {
           }
 
           buttons.push(
-            <Submenu key={'labels'} label={label}>
+            <Submenu key={action} label={label}>
               {subButtons}
             </Submenu>
           );
@@ -250,7 +250,7 @@ class TorrentMenuBody extends ContextMenuBody {
         }
         case '_': {
           buttons.push(
-            <Separator key={'separator_' + index}/>
+            <Separator key={action + index}/>
           );
           break;
         }
