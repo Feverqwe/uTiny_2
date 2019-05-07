@@ -56,6 +56,7 @@ class TorrentMenuBody extends ContextMenuBody {
   };
 
   handleRemove = ({event: e, props}) => {
+    // todo: add confirm
     this.rootStore.client.torrentsRemove(this.torrentListStore.selectedIds);
   };
 
