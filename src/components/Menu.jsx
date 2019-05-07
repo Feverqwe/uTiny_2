@@ -72,6 +72,9 @@ class Menu extends React.Component {
 
   handleAddUrl = (e) => {
     e.preventDefault();
+    this.rootStore.createDialog({
+      type: 'putUrl'
+    });
   };
 
   handleStartAll = (e) => {

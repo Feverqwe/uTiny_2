@@ -5,7 +5,7 @@ import Dialog from "./Dialog";
 
 @inject('rootStore')
 @observer
-class PutFilesDialog extends React.Component {
+class PutUrlDialog extends React.Component {
   static propTypes = {
     rootStore: PropTypes.object,
     dialogStore: PropTypes.object.isRequired,
@@ -16,36 +16,33 @@ class PutFilesDialog extends React.Component {
     return this.props.rootStore;
   }
 
-  /**@return {PutFilesDialogStore}*/
+  /**@return {PutUrlDialogStore}*/
   get dialogStore() {
     return this.props.dialogStore;
   }
 
   handleSubmit = (e) => {
-    let directory = undefined;
+    e.preventDefault();
+    const form = e.currentTarget;
+
+    const url = form.elements.url.value;
+    const urls = [url];
+
     let label = undefined;
-    if (e) {
-      e.preventDefault();
-      const form = e.currentTarget;
-
-      if (form.elements.label) {
-        const labelIndex = parseInt(form.elements.label.value, 10);
-        if (labelIndex > -1) {
-          label = this.rootStore.client.allLabels[labelIndex];
-        }
-      }
-
-      if (form.elements.directory) {
-        const directoryIndex = parseInt(form.elements.directory.value, 10);
-        if (directoryIndex > -1) {
-          directory = this.rootStore.config.folders[directoryIndex];
-        }
+    if (form.elements.label) {
+      const labelIndex = parseInt(form.elements.label.value, 10);
+      if (labelIndex > -1) {
+        label = this.rootStore.client.allLabels[labelIndex];
       }
     }
 
-    const files = this.dialogStore.files;
-
-    const urls = files.map(file => URL.createObjectURL(file));
+    let directory = undefined;
+    if (form.elements.directory) {
+      const directoryIndex = parseInt(form.elements.directory.value, 10);
+      if (directoryIndex > -1) {
+        directory = this.rootStore.config.folders[directoryIndex];
+      }
+    }
 
     this.rootStore.client.sendFiles(urls, directory, label);
 
@@ -94,23 +91,18 @@ class PutFilesDialog extends React.Component {
       );
     }
 
-    let submit = null;
-    if (!labelSelect || !directorySelect) {
-      submit = (
-        <Submit onSubmit={this.handleSubmit}/>
-      );
-    }
-
     return (
       <Dialog onClose={this.handleClose}>
         <div className="nf-notifi">
           <form onSubmit={this.handleSubmit}>
+            <div className="nf-subItem">
+              <label>{chrome.i18n.getMessage('Paste_a_torrent_URL')}</label>
+              <input type="text" name="url" autoFocus={true}/>
+            </div>
             {labelSelect}
             {directorySelect}
-            {submit}
             <div className="nf-subItem">
-              <input type="submit" value={chrome.i18n.getMessage('DLG_BTN_OK')}
-                     autoFocus={true}/>
+              <input type="submit" value={chrome.i18n.getMessage('DLG_BTN_OK')}/>
               <input onClick={this.handleClose} type="button" value={chrome.i18n.getMessage('DLG_BTN_CANCEL')}/>
             </div>
           </form>
@@ -120,20 +112,4 @@ class PutFilesDialog extends React.Component {
   }
 }
 
-class Submit extends React.PureComponent {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired
-  };
-
-  constructor(props) {
-    super(props);
-
-    props.onSubmit();
-  }
-
-  render() {
-    return null;
-  }
-}
-
-export default PutFilesDialog;
+export default PutUrlDialog;

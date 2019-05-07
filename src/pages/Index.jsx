@@ -13,6 +13,7 @@ import Footer from "../components/Footer";
 import PutFilesDialog from "../components/PutFilesDialog";
 import CreateLabelDialog from "../components/CreateLabelDialog";
 import RemoveConfirmDialog from "../components/RemoveConfirmDialog";
+import PutUrlDialog from "../components/PutUrlDialog";
 
 @inject('rootStore')
 @observer
@@ -86,6 +87,11 @@ class Dialogs extends React.Component {
         case 'putFiles': {
           return (
             <PutFilesDialog key={dialog.id} dialogStore={dialog}/>
+          );
+        }
+        case 'putUrl': {
+          return (
+            <PutUrlDialog key={dialog.id} dialogStore={dialog}/>
           );
         }
         case 'createLabel': {
