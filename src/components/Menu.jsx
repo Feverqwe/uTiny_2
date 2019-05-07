@@ -62,7 +62,7 @@ class Menu extends React.Component {
 
   handleRefresh = (e) => {
     e.preventDefault();
-    this.rootStore.updateTorrentList();
+    this.rootStore.client.syncUiClient();
   };
 
   handleAddFile = (e) => {

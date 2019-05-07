@@ -14,6 +14,10 @@ import PutFilesDialog from "../components/PutFilesDialog";
 import CreateLabelDialog from "../components/CreateLabelDialog";
 import RemoveConfirmDialog from "../components/RemoveConfirmDialog";
 import PutUrlDialog from "../components/PutUrlDialog";
+import Interval from "../components/Interval";
+import getLogger from "../tools/getLogger";
+
+const logger = getLogger('Index');
 
 @inject('rootStore')
 @observer
@@ -37,6 +41,18 @@ class Index extends React.Component {
     return this.props.rootStore;
   }
 
+  onIntervalInit = () => {
+    this.rootStore.client.getSettings().catch((err) => {
+      logger.error('onIntervalInit getSettings error', err);
+    });
+  };
+
+  onIntervalFire = () => {
+    this.rootStore.client.syncUiClient().catch((err) => {
+      logger.error('onIntervalFire syncUiClient error', err);
+    });
+  };
+
   render() {
     if (this.rootStore.state === 'pending') {
       return `Loading: ${this.rootStore.state}`;
@@ -56,13 +72,11 @@ class Index extends React.Component {
       );
     }
 
-    const listUpdater = (
-      <ListUpdater key={`i-${this.rootStore.config.uiUpdateInterval}`} interval={this.rootStore.config.uiUpdateInterval}/>
-    );
+    const uiUpdateInterval = this.rootStore.config.uiUpdateInterval;
 
     return (
       <>
-        {listUpdater}
+        <Interval key={'' + uiUpdateInterval} onInit={this.onIntervalInit} onFire={this.onIntervalFire} interval={uiUpdateInterval}/>
         <Menu/>
         <TorrentListTable/>
         <Footer/>
@@ -115,35 +129,6 @@ class Dialogs extends React.Component {
     return (
       dialogs
     );
-  }
-}
-
-@inject('rootStore')
-class ListUpdater extends React.PureComponent {
-  static propTypes = {
-    interval: PropTypes.number.isRequired,
-    rootStore: PropTypes.object,
-  };
-
-  constructor(props) {
-    super(props);
-
-    this.intervalId = setInterval(() => {
-      this.rootStore.updateTorrentList();
-    }, this.props.interval);
-  }
-
-  /**@return {RootStore}*/
-  get rootStore() {
-    return this.props.rootStore;
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.intervalId);
-  }
-
-  render() {
-    return null;
   }
 }
 

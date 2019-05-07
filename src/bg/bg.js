@@ -57,6 +57,9 @@ class Bg {
         if (dep.length) {
           this.bgStore.flushClient();
           this.client = new UTorrentClient(this);
+          this.client.getSettings().catch((err) => {
+            logger.error('client', 'getSettings error', err);
+          });
           this.client.updateTorrents().catch((err) => {
             logger.error('client', 'updateTorrents error', err);
           });

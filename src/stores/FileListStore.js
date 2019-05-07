@@ -55,8 +55,6 @@ const FileListStore = types.compose('FileListStore', ListSelectStore, types.mode
     }),
   };
 }).views((self) => {
-  let intervalId = null;
-
   return {
     getFileById(name) {
       return resolveIdentifier(FileStore, self, name);
@@ -128,16 +126,6 @@ const FileListStore = types.compose('FileListStore', ListSelectStore, types.mode
     },
     get selectedIndexes() {
       return self.selectedIds.map(name => self.getFileIndexById(name));
-    },
-    afterCreate() {
-      /**@type RootStore*/const rootStore = getRoot(self);
-      intervalId = setInterval(() => {
-        self.fetchFiles();
-      }, rootStore.config.uiUpdateInterval);
-      self.fetchFiles();
-    },
-    beforeDestroy() {
-      clearInterval(intervalId);
     }
   };
 });

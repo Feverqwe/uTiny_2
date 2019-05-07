@@ -6,6 +6,10 @@ import FileListTableItem from "./FileListTableItem";
 import FileMenu from "./FileMenu";
 import FileColumnMenu from "./FileColumnMenu";
 import {contextMenu} from "react-contexify";
+import Interval from "./Interval";
+import getLogger from "../tools/getLogger";
+
+const logger = getLogger('FileListTable');
 
 @inject('rootStore')
 @observer
@@ -36,6 +40,12 @@ class FileListTable extends React.Component {
     e.stopPropagation();
   };
 
+  onIntervalFire = () => {
+    this.rootStore.fileList.fetchFiles().catch((err) => {
+      logger.error('onIntervalFire fetchFiles error', err);
+    });
+  };
+
   render() {
     const torrent = this.fileListStore.torrent;
 
@@ -51,10 +61,13 @@ class FileListTable extends React.Component {
       directory = torrent.directory;
     }
 
+    const uiUpdateInterval = this.rootStore.config.uiUpdateInterval;
+
     return (
       <>
         <div onClick={this.handleClose} className="file-list-warpper">
           <div onClick={this.stopPropagation} className="file-list">
+            <Interval interval={uiUpdateInterval} onInit={this.onIntervalFire} onFire={this.onIntervalFire}/>
             <div onScroll={this.handleScroll} className="fl-layer">
               {spinner}
               <table ref={this.refFixedHead} className="fl-table-head" border="0" cellSpacing="0" cellPadding="0">

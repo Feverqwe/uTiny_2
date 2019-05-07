@@ -29,7 +29,6 @@ let dialogIndex = 0;
  * @property {function} destroyFileList
  * @property {function} createDialog
  * @property {function} destroyDialog
- * @property {function} updateTorrentList
  * @property {*} isPopup
  */
 const RootStore = types.model('RootStore', {
@@ -47,9 +46,6 @@ const RootStore = types.model('RootStore', {
       try {
         self.config = yield fetchConfig();
         self.client = yield fetchClient();
-        self.client.getSettings().catch((err) => {
-          logger.error('init getSettings error', err);
-        });
         self.state = 'done';
       } catch (err) {
         logger.error('init error', err);
@@ -76,25 +72,11 @@ const RootStore = types.model('RootStore', {
   };
 }).views((self) => {
   return {
-    updateTorrentList() {
-      return updateTorrentList().then((client) => {
-        self.client.setTorrents(client.torrents);
-        self.client.setLabels(client.labels);
-        self.client.setSettings(client.settings);
-        self.client.speedRoll.setData(client.speedRoll.data);
-      });
-    },
     get isPopup() {
       return location.hash === '#popup';
     }
   };
 });
-
-const updateTorrentList = () => {
-  return callApi({
-    action: 'updateTorrentList'
-  });
-};
 
 const fetchClient = () => {
   return callApi({

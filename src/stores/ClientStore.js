@@ -26,6 +26,8 @@ const LabelStore = types.model('LabelStore', {
  * @typedef {{}} SettingsStore
  * @property {number|undefined} downloadSpeedLimit
  * @property {number|undefined} uploadSpeedLimit
+ * @property {*} downloadSpeedLimitStr
+ * @property {*} uploadSpeedLimitStr
  */
 const SettingsStore = types.model('SettingsStore', {
   downloadSpeedLimit: types.maybe(types.number),
@@ -50,11 +52,12 @@ const SettingsStore = types.model('SettingsStore', {
  * @property {function} removeTorrentByIds
  * @property {function} sync
  * @property {function} syncChanges
- * @property {function} setFileList
  * @property {function} setTorrents
  * @property {function} setLabels
  * @property {function} setSettings
  * @property {*} torrentIds
+ * @property {*} downloadingTorrentIds
+ * @property {*} pausedTorrentIds
  * @property {*} sortedTorrents
  * @property {*} sortedTorrentIds
  * @property {*} activeTorrentIds
@@ -75,7 +78,13 @@ const SettingsStore = types.model('SettingsStore', {
  * @property {function} torrentsQueueUp
  * @property {function} torrentsQueueDown
  * @property {function} torrentsSetLabel
+ * @property {function} filesSetPriority
+ * @property {function} setDownloadSpeedLimit
+ * @property {function} setUploadSpeedLimit
+ * @property {function} getSettings
+ * @property {function} sendFiles
  * @property {function} getSnapshot
+ * @property {function} syncUiClient
  */
 const ClientStore = types.model('ClientStore', {
   torrents: types.map(TorrentStore),
@@ -126,6 +135,12 @@ const ClientStore = types.model('ClientStore', {
     },
   };
 }).views((self) => {
+  const syncUiWrap = (fn) => {
+    return Promise.resolve(fn()).then((result) => {
+      return self.syncUiClient().then(() => result);
+    });
+  };
+
   return {
     get torrentIds() {
       return Array.from(self.torrents.keys());
@@ -239,63 +254,113 @@ const ClientStore = types.model('ClientStore', {
       return result;
     },
     torrentsStart(ids) {
-      return callApi({action: 'start', ids: ids});
+      return syncUiWrap(() => {
+        return callApi({action: 'start', ids: ids});
+      });
     },
     torrentsForceStart(ids) {
-      return callApi({action: 'forcestart', ids: ids});
+      return syncUiWrap(() => {
+        return callApi({action: 'forcestart', ids: ids});
+      });
     },
     torrentsPause(ids) {
-      return callApi({action: 'pause', ids: ids});
+      return syncUiWrap(() => {
+        return callApi({action: 'pause', ids: ids});
+      });
     },
     torrentsUnpause(ids) {
-      return callApi({action: 'unpause', ids: ids});
+      return syncUiWrap(() => {
+        return callApi({action: 'unpause', ids: ids});
+      });
     },
     torrentsStop(ids) {
-      return callApi({action: 'stop', ids: ids});
+      return syncUiWrap(() => {
+        return callApi({action: 'stop', ids: ids});
+      });
     },
     torrentsRecheck(ids) {
-      return callApi({action: 'recheck', ids: ids});
+      return syncUiWrap(() => {
+        return callApi({action: 'recheck', ids: ids});
+      });
     },
     torrentsRemove(ids) {
-      return callApi({action: 'remove', ids: ids});
+      return syncUiWrap(() => {
+        return callApi({action: 'remove', ids: ids});
+      });
     },
     torrentsRemoveTorrent(ids) {
-      return callApi({action: 'removetorrent', ids: ids});
+      return syncUiWrap(() => {
+        return callApi({action: 'removetorrent', ids: ids});
+      });
     },
     torrentsRemoveFiles(ids) {
-      return callApi({action: 'removedata', ids: ids});
+      return syncUiWrap(() => {
+        return callApi({action: 'removedata', ids: ids});
+      });
     },
     torrentsRemoveTorrentFiles(ids) {
-      return callApi({action: 'removedatatorrent', ids: ids});
+      return syncUiWrap(() => {
+        return callApi({action: 'removedatatorrent', ids: ids});
+      });
     },
     torrentsQueueUp(ids) {
-      return callApi({action: 'queueUp', ids: ids});
+      return syncUiWrap(() => {
+        return callApi({action: 'queueUp', ids: ids});
+      });
     },
     torrentsQueueDown(ids) {
-      return callApi({action: 'queueDown', ids: ids});
+      return syncUiWrap(() => {
+        return callApi({action: 'queueDown', ids: ids});
+      });
     },
     torrentsSetLabel(ids, label) {
-      return callApi({action: 'setLabel', label, ids: ids});
+      return syncUiWrap(() => {
+        return callApi({action: 'setLabel', label, ids: ids});
+      });
     },
     filesSetPriority(id, fileIdxs, level) {
-      return callApi({action: 'setPriority', level, id: id, fileIdxs});
+      return syncUiWrap(() => {
+        return callApi({action: 'setPriority', level, id: id, fileIdxs});
+      });
     },
     setDownloadSpeedLimit(speed) {
-      return callApi({action: 'setDownloadSpeedLimit', speed});
+      return syncUiWrap(() => {
+        return callApi({action: 'setDownloadSpeedLimit', speed});
+      });
     },
     setUploadSpeedLimit(speed) {
-      return callApi({action: 'setUploadSpeedLimit', speed});
+      return syncUiWrap(() => {
+        return callApi({action: 'setUploadSpeedLimit', speed});
+      });
     },
     getSettings() {
-      return callApi({action: 'getSettings'});
+      return syncUiWrap(() => {
+        return callApi({action: 'getSettings'});
+      });
     },
     sendFiles(urls, directory, label) {
-      return callApi({action: 'sendFiles', urls, directory, label});
+      return syncUiWrap(() => {
+        return callApi({action: 'sendFiles', urls, directory, label});
+      });
     },
     getSnapshot() {
       return getSnapshot(self);
+    },
+    syncUiClient() {
+      return updateTorrentList().then((client) => {
+        self.setTorrents(client.torrents);
+        self.setLabels(client.labels);
+        self.setSettings(client.settings);
+        self.speedRoll.setData(client.speedRoll.data);
+      });
     }
   };
 });
+
+const updateTorrentList = () => {
+  return callApi({
+    action: 'updateTorrentList'
+  });
+};
 
 export default ClientStore;
