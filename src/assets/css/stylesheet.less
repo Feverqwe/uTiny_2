@@ -622,14 +622,6 @@ li.select div[data-image=INACTIVE] .image,
     z-index: 3;
 }
 
-.nf-layer {
-    position: fixed;
-    z-index: 5;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-}
 .nf-notifi {
     position: fixed;
     z-index: 10;
@@ -645,40 +637,51 @@ li.select div[data-image=INACTIVE] .image,
     border-top-right-radius: 0;
     border-top-width: 0;
     text-align: center;
+
+    .nf-subItem {
+        padding-top: 5px;
+        padding-bottom: 5px;
+
+        label {
+            display: block;
+            color: #333;
+            margin: 2px;
+            text-align: left;
+        }
+
+        input,
+        select{
+            width: 224px;;
+            padding: 1px 1px 2px 1px;
+        }
+
+        input {
+            width: 218px;
+        }
+
+        input[type="button"],
+        input[type="submit"],
+        button {
+            width: 87px;
+        }
+
+        input[type="button"]:first-child,
+        input[type="submit"]:first-child,
+        button:first-child {
+            float: left;
+        }
+
+        input[type="button"]:last-child,
+        input[type="submit"]:last-child,
+        button:last-child {
+            float: right;
+        }
+    }
+    .fileName {
+        word-wrap: break-word;
+    }
 }
-.nf-notifi .nf-subItem {
-    padding-top: 5px;
-    padding-bottom: 5px;
-}
-.nf-notifi .nf-subItem label {
-    display: block;
-    color: #333;
-    margin: 2px;
-    text-align: left;
-}
-.nf-notifi .nf-subItem input,
-.nf-notifi .nf-subItem select{
-    width: 224px;;
-    padding: 1px 1px 2px 1px;
-}
-.nf-notifi .nf-subItem input {
-    width: 218px;
-}
-.nf-notifi input[type="button"],
-.nf-notifi button {
-    width: 87px;
-}
-.nf-notifi .nf-subItem input[type="button"]:first-child,
-.nf-notifi .nf-subItem button:first-child {
-    float: left;
-}
-.nf-notifi .nf-subItem input[type="button"]:last-child,
-.nf-notifi .nf-subItem button:last-child {
-    float: right;
-}
-.nf-notifi .fileName {
-    word-wrap: break-word;
-}
+
 .speed .limit {
     padding-left: 3px;
     padding-right: 3px;
@@ -687,13 +690,14 @@ li.select div[data-image=INACTIVE] .image,
     margin-left: 3px;
     cursor: pointer;
     color: #fff;
+    &.dl {
+        background-color: #3687ED;
+    }
+    &.up {
+        background-color: #41B541;
+    }
 }
-.speed .limit.dl {
-    background-color: #3687ED;
-}
-.speed .limit.up {
-    background-color: #41B541;
-}
+
 path.line {
     fill: none;
     stroke: red;

@@ -6,8 +6,11 @@ import ClientStore from "./ClientStore";
 import callApi from "../tools/callApi";
 import FileListStore from "./FileListStore";
 import TorrentListStore from "./TorrentListStore";
+import PutFilesDialogStore from "./PutFilesDialogStore";
 
 const logger = getLogger('RootStore');
+
+let dialogIndex = 0;
 
 /**
  * @typedef {{}} RootStore
@@ -16,10 +19,13 @@ const logger = getLogger('RootStore');
  * @property {ClientStore|undefined} client
  * @property {TorrentListStore} [torrentList]
  * @property {FileListStore|undefined} fileList
+ * @property {Map<*,*>} dialogs
  * @property {function:Promise} init
  * @property {function} flushTorrentList
  * @property {function} createFileList
  * @property {function} destroyFileList
+ * @property {function} createDialog
+ * @property {function} destroyDialog
  * @property {function} handleReady
  * @property {function} updateTorrentList
  * @property {*} isPopup
@@ -30,6 +36,7 @@ const RootStore = types.model('RootStore', {
   client: types.maybe(ClientStore),
   torrentList: types.optional(TorrentListStore, {}),
   fileList: types.maybe(FileListStore),
+  dialogs: types.map(types.union(PutFilesDialogStore)),
 }).actions((self) => {
   return {
     init: flow(function* () {
@@ -56,6 +63,14 @@ const RootStore = types.model('RootStore', {
     },
     destroyFileList() {
       self.fileList = undefined;
+    },
+    createDialog(dialog) {
+      const id = `dialog_${++dialogIndex}`;
+      self.dialogs.set(id, Object.assign({id}, dialog));
+      return self.dialogs.get(id);
+    },
+    destroyDialog(id) {
+      self.dialogs.delete(id);
     }
   };
 }).views((self) => {

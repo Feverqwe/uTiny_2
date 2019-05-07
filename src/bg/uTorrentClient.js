@@ -114,7 +114,7 @@ class UTorrentClient {
 
     function putDirectory(query) {
       if (directory) {
-        query.download_dir = directory.download_dir;
+        query.download_dir = directory.volume;
         query.path = directory.path;
       }
       return query;

@@ -89,11 +89,13 @@ class Menu extends React.Component {
   refFileInput = React.createRef();
 
   onPutFiles(files) {
-    const urls = [];
-    for (const file of files) {
-      urls.push(URL.createObjectURL(file));
-    }
-    this.rootStore.client.sendFiles(urls);
+    if (!files.length) return;
+
+    const dialog = this.rootStore.createDialog({
+      type: 'putFiles'
+    });
+
+    dialog.files = Array.from(files);
   }
 
   handleFileChange = (e) => {

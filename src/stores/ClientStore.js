@@ -289,8 +289,8 @@ const ClientStore = types.model('ClientStore', {
     getSettings() {
       return callApi({action: 'getSettings'});
     },
-    sendFiles(urls) {
-      return callApi({action: 'sendFiles', urls});
+    sendFiles(urls, directory, label) {
+      return callApi({action: 'sendFiles', urls, directory, label});
     },
     getSnapshot() {
       return getSnapshot(self);

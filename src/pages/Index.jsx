@@ -10,6 +10,7 @@ import RootStore from "../stores/RootStore";
 import TorrentListTable from "../components/TorrentListTable";
 import FileListTable from "../components/FileListTable";
 import Footer from "../components/Footer";
+import PutFilesDialog from "../components/PutFilesDialog";
 
 @inject('rootStore')
 @observer
@@ -59,7 +60,37 @@ class Index extends React.Component {
         <Footer/>
         {setPopupHeight}
         {fileList}
+        {<Dialogs/>}
       </>
+    );
+  }
+}
+
+@inject('rootStore')
+@observer
+class Dialogs extends React.Component {
+  static propTypes = {
+    rootStore: PropTypes.object,
+  };
+
+  /**@return {RootStore}*/
+  get rootStore() {
+    return this.props.rootStore;
+  }
+
+  render() {
+    const dialogs = Array.from(this.rootStore.dialogs.values()).map((dialog) => {
+      switch (dialog.type) {
+        case 'putFiles': {
+          return (
+            <PutFilesDialog key={dialog.id} dialogStore={dialog}/>
+          );
+        }
+      }
+    });
+
+    return (
+      dialogs
     );
   }
 }
