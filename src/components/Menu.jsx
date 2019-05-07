@@ -33,7 +33,7 @@ class Menu extends React.Component {
   dropTimerId = null;
 
   handleDropOver = (e) => {
-    if (['tr', 'fl'].indexOf(e.dataTransfer.types) !== -1) return;
+    if (e.dataTransfer.types.length === 2) return;
     e.preventDefault();
 
     if (!this.state.showDropLayer) {
