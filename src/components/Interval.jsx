@@ -12,7 +12,7 @@ class Interval extends React.PureComponent {
     super(props);
 
     this.intervalId = setInterval(() => {
-      props.onFire && props.onFire();
+      props.onFire();
     }, this.props.interval);
 
     props.onInit && props.onInit();
