@@ -11,6 +11,7 @@ import TorrentListTable from "../components/TorrentListTable";
 import FileListTable from "../components/FileListTable";
 import Footer from "../components/Footer";
 import PutFilesDialog from "../components/PutFilesDialog";
+import CreateLabelDialog from "../components/CreateLabelDialog";
 
 @inject('rootStore')
 @observer
@@ -84,6 +85,11 @@ class Dialogs extends React.Component {
         case 'putFiles': {
           return (
             <PutFilesDialog key={dialog.id} dialogStore={dialog}/>
+          );
+        }
+        case 'createLabel': {
+          return (
+            <CreateLabelDialog key={dialog.id} dialogStore={dialog}/>
           );
         }
       }

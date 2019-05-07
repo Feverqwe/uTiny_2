@@ -49,7 +49,7 @@ class PutFilesDialog extends React.Component {
   };
 
   handleClose = (e) => {
-    e.preventDefault();
+    e && e.preventDefault();
     this.dialogStore.close();
   };
 

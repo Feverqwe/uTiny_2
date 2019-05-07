@@ -88,9 +88,10 @@ class TorrentMenuBody extends ContextMenuBody {
   };
 
   handleCreateLabel = ({event: e, props}) => {
-    // todo: create label dialog
-    return;
-    this.rootStore.client.torrentsSetLabel(this.torrentListStore.selectedIds, label);
+    this.rootStore.createDialog({
+      type: 'createLabel',
+      torrentIds: this.torrentListStore.selectedIds.slice(0)
+    });
   };
 
   handleRemoveLabel = ({event: e, props}) => {
