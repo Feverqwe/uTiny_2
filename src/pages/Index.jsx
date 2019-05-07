@@ -12,6 +12,7 @@ import FileListTable from "../components/FileListTable";
 import Footer from "../components/Footer";
 import PutFilesDialog from "../components/PutFilesDialog";
 import CreateLabelDialog from "../components/CreateLabelDialog";
+import RemoveConfirmDialog from "../components/RemoveConfirmDialog";
 
 @inject('rootStore')
 @observer
@@ -90,6 +91,11 @@ class Dialogs extends React.Component {
         case 'createLabel': {
           return (
             <CreateLabelDialog key={dialog.id} dialogStore={dialog}/>
+          );
+        }
+        case 'removeConfirm': {
+          return (
+            <RemoveConfirmDialog key={dialog.id} dialogStore={dialog}/>
           );
         }
       }

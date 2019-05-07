@@ -1,0 +1,23 @@
+import {types, getRoot} from "mobx-state-tree";
+
+/**
+ * @typedef {{}} RemoveConfirmDialogStore
+ * @property {string} id
+ * @property {string} type
+ * @property {string[]} torrentIds
+ * @property {function} close
+ */
+const RemoveConfirmDialogStore = types.model('RemoveConfirmDialogStore', {
+  id: types.identifier,
+  type: types.literal('removeConfirm'),
+  torrentIds: types.array(types.string)
+}).views((self) => {
+  return {
+    close() {
+      /**@type RootStore*/const rootStore = getRoot(self);
+      rootStore.destroyDialog(self.id);
+    }
+  };
+});
+
+export default RemoveConfirmDialogStore;
