@@ -82,7 +82,7 @@ class Index extends React.Component {
         <Footer/>
         {setPopupHeight}
         {fileList}
-        {<Dialogs/>}
+        <Dialogs/>
       </>
     );
   }
@@ -104,9 +104,13 @@ class Dialogs extends React.Component {
     const dialogs = Array.from(this.rootStore.dialogs.values()).map((dialog) => {
       switch (dialog.type) {
         case 'putFiles': {
-          return (
-            <PutFilesDialog key={dialog.id} dialogStore={dialog}/>
-          );
+          if (dialog.isReady) {
+            return (
+              <PutFilesDialog key={dialog.id} dialogStore={dialog}/>
+            );
+          } else {
+            return null;
+          }
         }
         case 'putUrl': {
           return (

@@ -2,14 +2,23 @@ import {types, getRoot} from "mobx-state-tree";
 
 /**
  * @typedef {{}} PutFilesDialogStore
- * @property {number} id
+ * @property {string} id
  * @property {string} type
+ * @property {boolean} [isReady]
+ * @property {function} setReady
  * @property {*} files
  * @property {function} close
  */
 const PutFilesDialogStore = types.model('PutFilesDialogStore', {
   id: types.identifier,
   type: types.literal('putFiles'),
+  isReady: types.optional(types.boolean, false),
+}).actions((self) => {
+  return {
+    setReady(value) {
+      self.isReady = value;
+    }
+  };
 }).views((self) => {
   let _files = null;
   return {

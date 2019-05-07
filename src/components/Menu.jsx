@@ -99,6 +99,8 @@ class Menu extends React.Component {
     });
 
     dialog.files = Array.from(files);
+
+    dialog.setReady(true);
   }
 
   handleFileChange = (e) => {
