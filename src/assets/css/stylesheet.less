@@ -701,7 +701,6 @@ path.line {
 }
 
 div.drop_layer {
-    display: none;
     top: 0;
     left: 0;
     position: absolute;
@@ -712,10 +711,12 @@ div.drop_layer {
     background-image: url(../img/drag.png);
     background-repeat: no-repeat;
     background-position: center;
+
+    &.dropped {
+        background-color: transparent;
+    }
 }
-div.drop_layer.dropped {
-    background-color: transparent;
-}
+
 div.btn.setup {
     display: inline-block;
     float: right;

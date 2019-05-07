@@ -9,10 +9,56 @@ class Menu extends React.Component {
     rootStore: PropTypes.object,
   };
 
+  state = {
+    showDropLayer: false,
+    isDropped: false
+  };
+
   /**@return {RootStore}*/
   get rootStore() {
     return this.props.rootStore;
   }
+
+  componentDidMount() {
+    document.body.addEventListener('dragover', this.handleDropOver);
+    document.body.addEventListener('drop', this.handleDrop);
+  }
+
+  componentWillUnmount() {
+    document.body.removeEventListener('dragover', this.handleDropOver);
+    document.body.removeEventListener('drop', this.handleDrop);
+  }
+
+
+  dropTimerId = null;
+
+  handleDropOver = (e) => {
+    if (['tr', 'fl'].indexOf(e.dataTransfer.types) !== -1) return;
+    e.preventDefault();
+
+    if (!this.state.showDropLayer) {
+      this.setState({
+        showDropLayer: true
+      });
+    }
+
+    clearTimeout(this.dropTimerId);
+    this.dropTimerId = setTimeout(() => {
+      if (!this.refFileInput.current) return;
+      this.setState({
+        showDropLayer: false,
+        isDropped: false
+      });
+    }, 300);
+  };
+
+  handleDrop = (e) => {
+    e.preventDefault();
+    this.setState({
+      isDropped: true
+    });
+    this.onPutFiles(e.dataTransfer.files);
+  };
 
   handleRefresh = (e) => {
     e.preventDefault();
@@ -56,37 +102,54 @@ class Menu extends React.Component {
   };
 
   render() {
+    let dropLayer = null;
+    if (this.state.showDropLayer){
+      const classList = ['drop_layer'];
+      if (this.state.isDropped) {
+        classList.push('dropped');
+      }
+      dropLayer = (
+        <div className={classList.join(' ')}/>
+      );
+    }
+
     return (
-      <ul className="menu">
-        <li>
-          <a onClick={this.handleRefresh} title={chrome.i18n.getMessage('refresh')} className="btn refresh"
-             target="_blank" href="#refresh"/>
-        </li>
-        <li>
-          <a href={this.rootStore.config.webUiUrl} target="_blank" title={chrome.i18n.getMessage('ST_CAPT_WEBUI')} className="btn wui"/>
-        </li>
-        <li className="separate"/>
-        <li>
-          <a onClick={this.handleAddFile} title={chrome.i18n.getMessage('Open_file')} className="btn add_file"
-             href="#add_file"/>
-             <input ref={this.refFileInput} onChange={this.handleFileChange} type="file" accept="application/x-bittorrent" multiple={true} style={{display: 'none'}}/>
-        </li>
-        <li>
-          <a onClick={this.handleAddUrl} title={chrome.i18n.getMessage('MM_FILE_ADD_URL')}
-             className="btn add_magnet" href="#add_magnet"/>
-        </li>
-        <li className="separate"/>
-        <li>
-          <a onClick={this.handleStartAll} title={chrome.i18n.getMessage('STM_TORRENTS_RESUMEALL')}
-             className="btn start_all" href="#start_all"/>
-        </li>
-        <li>
-          <a onClick={this.handlePauseAll} title={chrome.i18n.getMessage('STM_TORRENTS_PAUSEALL')}
-             className="btn pause_all" href="#pause_all"/>
-        </li>
-        <li className="graph"/>
-        <LabelSelect/>
-      </ul>
+      <>
+        <ul className="menu">
+          <li>
+            <a onClick={this.handleRefresh} title={chrome.i18n.getMessage('refresh')} className="btn refresh"
+               target="_blank" href="#refresh"/>
+          </li>
+          <li>
+            <a href={this.rootStore.config.webUiUrl} target="_blank" title={chrome.i18n.getMessage('ST_CAPT_WEBUI')}
+               className="btn wui"/>
+          </li>
+          <li className="separate"/>
+          <li>
+            <a onClick={this.handleAddFile} title={chrome.i18n.getMessage('Open_file')} className="btn add_file"
+               href="#add_file"/>
+            <input ref={this.refFileInput} onChange={this.handleFileChange} type="file"
+                   accept="application/x-bittorrent" multiple={true} style={{display: 'none'}}/>
+          </li>
+          <li>
+            <a onClick={this.handleAddUrl} title={chrome.i18n.getMessage('MM_FILE_ADD_URL')}
+               className="btn add_magnet" href="#add_magnet"/>
+          </li>
+          <li className="separate"/>
+          <li>
+            <a onClick={this.handleStartAll} title={chrome.i18n.getMessage('STM_TORRENTS_RESUMEALL')}
+               className="btn start_all" href="#start_all"/>
+          </li>
+          <li>
+            <a onClick={this.handlePauseAll} title={chrome.i18n.getMessage('STM_TORRENTS_PAUSEALL')}
+               className="btn pause_all" href="#pause_all"/>
+          </li>
+          <li className="graph"/>
+          <LabelSelect/>
+        </ul>
+
+        {dropLayer}
+      </>
     );
   }
 }

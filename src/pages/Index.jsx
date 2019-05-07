@@ -55,7 +55,6 @@ class Index extends React.Component {
     return (
       <>
         <Menu/>
-        <div className="drop_layer"/>
         <TorrentListTable/>
         <Footer/>
         {setPopupHeight}
