@@ -52,6 +52,11 @@ class Footer extends React.Component {
     this.rootStore.client.setUploadSpeedLimit(0);
   };
 
+  handleOpenTab = (e) => {
+    e.preventDefault();
+    chrome.tabs.create({url: `${location.origin}${location.pathname}`});
+  };
+
   render() {
     const {downloadSpeedStr, uploadSpeedStr} = this.rootStore.client.currentSpeedStr;
 
@@ -71,6 +76,13 @@ class Footer extends React.Component {
       }
     }
 
+    let openInTab = null;
+    if (this.rootStore.isPopup) {
+      openInTab = (
+        <div onClick={this.handleOpenTab} className="openInTab" title={chrome.i18n.getMessage('openInTab')}/>
+      );
+    }
+
     return (
       <table className="status-panel" width="100%" border="0" cellSpacing="0" cellPadding="0">
         <tfoot>
@@ -80,7 +92,7 @@ class Footer extends React.Component {
           </td>
           <td className="space"/>
           <td onContextMenu={this.handleDownloadContextMenu} className="speed download">{downloadSpeedStr}{downloadLimit}</td>
-          <td onContextMenu={this.handleUploadContextMenu} className="speed upload">{uploadSpeedStr}{uploadLimit}</td>
+          <td onContextMenu={this.handleUploadContextMenu} className="speed upload">{uploadSpeedStr}{uploadLimit}{openInTab}</td>
           <SpeedMenu/>
         </tr>
         </tfoot>
