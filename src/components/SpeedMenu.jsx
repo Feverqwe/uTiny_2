@@ -59,8 +59,14 @@ class SpeedMenuBody extends React.Component {
   render() {
     const items = [];
 
+    let selected = null;
+    if (this.rootStore.client.settings && !this.speedLimit) {
+      selected = (
+        <label>●</label>
+      );
+    }
     items.push(
-      <Item key={'unlimited'} onClick={this.handleUnlimited}>{chrome.i18n.getMessage('MENU_UNLIMITED')}</Item>
+      <Item key={'unlimited'} onClick={this.handleUnlimited}>{selected}{chrome.i18n.getMessage('MENU_UNLIMITED')}</Item>
     );
 
     if (this.rootStore.client.settings) {
