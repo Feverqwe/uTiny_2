@@ -728,21 +728,25 @@ div.btn.setup {
     cursor: pointer;
     margin-right: 2px;
 }
-.resize-el {
-    display: block;
-    height: 100%;
-    width: 5px;
-    margin-right: -3px;
-    cursor: col-resize;
-    right: 0;
-    top: 0;
-    position: absolute !important;
-    opacity: 0;
-    z-index: 2;
-}
-.resize-el.last {
-    left: auto;
-    right: 0;
+
+tr > th {
+    .resize-el {
+        display: block;
+        height: 100%;
+        width: 5px;
+        margin-right: -3px;
+        cursor: col-resize;
+        right: 0;
+        top: 0;
+        position: absolute !important;
+        opacity: 0;
+        z-index: 2;
+    }
+
+    &:last-child .resize-el {
+        width: 2px;
+        margin-right: 0;
+    }
 }
 
 .openInTab {
