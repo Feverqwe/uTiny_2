@@ -56,8 +56,13 @@ class Index extends React.Component {
       );
     }
 
+    const listUpdater = (
+      <ListUpdater key={`i-${this.rootStore.config.uiUpdateInterval}`} interval={this.rootStore.config.uiUpdateInterval}/>
+    );
+
     return (
       <>
+        {listUpdater}
         <Menu/>
         <TorrentListTable/>
         <Footer/>
@@ -113,6 +118,35 @@ class Dialogs extends React.Component {
   }
 }
 
+@inject('rootStore')
+class ListUpdater extends React.PureComponent {
+  static propTypes = {
+    interval: PropTypes.number.isRequired,
+    rootStore: PropTypes.object,
+  };
+
+  constructor(props) {
+    super(props);
+
+    this.intervalId = setInterval(() => {
+      this.rootStore.updateTorrentList();
+    }, this.props.interval);
+  }
+
+  /**@return {RootStore}*/
+  get rootStore() {
+    return this.props.rootStore;
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.intervalId);
+  }
+
+  render() {
+    return null;
+  }
+}
+
 class SetPopupHeight extends React.PureComponent {
   static propTypes = {
     height: PropTypes.number.isRequired
@@ -125,9 +159,7 @@ class SetPopupHeight extends React.PureComponent {
   }
 
   render() {
-    return (
-      null
-    );
+    return null;
   }
 }
 

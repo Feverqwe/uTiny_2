@@ -29,7 +29,6 @@ let dialogIndex = 0;
  * @property {function} destroyFileList
  * @property {function} createDialog
  * @property {function} destroyDialog
- * @property {function} handleReady
  * @property {function} updateTorrentList
  * @property {*} isPopup
  */
@@ -51,7 +50,6 @@ const RootStore = types.model('RootStore', {
         self.client.getSettings().catch((err) => {
           logger.error('init getSettings error', err);
         });
-        self.handleReady();
         self.state = 'done';
       } catch (err) {
         logger.error('init error', err);
@@ -77,21 +75,7 @@ const RootStore = types.model('RootStore', {
     }
   };
 }).views((self) => {
-  let intervalId = null;
-
-  const handleReady = () => {
-    autorun(() => {
-      clearInterval(intervalId);
-      intervalId = setInterval(() =>{
-        self.updateTorrentList();
-      }, self.config.uiUpdateInterval);
-    });
-  };
-
   return {
-    handleReady() {
-      handleReady();
-    },
     updateTorrentList() {
       return updateTorrentList().then((client) => {
         self.client.setTorrents(client.torrents);
