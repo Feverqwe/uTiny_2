@@ -24,12 +24,21 @@ const LabelStore = types.model('LabelStore', {
 
 /**
  * @typedef {{}} SettingsStore
- * @property {number|undefined} max_dl_rate
- * @property {number|undefined} max_ul_rate
+ * @property {number|undefined} downloadSpeedLimit
+ * @property {number|undefined} uploadSpeedLimit
  */
 const SettingsStore = types.model('SettingsStore', {
-  max_dl_rate: types.maybe(types.number),
-  max_ul_rate: types.maybe(types.number),
+  downloadSpeedLimit: types.maybe(types.number),
+  uploadSpeedLimit: types.maybe(types.number),
+}).views((self) => {
+  return {
+    get downloadSpeedLimitStr() {
+      return speedToStr(self.downloadSpeedLimit * 1024);
+    },
+    get uploadSpeedLimitStr() {
+      return speedToStr(self.uploadSpeedLimit * 1024);
+    },
+  };
 });
 
 /**
@@ -252,6 +261,15 @@ const ClientStore = types.model('ClientStore', {
     },
     filesSetPriority(id, fileIdxs, level) {
       return callApi({action: 'setPriority', level, id: id, fileIdxs});
+    },
+    setDownloadSpeedLimit(speed) {
+      return callApi({action: 'setDownloadSpeedLimit', speed});
+    },
+    setUploadSpeedLimit(speed) {
+      return callApi({action: 'setUploadSpeedLimit', speed});
+    },
+    getSettings() {
+      return callApi({action: 'getSettings'});
     },
     getSnapshot() {
       return getSnapshot(self);

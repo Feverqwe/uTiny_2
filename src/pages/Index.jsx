@@ -9,6 +9,7 @@ import ReactDOM from "react-dom";
 import RootStore from "../stores/RootStore";
 import TorrentListTable from "../components/TorrentListTable";
 import FileListTable from "../components/FileListTable";
+import Footer from "../components/Footer";
 
 @inject('rootStore')
 @observer
@@ -44,26 +45,20 @@ class Index extends React.Component {
       );
     }
 
-    const {downloadSpeedStr, uploadSpeedStr} = this.rootStore.client.currentSpeedStr;
+    let setPopupHeight = null;
+    if (this.rootStore.isPopup) {
+      setPopupHeight = (
+        <SetPopupHeight key={'h-' + this.rootStore.config.popupHeight} height={this.rootStore.config.popupHeight}/>
+      );
+    }
 
     return (
       <>
         <Menu/>
         <div className="drop_layer"/>
         <TorrentListTable/>
-        <table className="status-panel" width="100%" border="0" cellSpacing="0" cellPadding="0">
-          <tfoot>
-          <tr>
-            <td className="status">
-              <div/>
-            </td>
-            <td className="space"/>
-            <td className="speed download">{downloadSpeedStr}</td>
-            <td className="speed upload">{uploadSpeedStr}</td>
-          </tr>
-          </tfoot>
-        </table>
-        <SetPopupHeight rootStore={this.rootStore}/>
+        <Footer/>
+        {setPopupHeight}
         {fileList}
       </>
     );
@@ -72,20 +67,13 @@ class Index extends React.Component {
 
 class SetPopupHeight extends React.PureComponent {
   static propTypes = {
-    rootStore: PropTypes.object,
+    height: PropTypes.number.isRequired
   };
 
   constructor(props) {
     super(props);
 
-    if (this.rootStore.isPopup) {
-      document.getElementById('root').style.minHeight = this.rootStore.config.popupHeight + 'px';
-    }
-  }
-
-  /**@return {RootStore}*/
-  get rootStore() {
-    return this.props.rootStore;
+    document.getElementById('root').style.minHeight = this.props.height + 'px';
   }
 
   render() {

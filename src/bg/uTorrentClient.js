@@ -9,6 +9,11 @@ const url = require('url');
 
 const logger = getLogger('UTorrentClient');
 
+const utSettingMap = {
+  max_dl_rate: 'downloadSpeedLimit',
+  max_ul_rate: 'uploadSpeedLimit',
+};
+
 class UTorrentClient {
   constructor(/**Bg*/bg) {
     this.bg = bg;
@@ -46,6 +51,10 @@ class UTorrentClient {
       }
       return files;
     });
+  }
+
+  getSettings() {
+    return this.sendAction({action: 'getsettings'});
   }
 
   sendAction(query, body) {
@@ -218,6 +227,18 @@ class UTorrentClient {
     return Promise.all(splitByPart(idxs, 500).map((idxs) => {
       return this.sendAction({action: 'setprio', p: level, hash: id, f: idxs});
     }));
+  }
+
+  setDownloadSpeedLimit(speed) {
+    return this.sendAction({action: 'setsetting', s: 'max_dl_rate', v: speed}).then(() => {
+      return this.getSettings();
+    });
+  }
+
+  setUploadSpeedLimit(speed) {
+    return this.sendAction({action: 'setsetting', s: 'max_ul_rate', v: speed}).then(() => {
+      return this.getSettings();
+    });
   }
 
   retryIfTokenInvalid(callback) {
@@ -395,7 +416,8 @@ class UTorrentClient {
     settings.forEach(([key, type, value]) => {
       // type 0 - integer, 1 - bool, 2 - string
       if (key === 'max_dl_rate' || key === 'max_ul_rate') {
-        result[key] = utSettingParse(type, value);
+        const localKey = utSettingMap[key] || key;
+        result[localKey] = utSettingParse(type, value);
       }
     });
     return result;

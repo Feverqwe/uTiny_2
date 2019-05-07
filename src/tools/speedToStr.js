@@ -2,7 +2,7 @@ const filesize = require('filesize');
 
 function speedToStr(speed) {
   let speedText = null;
-  if (speed < 0) {
+  if (!Number.isFinite(speed)) {
     speedText = '';
   } else {
     const [size, symbol] = filesize(speed, {

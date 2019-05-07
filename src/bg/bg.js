@@ -187,6 +187,18 @@ class Bg {
         promise = this.client.getFileList(message.id);
         break;
       }
+      case 'setDownloadSpeedLimit': {
+        promise = this.client.setDownloadSpeedLimit(message.speed);
+        break;
+      }
+      case 'setUploadSpeedLimit': {
+        promise = this.client.setUploadSpeedLimit(message.speed);
+        break;
+      }
+      case 'getSettings': {
+        promise = this.client.getSettings();
+        break;
+      }
       default: {
         promise = Promise.reject(new Error('Unknown request'));
       }
