@@ -38,7 +38,9 @@ const RootStore = types.model('RootStore', {
       try {
         self.config = yield fetchConfig();
         self.client = yield fetchClient();
-        self.client.getSettings();
+        self.client.getSettings().catch((err) => {
+          logger.error('init getSettings error', err);
+        });
         self.handleReady();
         self.state = 'done';
       } catch (err) {

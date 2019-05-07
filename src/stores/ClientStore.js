@@ -88,7 +88,7 @@ const ClientStore = types.model('ClientStore', {
     removeTorrentByIds(ids) {
       ids.forEach(id => {
         self.torrents.delete(id);
-        self.files.delete(id);
+        // self.files.delete(id);
       });
     },
     sync(torrents) {
@@ -112,9 +112,9 @@ const ClientStore = types.model('ClientStore', {
         self.torrents.set(torrent.id, torrent);
       });
     },
-    setFileList(torrentId, files) {
+    /*setFileList(torrentId, files) {
       self.files.set(torrentId, files);
-    },
+    },*/
     setTorrents(torrents) {
       self.torrents = torrents;
     },
@@ -129,6 +129,24 @@ const ClientStore = types.model('ClientStore', {
   return {
     get torrentIds() {
       return Array.from(self.torrents.keys());
+    },
+    get downloadingTorrentIds() {
+      const result = [];
+      for (const torrent of self.torrents.values()) {
+        if (torrent.isDownloading) {
+          result.push(torrent.id);
+        }
+      }
+      return result;
+    },
+    get pausedTorrentIds() {
+      const result = [];
+      for (const torrent of self.torrents.values()) {
+        if (torrent.isPaused) {
+          result.push(torrent.id);
+        }
+      }
+      return result;
     },
     get sortedTorrents() {
       /**@type RootStore*/const rootStore = getRoot(self);
@@ -270,6 +288,9 @@ const ClientStore = types.model('ClientStore', {
     },
     getSettings() {
       return callApi({action: 'getSettings'});
+    },
+    sendFiles(urls) {
+      return callApi({action: 'sendFiles', urls});
     },
     getSnapshot() {
       return getSnapshot(self);

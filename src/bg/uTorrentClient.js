@@ -5,8 +5,6 @@ import getLogger from "../tools/getLogger";
 import queryStringify from "../tools/utQueryStringify";
 import splitByPart from "../tools/splitByPart";
 
-const url = require('url');
-
 const logger = getLogger('UTorrentClient');
 
 const utSettingMap = {
@@ -184,7 +182,7 @@ class UTorrentClient {
   async removetorrent(ids) {
     if (!ids.length) return;
 
-    const torrent = this.bg.client.torrents.get(ids[0]);
+    const torrent = this.bgStore.client.torrents.get(ids[0]);
     if (torrent && torrent.status === undefined) {
       // fallback
       // todo: fix me, add version check when removetorrent
@@ -201,7 +199,7 @@ class UTorrentClient {
   async removedatatorrent(ids) {
     if (!ids.length) return;
 
-    const torrent = this.bg.client.torrents.get(ids[0]);
+    const torrent = this.bgStore.client.torrents.get(ids[0]);
     if (torrent && torrent.status === undefined) {
       // fallback
       // todo: fix me, add version check when removedatatorrent
@@ -239,6 +237,26 @@ class UTorrentClient {
     return this.sendAction({action: 'setsetting', s: 'max_ul_rate', v: speed}).then(() => {
       return this.getSettings();
     });
+  }
+
+  sendFiles(urls, directory, label) {
+    return Promise.all(urls.map((url) => {
+      return Promise.resolve().then(() => {
+        if (!/^blob:/.test(url)) {
+          return {url};
+        }
+        return fetch(url).then(r => r.blob()).then((blob) => {
+          URL.revokeObjectURL(url);
+          return {blob};
+        });
+      }).then((data) => {
+        return this.putTorrent(data, directory, label);
+      }).then(() => {
+        return {result: true};
+      }, (err) => {
+        return {error: err};
+      });
+    }));
   }
 
   retryIfTokenInvalid(callback) {

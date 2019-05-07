@@ -199,6 +199,10 @@ class Bg {
         promise = this.client.getSettings();
         break;
       }
+      case 'sendFiles': {
+        promise = this.client.sendFiles(message.urls, message.directory, message.label);
+        break;
+      }
       default: {
         promise = Promise.reject(new Error('Unknown request'));
       }

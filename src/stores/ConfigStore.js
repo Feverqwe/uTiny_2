@@ -236,6 +236,18 @@ const ConfigStore = types.model('ConfigStore', {
         pathname: self.pathname,
       });
     },
+    get webUiUrl() {
+      const urlObject = {
+        protocol: self.ssl ? 'https' : 'http',
+        port: self.port,
+        hostname: self.hostname,
+        pathname: self.pathname,
+      };
+      if (self.authenticationRequired) {
+        urlObject.auth = [self.login, self.password].join(':');
+      }
+      return url.format(urlObject);
+    },
     get visibleTorrentColumns() {
       return self.torrentColumns.filter(column => column.display);
     },

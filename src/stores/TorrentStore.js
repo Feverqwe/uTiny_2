@@ -185,6 +185,12 @@ const TorrentStore = types.model('TorrentStore', {
       }
 
       return actions;
+    },
+    get isDownloading() {
+      return !!(self.state & 1 && self.progress !== 1000);
+    },
+    get isPaused() {
+      return !!(self.state & 32 && !(self.state & 2));
     }
   };
 });

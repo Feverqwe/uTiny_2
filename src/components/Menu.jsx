@@ -2,17 +2,26 @@ import React from "react";
 import {inject, observer} from "mobx-react";
 import PropTypes from "prop-types";
 
+@inject('rootStore')
+@observer
 class Menu extends React.Component {
-  handleRefresh = (e) => {
-    e.preventDefault();
+  static propTypes = {
+    rootStore: PropTypes.object,
   };
 
-  handleOpenWebUi = (e) => {
+  /**@return {RootStore}*/
+  get rootStore() {
+    return this.props.rootStore;
+  }
+
+  handleRefresh = (e) => {
     e.preventDefault();
+    this.rootStore.updateTorrentList();
   };
 
   handleAddFile = (e) => {
     e.preventDefault();
+    this.refFileInput.current.dispatchEvent(new MouseEvent('click'));
   };
 
   handleAddUrl = (e) => {
@@ -21,10 +30,29 @@ class Menu extends React.Component {
 
   handleStartAll = (e) => {
     e.preventDefault();
+    const ids = this.rootStore.client.pausedTorrentIds;
+    this.rootStore.client.torrentsUnpause(ids);
   };
 
   handlePauseAll = (e) => {
     e.preventDefault();
+    const ids = this.rootStore.client.downloadingTorrentIds;
+    this.rootStore.client.torrentsPause(ids);
+  };
+
+  refFileInput = React.createRef();
+
+  onPutFiles(files) {
+    const urls = [];
+    for (const file of files) {
+      urls.push(URL.createObjectURL(file));
+    }
+    this.rootStore.client.sendFiles(urls);
+  }
+
+  handleFileChange = (e) => {
+    this.onPutFiles(this.refFileInput.current.files);
+    e.currentTarget.value = '';
   };
 
   render() {
@@ -35,13 +63,13 @@ class Menu extends React.Component {
              target="_blank" href="#refresh"/>
         </li>
         <li>
-          <a onClick={this.handleOpenWebUi} title={chrome.i18n.getMessage('ST_CAPT_WEBUI')} className="btn wui"
-             target="_blank" href="#wui"/>
+          <a href={this.rootStore.config.webUiUrl} target="_blank" title={chrome.i18n.getMessage('ST_CAPT_WEBUI')} className="btn wui"/>
         </li>
         <li className="separate"/>
         <li>
           <a onClick={this.handleAddFile} title={chrome.i18n.getMessage('Open_file')} className="btn add_file"
              href="#add_file"/>
+             <input ref={this.refFileInput} onChange={this.handleFileChange} type="file" accept="application/x-bittorrent" multiple={true} style={{display: 'none'}}/>
         </li>
         <li>
           <a onClick={this.handleAddUrl} title={chrome.i18n.getMessage('MM_FILE_ADD_URL')}
