@@ -81,9 +81,9 @@ class TorrentMenuBody extends ContextMenuBody {
   };
 
   handleShowFiles = ({event: e, props}) => {
-    if (selectedIds.length) {
-      const id = selectedIds[0];
-      this.rootStore.createFileList({id});
+    if (this.torrentListStore.selectedIds.length) {
+      const id = this.torrentListStore.selectedIds[0];
+      this.rootStore.createFileList(id);
     }
   };
 
