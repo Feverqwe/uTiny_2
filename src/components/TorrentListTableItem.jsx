@@ -85,7 +85,7 @@ class TorrentListTableItem extends React.Component {
     const visibleTorrentColumns = this.rootStore.config.visibleTorrentColumns;
 
     const columns = [];
-    visibleTorrentColumns.forEach(({column: name}) => {
+    visibleTorrentColumns.forEach(({column: name, width}) => {
       switch (name) {
         case 'checkbox': {
           columns.push(
@@ -98,9 +98,7 @@ class TorrentListTableItem extends React.Component {
         case 'name': {
           columns.push(
             <td key={name} className={name}>
-              <div>
-                <span>{torrent.name}</span>
-              </div>
+              <TorrentName name={torrent.name} width={width}/>
             </td>
           );
           break;
@@ -286,6 +284,106 @@ class TorrentListTableItem extends React.Component {
       <tr className={classList.join(' ')} id={torrent.id} onDoubleClick={this.handleDblClick} onContextMenu={this.handleContextMenu}>
         {columns}
       </tr>
+    );
+  }
+}
+
+class TorrentName extends React.PureComponent {
+  static propTypes = {
+    name: PropTypes.string.isRequired,
+    width: PropTypes.number.isRequired,
+  };
+
+  state = {
+    name: null,
+    width: null,
+    shouldUpdateCalc: true,
+    movebleClassName: null
+  };
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (prevState.name !== nextProps.name || prevState.width !== nextProps.width) {
+      return {
+        name: nextProps.name,
+        width: nextProps.width,
+        shouldUpdateCalc: true,
+      };
+    }
+    return false;
+  }
+
+  refSpan = React.createRef();
+
+  handleMouseEnter = (e) => {
+    this.setState({
+      shouldUpdateCalc: false
+    });
+
+    const width = this.props.width;
+    const spanWidth = this.refSpan.current.offsetWidth;
+    if (spanWidth < width) {
+      this.setState({
+        movebleClassName: null
+      });
+      return;
+    }
+
+    let elWidth = Math.ceil(spanWidth / 10);
+    if (elWidth > 10) {
+      if (elWidth < 100) {
+        const t1 = Math.round(elWidth / 10);
+        if (t1 > elWidth / 10) {
+          elWidth = t1 * 10 * 10;
+        } else {
+          elWidth = (t1 * 10 + 5) * 10;
+        }
+      } else {
+        elWidth = elWidth * 10;
+      }
+    } else {
+      elWidth = elWidth * 10;
+    }
+
+    const timeCalc = Math.round(elWidth / width * 3.5);
+    const moveName = `moveble_${width}_${elWidth}`;
+    if (!document.querySelector('style.' + moveName)) {
+      const style = document.createElement('style');
+      style.classList.add(moveName);
+      style.textContent = `
+        @keyframes a_${moveName} {
+          0%{margin-left:2px;}
+          50%{margin-left:-${elWidth - width}px;}
+          90%{margin-left:6px;}
+          100%{margin-left:2px;}
+        }
+        div.${moveName}:hover > span {
+          overflow: visible;
+          animation: a_${moveName} ${timeCalc}s;
+        }
+      `.split(/\r?\n/).map(line => line.trim()).join('');
+      document.body.appendChild(style);
+    }
+
+    this.setState({
+      movebleClassName: moveName
+    });
+  };
+
+  render() {
+    let classList = ['title'];
+
+    let onMouseEnter = null;
+    if (this.state.shouldUpdateCalc) {
+      onMouseEnter = this.handleMouseEnter;
+    } else
+    if (this.state.movebleClassName) {
+      classList.push(this.state.movebleClassName);
+    }
+
+    return (
+      <div className={classList.join(' ')}>
+        <span ref={this.refSpan} onMouseEnter={onMouseEnter}>{this.props.name}</span>
+      </div>
     );
   }
 }
