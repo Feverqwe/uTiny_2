@@ -92,7 +92,11 @@ const TorrentStore = types.model('TorrentStore', {
       return callApi({action: 'stop', ids: [self.id]});
     },
     get remaining() {
-      return self.size - self.downloaded;
+      let result = self.size - self.downloaded;
+      if (result < 0) {
+        result = 0;
+      }
+      return result;
     },
     get remainingStr() {
       return filesize(self.remaining);
@@ -131,14 +135,14 @@ const TorrentStore = types.model('TorrentStore', {
     },
     get addedTimeStr() {
       if (!self.addedTime) {
-        return '';
+        return '∞';
       } else {
         return fecha(self.addedTime, 'YYYY-MM-DD HH:mm:ss');
       }
     },
     get completedTimeStr() {
       if (!self.completedTime) {
-        return '';
+        return '∞';
       } else {
         return fecha(self.completedTime, 'YYYY-MM-DD HH:mm:ss');
       }
