@@ -1,6 +1,7 @@
 import React from "react";
 import {inject, observer} from "mobx-react";
 import PropTypes from "prop-types";
+import Select, {Option} from "rc-select";
 
 @inject('rootStore')
 @observer
@@ -173,8 +174,8 @@ class LabelSelect extends React.Component {
     return this.props.rootStore;
   }
 
-  handleChange = (e) => {
-    const selectedLabel = JSON.parse(e.currentTarget.value);
+  handleChange = (value) => {
+    const selectedLabel = JSON.parse(value);
     this.rootStore.config.setSelectedLabel(selectedLabel.label, selectedLabel.custom);
   };
 
@@ -197,10 +198,14 @@ class LabelSelect extends React.Component {
       }
 
       let dataImage = null;
+      let image = null;
       if (isCustom) {
         if (label !== 'NOLABEL') {
           dataImage = label;
         }
+        image = (
+          <span className="image" data-image={dataImage}/>
+        );
       }
 
       if (selectedLabel.id === id) {
@@ -208,15 +213,21 @@ class LabelSelect extends React.Component {
       }
 
       return (
-        <option key={id} value={id} data-image={dataImage}>{text}</option>
+        <Option key={id} value={id}>
+          {image}
+          <span title={text}>{text}</span>
+        </Option>
       );
     });
 
     return (
       <li className="select">
-        <select onChange={this.handleChange} defaultValue={defaultValue}>
+        <Select defaultValue={defaultValue} onChange={this.handleChange}
+                showSearch={false}
+                optionLabelProp="children"
+        >
           {options}
-        </select>
+        </Select>
       </li>
     );
   }

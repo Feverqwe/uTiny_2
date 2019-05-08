@@ -1,6 +1,6 @@
 import "react-contexify/dist/ReactContexify.min.css";
+import "rc-select/assets/index.css";
 import "../assets/css/stylesheet.less";
-import "../assets/css/selectBox.css";
 import React from "react";
 import Menu from "../components/Menu";
 import {inject, observer, Provider} from "mobx-react";
