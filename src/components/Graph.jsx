@@ -35,8 +35,16 @@ class Graph extends React.Component {
     const svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     const svg = select(svgEl);
 
-    let uploadLinePath = svg.append("path");
-    let downloadLinePath = svg.append("path");
+    const uploadLinePath = svg.append("path").attr("fill", "none")
+      .attr("stroke", "#41B541")
+      .attr("stroke-width", 1.5)
+      .attr("stroke-linejoin", "round")
+      .attr("stroke-linecap", "round");
+    const downloadLinePath = svg.append("path").attr("fill", "none")
+      .attr("stroke", "#3687ED")
+      .attr("stroke-width", 1.5)
+      .attr("stroke-linejoin", "round")
+      .attr("stroke-linecap", "round");
 
     const x = scaleLinear();
     const y = scaleLinear();
@@ -71,18 +79,6 @@ class Graph extends React.Component {
       downloadLinePath.datum(data).transition(t).attr('d', downloadLine);
       uploadLinePath.datum(data).transition(t).attr('d', uploadLine);
     });
-
-    downloadLinePath.attr("fill", "none")
-      .attr("stroke", "#3687ED")
-      .attr("stroke-width", 1.5)
-      .attr("stroke-linejoin", "round")
-      .attr("stroke-linecap", "round");
-
-    uploadLinePath.attr("fill", "none")
-      .attr("stroke", "#41B541")
-      .attr("stroke-width", 1.5)
-      .attr("stroke-linejoin", "round")
-      .attr("stroke-linecap", "round");
 
     this.refChart.current.appendChild(svg.node());
   }
