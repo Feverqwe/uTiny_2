@@ -93,11 +93,11 @@ const FileListStore = types.compose('FileListStore', ListSelectStore, types.mode
       return resolveIdentifier(TorrentStore, self, self.id);
     },
     get filteredFiles() {
-      const filter = self.filter;
-      const filterLen = filter.length;
-      if (filterLen) {
+      if (self.filter) {
+        const filter = self.filter + '/';
+        const filterLen = filter.length;
         return self.files.filter((file) => {
-          return file.normalizedName.substr(0, filterLen + 1) === self.filter + '/';
+          return file.normalizedName.substr(0, filterLen) === filter;
         });
       } else {
         return self.files;
