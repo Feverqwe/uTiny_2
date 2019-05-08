@@ -133,7 +133,7 @@ class TorrentListTableItem extends React.Component {
           break;
         }
         case 'done': {
-          const color = (torrent.status === 201 && torrent.progress === 1000) ? '#41B541' : '#3687ED';
+          const color = torrent.isSeeding ? '#41B541' : '#3687ED';
           const width = torrent.progressStr;
 
           columns.push(
