@@ -312,12 +312,32 @@ class TorrentName extends React.PureComponent {
     return false;
   }
 
+  componentWillUnmount() {
+    this.cleanPreviewStyle();
+  }
+
   refSpan = React.createRef();
+
+  cleanPreviewStyle() {
+    const moveName = this.state.movebleClassName;
+    if (moveName) {
+      const style = document.querySelector('style.' + moveName);
+      if (style) {
+        style.dataset.useCount = parseInt(style.dataset.useCount, 10) - 1;
+
+        if (style.dataset.useCount < 1) {
+          style.remove();
+        }
+      }
+    }
+  };
 
   handleMouseEnter = (e) => {
     this.setState({
       shouldUpdateCalc: false
     });
+
+    this.cleanPreviewStyle();
 
     const width = this.props.width;
     const spanWidth = this.refSpan.current.offsetWidth;
@@ -346,9 +366,11 @@ class TorrentName extends React.PureComponent {
 
     const timeCalc = Math.round(elWidth / width * 3.5);
     const moveName = `moveble_${width}_${elWidth}`;
-    if (!document.querySelector('style.' + moveName)) {
-      const style = document.createElement('style');
+    let style = document.querySelector('style.' + moveName);
+    if (!style) {
+      style = document.createElement('style');
       style.classList.add(moveName);
+      style.dataset.useCount = '0';
       style.textContent = `
         @keyframes a_${moveName} {
           0%{margin-left:2px;}
@@ -363,6 +385,8 @@ class TorrentName extends React.PureComponent {
       `.split(/\r?\n/).map(line => line.trim()).join('');
       document.body.appendChild(style);
     }
+
+    style.dataset.useCount = parseInt(style.dataset.useCount, 10) + 1;
 
     this.setState({
       movebleClassName: moveName
