@@ -140,7 +140,7 @@ class TorrentListTableItem extends React.Component {
             <td key={name} className={name}>
               <div className="progress_b">
                 <div className="val">{torrent.progressStr}</div>
-                <div style={{color, width}} className="progress_b_i"/>
+                <div style={{backgroundColor: color, width}} className="progress_b_i"/>
               </div>
             </td>
           );
