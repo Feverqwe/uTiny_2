@@ -25,80 +25,88 @@ ul {
     padding: 0;
     margin: 0;
 }
-ul.menu {
+.menu {
+    display: flex;
     height: 33px;
-    position: relative;
-}
-ul.menu li {
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-    overflow: hidden;
-    margin-top: 1px;
-}
-ul.menu li:first-child {
-    margin-left: 2px;
-}
-ul.menu li.separate {
-    height: 24px;
-    width: 3px;
-    border-left: 1px solid #939393;
-    margin-bottom: 2px;
-    margin-left: 3px;
-}
-ul.menu li.graph {
-}
-ul.menu li.select {
-    float: right;
-    width: 140px;
-    margin: 0;
-    padding-top: 3px;
-    padding-right: 2px;
-    height: auto;
-}
-ul.menu a.btn{
-    width: 28px;
-    height: 28px;
-    display: block;
-    background-repeat: no-repeat;
-    background-position: center center;
-    border-radius: 3px;
-    border: 1px solid #fff;
-}
 
-ul.menu a.btn:active {
-    opacity: 0.7;
-}
-ul.menu a.refresh{
-    background-image: url("../img/refresh.svg");
-    background-size: 27px;
-}
-ul.menu a.wui{
-    background-image: url("../img/wui.png");
-    background-size: 28px;
-}
-ul.menu a.start_all{
-    background-image: url("../img/play_all.png");
-    background-size: 28px;
-}
-ul.menu a.pause_all{
-    background-image: url("../img/pause_all.png");
-    background-size: 28px;
-}
-ul.menu a.add_file{
-    background-image: url("../img/add.png");
-    background-size: 28px;
-}
-ul.menu a.add_magnet{
-    background-image: url("../img/magnet.png");
-    background-size: 28px;
-}
-ul.menu a.btn:hover {
-    border: 1px solid #a9acb1;
-}
+    li {
+        display: inline-block;
+        width: 30px;
+        height: 30px;
+        overflow: hidden;
+        margin-top: 1px;
+        flex-shrink: 0;
+    }
 
-table.status-panel td.space.disk {
-    background-image: url(../img/free_space.png);
+    li:first-child {
+        margin-left: 2px;
+    }
+
+    li.separate {
+        height: 24px;
+        width: 3px;
+        border-left: 1px solid #939393;
+        margin-bottom: 2px;
+        margin-left: 3px;
+    }
+
+    li.graph {
+        flex-grow: 2;
+        flex-shrink: 1;
+        position: relative;
+        width: auto;
+        overflow: hidden;
+    }
+
+    li.select {
+        width: 140px;
+        margin: 0;
+        padding-top: 3px;
+        padding-right: 2px;
+        height: auto;
+    }
+
+    a.btn{
+        width: 28px;
+        height: 28px;
+        display: block;
+        background-repeat: no-repeat;
+        background-position: center center;
+        border-radius: 3px;
+        border: 1px solid #fff;
+
+        &:hover {
+            border: 1px solid #a9acb1;
+        }
+        &:active {
+            opacity: 0.7;
+        }
+    }
+
+    a.refresh{
+        background-image: url("../img/refresh.svg");
+        background-size: 27px;
+    }
+    a.wui{
+        background-image: url("../img/wui.png");
+        background-size: 28px;
+    }
+    a.start_all{
+        background-image: url("../img/play_all.png");
+        background-size: 28px;
+    }
+    a.pause_all{
+        background-image: url("../img/pause_all.png");
+        background-size: 28px;
+    }
+    a.add_file{
+        background-image: url("../img/add.png");
+        background-size: 28px;
+    }
+    a.add_magnet{
+        background-image: url("../img/magnet.png");
+        background-size: 28px;
+    }
 }
 
 @media
@@ -107,30 +115,36 @@ only screen and (   min--moz-device-pixel-ratio: 2),
 only screen and (        min-device-pixel-ratio: 2),
 only screen and (                min-resolution: 192dpi),
 only screen and (                min-resolution: 2dppx) {
-    ul.menu a.wui{
-        background-image: url("../img/wui@2x.png");
-        background-size: 28px;
-    }
-    ul.menu a.start_all{
-        background-image: url("../img/play_all@2x.png");
-        background-size: 28px;
-    }
-    ul.menu a.pause_all{
-        background-image: url("../img/pause_all@2x.png");
-        background-size: 28px;
-    }
-    ul.menu a.add_file{
-        background-image: url("../img/add@2x.png");
-        background-size: 28px;
-    }
-    ul.menu a.add_magnet{
-        background-image: url("../img/magnet@2x.png");
-        background-size: 28px;
+    .menu {
+        a.wui{
+            background-image: url("../img/wui@2x.png");
+            background-size: 28px;
+        }
+        a.start_all{
+            background-image: url("../img/play_all@2x.png");
+            background-size: 28px;
+        }
+        a.pause_all{
+            background-image: url("../img/pause_all@2x.png");
+            background-size: 28px;
+        }
+        a.add_file{
+            background-image: url("../img/add@2x.png");
+            background-size: 28px;
+        }
+        a.add_magnet{
+            background-image: url("../img/magnet@2x.png");
+            background-size: 28px;
+        }
     }
     table.status-panel td.space.disk {
         background-image: url(../img/free_space@2x.png);
         background-size: 16px;
     }
+}
+
+table.status-panel td.space.disk {
+    background-image: url(../img/free_space.png);
 }
 
 .torrent-list-layer {
@@ -653,12 +667,6 @@ table thead .sortUp .arrow {
     &.up {
         background-color: #41B541;
     }
-}
-
-path.line {
-    fill: none;
-    stroke: red;
-    stroke-width: 1.5px;
 }
 
 div.drop_layer {

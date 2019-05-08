@@ -2,6 +2,7 @@ import React from "react";
 import {inject, observer} from "mobx-react";
 import PropTypes from "prop-types";
 import Select, {Option} from "rc-select";
+import ComponentLoader from "./ComponentLoader";
 
 @inject('rootStore')
 @observer
@@ -152,7 +153,9 @@ class Menu extends React.Component {
             <a onClick={this.handlePauseAll} title={chrome.i18n.getMessage('STM_TORRENTS_PAUSEALL')}
                className="btn pause_all" href="#pause_all"/>
           </li>
-          <li className="graph"/>
+          <li className="graph">
+            <ComponentLoader load-page={'graph'}/>
+          </li>
           <LabelSelect/>
         </ul>
 

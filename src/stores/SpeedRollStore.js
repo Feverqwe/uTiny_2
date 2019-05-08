@@ -1,19 +1,23 @@
 import {types} from "mobx-state-tree";
 
 /**
- * @typedef {{}} SpeedRollStore
+ * @typedef {Object} SpeedRollStore
  * @property {{download:number,upload:number,time:number}[]} data
  * @property {function} add
  * @property {function} clean
  * @property {function} setData
- * @property {*} graph
+ * @property {*} minSpeed
+ * @property {*} maxSpeed
+ * @property {*} minTime
+ * @property {*} maxTime
+ * @property {function} getDataFromTime
  */
 const SpeedRollStore = types.model('SpeedRollStore', {
   data: types.array(types.model({
     download: types.number,
     upload: types.number,
     time: types.identifierNumber
-  }))
+  })),
 }).actions((self) => {
   return {
     add(download, upload) {
@@ -38,32 +42,45 @@ const SpeedRollStore = types.model('SpeedRollStore', {
   };
 }).views((self) => {
   return {
-    get graph() {
-      const timeline = [];
-      const timeSummaryMap = new Map();
-
-      for (let i = 0, item; item = self.data[i]; i++) {
-        const {time: timeMs, download, upload} = item;
-        const time = Math.trunc(timeMs / 1000);
-        let summary = timeSummaryMap.get(time);
-        if (!summary) {
-          timeline.push(time);
-          timeSummaryMap.set(time, summary = {count: 0, download: 0, upload: 0});
+    get minSpeed() {
+      return 0;
+    },
+    get maxSpeed() {
+      let maxSpeed = 0;
+      let minTime = self.minTime;
+      for (let i = self.data.length - 1; i > 0; i--) {
+        const item = self.data[i];
+        if (item.time < minTime) {
+          break;
         }
-        summary.count++;
-        summary.download += download;
-        summary.upload += upload;
+        const max = Math.max(item.download, item.upload);
+        if (maxSpeed < max) {
+          maxSpeed = max;
+        }
       }
-
-      return timeline.map((time) => {
-        const summary = timeSummaryMap.get(time);
-        return {
-          time,
-          download: summary.count / summary.download,
-          upload: summary.count / summary.upload
-        };
-      });
-    }
+      return maxSpeed;
+    },
+    get minTime() {
+      return self.maxTime - 60 * 1000;
+    },
+    get maxTime() {
+      let result = 0;
+      if (self.data.length) {
+        result = self.data[self.data.length - 1].time;
+      }
+      return result;
+    },
+    getDataFromTime(minTime) {
+      const result = [];
+      for (let i = self.data.length - 1; i > 0; i--) {
+        const item = self.data[i];
+        if (item.time < minTime) {
+          break;
+        }
+        result.unshift(item.toJSON());
+      }
+      return result;
+    },
   };
 });
 

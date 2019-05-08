@@ -1,10 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const Options = React.lazy(() => import('../pages/Options'));
+const Graph = React.lazy(() => import('./Graph'));
 
 const idComponent = {
-  options: Options,
+  graph: Graph,
 };
 
 class ComponentLoader extends React.Component {
@@ -31,6 +31,6 @@ class ComponentLoader extends React.Component {
   }
 }
 
-const Spinner = () => 'Loading...';
+const Spinner = () => null;
 
 export default ComponentLoader;
