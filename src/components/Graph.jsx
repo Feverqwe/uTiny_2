@@ -41,6 +41,9 @@ class Graph extends React.Component {
     const x = scaleLinear();
     const y = scaleLinear();
 
+    const uploadLine = line().x(d => x(d.time)).y(d => y(d.upload));
+    const downloadLine = line().x(d => x(d.time)).y(d => y(d.download));
+
     let minTime = speedRoll.minTime;
     this.graphAutorun = autorun(() => {
       if (!this.refChart.current) return;
@@ -50,13 +53,12 @@ class Graph extends React.Component {
         svgEl.setAttribute('width', width);
         svgEl.setAttribute('height', height);
         svgEl.setAttribute('viewBox', `0,0,${width},${height}`);
+        y.range([height, 0]);
+        x.range([0, width]);
       }
 
-      y.domain([speedRoll.minSpeed, speedRoll.maxSpeed])
-        .range([height, 0]);
-
-      x.domain([speedRoll.minTime, speedRoll.maxTime])
-        .range([0, width]);
+      y.domain([speedRoll.minSpeed, speedRoll.maxSpeed]);
+      x.domain([speedRoll.minTime, speedRoll.maxTime]);
 
       if (minTime < Date.now() - 5 * 60 * 1000) {
         minTime = speedRoll.minTime;
@@ -66,11 +68,9 @@ class Graph extends React.Component {
 
       const t = transition().duration(500).ease(easeQuad);
 
-      const downloadLine = line().x(d => x(d.time)).y(d => y(d.download));
       downloadLinePath = downloadLinePath.datum(data);
       downloadLinePath.transition(t).attr('d', downloadLine);
 
-      const uploadLine = line().x(d => x(d.time)).y(d => y(d.upload));
       uploadLinePath = uploadLinePath.datum(data);
       uploadLinePath.transition(t).attr('d', uploadLine);
     });
