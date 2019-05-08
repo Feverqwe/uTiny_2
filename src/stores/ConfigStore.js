@@ -52,6 +52,20 @@ const FolderStore = types.model('FolderStore', {
   path: types.string
 });
 
+const SelectedLabelStore = types.model('SelectedLabelStore', {
+  label: types.string,
+  custom: types.boolean,
+}).views((self) => {
+  return {
+    get id() {
+      return JSON.stringify({
+        label: self.label,
+        custom: self.custom,
+      });
+    }
+  };
+});
+
 /**
  * @typedef {{}} ConfigStore
  * @property {string} [hostname]
@@ -148,10 +162,7 @@ const ConfigStore = types.model('ConfigStore', {
     direction: types.optional(types.number, 1)
   }), {by: 'name'}),
 
-  selectedLabel: types.optional(types.model({
-    label: types.string,
-    custom: types.boolean,
-  }), {label: 'ALL', custom: true}),
+  selectedLabel: types.optional(SelectedLabelStore, {label: 'ALL', custom: true}),
 
   configVersion: types.optional(types.number, 2),
 }).actions((self) => {
@@ -177,6 +188,7 @@ const ConfigStore = types.model('ConfigStore', {
 
       const columns = moveColumn(self.torrentColumns.slice(0), column, columnTarget);
 
+      self.torrentColumns = columns;
       storageSet({
         torrentColumns: columns
       });
@@ -192,6 +204,7 @@ const ConfigStore = types.model('ConfigStore', {
 
       const columns = moveColumn(self.filesColumns.slice(0), column, columnTarget);
 
+      self.filesColumns = columns;
       storageSet({
         filesColumns: columns
       });
@@ -202,13 +215,21 @@ const ConfigStore = types.model('ConfigStore', {
       });
     },
     setTorrentsSort(by, direction) {
+      self.torrentsSort = {by, direction};
       storageSet({
-        torrentsSort: {by, direction}
+        torrentsSort: self.torrentsSort.toJSON()
       });
     },
     setFilesSort(by, direction) {
+      self.filesSort = {by, direction};
       storageSet({
-        filesSort: {by, direction}
+        filesSort: self.filesSort.toJSON()
+      });
+    },
+    setSelectedLabel(label, isCustom) {
+      self.selectedLabel = {label, custom: isCustom};
+      storageSet({
+        selectedLabel: self.selectedLabel.toJSON()
       });
     }
   };
@@ -224,8 +245,6 @@ const ConfigStore = types.model('ConfigStore', {
       self.setKeyValue(keyValue);
     }
   };
-
-  const customLabels = ['ALL', 'DL', 'SEEDING', 'COMPL', 'ACTIVE', 'INACTIVE', 'NOLABEL'];
 
   return {
     get url() {
@@ -254,15 +273,6 @@ const ConfigStore = types.model('ConfigStore', {
     get visibleFileColumns() {
       return self.filesColumns.filter(column => column.display);
     },
-    get allLabels() {
-      const cLabels = customLabels.map((label) => {
-        return {label, custom: true};
-      });
-      const labels = self.labels.map((label) => {
-        return {label, custom: false};
-      });
-      return [].concat(cLabels, labels);
-    },
     afterCreate() {
       chrome.storage.onChanged.addListener(storageChangeListener);
     },
@@ -288,3 +298,4 @@ function moveColumn(columns, column, columnTarget) {
 }
 
 export default ConfigStore;
+export {SelectedLabelStore};

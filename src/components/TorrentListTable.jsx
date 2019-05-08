@@ -193,13 +193,13 @@ class TorrentListTableTorrents extends React.Component {
     return this.props.rootStore;
   }
 
-  /**@return {ClientStore}*/
-  get clientStore() {
-    return this.rootStore.client;
+  /**@return {TorrentListStore}*/
+  get torrentListStore() {
+    return this.rootStore.torrentList;
   }
 
   render() {
-    const torrens = this.clientStore.sortedTorrents.map((torrent) => {
+    const torrens = this.torrentListStore.sortedTorrents.map((torrent) => {
       return (
         <TorrentListTableItem key={torrent.id} torrent={torrent}/>
       );

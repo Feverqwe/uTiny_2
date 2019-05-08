@@ -173,42 +173,48 @@ class LabelSelect extends React.Component {
     return this.props.rootStore;
   }
 
+  handleChange = (e) => {
+    const selectedLabel = JSON.parse(e.currentTarget.value);
+    this.rootStore.config.setSelectedLabel(selectedLabel.label, selectedLabel.custom);
+  };
+
   render() {
     const selectedLabel = this.rootStore.config.selectedLabel;
 
-    const options = this.rootStore.config.allLabels.map((label) => {
+    let defaultValue = null;
+    const options = this.rootStore.torrentList.filters.map(({label, custom: isCustom}) => {
+      const id = JSON.stringify({label, custom: isCustom});
+
       let text = null;
-      const name = label.label;
-      const custom = label.custom;
-      if (custom) {
-        if (name === 'SEEDING') {
-          text = chrome.i18n.getMessage('OV_FL_' + name.toUpperCase());
+      if (isCustom) {
+        if (label === 'SEEDING') {
+          text = chrome.i18n.getMessage('OV_FL_' + label);
         } else {
-          text = chrome.i18n.getMessage('OV_CAT_' + name.toUpperCase());
+          text = chrome.i18n.getMessage('OV_CAT_' + label);
         }
       } else {
-        text = name;
+        text = label;
       }
 
-      let dataType = null;
       let dataImage = null;
-      if (custom) {
-        dataType = 'custom';
-        if (name !== 'NOLABEL') {
-          dataImage = name;
+      if (isCustom) {
+        if (label !== 'NOLABEL') {
+          dataImage = label;
         }
+      }
+
+      if (selectedLabel.id === id) {
+        defaultValue = id;
       }
 
       return (
-        <option key={`${name}_${custom}`} value={`${!!custom}_${name}`} data-type={dataType} data-image={dataImage}>{text}</option>
+        <option key={id} value={id} data-image={dataImage}>{text}</option>
       );
     });
 
-    const selectedValue = `${!!selectedLabel.custom}_${selectedLabel.label}`;
-
     return (
       <li className="select">
-        <select defaultValue={selectedValue}>
+        <select onChange={this.handleChange} defaultValue={defaultValue}>
           {options}
         </select>
       </li>
