@@ -46,8 +46,44 @@ const TorrentListStore = types.compose('TorrentListStore', ListSelectStore, type
       const result = [];
       for (const torrent of rootStore.client.torrents.values()) {
         if (filter.custom) {
-          // todo: add custom filters
-          result.push(torrent);
+          switch (filter.label) {
+            case 'DL': {
+              if (torrent.isDownloading){
+                result.push(torrent);
+              }
+              break;
+            }
+            case 'SEEDING': {
+              if (torrent.isSeeding){
+                result.push(torrent);
+              }
+              break;
+            }
+            case 'COMPL': {
+              if (torrent.isCompleted){
+                result.push(torrent);
+              }
+              break;
+            }
+            case 'ACTIVE': {
+              if (torrent.isActive){
+                result.push(torrent);
+              }
+              break;
+            }
+            case 'INACTIVE': {
+              if (!torrent.isActive){
+                result.push(torrent);
+              }
+              break;
+            }
+            case 'NOLABEL': {
+              if (!torrent.label){
+                result.push(torrent);
+              }
+              break;
+            }
+          }
         } else
         if (torrent.label === filter.label) {
           result.push(torrent);

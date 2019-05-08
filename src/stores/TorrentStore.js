@@ -51,6 +51,10 @@ const filesize = require('filesize');
  * @property {*} stateText
  * @property {*} selected
  * @property {*} actions
+ * @property {*} isSeeding
+ * @property {*} isDownloading
+ * @property {*} isPaused
+ * @property {*} isActive
  */
 const TorrentStore = types.model('TorrentStore', {
   id: types.identifier,
@@ -194,6 +198,9 @@ const TorrentStore = types.model('TorrentStore', {
     },
     get isPaused() {
       return !!(self.state & 32 && !(self.state & 2));
+    },
+    get isActive() {
+      return !!(self.downloadSpeed || self.uploadSpeed);
     }
   };
 });
