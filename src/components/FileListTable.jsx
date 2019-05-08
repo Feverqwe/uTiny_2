@@ -222,8 +222,13 @@ class FileListTableHeadColumn extends TableHeadColumn {
       );
     }
 
+    let onClick = null;
+    if (column.order) {
+      onClick = this.handleSort;
+    }
+
     return (
-      <th ref={this.refTh} onClick={this.handleSort} onContextMenu={this.handleContextMenu} onDragStart={this.handleDragStart} onDragOver={this.handleDragOver} onDrop={this.handleDrop} className={classList.join(' ')} title={chrome.i18n.getMessage(column.lang)} draggable={true}>
+      <th ref={this.refTh} onClick={onClick} onContextMenu={this.handleContextMenu} onDragStart={this.handleDragStart} onDragOver={this.handleDragOver} onDrop={this.handleDrop} className={classList.join(' ')} title={chrome.i18n.getMessage(column.lang)} draggable={true}>
         {body}
         <div className="resize-el" draggable={false} onClick={this.handleResizeClick} onMouseDown={this.handleResizeMouseDown}/>
         {arraw}
