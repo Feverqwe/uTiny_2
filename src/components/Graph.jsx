@@ -68,11 +68,8 @@ class Graph extends React.Component {
 
       const t = transition().duration(500).ease(easeQuad);
 
-      downloadLinePath = downloadLinePath.datum(data);
-      downloadLinePath.transition(t).attr('d', downloadLine);
-
-      uploadLinePath = uploadLinePath.datum(data);
-      uploadLinePath.transition(t).attr('d', uploadLine);
+      downloadLinePath.datum(data).transition(t).attr('d', downloadLine);
+      uploadLinePath.datum(data).transition(t).attr('d', uploadLine);
     });
 
     downloadLinePath.attr("fill", "none")
