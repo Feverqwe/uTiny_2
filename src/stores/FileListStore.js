@@ -19,23 +19,26 @@ const byColumnMap = {
  * @property {string} [state]
  * @property {FileStore[]} files
  * @property {boolean} [isLoading]
+ * @property {string} [filter]
  * @property {function:Promise} fetchFiles
+ * @property {function} setFilter
  * @property {function} getFileById
  * @property {function} getFileIndexById
  * @property {function} getDownloadUrlById
  * @property {*} torrent
+ * @property {*} filteredFiles
  * @property {*} sortedFiles
  * @property {*} _sortedIds
  * @property {*} isSelectedAll
  * @property {*} selectedIndexes
- * @property {function} afterCreate
- * @property {function} beforeDestroy
+ * @property {*} filterLevel
  */
 const FileListStore = types.compose('FileListStore', ListSelectStore, types.model({
   id: types.identifier,
   state: types.optional(types.enumeration(['idle', 'pending', 'done', 'error']), 'idle'),
   files: types.array(FileStore),
   isLoading: types.optional(types.boolean, true),
+  filter: types.optional(types.string, ''),
 })).actions((self) => {
   return {
     fetchFiles: flow(function* () {
@@ -53,6 +56,9 @@ const FileListStore = types.compose('FileListStore', ListSelectStore, types.mode
         self.state = 'error';
       }
     }),
+    setFilter(value) {
+      self.filter = value;
+    }
   };
 }).views((self) => {
   return {
@@ -86,10 +92,19 @@ const FileListStore = types.compose('FileListStore', ListSelectStore, types.mode
     get torrent() {
       return resolveIdentifier(TorrentStore, self, self.id);
     },
+    get filteredFiles() {
+      if (self.filter) {
+        return self.files.filter((file) => {
+          return file.normalizedName.indexOf(self.filter + '/') === 0;
+        });
+      } else {
+        return self.files;
+      }
+    },
     get sortedFiles() {
       /**@type RootStore*/const rootStore = getRoot(self);
       const {by, direction} = rootStore.config.filesSort;
-      const files = self.files.slice(0);
+      const files = self.filteredFiles.slice(0);
 
       const byColumn = byColumnMap[by] || by;
 
@@ -126,6 +141,16 @@ const FileListStore = types.compose('FileListStore', ListSelectStore, types.mode
     },
     get selectedIndexes() {
       return self.selectedIds.map(name => self.getFileIndexById(name));
+    },
+    get filterLevel() {
+      const filter = self.filter;
+      return !filter ? 0 : filter.split(/[\\/]/).length;
+    },
+    afterCreate() {
+      self.startSortedIdsWatcher();
+    },
+    beforeDestroy() {
+      self.stopSortedIdsWatcher();
     }
   };
 });

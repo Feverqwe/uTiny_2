@@ -78,9 +78,7 @@ class FileListTableItem extends React.Component {
         case 'name': {
           columns.push(
             <td key={name} className={name}>
-              <div>
-                <span>{fileStore.name}</span>
-              </div>
+              <FileName fileListStore={this.fileListStore} fileStore={fileStore}/>
             </td>
           );
           break;
@@ -135,6 +133,85 @@ class FileListTableItem extends React.Component {
       <tr onContextMenu={this.handleContextMenu} className={classList.join(' ')}>
         {columns}
       </tr>
+    );
+  }
+}
+
+@observer
+class FileName extends React.Component {
+  static propTypes = {
+    fileStore: PropTypes.object.isRequired,
+    fileListStore: PropTypes.object.isRequired,
+  };
+
+  /**@return {FileListStore}*/
+  get fileListStore() {
+    return this.props.fileListStore;
+  }
+
+  /**@return {FileStore}*/
+  get fileStore() {
+    return this.props.fileStore;
+  }
+
+  handleSetFilter = (level) => {
+    if (level === this.fileListStore.filterLevel) {
+      level--;
+    }
+
+    const filter = this.fileStore.nameParts.slice(0, level).join('/');
+
+    this.fileListStore.setFilter(filter);
+  };
+
+  render() {
+    const parts = [];
+
+    const nameParts = this.fileStore.nameParts;
+    const filterLevel = this.fileListStore.filterLevel;
+    for (let i = filterLevel; i < nameParts.length; i++) {
+      parts.push(nameParts[i]);
+    }
+
+    const filename = parts.pop();
+    const links = parts.map((name, index) => {
+      return (
+        <FileNamePart key={name} onSetFilter={this.handleSetFilter} level={filterLevel + index + 1} name={name}/>
+      );
+    });
+
+    if (filterLevel > 0) {
+      const name = '←';
+      links.unshift(
+        <FileNamePart key={name} onSetFilter={this.handleSetFilter} level={filterLevel} name={name}/>
+      );
+    }
+
+    return (
+      <div>
+        <span>{links}{filename}</span>
+      </div>
+    );
+  }
+}
+
+class FileNamePart extends React.PureComponent {
+  static propTypes = {
+    level: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+    onSetFilter: PropTypes.func.isRequired,
+  };
+
+  handleClick = (e) => {
+    e.preventDefault();
+    this.props.onSetFilter(this.props.level);
+  };
+
+  render() {
+    const classList = ['folder', `c${this.props.level - 1}`];
+
+    return (
+      <a onClick={this.handleClick} className={classList.join(' ')} href="#">{this.props.name}</a>
     );
   }
 }

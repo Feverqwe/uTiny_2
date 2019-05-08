@@ -23,6 +23,9 @@ const FileStore = types.model('FileStore', {
   downloaded: types.number,
   priority: types.number,
 }).views((self) => {
+  let cachedNamePartsName = null;
+  let cachedNameParts = null;
+
   return {
     get progress() {
       return Math.round((self.downloaded * 100 / self.size) * 10) / 10;
@@ -47,7 +50,17 @@ const FileStore = types.model('FileStore', {
     get selected() {
       /**@type RootStore*/const rootStore = getRoot(self);
       return rootStore.fileList.selectedIds.indexOf(self.name) !== -1;
-    }
+    },
+    get nameParts() {
+      if (cachedNamePartsName !== self.name) {
+        cachedNamePartsName = self.name;
+        cachedNameParts = cachedNamePartsName.split(/[\\/]/);
+      }
+      return cachedNameParts;
+    },
+    get normalizedName() {
+      return self.nameParts.join('/');
+    },
   };
 });
 

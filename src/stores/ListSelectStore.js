@@ -1,4 +1,5 @@
 import {types} from "mobx-state-tree";
+import {autorun} from "mobx";
 
 /**
  * @typedef {{}} ListSelectStore
@@ -7,8 +8,11 @@ import {types} from "mobx-state-tree";
  * @property {function} removeSelectedId
  * @property {function} addMultipleSelectedId
  * @property {function} toggleSelectAll
+ * @property {function} syncSelectedIds
  * @property {*} _sortedIds
  * @property {*} isSelectedAll
+ * @property {function} startSortedIdsWatcher
+ * @property {function} stopSortedIdsWatcher
  */
 const ListSelectStore = types.model('ListSelectStore', {
   selectedIds: types.array(types.string),
@@ -51,9 +55,14 @@ const ListSelectStore = types.model('ListSelectStore', {
       } else {
         self.selectedIds = self._sortedIds.slice(0);
       }
+    },
+    syncSelectedIds() {
+      self.selectedIds = self.selectedIds.filter(id => self._sortedIds.indexOf(id) !== -1);
     }
   };
 }).views((self) => {
+  let _autorun = null;
+
   return {
     get _sortedIds() {
       throw new Error('Overwrite me!');
@@ -64,6 +73,17 @@ const ListSelectStore = types.model('ListSelectStore', {
         return self.selectedIds.every(id => ids.indexOf(id) !== -1);
       }
       return false;
+    },
+    startSortedIdsWatcher() {
+      _autorun = autorun(() => {
+        if (self._sortedIds) {
+          self.syncSelectedIds();
+        }
+      });
+    },
+    stopSortedIdsWatcher() {
+      _autorun && _autorun();
+      _autorun = null;
     }
   };
 });

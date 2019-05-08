@@ -14,6 +14,12 @@ const TorrentListStore = types.compose('TorrentListStore', ListSelectStore, type
     get _sortedIds() {
       /**@type RootStore*/const rootStore = getRoot(self);
       return rootStore.client.sortedTorrentIds;
+    },
+    afterCreate() {
+      self.startSortedIdsWatcher();
+    },
+    beforeDestroy() {
+      self.stopSortedIdsWatcher();
     }
   };
 });
