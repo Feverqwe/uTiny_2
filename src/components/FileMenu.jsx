@@ -102,9 +102,12 @@ class FileMenuBody extends ContextMenuBody {
           break;
         }
         case '_': {
-          buttons.push(
-            <Separator key={'separator_' + index}/>
-          );
+          const torrent = this.fileListStore.torrent;
+          if (index !== 5 || torrent && torrent.isDownloadAvailable) {
+            buttons.push(
+              <Separator key={'separator_' + index}/>
+            );
+          }
           break;
         }
       }

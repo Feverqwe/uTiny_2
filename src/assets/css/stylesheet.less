@@ -722,10 +722,13 @@ tr > th {
     font-size: 1em;
     z-index: 5;
     padding: 0;
+    overflow: auto;
+    max-height: 100%;
 
-    &:not(.torrent-menu) {
-        overflow: auto;
-        max-height: 100%;
+    &.torrent-menu,
+    &.react-contexify__submenu {
+        overflow: initial;
+        max-height: initial;
     }
 
     .react-contexify__item:hover > .react-contexify__item__content {
