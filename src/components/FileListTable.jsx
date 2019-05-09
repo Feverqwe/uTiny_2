@@ -26,11 +26,12 @@ class FileListTable extends React.Component {
   }
 
   handleScroll = (e) => {
+    const fixedHead = this.refFixedHead.current;
     if (e.currentTarget.scrollLeft > 0) {
-      this.refFixedHead.current.style.left = `${e.currentTarget.scrollLeft * -1}px`;
+      fixedHead.style.left = `${e.currentTarget.scrollLeft * -1}px`;
     } else
-    if (this.refFixedHead.current.style.left) {
-      this.refFixedHead.current.style.left = '';
+    if (fixedHead.style.left) {
+      fixedHead.style.left = '';
     }
   };
 
