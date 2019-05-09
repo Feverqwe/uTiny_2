@@ -88,7 +88,7 @@ class Footer extends React.Component {
         <tfoot>
         <tr>
           <td className="status">
-            <div/>
+            <div>{this.rootStore.client.lastErrorMessage}</div>
           </td>
           <td className="space"/>
           <td onContextMenu={this.handleDownloadContextMenu} className="speed download">{downloadSpeedStr}{downloadLimit}</td>
