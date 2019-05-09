@@ -1,5 +1,4 @@
-import {fetch as fetchWithAbort} from "whatwg-fetch";
-import 'abortcontroller-polyfill/dist/abortcontroller-polyfill-only';
+import "whatwg-fetch";
 import ErrorWithCode from "../tools/errorWithCode";
 import utFixCyrillic from "../tools/utFixCyrillic";
 import getLogger from "../tools/getLogger";
@@ -233,11 +232,7 @@ class UTorrentClient {
           return {url};
         }
 
-        const controller = new AbortController();
-
-        return fetchWithAbort(url, {
-          signal: controller.signal,
-        }).then(response => {
+        return fetch(url).then(response => {
           if (!response.ok) {
             throw new ErrorWithCode(`${response.status}: ${response.statusText}`, `RESPONSE_IS_NOT_OK`);
           }
@@ -250,9 +245,6 @@ class UTorrentClient {
         }).then((blob) => {
           URL.revokeObjectURL(url);
           return {blob};
-        }, (err) => {
-          controller.abort();
-          throw err;
         });
       }).then((data) => {
         return this.putTorrent(data, directory, label);

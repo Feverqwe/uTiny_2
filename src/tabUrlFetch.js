@@ -1,5 +1,4 @@
-import {fetch} from "whatwg-fetch";
-import 'abortcontroller-polyfill/dist/abortcontroller-polyfill-only';
+import "whatwg-fetch";
 import arrayBufferToBase64 from "./tools/arrayBufferToBase64";
 import getLogger from "./tools/getLogger";
 import ErrorWithCode from "./tools/errorWithCode";
@@ -37,11 +36,7 @@ const logger = getLogger('tabUrlFetch');
   });
 
   function fetchUrl(url) {
-    const controller = new AbortController();
-
-    return fetch(url, {
-      signal: controller.signal,
-    }).then((response) => {
+    return fetch(url).then((response) => {
       if (!response.ok) {
         throw new ErrorWithCode(`${response.status}: ${response.statusText}`, `RESPONSE_IS_NOT_OK`);
       }
@@ -56,9 +51,6 @@ const logger = getLogger('tabUrlFetch');
       return response.arrayBuffer().then((arrayBuffer) => {
         return {response: safeResponse, base64: arrayBufferToBase64(arrayBuffer)};
       });
-    }).catch((err) => {
-      controller.abort();
-      throw err;
     });
   }
 })();
