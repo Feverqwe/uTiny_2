@@ -1,6 +1,7 @@
+const timeAgoList = JSON.parse(chrome.i18n.getMessage('timeOutList'));
+
 const getEta = (eta) => {
   let result = '∞';
-  const timeAgoList = JSON.parse(chrome.i18n.getMessage('timeOutList'));
   if (eta !== -1) {
     let day = Math.floor(eta / 60 / 60 / 24);
     const week = Math.floor(day / 7);
