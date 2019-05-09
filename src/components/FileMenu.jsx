@@ -93,9 +93,12 @@ class FileMenuBody extends ContextMenuBody {
           break;
         }
         case 'download': {
-          buttons.push(
-            <Item key={action} onClick={this.handleDownload}>{chrome.i18n.getMessage('DLG_RSSDOWNLOADER_24')}</Item>
-          );
+          const torrent = this.fileListStore.torrent;
+          if (torrent && torrent.isDownloadAvailable) {
+            buttons.push(
+              <Item key={action} onClick={this.handleDownload}>{chrome.i18n.getMessage('DLG_RSSDOWNLOADER_24')}</Item>
+            );
+          }
           break;
         }
         case '_': {

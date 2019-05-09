@@ -194,6 +194,15 @@ const ClientStore = types.model('ClientStore', {
       });
       return result;
     },
+    get isSupportedApiRemoveTorrent() {
+      for (const torrent of self.torrents.values()) {
+        return torrent.status !== undefined;
+      }
+      return false;
+    },
+    get isSupportedApiRemoveDataTorrent() {
+      return self.isSupportedApiRemoveTorrent;
+    },
     torrentsStart(ids) {
       return syncUiWrap(() => {
         return callApi({action: 'start', ids: ids});

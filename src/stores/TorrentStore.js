@@ -205,6 +205,9 @@ const TorrentStore = types.model('TorrentStore', {
     },
     get isActive() {
       return !!(self.downloadSpeed || self.uploadSpeed);
+    },
+    get isDownloadAvailable() {
+      return !!self.sid;
     }
   };
 });

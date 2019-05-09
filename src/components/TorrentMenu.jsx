@@ -179,11 +179,25 @@ class TorrentMenuBody extends ContextMenuBody {
           break;
         }
         case 'remove_with': {
+          let removeTorrent = null;
+          if (this.rootStore.client.isSupportedApiRemoveTorrent) {
+            removeTorrent = (
+              <Item onClick={this.handleRemoveTorrent}>{chrome.i18n.getMessage('ML_DELETE_TORRENT')}</Item>
+            );
+          }
+
+          let removeDataTorrent = null;
+          if (this.rootStore.client.isSupportedApiRemoveDataTorrent) {
+            removeDataTorrent = (
+              <Item onClick={this.handleRemoveTorrentFiles}>{chrome.i18n.getMessage('ML_DELETE_DATATORRENT')}</Item>
+            );
+          }
+
           buttons.push(
             <Submenu key={action} label={chrome.i18n.getMessage('ML_REMOVE_AND')}>
-              <Item onClick={this.handleRemoveTorrent}>{chrome.i18n.getMessage('ML_DELETE_TORRENT')}</Item>
+              {removeTorrent}
               <Item onClick={this.handleRemoveFiles}>{chrome.i18n.getMessage('ML_DELETE_DATA')}</Item>
-              <Item onClick={this.handleRemoveTorrentFiles}>{chrome.i18n.getMessage('ML_DELETE_DATATORRENT')}</Item>
+              {removeDataTorrent}
             </Submenu>
           );
           break;

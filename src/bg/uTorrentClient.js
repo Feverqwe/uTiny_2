@@ -183,14 +183,7 @@ class UTorrentClient {
   async removetorrent(ids) {
     if (!ids.length) return;
 
-    const torrent = this.bgStore.client.torrents.get(ids[0]);
-    if (torrent && torrent.status === undefined) {
-      // fallback
-      // todo: fix me, add version check when removetorrent
-      return this.remove(ids);
-    } else {
-      return this.sendAction({list: 1, cid: this.cid, action: 'removetorrent', hash: ids});
-    }
+    return this.sendAction({list: 1, cid: this.cid, action: 'removetorrent', hash: ids});
   }
 
   removedata(ids) {
@@ -200,14 +193,7 @@ class UTorrentClient {
   async removedatatorrent(ids) {
     if (!ids.length) return;
 
-    const torrent = this.bgStore.client.torrents.get(ids[0]);
-    if (torrent && torrent.status === undefined) {
-      // fallback
-      // todo: fix me, add version check when removedatatorrent
-      return this.removedata(ids);
-    } else {
-      return this.sendAction({list: 1, cid: this.cid, action: 'removedatatorrent', hash: ids});
-    }
+    return this.sendAction({list: 1, cid: this.cid, action: 'removedatatorrent', hash: ids});
   }
 
   queueUp(ids) {
