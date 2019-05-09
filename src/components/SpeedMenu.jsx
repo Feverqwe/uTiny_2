@@ -6,7 +6,7 @@ import speedToStr from "../tools/speedToStr";
 
 const SpeedMenu = React.memo(() => {
   return (
-    <Menu id="speed_menu">
+    <Menu id="speed_menu" className="speed-menu">
       <SpeedMenuBody/>
     </Menu>
   )

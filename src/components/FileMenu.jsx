@@ -10,7 +10,7 @@ const fileMenuItems = [
 
 const FileMenu = React.memo(() => {
   return (
-    <Menu id="file_menu">
+    <Menu id="file_menu" className="file-menu">
       <FileMenuBody/>
     </Menu>
   )

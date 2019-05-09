@@ -5,7 +5,7 @@ import ColumnMenuItem from "./ColumnMenuItem";
 
 const FileColumnMenu = React.memo(() => {
   return (
-    <Menu id="file_column_menu">
+    <Menu id="file_column_menu" className="file-column-menu">
       <FileColumnMenuBody/>
     </Menu>
   )

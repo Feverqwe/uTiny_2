@@ -743,6 +743,11 @@ tr > th {
     z-index: 5;
     padding: 0;
 
+    &:not(.torrent-menu) {
+        overflow: auto;
+        max-height: 100%;
+    }
+
     .react-contexify__item:hover > .react-contexify__item__content {
         background-image: linear-gradient(to top, #2662ED 50%, #648CF1 90%);
         border: 1px solid #1957e4;

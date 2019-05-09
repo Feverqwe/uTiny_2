@@ -12,7 +12,7 @@ const torrentMenuItems = [
 
 const TorrentMenu = React.memo(() => {
   return (
-    <Menu id="torrent_menu">
+    <Menu id="torrent_menu" className="torrent-menu">
       <TorrentMenuBody/>
     </Menu>
   )

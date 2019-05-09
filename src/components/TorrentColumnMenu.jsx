@@ -5,7 +5,7 @@ import ColumnMenuItem from "./ColumnMenuItem";
 
 const TorrentColumnMenu = React.memo(() => {
   return (
-    <Menu id="torrent_column_menu">
+    <Menu id="torrent_column_menu" className="torrent-column-menu">
       <TorrentColumnMenuBody/>
     </Menu>
   )
