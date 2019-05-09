@@ -26,10 +26,6 @@ class Graph extends React.Component {
   graphAutorun = null;
   componentDidMount() {
     const ctr = this.refChart.current;
-
-    let width = null;
-    const height = 30;
-
     const speedRoll = this.rootStore.client.speedRoll;
 
     const svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -52,6 +48,8 @@ class Graph extends React.Component {
     const uploadLine = line().x(d => x(d.time)).y(d => y(d.upload));
     const downloadLine = line().x(d => x(d.time)).y(d => y(d.download));
 
+    let width = null;
+    const height = 30;
     let minTime = speedRoll.minTime;
     this.graphAutorun = autorun(() => {
       if (!this.refChart.current) return;
@@ -65,7 +63,7 @@ class Graph extends React.Component {
         x.range([0, width]);
       }
 
-      y.domain([speedRoll.minSpeed, speedRoll.maxSpeed]);
+      y.domain([speedRoll.minSpeed, speedRoll.maxSpeed || 1]);
       x.domain([speedRoll.minTime, speedRoll.maxTime]);
 
       if (minTime < Date.now() - 5 * 60 * 1000) {
