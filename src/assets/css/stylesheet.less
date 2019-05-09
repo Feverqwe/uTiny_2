@@ -826,8 +826,8 @@ tr > th {
         }
 
         .rc-select-selection__rendered {
-            height: 26px;
-            line-height: 26px;
+            height: 24px;
+            line-height: 24px;
             margin-left: 4px;
         }
 
@@ -862,37 +862,41 @@ tr > th {
 
 .rc-select-dropdown {
     top: 25px !important;
-}
-
-.rc-select-dropdown-menu {
     border: solid 1px #bbb;
+    border-top-color: #dbdbdb;
     color: #000;
+    z-index: 100;
     box-shadow: 0 2px 6px rgba(0, 0, 0, .2);
     border-radius: 5px;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
-    z-index: 100;
-    border-top-color: #dbdbdb;
 
-    .rc-select-dropdown-menu-item {
-        text-overflow: ellipsis;
-        padding: 2px 4px;
-        white-space: nowrap;
-        padding-top: 3px;
-        color: #000;
-
-        &:hover {
-            background-color: #eee;
-        }
-
-        &.rc-select-dropdown-menu-item-active {
+    .rc-select-dropdown-menu {
+        .rc-select-dropdown-menu-item {
+            text-overflow: ellipsis;
+            padding: 2px 4px;
+            white-space: nowrap;
+            padding-top: 3px;
             color: #000;
-            background-color: #eee;
-        }
 
-        &.rc-select-dropdown-menu-item-selected {
-            color: #fff;
-            background-image: linear-gradient(to top, #2662ED 50%, #648CF1 90%) !important;
+            &:hover {
+                background-color: #eee;
+            }
+
+            &.rc-select-dropdown-menu-item-active {
+                color: #000;
+                background-color: #eee;
+            }
+
+            &.rc-select-dropdown-menu-item-selected {
+                color: #fff;
+                background-image: linear-gradient(to top, #2662ED 50%, #648CF1 90%) !important;
+            }
+
+            &:last-child {
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
+            }
         }
     }
 }
