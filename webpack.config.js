@@ -71,8 +71,6 @@ const config = {
         }, {
           loader: "css-loader"
         }, {
-          loader: "clean-css-loader"
-        }, {
           loader: "less-loader"
         }]
       },
