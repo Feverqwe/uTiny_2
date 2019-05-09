@@ -55,6 +55,12 @@ class Index extends React.Component {
 
   render() {
     if (this.rootStore.state === 'pending') {
+      return (
+        <div className="loading"/>
+      );
+    }
+
+    if (this.rootStore.state !== 'done') {
       return `Loading: ${this.rootStore.state}`;
     }
 
