@@ -15,8 +15,7 @@ const byColumnMap = {
 
 /**
  * @typedef {ListSelectStore} TorrentListStore
- * @property {{label:string,custom:boolean}} [filter]
- * @property {function} setFilter
+ * @property {*} filters
  * @property {*} filteredTorrents
  * @property {*} sortedTorrents
  * @property {*} sortedTorrentIds

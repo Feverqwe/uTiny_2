@@ -4,7 +4,7 @@ import formatBytes from "../tools/formatBytes";
 const priorityLocaleMap = ['MF_DONT', 'MF_LOW', 'MF_NORMAL', 'MF_HIGH'];
 
 /**
- * @typedef {{}} FileStore
+ * @typedef {Object} FileStore
  * @property {string} name
  * @property {number} size
  * @property {number} downloaded
@@ -15,6 +15,8 @@ const priorityLocaleMap = ['MF_DONT', 'MF_LOW', 'MF_NORMAL', 'MF_HIGH'];
  * @property {*} downloadedStr
  * @property {*} priorityStr
  * @property {*} selected
+ * @property {*} nameParts
+ * @property {*} normalizedName
  */
 const FileStore = types.model('FileStore', {
   name: types.identifier,

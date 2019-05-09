@@ -15,13 +15,14 @@ const byColumnMap = {
 /**
  * @typedef {ListSelectStore} FileListStore
  * @property {string} id
- * @property {boolean} removeSelectOnHide
+ * @property {boolean} [removeSelectOnHide]
  * @property {string} [state]
  * @property {FileStore[]} files
  * @property {boolean} [isLoading]
  * @property {string} [filter]
  * @property {function:Promise} fetchFiles
  * @property {function} setFilter
+ * @property {function} setRemoveSelectOnHide
  * @property {function} getFileById
  * @property {function} getFileIndexById
  * @property {function} getDownloadUrlById
@@ -32,6 +33,8 @@ const byColumnMap = {
  * @property {*} isSelectedAll
  * @property {*} selectedIndexes
  * @property {*} filterLevel
+ * @property {function} afterCreate
+ * @property {function} beforeDestroy
  */
 const FileListStore = types.compose('FileListStore', ListSelectStore, types.model({
   id: types.identifier,

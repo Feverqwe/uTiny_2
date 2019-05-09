@@ -1,7 +1,7 @@
 import {getRoot, types} from "mobx-state-tree";
 
 /**
- * @typedef {{}} PutFilesDialogStore
+ * @typedef {Object} PutFilesDialogStore
  * @property {string} id
  * @property {string} type
  * @property {boolean} [isReady]

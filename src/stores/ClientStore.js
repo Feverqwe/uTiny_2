@@ -5,7 +5,7 @@ import TorrentStore from "./TorrentStore";
 import callApi from "../tools/callApi";
 
 /**
- * @typedef {{}} LabelStore
+ * @typedef {Object} LabelStore
  * @property {string} name
  */
 const LabelStore = types.model('LabelStore', {
@@ -13,7 +13,7 @@ const LabelStore = types.model('LabelStore', {
 });
 
 /**
- * @typedef {{}} SettingsStore
+ * @typedef {Object} SettingsStore
  * @property {number|undefined} downloadSpeedLimit
  * @property {number|undefined} uploadSpeedLimit
  * @property {*} downloadSpeedLimitStr
@@ -34,7 +34,7 @@ const SettingsStore = types.model('SettingsStore', {
 });
 
 /**
- * @typedef {{}} ClientStore
+ * @typedef {Object} ClientStore
  * @property {Map<*,TorrentStore>} torrents
  * @property {LabelStore[]|undefined} labels
  * @property {SettingsStore|undefined} settings
@@ -48,13 +48,13 @@ const SettingsStore = types.model('SettingsStore', {
  * @property {*} torrentIds
  * @property {*} downloadingTorrentIds
  * @property {*} pausedTorrentIds
- * @property {*} sortedTorrents
- * @property {*} sortedTorrentIds
  * @property {*} activeTorrentIds
  * @property {*} activeCount
  * @property {*} currentSpeed
  * @property {*} currentSpeedStr
  * @property {*} allLabels
+ * @property {*} isSupportedApiRemoveTorrent
+ * @property {*} isSupportedApiRemoveDataTorrent
  * @property {function} torrentsStart
  * @property {function} torrentsForceStart
  * @property {function} torrentsPause
@@ -71,6 +71,7 @@ const SettingsStore = types.model('SettingsStore', {
  * @property {function} filesSetPriority
  * @property {function} setDownloadSpeedLimit
  * @property {function} setUploadSpeedLimit
+ * @property {function} getTorrentFiles
  * @property {function} getSettings
  * @property {function} sendFiles
  * @property {function} getSnapshot

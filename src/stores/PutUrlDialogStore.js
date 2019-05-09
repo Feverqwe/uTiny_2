@@ -1,8 +1,8 @@
 import {getRoot, types} from "mobx-state-tree";
 
 /**
- * @typedef {{}} PutUrlDialogStore
- * @property {number} id
+ * @typedef {Object} PutUrlDialogStore
+ * @property {string} id
  * @property {string} type
  * @property {function} close
  */

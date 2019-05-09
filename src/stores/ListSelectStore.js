@@ -2,7 +2,7 @@ import {types} from "mobx-state-tree";
 import {autorun} from "mobx";
 
 /**
- * @typedef {{}} ListSelectStore
+ * @typedef {Object} ListSelectStore
  * @property {string[]} selectedIds
  * @property {function} addSelectedId
  * @property {function} isSelectedId

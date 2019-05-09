@@ -1,7 +1,7 @@
 import {getRoot, types} from "mobx-state-tree";
 
 /**
- * @typedef {{}} CreateLabelDialogStore
+ * @typedef {Object} CreateLabelDialogStore
  * @property {string} id
  * @property {string} type
  * @property {string[]} torrentIds

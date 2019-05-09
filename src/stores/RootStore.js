@@ -15,7 +15,7 @@ const logger = getLogger('RootStore');
 let dialogIndex = 0;
 
 /**
- * @typedef {{}} RootStore
+ * @typedef {Object} RootStore
  * @property {string} [state]
  * @property {ConfigStore|undefined} config
  * @property {ClientStore|undefined} client

@@ -5,13 +5,14 @@ import storageSet from "../tools/storageSet";
 const url = require('url');
 
 /**
- * @typedef {{}} ColumnStore
+ * @typedef {Object} ColumnsStore
  * @property {string} column
  * @property {number} display
  * @property {number} order
  * @property {number} width
  * @property {string} lang
  * @property {function} setWidth
+ * @property {function} toggleDisplay
  */
 const ColumnStore =  types.model('ColumnsStore', {
   column: types.identifier,
@@ -31,17 +32,17 @@ const ColumnStore =  types.model('ColumnsStore', {
 });
 
 /**
- * @typedef {ColumnStore} TorrentsColumnStore
+ * @typedef {ColumnStore} TorrentsColumnsStore
  */
 const TorrentsColumnStore = types.compose('TorrentsColumnsStore', ColumnStore, types.model({}));
 
 /**
- * @typedef {ColumnStore} FilesColumnStore
+ * @typedef {ColumnStore} FilesColumnsStore
  */
 const FilesColumnStore = types.compose('FilesColumnsStore', ColumnStore, types.model({}));
 
 /**
- * @typedef {{}} FolderStore
+ * @typedef {Object} FolderStore
  * @property {string} volume
  * @property {string} name
  * @property {string} path
@@ -52,6 +53,12 @@ const FolderStore = types.model('FolderStore', {
   path: types.string
 });
 
+/**
+ * @typedef {Object} SelectedLabelStore
+ * @property {string} label
+ * @property {boolean} custom
+ * @property {*} id
+ */
 const SelectedLabelStore = types.model('SelectedLabelStore', {
   label: types.string,
   custom: types.boolean,
@@ -67,7 +74,7 @@ const SelectedLabelStore = types.model('SelectedLabelStore', {
 });
 
 /**
- * @typedef {{}} ConfigStore
+ * @typedef {Object} ConfigStore
  * @property {string} [hostname]
  * @property {boolean} [ssl]
  * @property {number} [port]
@@ -97,7 +104,7 @@ const SelectedLabelStore = types.model('SelectedLabelStore', {
  * @property {FilesColumnStore[]} filesColumns
  * @property {{by:string,[direction]:number}} [torrentsSort]
  * @property {{by:string,[direction]:number}} [filesSort]
- * @property {{label:string,custom:boolean}} [selectedLabel]
+ * @property {SelectedLabelStore} [selectedLabel]
  * @property {number} [configVersion]
  * @property {function} addFolder
  * @property {function} addLabel
@@ -108,9 +115,11 @@ const SelectedLabelStore = types.model('SelectedLabelStore', {
  * @property {function} saveFilesColumns
  * @property {function} setTorrentsSort
  * @property {function} setFilesSort
+ * @property {function} setSelectedLabel
+ * @property {*} url
+ * @property {*} webUiUrl
  * @property {*} visibleTorrentColumns
  * @property {*} visibleFileColumns
- * @property {*} allLabels
  * @property {function} afterCreate
  * @property {function} beforeDestroy
  */

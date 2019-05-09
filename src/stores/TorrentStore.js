@@ -6,7 +6,7 @@ import utStateToText from "../tools/utStateToText";
 import formatBytes from "../tools/formatBytes";
 
 /**
- * @typedef {{}} TorrentStore
+ * @typedef {Object} TorrentStore
  * @property {string} id
  * @property {number} state
  * @property {string} name
@@ -53,6 +53,7 @@ import formatBytes from "../tools/formatBytes";
  * @property {*} isDownloading
  * @property {*} isPaused
  * @property {*} isActive
+ * @property {*} isDownloadAvailable
  */
 const TorrentStore = types.model('TorrentStore', {
   id: types.identifier,

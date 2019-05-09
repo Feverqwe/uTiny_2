@@ -7,12 +7,11 @@ import ClientStore from "./ClientStore";
 const logger = getLogger('BgStore');
 
 /**
- * @typedef {{}} BgStore
+ * @typedef {Object} BgStore
  * @property {ConfigStore|undefined} config
  * @property {ClientStore} [client]
  * @property {function:Promise} fetchConfig
  * @property {function} flushClient
- * @property {function} legacyConfig
  */
 const BgStore = types.model('BgStore', {
   config: types.maybe(ConfigStore),
