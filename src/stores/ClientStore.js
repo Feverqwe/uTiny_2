@@ -300,7 +300,7 @@ const ClientStore = types.model('ClientStore', {
       return getSnapshot(self);
     },
     syncUiClient() {
-      return updateTorrentList().then((client) => {
+      return callApi({action: 'updateTorrentList'}).then((client) => {
         self.setTorrents(client.torrents);
         self.setLabels(client.labels);
         self.setSettings(client.settings);
@@ -309,11 +309,5 @@ const ClientStore = types.model('ClientStore', {
     }
   };
 });
-
-const updateTorrentList = () => {
-  return callApi({
-    action: 'updateTorrentList'
-  });
-};
 
 export default ClientStore;
