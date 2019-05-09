@@ -32,31 +32,7 @@ const BgStore = types.model('BgStore', {
     }
   };
 }).views((self) => {
-  return {
-    legacyConfig() {
-      const config = Object.assign({}, self.config);
-
-      config.useSSL = config.ssl;
-      config.ip = config.hostname;
-      config.path = config.pathname;
-      config.displayActiveTorrentCountIcon = config.showActiveCountBadge;
-      config.showNotificationOnDownloadCompleate = config.showDownloadCompleteNotifications;
-      config.popupUpdateInterval = config.uiUpdateInterval;
-      config.hideSeedStatusItem = config.hideSeedingTorrents;
-      config.hideFnishStatusItem = config.hideFinishedTorrents;
-      config.selectDownloadCategoryOnAddItemFromContextMenu = config.selectDownloadCategoryAfterPutTorrentFromContextMenu;
-      config.ctxMenuType = config.contextMenuType === 'folder';
-      config.showDefaultFolderContextMenuItem = config.putDefaultPathInContextMenu;
-      config.fixCirilicTitle = config.fixCyrillicTorrentName;
-      config.fixCirilicTorrentPath = config.fixCyrillicDownloadPath;
-      config.folderList = config.folders;
-      config.labelList = config.labels;
-      config.torrentListColumnList = config.torrentColumns;
-      config.fileListColumnList = config.filesColumns;
-
-      return config;
-    },
-  };
+  return {};
 });
 
 export default BgStore;
