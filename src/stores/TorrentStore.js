@@ -4,8 +4,7 @@ import speedToStr from "../tools/speedToStr";
 import getEta from "../tools/getEta";
 import fecha from "fecha";
 import utStateToText from "../tools/utStateToText";
-
-const filesize = require('filesize');
+import formatBytes from "../tools/formatBytes";
 
 /**
  * @typedef {{}} TorrentStore
@@ -99,13 +98,13 @@ const TorrentStore = types.model('TorrentStore', {
       return result;
     },
     get remainingStr() {
-      return filesize(self.remaining);
+      return formatBytes(self.remaining);
     },
     get isCompleted() {
       return self.progress === 1000 || !!self.completedTime;
     },
     get sizeStr() {
-      return filesize(self.size);
+      return formatBytes(self.size);
     },
     get progressStr() {
       let progress = self.progress / 10;
@@ -125,10 +124,10 @@ const TorrentStore = types.model('TorrentStore', {
       return getEta(self.eta);
     },
     get uploadedStr() {
-      return filesize(self.uploaded);
+      return formatBytes(self.uploaded);
     },
     get downloadedStr() {
-      return filesize(self.downloaded);
+      return formatBytes(self.downloaded);
     },
     get availableStr() {
       return Math.round((self.available / 65535) * 1000) / 1000;

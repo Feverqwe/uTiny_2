@@ -1,6 +1,5 @@
 import {getRoot, types} from "mobx-state-tree";
-
-const filesize = require('filesize');
+import formatBytes from "../tools/formatBytes";
 
 const priorityLocaleMap = ['MF_DONT', 'MF_LOW', 'MF_NORMAL', 'MF_HIGH'];
 
@@ -39,10 +38,10 @@ const FileStore = types.model('FileStore', {
       }
     },
     get sizeStr() {
-      return filesize(self.size);
+      return formatBytes(self.size);
     },
     get downloadedStr() {
-      return filesize(self.downloaded);
+      return formatBytes(self.downloaded);
     },
     get priorityStr() {
       return chrome.i18n.getMessage(priorityLocaleMap[self.priority]);
