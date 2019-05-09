@@ -5,6 +5,7 @@ import {autorun} from "mobx";
  * @typedef {{}} ListSelectStore
  * @property {string[]} selectedIds
  * @property {function} addSelectedId
+ * @property {function} isSelectedId
  * @property {function} removeSelectedId
  * @property {function} addMultipleSelectedId
  * @property {function} toggleSelectAll
@@ -18,13 +19,19 @@ const ListSelectStore = types.model('ListSelectStore', {
   selectedIds: types.array(types.string),
 }).actions((self) => {
   return {
-    addSelectedId(id) {
+    addSelectedId(id, reset) {
       const ids = self.selectedIds.slice(0);
+      if (reset) {
+        ids.splice(0);
+      }
       const pos = ids.indexOf(id);
       if (pos === -1) {
         ids.push(id);
       }
       self.selectedIds = ids;
+    },
+    isSelectedId(id) {
+      return self.selectedIds.indexOf(id) !== -1;
     },
     removeSelectedId(id) {
       const ids = self.selectedIds.slice(0);

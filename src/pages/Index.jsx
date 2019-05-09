@@ -61,7 +61,7 @@ class Index extends React.Component {
     let fileList = null;
     if (this.rootStore.fileList) {
       fileList = (
-        <FileListTable/>
+        <FileListTable key={this.rootStore.fileList.id}/>
       );
     }
 

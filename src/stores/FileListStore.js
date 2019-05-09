@@ -16,6 +16,7 @@ const byColumnMap = {
 /**
  * @typedef {ListSelectStore} FileListStore
  * @property {string} id
+ * @property {boolean} removeSelectOnHide
  * @property {string} [state]
  * @property {FileStore[]} files
  * @property {boolean} [isLoading]
@@ -35,6 +36,7 @@ const byColumnMap = {
  */
 const FileListStore = types.compose('FileListStore', ListSelectStore, types.model({
   id: types.identifier,
+  removeSelectOnHide: types.optional(types.boolean, false),
   state: types.optional(types.enumeration(['idle', 'pending', 'done', 'error']), 'idle'),
   files: types.array(FileStore),
   isLoading: types.optional(types.boolean, true),
@@ -58,6 +60,9 @@ const FileListStore = types.compose('FileListStore', ListSelectStore, types.mode
     }),
     setFilter(value) {
       self.filter = value;
+    },
+    setRemoveSelectOnHide(value) {
+      self.removeSelectOnHide = value;
     }
   };
 }).views((self) => {
@@ -153,6 +158,11 @@ const FileListStore = types.compose('FileListStore', ListSelectStore, types.mode
     },
     beforeDestroy() {
       self.stopSortedIdsWatcher();
+
+      if (self.removeSelectOnHide) {
+        /**@type RootStore*/const rootStore = getRoot(self);
+        rootStore.torrentList.removeSelectedId(self.id);
+      }
     }
   };
 });

@@ -78,7 +78,11 @@ class TorrentListTableItem extends React.Component {
   };
 
   handleContextMenuHide = () => {
-    this.torrentListStore.removeSelectedId(this.torrentStore.id);
+    if (this.rootStore.fileList && this.rootStore.fileList.id === this.torrentStore.id) {
+      this.rootStore.fileList.setRemoveSelectOnHide(true);
+    } else {
+      this.torrentListStore.removeSelectedId(this.torrentStore.id);
+    }
   };
 
   render() {

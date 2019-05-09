@@ -14,6 +14,17 @@ const logger = getLogger('FileListTable');
 @inject('rootStore')
 @observer
 class FileListTable extends React.Component {
+  static propTypes = {
+    rootStore: PropTypes.object,
+  };
+
+  componentDidMount() {
+    if (!this.rootStore.torrentList.isSelectedId(this.fileListStore.id)) {
+      this.fileListStore.setRemoveSelectOnHide(true);
+    }
+    this.rootStore.torrentList.addSelectedId(this.fileListStore.id, true);
+  }
+
   handleScroll = (e) => {
     // todo: fix me
     // this.refFixedHead.current.style.left = `${e.currentTarget.scrollLeft * -1}px`;
