@@ -1,5 +1,4 @@
 import {flow, getRoot, isAlive, resolveIdentifier, types} from "mobx-state-tree";
-import callApi from "../tools/callApi";
 import getLogger from "../tools/getLogger";
 import ListSelectStore from "./ListSelectStore";
 import FileStore from "./FileStore";
@@ -47,7 +46,8 @@ const FileListStore = types.compose('FileListStore', ListSelectStore, types.mode
       if (self.state === 'pending') return;
       self.state = 'pending';
       try {
-         const files = yield fetchFileList(self.id);
+        /**@type RootStore*/const rootStore = getRoot(self);
+         const files = yield rootStore.client.getTorrentFiles(self.id);
          if (isAlive(self)) {
            self.files = files;
            self.isLoading = false;
@@ -166,12 +166,5 @@ const FileListStore = types.compose('FileListStore', ListSelectStore, types.mode
     }
   };
 });
-
-const fetchFileList = (id) => {
-  return callApi({
-    action: 'getFileList',
-    id
-  });
-};
 
 export default FileListStore;

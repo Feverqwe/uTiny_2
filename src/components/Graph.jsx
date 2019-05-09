@@ -2,14 +2,7 @@ import {inject, observer} from "mobx-react";
 import {autorun} from "mobx";
 import React from "react";
 import PropTypes from "prop-types";
-
-import {
-  select,
-  line,
-  scaleLinear,
-  easeQuadOut,
-  transition,
-} from "d3";
+import {easeQuadOut, line, scaleLinear, select, transition} from "d3";
 
 @inject('rootStore')
 @observer

@@ -1,4 +1,3 @@
-import {autorun} from "mobx";
 import {flow, types} from "mobx-state-tree";
 import ConfigStore from "./ConfigStore";
 import getLogger from "../tools/getLogger";

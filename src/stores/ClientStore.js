@@ -283,6 +283,9 @@ const ClientStore = types.model('ClientStore', {
         return callApi({action: 'setUploadSpeedLimit', speed});
       });
     },
+    getTorrentFiles(id) {
+      return callApi({action: 'getFileList', id: id});
+    },
     getSettings() {
       return syncUiWrap(() => {
         return callApi({action: 'getSettings'});

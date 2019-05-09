@@ -1,5 +1,4 @@
 import {getRoot, types} from "mobx-state-tree";
-import callApi from "../tools/callApi";
 import speedToStr from "../tools/speedToStr";
 import getEta from "../tools/getEta";
 import fecha from "fecha";
@@ -82,13 +81,16 @@ const TorrentStore = types.model('TorrentStore', {
 }).views((self) => {
   return {
     start() {
-      return callApi({action: 'start', ids: [self.id]});
+      /**@type RootStore*/const rootStore = getRoot(self);
+      return rootStore.client.torrentsStart([self.id]);
     },
     pause() {
-      return callApi({action: 'pause', ids: [self.id]});
+      /**@type RootStore*/const rootStore = getRoot(self);
+      return rootStore.client.torrentsPause([self.id]);
     },
     stop() {
-      return callApi({action: 'stop', ids: [self.id]});
+      /**@type RootStore*/const rootStore = getRoot(self);
+      return rootStore.client.torrentsStop([self.id]);
     },
     get remaining() {
       let result = self.size - self.downloaded;
