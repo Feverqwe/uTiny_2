@@ -71,7 +71,8 @@ class TorrentListTableItem extends React.Component {
       id: 'torrent_menu',
       event: e,
       props: {
-        onHide: onHide
+        source: e.currentTarget,
+        onHide: onHide,
       }
     });
   };

@@ -51,13 +51,16 @@ class FileListTableItem extends React.Component {
       id: 'file_menu',
       event: e,
       props: {
-        onHide: onHide
+        source: e.currentTarget,
+        onHide: onHide,
       }
     });
   };
 
   handleContextMenuHide = () => {
-    this.fileListStore.removeSelectedId(this.fileStore.name);
+    if (this.fileListStore) {
+      this.fileListStore.removeSelectedId(this.fileStore.name);
+    }
   };
 
   render() {

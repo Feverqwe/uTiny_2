@@ -36,12 +36,13 @@ class FileListTable extends React.Component {
     this.rootStore.destroyFileList();
   };
 
-  stopPropagation = (e) => {
-    e.stopPropagation();
+  handleUpdate = (e) => {
+    e.preventDefault();
+    this.fileListStore.fetchFiles();
   };
 
   onIntervalFire = () => {
-    this.rootStore.fileList.fetchFiles().catch((err) => {
+    this.fileListStore.fetchFiles().catch((err) => {
       logger.error('onIntervalFire fetchFiles error', err);
     });
   };
@@ -65,8 +66,8 @@ class FileListTable extends React.Component {
 
     return (
       <>
-        <div onClick={this.handleClose} className="file-list-warpper">
-          <div onClick={this.stopPropagation} className="file-list">
+        <div className="file-list-warpper">
+          <div className="file-list">
             <Interval interval={uiUpdateInterval} onInit={this.onIntervalFire} onFire={this.onIntervalFire}/>
             <div onScroll={this.handleScroll} className="fl-layer">
               {spinner}
@@ -87,11 +88,12 @@ class FileListTable extends React.Component {
                 <a onClick={this.handleClose} className="close" title={chrome.i18n.getMessage('DLG_BTN_CLOSE')}/>
               </li>
               <li className="btn">
-                <a className="update" title={chrome.i18n.getMessage('refresh')}/>
+                <a onClick={this.handleUpdate} className="update" title={chrome.i18n.getMessage('refresh')}/>
               </li>
             </ul>
           </div>
         </div>
+        <div onClick={this.handleClose} className="file-list-layer-temp"/>
       </>
     );
   }
