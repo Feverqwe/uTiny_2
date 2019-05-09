@@ -309,7 +309,7 @@ class TorrentName extends React.PureComponent {
         shouldUpdateCalc: true,
       };
     }
-    return false;
+    return null;
   }
 
   componentWillUnmount() {
