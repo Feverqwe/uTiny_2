@@ -7,7 +7,7 @@ import {
   select,
   line,
   scaleLinear,
-  easeQuad,
+  easeQuadOut,
   transition,
 } from "d3";
 
@@ -72,7 +72,7 @@ class Graph extends React.Component {
 
       const data = speedRoll.getDataFromTime(minTime);
 
-      const t = transition().duration(500).ease(easeQuad);
+      const t = transition().duration(500).ease(easeQuadOut);
 
       downloadLinePath.datum(data).transition(t).attr('d', downloadLine);
       uploadLinePath.datum(data).transition(t).attr('d', uploadLine);
