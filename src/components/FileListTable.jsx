@@ -26,7 +26,12 @@ class FileListTable extends React.Component {
   }
 
   handleScroll = (e) => {
-    this.refFixedHead.current.style.left = `${e.currentTarget.scrollLeft * -1}px`;
+    if (e.currentTarget.scrollLeft > 0) {
+      this.refFixedHead.current.style.left = `${e.currentTarget.scrollLeft * -1}px`;
+    } else
+    if (this.refFixedHead.current.style.left) {
+      this.refFixedHead.current.style.left = '';
+    }
   };
 
   /**@return {RootStore}*/
@@ -57,15 +62,6 @@ class FileListTable extends React.Component {
     });
   };
 
-  onColumnsChanged = () => {
-    const fixedHead = this.refFixedHead.current;
-    if (fixedHead) {
-      if (fixedHead.style.left && fixedHead.clientWidth < document.body.clientWidth) {
-        fixedHead.style.left = '';
-      }
-    }
-  };
-
   render() {
     const torrent = this.fileListStore.torrent;
 
@@ -91,7 +87,7 @@ class FileListTable extends React.Component {
             <div onScroll={this.handleScroll} className="fl-layer">
               {spinner}
               <table ref={this.refFixedHead} className="fl-table-head" border="0" cellSpacing="0" cellPadding="0">
-                <FileListTableHead withStyle={true} onColumnsChanged={this.onColumnsChanged}/>
+                <FileListTableHead withStyle={true}/>
               </table>
               <table className="fl-table-body" border="0" cellSpacing="0" cellPadding="0">
                 <FileListTableHead/>
@@ -124,7 +120,6 @@ class FileListTableHead extends React.Component {
   static propTypes = {
     rootStore: PropTypes.object,
     withStyle: PropTypes.bool,
-    onColumnsChanged: PropTypes.func,
   };
 
   /**@return {RootStore}*/
@@ -141,9 +136,6 @@ class FileListTableHead extends React.Component {
   };
 
   handleSaveColumns = () => {
-    if (this.props.onColumnsChanged) {
-      this.props.onColumnsChanged();
-    }
     this.rootStore.config.saveFilesColumns();
   };
 
