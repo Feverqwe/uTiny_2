@@ -116,6 +116,7 @@ const SelectedLabelStore = types.model('SelectedLabelStore', {
  * @property {function} setTorrentsSort
  * @property {function} setFilesSort
  * @property {function} setSelectedLabel
+ * @property {function} setOptions
  * @property {*} url
  * @property {*} webUiUrl
  * @property {*} visibleTorrentColumns
@@ -240,6 +241,10 @@ const ConfigStore = types.model('ConfigStore', {
       storageSet({
         selectedLabel: self.selectedLabel.toJSON()
       });
+    },
+    setOptions(obj) {
+      Object.assign(self, obj);
+      return storageSet(obj);
     }
   };
 }).views((self) => {
