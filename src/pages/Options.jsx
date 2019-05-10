@@ -1,5 +1,4 @@
 import "../assets/css/options.less";
-import "../assets/css/bootstrap-colorpicker.css";
 import React from "react";
 import RootStore from "../stores/RootStore";
 import ReactDOM from "react-dom";
