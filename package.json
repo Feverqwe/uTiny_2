@@ -22,9 +22,11 @@
     "prop-types": "^15.7.2",
     "rc-select": "^9.1.1",
     "react": "^16.8.6",
+    "react-color": "^2.17.3",
     "react-contexify": "^4.1.0",
     "react-dom": "^16.8.6",
     "react-router-dom": "^5.0.0",
+    "react-tiny-popover": "^3.4.2",
     "serialize-error": "^4.1.0",
     "superstruct": "^0.6.1",
     "whatwg-fetch": "^3.0.0"

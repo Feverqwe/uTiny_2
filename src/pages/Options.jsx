@@ -6,6 +6,8 @@ import ReactDOM from "react-dom";
 import {inject, observer, Provider} from "mobx-react";
 import {HashRouter, Switch, Route, Redirect, NavLink} from "react-router-dom";
 import PropTypes from "prop-types";
+import {SketchPicker} from "react-color";
+import Popover from "react-tiny-popover";
 
 @inject('rootStore')
 @observer
@@ -336,7 +338,33 @@ class UiOptions extends OptionsPage {
 @inject('rootStore')
 @observer
 class NotifyOptions extends OptionsPage {
+  state = {
+    colorPickerOpened: false
+  };
+
+  handleToggleColorPicker = (e) => {
+    e.preventDefault();
+    this.setState({
+      colorPickerOpened: !this.state.colorPickerOpened
+    });
+  };
+
+  handleChangeColor = (color) => {
+    const rgba = [color.rgb.r, color.rgb.g, color.rgb.b, color.rgb.a].join(',');
+    this.configStore.setOptions({
+      badgeColor: rgba
+    });
+  };
+
   render() {
+    const [r,g,b,a] = this.configStore.badgeColor.split(',');
+    const sketchPickerColor = {
+      r: parseInt(r, 10),
+      g: parseInt(g, 10),
+      b: parseInt(b, 10),
+      a: parseFloat(a),
+    };
+
     return (
       <div className="page notify">
         <h2>{chrome.i18n.getMessage('optNotify')}</h2>
@@ -350,8 +378,16 @@ class NotifyOptions extends OptionsPage {
         </label>
         <label>
           <span>{chrome.i18n.getMessage('badgeColor')}</span>
-          <input defaultValue={this.configStore.badgeColor} type="text" name="badgeColor"/>
-          <span className="selectColor"/>
+          <Popover
+            isOpen={this.state.colorPickerOpened}
+            onClickOutside={this.handleToggleColorPicker}
+            position={'bottom'}
+            content={(
+              <SketchPicker color={sketchPickerColor} onChangeComplete={this.handleChangeColor}/>
+            )}
+          >
+            <span onClick={this.handleToggleColorPicker} className="selectColor" style={{backgroundColor: `rgba(${this.configStore.badgeColor})`}}/>
+          </Popover>
         </label>
         <label>
           <span>{chrome.i18n.getMessage('backgroundUpdateInterval')}</span>
