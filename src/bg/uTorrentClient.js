@@ -80,6 +80,10 @@ class UTorrentClient {
           throw error;
         }
 
+        if (!this.bg.daemon.isActive) {
+          this.bg.daemon.start();
+        }
+
         if (this.bgStore.config.fixCyrillicTorrentName) {
           return response.text().then((body) => {
             return JSON.parse(utFixCyrillic(body));

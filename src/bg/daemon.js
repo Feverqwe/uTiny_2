@@ -1,4 +1,5 @@
 import getLogger from "../tools/getLogger";
+import promiseFinally from "../tools/promiseFinally";
 
 const logger = getLogger('Daemon');
 
@@ -7,6 +8,7 @@ class Daemon {
     this.bg = bg;
 
     this.isActive = false;
+    this.retryCount = 0;
     this.intervalId = null;
     this.inProgress = false;
   }
@@ -23,12 +25,17 @@ class Daemon {
     if (this.inProgress) return;
     this.inProgress = true;
 
-    this.bg.client.updateTorrents().catch((err) => {
-      logger.warn('Daemon stopped, cause', err);
-      this.stop();
-    }).then(() => {
+    this.bg.client.updateTorrents().then(() => {
+      this.retryCount = 0;
+    }, (err) => {
+      logger.error('updateTorrents error', err);
+      if (++this.retryCount > 3) {
+        logger.warn('Daemon stopped, cause', err);
+        this.stop();
+      }
+    }).then(...promiseFinally(() => {
       this.inProgress = false;
-    });
+    }));
   }
 
   start() {
@@ -37,6 +44,7 @@ class Daemon {
 
     if (this.bgStore.config.backgroundUpdateInterval >= 1000) {
       this.isActive = true;
+      this.retryCount = 0;
       this.intervalId = setInterval(() => {
         this.handleFire();
       }, this.bgStore.config.backgroundUpdateInterval);

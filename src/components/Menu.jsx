@@ -3,6 +3,9 @@ import {inject, observer} from "mobx-react";
 import PropTypes from "prop-types";
 import Select, {Option} from "rc-select";
 import ComponentLoader from "./ComponentLoader";
+import getLogger from "../tools/getLogger";
+
+const logger = getLogger('Menu');
 
 @inject('rootStore')
 @observer
@@ -65,6 +68,9 @@ class Menu extends React.Component {
   handleRefresh = (e) => {
     e.preventDefault();
     this.rootStore.client.syncUiClient();
+    this.rootStore.client.getSettings().catch((err) => {
+      logger.error('handleRefresh, getSettings error', err);
+    });
   };
 
   handleAddFile = (e) => {
