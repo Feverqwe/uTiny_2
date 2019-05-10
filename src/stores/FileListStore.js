@@ -58,7 +58,9 @@ const FileListStore = types.compose('FileListStore', ListSelectStore, types.mode
          }
       } catch (err) {
         logger.error('fetchFiles error', err);
-        self.state = 'error';
+        if (isAlive(self)) {
+          self.state = 'error';
+        }
       }
     }),
     setFilter(value) {
