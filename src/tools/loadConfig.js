@@ -146,6 +146,12 @@ const loadConfig = () => {
       }
     }
 
+    ['showSpeedGraph', 'treeViewContextMenu', 'showFreeSpace'].forEach((key) => {
+      if (typeof config[key] === 'number') {
+        config[key] = !!config[key];
+      }
+    });
+
     return config;
   });
 };
