@@ -88,13 +88,13 @@ const FileListStore = types.compose('FileListStore', ListSelectStore, types.mode
         const index = self.getFileIndexById(name);
         if (index !== null) {
           /**@type RootStore*/const rootStore = getRoot(self);
-          return new URL('proxy?' + qs.stringify({
+          return new URL('/proxy?' + qs.stringify({
             sid: torrent.sid,
             file: index,
             disposition: 'ATTACHMENT',
             service: 'DOWNLOAD',
             qos: 0
-          }), rootStore.config.url).toString();
+          }), rootStore.config.webUiUrl).toString();
         }
       }
       return null;
