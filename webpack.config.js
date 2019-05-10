@@ -92,7 +92,7 @@ const config = {
     new CleanWebpackPlugin({
       cleanStaleWebpackAssets: false,
       cleanOnceBeforeBuildPatterns: [
-        path.join(outputPath, '*')
+        path.join(outputPath)
       ]
     }),
     new CopyWebpackPlugin([
