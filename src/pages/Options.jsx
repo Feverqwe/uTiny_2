@@ -9,6 +9,9 @@ import PropTypes from "prop-types";
 import {SketchPicker} from "react-color";
 import Popover from "react-tiny-popover";
 import getLogger from "../tools/getLogger";
+import storageGet from "../tools/storageGet";
+import storageSet from "../tools/storageSet";
+import storageRemove from "../tools/storageRemove";
 
 const logger = getLogger('Options');
 
@@ -177,7 +180,7 @@ class ClientOptions extends React.Component {
 
     return (
       <div ref={this.refPage} className="page client">
-        <form onSubmit={this.handleSubmit} autocomplete="off">
+        <form onSubmit={this.handleSubmit} autoComplete="off">
           <h2>{chrome.i18n.getMessage('optClient')}</h2>
           <label>
             <span>{chrome.i18n.getMessage('DLG_SETTINGS_4_CONN_16')}</span>
@@ -566,7 +569,7 @@ class CtxOptionsDirs extends OptionsPage {
             <input onChange={this.handleChange} defaultChecked={this.configStore.putDefaultPathInContextMenu} type="checkbox" name="putDefaultPathInContextMenu"/>
           </label>
           <div className="optionItem">
-            <form onSubmit={this.handleSubmit} autocomplete="off">
+            <form onSubmit={this.handleSubmit} autoComplete="off">
               <span>{chrome.i18n.getMessage('addItem')}</span>:
               <div className="optionItem">
                 <span>{chrome.i18n.getMessage('dirList')}</span>
@@ -660,7 +663,7 @@ class CtxOptionsLabels extends OptionsPage {
       <>
         <h3>{chrome.i18n.getMessage('labelList')}</h3>
         <div className="optionItem">
-          <form onSubmit={this.handleSubmit} autocomplete="off">
+          <form onSubmit={this.handleSubmit} autoComplete="off">
             <span>{chrome.i18n.getMessage('OV_COL_LABEL')}</span>
             {' '}
             <input name="label" type="text" id="label"/>
@@ -686,20 +689,176 @@ class CtxOptionsLabels extends OptionsPage {
 }
 
 class BackupOptions extends React.Component {
+  state = {
+    state: 'idle', // idle, pending, done, error
+    saveState: 'idle', // idle, pending, done, error
+    storage: null
+  };
+
+  componentDidMount() {
+    this.handleUpdate();
+  }
+
+  handleUpdate = (e) => {
+    e && e.preventDefault();
+
+    this.setState({
+      state: 'pending',
+    });
+    storageGet().then((storage) => {
+      if (!this.refPage.current) return;
+      this.setState({
+        state: 'done',
+        storage: JSON.stringify(storage)
+      });
+    }, (err) => {
+      if (!this.refPage.current) return;
+      this.setState({
+        state: 'error',
+        storage: ''
+      });
+    });
+  };
+
+  refPage = React.createRef();
+
+  handleSaveInCloud = (e) => {
+    e.preventDefault();
+
+    this.setState({
+      saveState: 'pending'
+    });
+    storageSet({
+      backup: this.refData.current.value
+    }, 'sync').then(() => {
+      if (!this.refPage.current) return;
+      this.setState({
+        saveState: 'done'
+      });
+    }, (err) => {
+      logger.error('handleSaveInCloud error', err);
+      if (!this.refPage.current) return;
+      this.setState({
+        saveState: 'error'
+      });
+    });
+  };
+
+  refData = React.createRef();
+
   render() {
+    let data = null;
+    if (this.state.state === 'done') {
+      data = (
+        <textarea ref={this.refData} id="backupInp" defaultValue={this.state.storage}/>
+      );
+    } else {
+      data = (
+        `Loading: ${this.state.state}`
+      );
+    }
+
+    let saveToCloudDisabled = this.state.state !== 'done';
+    let saveToCloudText = null;
+    if (['idle', 'done'].indexOf(this.state.saveState) !== -1) {
+      saveToCloudText = chrome.i18n.getMessage('optSaveInCloud');
+    } else
+    if (this.state.saveState === 'pending') {
+      saveToCloudDisabled = true;
+      saveToCloudText = chrome.i18n.getMessage('optSaveInCloud') + '...';
+    } else {
+      saveToCloudText = chrome.i18n.getMessage('OV_FL_ERROR');
+    }
+
     return (
-      <div className="page backup">
-        BackupOptions
+      <div ref={this.refPage} className="page backup">
+        <h2>{chrome.i18n.getMessage('backup')}</h2>
+        <div className="btnList">
+          <input onClick={this.handleUpdate} type="button" id="backupUpdate" value={chrome.i18n.getMessage('update')}/>
+          {' '}
+          <input disabled={saveToCloudDisabled} onClick={this.handleSaveInCloud} value={saveToCloudText} type="button" id="saveInCloud"/>
+        </div>
+        {data}
       </div>
     );
   }
 }
 
 class RestoreOptions extends React.Component {
+  state = {
+    cloudData: null,
+    hasCloudData: false,
+    data: ''
+  };
+
+  componentDidMount() {
+    this.checkCloudData();
+  }
+
+  checkCloudData() {
+    storageGet({
+      backup: ''
+    }, 'sync').then((storage) => {
+      if (!this.refPage.current) return;
+      this.setState({
+        hasCloudData: !!storage.backup
+      });
+    }, (err) => {
+      logger.error('checkCloudData error', err);
+      if (!this.refPage.current) return;
+      this.setState({
+        hasCloudData: false
+      });
+    });
+  };
+
+  handleRestore = (e) => {
+    e.preventDefault();
+    Promise.resolve().then(() => {
+      return storageSet(JSON.parse(this.refData.current.value));
+    }).catch((err) => {
+      logger.error('handleRestore error', err);
+    });
+  };
+
+  handleGetBackup = (e) => {
+    e.preventDefault();
+    storageGet({
+      backup: ''
+    }, 'sync').then((storage) => {
+      if (!this.refPage.current) return;
+      this.refData.current.value = storage.backup;
+    }, (err) => {
+      logger.error('handleGetBackup error', err);
+    });
+  };
+
+  handleClearCloud = (e) => {
+    e.preventDefault();
+    storageRemove(['backup'], 'sync').then(() => {
+      this.setState({
+        hasCloudData: false
+      });
+    }, (err) => {
+      logger.error('handleClearCloud error', err);
+    });
+  };
+
+  refPage = React.createRef();
+  refData = React.createRef();
+
   render() {
     return (
-      <div className="page restore">
-        RestoreOptions
+      <div ref={this.refPage} className="page restore">
+        <h2>{chrome.i18n.getMessage('restore')}</h2>
+        <div className="btnList">
+          <input onClick={this.handleRestore} type="button" id="restoreBtn" value={chrome.i18n.getMessage('toRestore')}/>
+          {' '}
+          <input disabled={this.state.hasCloudData === false} onClick={this.handleGetBackup} type="button" id="getFromCloudBtn" value={chrome.i18n.getMessage('optGetFromCloud')}/>
+          {' '}
+          <input onClick={this.handleClearCloud} type="button" id="clearCloudStorage" value={chrome.i18n.getMessage('optClearCloudStorage')}/>
+        </div>
+        <textarea ref={this.refData} id="restoreInp" defaultValue={this.state.data}/>
       </div>
     );
   }
