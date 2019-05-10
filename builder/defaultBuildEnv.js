@@ -18,7 +18,7 @@ if (browser === 'Firefox') {
   };
 } else {
   distName = `uTiny-${version}`;
-  outputPath = path.join(__dirname, '../dist/src');
+  outputPath = path.join(__dirname, '../dist/chrome');
   targets = {
     chrome: mode === 'development' ? '74' : '49',
   };
