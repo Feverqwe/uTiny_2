@@ -9,7 +9,7 @@ import PutFilesDialogStore from "./PutFilesDialogStore";
 import CreateLabelDialogStore from "./CreateLabelDialogStore";
 import RemoveConfirmDialogStore from "./RemoveConfirmDialogStore";
 import PutUrlDialogStore from "./PutUrlDialogStore";
-import SpaceWatcherStore from "./SpaceWatcher";
+import SpaceWatcherStore from "./SpaceWatcherStore";
 
 const logger = getLogger('RootStore');
 
