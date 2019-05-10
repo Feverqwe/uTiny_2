@@ -1,13 +1,13 @@
 import React from "react";
-import {Menu} from "react-contexify";
 import {inject, observer} from "mobx-react";
 import ColumnMenuItem from "./ColumnMenuItem";
+import {FixedMenu} from "./FixedReactContexify";
 
 const FileColumnMenu = React.memo(() => {
   return (
-    <Menu id="file_column_menu" className="file-column-menu">
+    <FixedMenu id="file_column_menu" className="file-column-menu">
       <FileColumnMenuBody/>
-    </Menu>
+    </FixedMenu>
   )
 });
 

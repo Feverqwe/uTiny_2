@@ -1,8 +1,9 @@
 import React from "react";
-import {Item, Menu, Separator, Submenu} from "react-contexify";
+import {Item, Separator, Submenu} from "react-contexify";
 import {inject, observer} from "mobx-react";
 import PropTypes from "prop-types";
 import ContextMenuBody from "./ContextMenuBody";
+import {FixedMenu} from "./FixedReactContexify";
 
 const torrentMenuItems = [
   'start', 'forcestart', 'pause', 'unpause',
@@ -12,9 +13,9 @@ const torrentMenuItems = [
 
 const TorrentMenu = React.memo(() => {
   return (
-    <Menu id="torrent_menu" className="torrent-menu">
+    <FixedMenu id="torrent_menu" className="torrent-menu">
       <TorrentMenuBody/>
-    </Menu>
+    </FixedMenu>
   )
 });
 

@@ -3,7 +3,7 @@ import React from "react";
 import RootStore from "../stores/RootStore";
 import ReactDOM from "react-dom";
 import {inject, observer, Provider} from "mobx-react";
-import {HashRouter, Switch, Route, Redirect, NavLink, withRouter} from "react-router-dom";
+import {HashRouter, NavLink, Redirect, Route, Switch, withRouter} from "react-router-dom";
 import PropTypes from "prop-types";
 import {SketchPicker} from "react-color";
 import Popover from "react-tiny-popover";

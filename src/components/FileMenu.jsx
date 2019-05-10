@@ -1,8 +1,9 @@
 import {inject, observer} from "mobx-react";
 import React from "react";
-import {Item, Menu, Separator} from "react-contexify";
+import {Item, Separator} from "react-contexify";
 import ContextMenuBody from "./ContextMenuBody";
 import PropTypes from "prop-types";
+import {FixedMenu} from "./FixedReactContexify";
 
 const fileMenuItems = [
   'high', 'normal', 'low', '_', 'dntdownload', '_', 'download'
@@ -10,9 +11,9 @@ const fileMenuItems = [
 
 const FileMenu = React.memo(() => {
   return (
-    <Menu id="file_menu" className="file-menu">
+    <FixedMenu id="file_menu" className="file-menu">
       <FileMenuBody/>
-    </Menu>
+    </FixedMenu>
   )
 });
 

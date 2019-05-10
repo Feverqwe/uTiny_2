@@ -1,13 +1,13 @@
 import React from "react";
-import {Menu} from "react-contexify";
 import {inject, observer} from "mobx-react";
 import ColumnMenuItem from "./ColumnMenuItem";
+import {FixedMenu} from "./FixedReactContexify";
 
 const TorrentColumnMenu = React.memo(() => {
   return (
-    <Menu id="torrent_column_menu" className="torrent-column-menu">
+    <FixedMenu id="torrent_column_menu" className="torrent-column-menu">
       <TorrentColumnMenuBody/>
-    </Menu>
+    </FixedMenu>
   )
 });
 

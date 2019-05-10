@@ -1,14 +1,15 @@
 import React from "react";
-import {Item, Menu, Separator} from "react-contexify";
+import {Item, Separator} from "react-contexify";
 import {inject, observer} from "mobx-react";
 import PropTypes from "prop-types";
 import speedToStr from "../tools/speedToStr";
+import {FixedMenu} from "./FixedReactContexify";
 
 const SpeedMenu = React.memo(() => {
   return (
-    <Menu id="speed_menu" className="speed-menu">
+    <FixedMenu id="speed_menu" className="speed-menu">
       <SpeedMenuBody/>
-    </Menu>
+    </FixedMenu>
   )
 });
 
