@@ -149,9 +149,11 @@ class SpaceWatcher extends React.Component {
     let title = null;
     let body = null;
     if (this.spaceWatcherStore.state === 'pending') {
+      title = 'Loading...';
       body = '...';
     } else
     if (this.spaceWatcherStore.state === 'error') {
+      title = this.spaceWatcherStore.errorMessage;
       body = '-';
     } else
     if (this.spaceWatcherStore.state === 'done') {

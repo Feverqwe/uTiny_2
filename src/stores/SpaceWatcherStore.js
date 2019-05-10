@@ -29,6 +29,7 @@ const DownloadDirStore = types.model('DownloadDirStore', {
  */
 const SpaceWatcherStore = types.model('SpaceWatcherStore', {
   state: types.optional(types.enumeration(['idle', 'pending', 'done', 'error']), 'idle'),
+  errorMessage: types.optional(types.string, ''),
   isSupported: types.maybe(types.boolean),
   downloadDirs: types.array(DownloadDirStore),
 }).actions((self) => {
@@ -36,6 +37,7 @@ const SpaceWatcherStore = types.model('SpaceWatcherStore', {
     fetchDownloadDirs: flow(function* () {
       if (self.state === 'pending') return;
       self.state = 'pending';
+      self.errorMessage = '';
       try {
         /**@type RootStore*/const rootStore = getRoot(self);
         const result = yield rootStore.client.getDownloadDirs();
@@ -48,6 +50,7 @@ const SpaceWatcherStore = types.model('SpaceWatcherStore', {
         logger.error('fetchFiles error', err);
         if (isAlive(self)) {
           self.state = 'error';
+          self.errorMessage = `${err.name}: ${err.message}`;
           if (self.isSupported === undefined) {
             if (err.status === 300) {
               self.isSupported = false;
