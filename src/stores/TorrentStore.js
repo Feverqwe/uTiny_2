@@ -199,6 +199,9 @@ const TorrentStore = types.model('TorrentStore', {
     get isSeeding() {
       return !!(self.state & 1 && self.progress === 1000);
     },
+    get isFinished() {
+      return !!(self.progress === 1000 && !(self.state & 32) && !(self.state & 1) && !(self.state & 2) && !(self.state & 16) && !(self.state & 64));
+    },
     get isDownloading() {
       return !!(self.state & 1 && self.progress !== 1000);
     },

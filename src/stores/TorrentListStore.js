@@ -38,14 +38,14 @@ const TorrentListStore = types.compose('TorrentListStore', ListSelectStore, type
       /**@type RootStore*/const rootStore = getRoot(self);
       const filter = rootStore.config.selectedLabel;
 
-      if (filter.custom && filter.label === 'ALL') {
-        return Array.from(rootStore.client.torrents.values());
-      }
-
       const result = [];
       for (const torrent of rootStore.client.torrents.values()) {
         if (filter.custom) {
           switch (filter.label) {
+            case 'ALL': {
+              result.push(torrent);
+              break;
+            }
             case 'DL': {
               if (torrent.isDownloading){
                 result.push(torrent);
@@ -88,7 +88,21 @@ const TorrentListStore = types.compose('TorrentListStore', ListSelectStore, type
           result.push(torrent);
         }
       }
-      return result;
+
+      const {hideSeedingTorrents, hideFinishedTorrents} = rootStore.config;
+      if (hideSeedingTorrents || hideFinishedTorrents) {
+        return result.filter((torrent) => {
+          if (hideSeedingTorrents && torrent.isSeeding) {
+            return false;
+          }
+          if (hideFinishedTorrents && torrent.isFinished) {
+            return false;
+          }
+          return true;
+        });
+      } else {
+        return result;
+      }
     },
     get sortedTorrents() {
       /**@type RootStore*/const rootStore = getRoot(self);
