@@ -76,7 +76,7 @@ const ListSelectStore = types.model('ListSelectStore', {
     },
     get isSelectedAll() {
       const ids = self._sortedIds;
-      if (self.selectedIds.length === ids.length) {
+      if (ids.length > 0 && self.selectedIds.length === ids.length) {
         return self.selectedIds.every(id => ids.indexOf(id) !== -1);
       }
       return false;

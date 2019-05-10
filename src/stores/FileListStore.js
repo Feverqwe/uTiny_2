@@ -144,13 +144,6 @@ const FileListStore = types.compose('FileListStore', ListSelectStore, types.mode
     get _sortedIds() {
       return self.sortedFiles.map(file => file.name);
     },
-    get isSelectedAll() {
-      const ids = self._sortedIds;
-      if (!self.isLoading && self.selectedIds.length === ids.length) {
-        return self.selectedIds.every(id => ids.indexOf(id) !== -1);
-      }
-      return false;
-    },
     get selectedIndexes() {
       return self.selectedIds.map(name => self.getFileIndexById(name));
     },
