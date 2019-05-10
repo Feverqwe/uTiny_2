@@ -146,17 +146,28 @@ class SpaceWatcher extends React.Component {
   render() {
     if (!this.spaceWatcherStore || this.spaceWatcherStore.isSupported === false) return null;
 
-    const titles = [`${chrome.i18n.getMessage('freeSpace')}:`];
-    const directories = this.spaceWatcherStore.downloadDirs.map((directory) => {
-      titles.push(`${directory.availableStr} (${directory.path})`);
-      return (
-        <span key={directory.path}>{directory.availableStr} </span>
-      );
-    });
+    let title = null;
+    let body = null;
+    if (this.spaceWatcherStore.state === 'pending') {
+      body = '...';
+    } else
+    if (this.spaceWatcherStore.state === 'error') {
+      body = '-';
+    } else
+    if (this.spaceWatcherStore.state === 'done') {
+      const status = [`${chrome.i18n.getMessage('freeSpace')}:`];
+      body = this.spaceWatcherStore.downloadDirs.map((directory) => {
+        status.push(`${directory.availableStr} (${directory.path})`);
+        return (
+          <span key={directory.path}>{directory.availableStr} </span>
+        );
+      });
+      title = status.join('\n');
+    }
 
     return (
       <>
-        <td className="space disk" onClick={this.handleUpdate} title={titles.join('\n')}>{directories}</td>
+        <td className="space disk" onClick={this.handleUpdate} title={title}>{body}</td>
         <Interval interval={60 * 1000} onFire={this.onIntervalFire} onInit={this.onIntervalFire}/>
       </>
     );

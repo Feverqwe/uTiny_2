@@ -70,7 +70,8 @@ class UTorrentClient {
       }
 
       return fetch(this.url + '?' + params, this.sign(init)).then((response) => {
-        if (!response.ok) {
+        // 300 for utorrent 1.8
+        if (!response.ok || response.status === 300) {
           const error = new ErrorWithCode(`${response.status}: ${response.statusText}`, `RESPONSE_IS_NOT_OK`);
           error.status = response.status;
           error.statusText = response.statusText;

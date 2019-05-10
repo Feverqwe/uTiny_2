@@ -30,7 +30,7 @@ const DownloadDirStore = types.model('DownloadDirStore', {
 const SpaceWatcherStore = types.model('SpaceWatcherStore', {
   state: types.optional(types.enumeration(['idle', 'pending', 'done', 'error']), 'idle'),
   isSupported: types.maybe(types.boolean),
-  downloadDirs: types.array(DownloadDirStore)
+  downloadDirs: types.array(DownloadDirStore),
 }).actions((self) => {
   return {
     fetchDownloadDirs: flow(function* () {
@@ -49,7 +49,9 @@ const SpaceWatcherStore = types.model('SpaceWatcherStore', {
         if (isAlive(self)) {
           self.state = 'error';
           if (self.isSupported === undefined) {
-            self.isSupported = false;
+            if (err.status === 300) {
+              self.isSupported = false;
+            }
           }
         }
       }
