@@ -11,6 +11,7 @@ const outputPath = BUILD_ENV.outputPath;
 const mode = BUILD_ENV.mode;
 const devtool = BUILD_ENV.devtool;
 const babelEnvOptions = BUILD_ENV.babelEnvOptions;
+const browser = BUILD_ENV.browser;
 
 const config = {
   entry: {
@@ -96,7 +97,26 @@ const config = {
       ]
     }),
     new CopyWebpackPlugin([
-      {from: './src/manifest.json',},
+      {
+        from: './src/manifest.json',
+        transform: (content, path) => {
+          if (browser === 'Firefox') {
+            const manifest = JSON.parse(content);
+
+            manifest.options_ui = {};
+            manifest.options_ui.page = manifest.options_page;
+            manifest.options_ui.open_in_tab = true;
+
+            delete manifest.options_page;
+
+            delete manifest.minimum_chrome_version;
+
+            return JSON.stringify(manifest, null, 4);
+          } else {
+            return content;
+          }
+        }
+      },
       {from: './src/assets/img', to: './assets/img'},
       {from: './src/assets/icons', to: './assets/icons'},
       {from: './src/_locales', to: './_locales'},

@@ -5,7 +5,9 @@
     "compress": "node ./builder/compressDist",
     "watch": "webpack --mode development --watch --config webpack.config.js",
     "build": "webpack --mode production --config webpack.config.js",
-    "release": "npm run build && npm run compress"
+    "releaseCh": "npm run build -- --BROWSER Chrome && npm run compress -- --BROWSER Chrome",
+    "releaseFf": "npm run build -- --BROWSER Firefox && npm run compress -- --BROWSER Firefox",
+    "release": "npm run releaseCh && npm run releaseFf"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
