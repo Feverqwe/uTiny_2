@@ -76,17 +76,14 @@ class ContextMenu {
       case 'action': {
         switch (itemInfo.name) {
           case 'default': {
-            console.log('default');
             this.onSendLink(linkUrl, tab.id, frameId);
             break;
           }
           case 'createFolder': {
-            console.log('createFolder');
             this.onCreateFolder();
             break;
           }
           case 'createLabel': {
-            console.log('createLabel');
             this.onCreateLabel();
             break;
           }
@@ -95,13 +92,11 @@ class ContextMenu {
       }
       case 'folder': {
         const folder = this.bgStore.config.folders[itemInfo.index];
-        console.log('folder', folder);
         this.onSendLink(linkUrl, tab.id, frameId, folder);
         break;
       }
       case 'label': {
         const label = this.bgStore.config.labels[itemInfo.index];
-        console.log('label', label);
         this.onSendLink(linkUrl, tab.id, frameId, undefined, label);
         break;
       }

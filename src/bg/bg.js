@@ -39,12 +39,12 @@ class Bg {
       const logger = getLogger('autorun');
 
       autorun(() => {
-        logger('daemon');
+        logger.info('daemon');
         this.daemon.start();
       });
 
       autorun(() => {
-        logger('client');
+        logger.info('client');
         const dep = [
           this.bgStore.config.ssl,
           this.bgStore.config.port,
@@ -67,7 +67,7 @@ class Bg {
       });
 
       autorun(() => {
-        logger('badge');
+        logger.info('badge');
         if (this.bgStore.config.showActiveCountBadge) {
           const count = this.bgStore.client.activeCount;
           if (count > 0) {
@@ -81,12 +81,12 @@ class Bg {
       });
 
       autorun(() => {
-        logger('badgeColor');
+        logger.info('badgeColor');
         setBadgeBackgroundColor(this.bgStore.config.badgeColor);
       });
 
       autorun(() => {
-        logger('contextMenu');
+        logger.info('contextMenu');
         const dep = [
           this.bgStore.config.folders.length,
           this.bgStore.config.labels.length,
