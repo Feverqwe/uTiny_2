@@ -11,6 +11,10 @@ class Graph extends React.Component {
     rootStore: PropTypes.object,
   };
 
+  state = {
+    isBlur: false
+  };
+
   /**@return {RootStore}*/
   get rootStore() {
     return this.props.rootStore;
@@ -18,6 +22,9 @@ class Graph extends React.Component {
 
   graphAutorun = null;
   componentDidMount() {
+    window.addEventListener('focus', this.handleFocus);
+    window.addEventListener('blur', this.handleBlur);
+
     const ctr = this.refChart.current;
     const speedRoll = this.rootStore.client.speedRoll;
 
@@ -65,10 +72,14 @@ class Graph extends React.Component {
 
       const data = speedRoll.getDataFromTime(minTime);
 
-      const t = transition().duration(500).ease(easeQuadOut);
-
-      downloadLinePath.datum(data).transition(t).attr('d', downloadLine);
-      uploadLinePath.datum(data).transition(t).attr('d', uploadLine);
+      if (this.state.isBlur) {
+        downloadLinePath.datum(data).attr('d', downloadLine);
+        uploadLinePath.datum(data).attr('d', uploadLine);
+      } else {
+        const t = transition().duration(500).ease(easeQuadOut);
+        downloadLinePath.datum(data).transition(t).attr('d', downloadLine);
+        uploadLinePath.datum(data).transition(t).attr('d', uploadLine);
+      }
     });
 
     this.refChart.current.appendChild(svg.node());
@@ -77,7 +88,17 @@ class Graph extends React.Component {
   componentWillUnmount() {
     this.graphAutorun();
     this.graphAutorun = null;
+    window.removeEventListener('focus', this.handleFocus);
+    window.removeEventListener('blur', this.handleBlur);
   }
+
+  handleFocus = () => {
+    this.state.isBlur = false;
+  };
+
+  handleBlur = () => {
+    this.state.isBlur = true;
+  };
 
   refChart = React.createRef();
 
