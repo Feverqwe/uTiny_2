@@ -11,6 +11,7 @@ import getLogger from "../tools/getLogger";
 import storageGet from "../tools/storageGet";
 import storageSet from "../tools/storageSet";
 import storageRemove from "../tools/storageRemove";
+import {migrateConfig} from "../tools/loadConfig";
 
 const logger = getLogger('Options');
 
@@ -822,7 +823,11 @@ class RestoreOptions extends React.Component {
   handleRestore = (e) => {
     e.preventDefault();
     Promise.resolve().then(() => {
-      return storageSet(JSON.parse(this.refData.current.value));
+      const config = Object.assign({configVersion: 1}, JSON.parse(this.refData.current.value));
+      if (config.configVersion !== 2) {
+        migrateConfig(config, config);
+      }
+      return storageSet(config);
     }).catch((err) => {
       logger.error('handleRestore error', err);
     });

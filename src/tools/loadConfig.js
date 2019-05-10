@@ -112,7 +112,7 @@ const loadConfig = () => {
       }
     });
 
-    if (config.configVersion === undefined) {
+    if (config.configVersion !== 2) {
       return storageGet(oldConfigDefaults).then((oldConfig) => {
         return migrateConfig(oldConfig, config);
       }).then((config) => {
@@ -160,6 +160,7 @@ function migrateConfig(oldConfig, config) {
     fixCirilicTitle: intToBoolean,
     fixCirilicTorrentPath: intToBoolean,
     folderList: folderListToFolders,
+    selectedLabel: selectedLabelToLabel,
   };
 
   Object.entries(oldConfig).forEach(([key, value]) => {
@@ -185,6 +186,13 @@ function migrateConfig(oldConfig, config) {
         label: label || ''
       };
     });
+  }
+
+  function selectedLabelToLabel(value) {
+    return {
+      label: value.label,
+      custom: !!value.custom
+    };
   }
 
   return config;
@@ -233,4 +241,4 @@ function mergeColumns(columns, defColumns) {
 }
 
 export default loadConfig;
-export {defaultConfig};
+export {defaultConfig, migrateConfig};
