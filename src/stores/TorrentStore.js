@@ -139,14 +139,14 @@ const TorrentStore = types.model('TorrentStore', {
       if (!self.addedTime) {
         return '∞';
       } else {
-        return fecha(self.addedTime, 'YYYY-MM-DD HH:mm:ss');
+        return fecha.format(self.addedTime * 1000, 'YYYY-MM-DD HH:mm:ss');
       }
     },
     get completedTimeStr() {
       if (!self.completedTime) {
         return '∞';
       } else {
-        return fecha(self.completedTime, 'YYYY-MM-DD HH:mm:ss');
+        return fecha.format(self.completedTime * 1000, 'YYYY-MM-DD HH:mm:ss');
       }
     },
     get stateText() {
