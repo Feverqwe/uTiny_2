@@ -191,23 +191,33 @@ class Bg {
         break;
       }
       case 'setDownloadSpeedLimit': {
-        promise = this.client.setDownloadSpeedLimit(message.speed);
+        promise = this.whenReady().then(() => {
+          return this.client.setDownloadSpeedLimit(message.speed);
+        });
         break;
       }
       case 'setUploadSpeedLimit': {
-        promise = this.client.setUploadSpeedLimit(message.speed);
+        promise = this.whenReady().then(() => {
+          return this.client.setUploadSpeedLimit(message.speed);
+        });
         break;
       }
       case 'getSettings': {
-        promise = this.client.getSettings();
+        promise = this.whenReady().then(() => {
+          return this.client.getSettings();
+        });
         break;
       }
       case 'sendFiles': {
-        promise = this.client.sendFiles(message.urls, message.directory, message.label);
+        promise = this.whenReady().then(() => {
+          return this.client.sendFiles(message.urls, message.directory, message.label);
+        });
         break;
       }
       case 'getDownloadDirs': {
-        promise = this.client.getDownloadDirs();
+        promise = this.whenReady().then(() => {
+          return this.client.getDownloadDirs();
+        });
         break;
       }
       default: {
