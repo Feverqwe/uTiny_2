@@ -47,7 +47,7 @@ const SpaceWatcherStore = types.model('SpaceWatcherStore', {
           self.state = 'done';
         }
       } catch (err) {
-        logger.error('fetchFiles error', err);
+        logger.error('fetchDownloadDirs error', err);
         if (isAlive(self)) {
           self.state = 'error';
           self.errorMessage = `${err.name}: ${err.message}`;
