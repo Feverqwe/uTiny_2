@@ -348,9 +348,11 @@ table.status-panel td.space {
     background-repeat: no-repeat;
     background-position: 0 2px;
     width: 15%;
-}
-table.status-panel td.space div {
     text-overflow: ellipsis;
+    cursor: pointer;
+    white-space: nowrap;
+    max-width: 160px;
+    overflow: hidden;
 }
 table.status-panel td.status img {
     margin-bottom: -4px;
@@ -360,9 +362,6 @@ table.status-panel td.speed {
     padding-left: 14px;
     background-repeat: no-repeat;
     background-position-y: 3px;
-}
-table.status-panel td.space div {
-    cursor: pointer;
 }
 table.status-panel td.download {
     background-image: url(../img/arrowDown.svg);
