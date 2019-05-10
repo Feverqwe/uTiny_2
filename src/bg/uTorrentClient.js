@@ -375,14 +375,16 @@ class UTorrentClient {
       // this.bgStore.client.setFileList(torrentId, files.map(this.normalizeFile));
     }
 
-    const activeTorrentIds = this.bgStore.client.activeTorrentIds;
-    arrayDifferent(previousActiveTorrentIds, activeTorrentIds).forEach((torrentId) => {
-      // not active anymore
-      const torrent = this.bgStore.client.torrents.get(torrentId);
-      if (torrent) {
-        this.bg.torrentCompleteNotify(torrent);
-      }
-    });
+    if (this.bgStore.config.showDownloadCompleteNotifications) {
+      const activeTorrentIds = this.bgStore.client.activeTorrentIds;
+      arrayDifferent(previousActiveTorrentIds, activeTorrentIds).forEach((torrentId) => {
+        // not active anymore
+        const torrent = this.bgStore.client.torrents.get(torrentId);
+        if (torrent) {
+          this.bg.torrentCompleteNotify(torrent);
+        }
+      });
+    }
 
     if (torrentsChanged) {
       const {downloadSpeed, uploadSpeed} = this.bgStore.client.currentSpeed;
