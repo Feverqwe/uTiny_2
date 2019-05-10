@@ -8,6 +8,9 @@ import {HashRouter, Switch, Route, Redirect, NavLink} from "react-router-dom";
 import PropTypes from "prop-types";
 import {SketchPicker} from "react-color";
 import Popover from "react-tiny-popover";
+import getLogger from "../tools/getLogger";
+
+const logger = getLogger('Options');
 
 @inject('rootStore')
 @observer
@@ -174,7 +177,7 @@ class ClientOptions extends React.Component {
 
     return (
       <div ref={this.refPage} className="page client">
-        <form onSubmit={this.handleSubmit}>
+        <form onSubmit={this.handleSubmit} autocomplete="off">
           <h2>{chrome.i18n.getMessage('optClient')}</h2>
           <label>
             <span>{chrome.i18n.getMessage('DLG_SETTINGS_4_CONN_16')}</span>
@@ -281,6 +284,13 @@ class OptionsPage extends React.Component {
         [input.name]: value
       });
     }
+  };
+
+  handleRadioChange = (e) => {
+    const radio = e.currentTarget;
+    this.configStore.setOptions({
+      [radio.name]: radio.value
+    });
   };
 }
 
@@ -400,12 +410,277 @@ class NotifyOptions extends OptionsPage {
   }
 }
 
-class CtxOptions extends React.Component {
+@inject('rootStore')
+@observer
+class CtxOptions extends OptionsPage {
   render() {
     return (
       <div className="page ctx">
-        CtxOptions
+        <h2>{chrome.i18n.getMessage('optCtx')}</h2>
+        <label>
+          <span>{chrome.i18n.getMessage('folderContextMenu')}</span>
+          <input onChange={this.handleRadioChange} defaultChecked={this.configStore.contextMenuType === 'folder'} type="radio" name="contextMenuType" value="folder"/>
+        </label>
+        <label>
+          <span>{chrome.i18n.getMessage('labelContextMenu')}</span>
+          <input onChange={this.handleRadioChange} defaultChecked={this.configStore.contextMenuType === 'label'} type="radio" name="contextMenuType" value="label"/>
+        </label>
+        <label>
+          <span>{chrome.i18n.getMessage('selectDownloadCategoryOnAddItemFromContextMenu')}</span>
+          <input onChange={this.handleChange} defaultChecked={this.configStore.selectDownloadCategoryAfterPutTorrentFromContextMenu} type="checkbox" name="selectDownloadCategoryAfterPutTorrentFromContextMenu"/>
+        </label>
+        <CtxOptionsDirs/>
+        <CtxOptionsLabels/>
       </div>
+    );
+  }
+}
+
+@inject('rootStore')
+@observer
+class CtxOptionsDirs extends OptionsPage {
+  state = {
+    downloadDirsState: 'idle', // idle, pending, done, error
+    downloadDirs: [],
+  };
+
+  componentDidMount() {
+    this.handleUpdateDownloadDirs();
+  }
+
+  handleUpdateDownloadDirs = (e) => {
+    e && e.preventDefault();
+    this.setState({
+      downloadDirsState: 'pending'
+    });
+    this.rootStore.client.getDownloadDirs().then((result) => {
+      if (!this.bodyRef.current) return;
+      this.setState({
+        downloadDirs: result.downloadDirs,
+        downloadDirsState: 'done'
+      });
+    }, (err) => {
+      logger.error('handleUpdateDownloadDirs error', err);
+      if (!this.bodyRef.current) return;
+      this.setState({
+        downloadDirs: [],
+        downloadDirsState: 'error'
+      });
+    });
+  };
+
+  get selectedDownloadDir() {
+    let index = -1;
+    if (this.refDownloadDirSelect.current) {
+      const value = this.refDownloadDirSelect.current.value;
+      if (value) {
+        index = parseInt(this.refDownloadDirSelect.current.value, 10);
+      }
+    }
+    if (index === -1 && this.state.downloadDirs.length) {
+      index = 0;
+    }
+    return this.state.downloadDirs[index] || null;
+  }
+
+  handleSubmit = (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+
+    const volume = parseInt(form.elements.volume.value, 10);
+    const path = form.elements.path.value.trim();
+    const name = form.elements.name.value.trim();
+    if (!Number.isFinite(volume) || !path) return;
+
+    if (!this.configStore.hasFolder(volume, path)) {
+      this.configStore.addFolder(volume, path, name);
+      form.elements.path.value = '';
+      form.elements.name.value = '';
+    }
+  };
+
+  bodyRef = React.createRef();
+  refDownloadDirSelect = React.createRef();
+  refDirectorySelect = React.createRef();
+
+  get selectedDirectories() {
+    return Array.from(this.refDirectorySelect.current.selectedOptions).map((option) => {
+      return this.configStore.folders[parseInt(option.value, 10)];
+    });
+  }
+
+  handleRemove = (e) => {
+    e.preventDefault();
+    this.configStore.removeFolders(this.selectedDirectories);
+  };
+
+  handleMoveUp = (e) => {
+    e.preventDefault();
+    this.configStore.moveFolders(this.selectedDirectories, -1);
+  };
+
+  handleMoveDown = (e) => {
+    e.preventDefault();
+    this.configStore.moveFolders(this.selectedDirectories, 1);
+  };
+
+  render() {
+    const downloadDirs = this.state.downloadDirs.map((directory, index) => {
+      return (
+        <option key={directory.path} value={index}>{directory.path}</option>
+      );
+    });
+
+    let downloadDirAvailable = null;
+    if (this.selectedDownloadDir) {
+      downloadDirAvailable = (
+        <>
+          {' '}
+          <span>{chrome.i18n.getMessage('available')}</span>:
+          {' '}
+          <span id="availableCount">{this.selectedDownloadDir.available}</span>
+        </>
+      );
+    }
+
+    const directories = this.configStore.folders.map((folder, index) => {
+      let name = `${folder.volume}:${folder.path}`;
+      if (folder.name) {
+        name = `${folder.name} (${name})`;
+      }
+      return (
+        <option key={JSON.stringify(folder)} value={index}>{name}</option>
+      );
+    });
+
+    return (
+      <>
+        <h3>{chrome.i18n.getMessage('dirList')}</h3>
+        <div ref={this.bodyRef}>
+          <label>
+            <span>{chrome.i18n.getMessage('treeViewContextMenu')}</span>
+            <input onChange={this.handleChange} defaultChecked={this.configStore.treeViewContextMenu} type="checkbox" name="treeViewContextMenu"/>
+          </label>
+          <label>
+            <span>{chrome.i18n.getMessage('showDefaultFolderContextMenuItem')}</span>
+            <input onChange={this.handleChange} defaultChecked={this.configStore.putDefaultPathInContextMenu} type="checkbox" name="putDefaultPathInContextMenu"/>
+          </label>
+          <div className="optionItem">
+            <form onSubmit={this.handleSubmit} autocomplete="off">
+              <span>{chrome.i18n.getMessage('addItem')}</span>:
+              <div className="optionItem">
+                <span>{chrome.i18n.getMessage('dirList')}</span>
+                {' '}
+                <select ref={this.refDownloadDirSelect} name="volume" id="dirList">
+                  {downloadDirs}
+                </select>
+                {downloadDirAvailable}
+                {' '}
+                <button onClick={this.handleUpdateDownloadDirs} id="updateDirList">{chrome.i18n.getMessage('update')}</button>
+              </div>
+              <div className="optionItem">
+                <span>{chrome.i18n.getMessage('subPath')}</span>
+                {' '}
+                <input name="path" type="text" id="subPath"/>
+              </div>
+              <div className="optionItem">
+                <span>{chrome.i18n.getMessage('shortName')}</span>
+                {' '}
+                <input name="name" type="text" id="pathLabel"/>
+                {' '}
+                <button disabled={!downloadDirs.length} type="submit" id="addSubPath">{chrome.i18n.getMessage('add')}</button>
+              </div>
+            </form>
+          </div>
+          <div className="optionItem">
+            <select ref={this.refDirectorySelect} id="folderList" multiple>
+              {directories}
+            </select>
+          </div>
+          <div className="optionItem">
+            <button onClick={this.handleRemove} id="folderDeleteSelected">{chrome.i18n.getMessage('deleteSelected')}</button>
+            {' '}
+            <button onClick={this.handleMoveUp} id="folderUp">{chrome.i18n.getMessage('up')}</button>
+            {' '}
+            <button onClick={this.handleMoveDown} id="folderDown">{chrome.i18n.getMessage('down')}</button>
+          </div>
+        </div>
+      </>
+    );
+  }
+}
+
+@inject('rootStore')
+@observer
+class CtxOptionsLabels extends OptionsPage {
+  handleSubmit = (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+
+    const label = form.elements.label.value.trim();
+    if (!label) return;
+
+    if (!this.configStore.hasLabel(label)) {
+      this.configStore.addLabel(label);
+      form.elements.label.value = '';
+    }
+  };
+
+  refLabelSelect = React.createRef();
+
+  get selectedLabels() {
+    return Array.from(this.refLabelSelect.current.selectedOptions).map((option) => {
+      return this.configStore.labels[parseInt(option.value, 10)];
+    });
+  }
+
+  handleRemove = (e) => {
+    e.preventDefault();
+    this.configStore.removeLabels(this.selectedLabels);
+  };
+
+  handleMoveUp = (e) => {
+    e.preventDefault();
+    this.configStore.moveLabels(this.selectedLabels, -1);
+  };
+
+  handleMoveDown = (e) => {
+    e.preventDefault();
+    this.configStore.moveLabels(this.selectedLabels, 1);
+  };
+
+  render() {
+    const labels = this.configStore.labels.map((label, index) => {
+      return (
+        <option key={label} value={index}>{label}</option>
+      );
+    });
+
+    return (
+      <>
+        <h3>{chrome.i18n.getMessage('labelList')}</h3>
+        <div className="optionItem">
+          <form onSubmit={this.handleSubmit} autocomplete="off">
+            <span>{chrome.i18n.getMessage('OV_COL_LABEL')}</span>
+            {' '}
+            <input name="label" type="text" id="label"/>
+            {' '}
+            <button type="submit" id="addLabel">{chrome.i18n.getMessage('add')}</button>
+          </form>
+        </div>
+        <div className="optionItem">
+          <select ref={this.refLabelSelect} id="labelList" multiple>
+            {labels}
+          </select>
+        </div>
+        <div className="optionItem">
+          <button onClick={this.handleRemove} id="labelDeleteSelected">{chrome.i18n.getMessage('deleteSelected')}</button>
+          {' '}
+          <button onClick={this.handleMoveUp} id="labelUp">{chrome.i18n.getMessage('up')}</button>
+          {' '}
+          <button onClick={this.handleMoveDown} id="labelDown">{chrome.i18n.getMessage('down')}</button>
+        </div>
+      </>
     );
   }
 }

@@ -19,6 +19,7 @@
     "mobx": "^5.9.4",
     "mobx-react": "^5.4.3",
     "mobx-state-tree": "^3.14.0",
+    "promise-limit": "^2.7.0",
     "prop-types": "^15.7.2",
     "rc-select": "^9.1.1",
     "react": "^16.8.6",

@@ -79,6 +79,7 @@ const SettingsStore = types.model('SettingsStore', {
  * @property {function} getTorrentFiles
  * @property {function} getSettings
  * @property {function} sendFiles
+ * @property {function} getDownloadDirs
  * @property {function} getSnapshot
  * @property {function} syncUiClient
  */

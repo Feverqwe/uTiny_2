@@ -88,8 +88,8 @@ class Bg {
       autorun(() => {
         logger('contextMenu');
         const dep = [
-          this.bgStore.config.folders,
-          this.bgStore.config.labels,
+          this.bgStore.config.folders.length,
+          this.bgStore.config.labels.length,
           this.bgStore.config.contextMenuType,
           this.bgStore.config.treeViewContextMenu,
           this.bgStore.config.putDefaultPathInContextMenu

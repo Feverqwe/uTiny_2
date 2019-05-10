@@ -3,8 +3,10 @@ import getLogger from "../tools/getLogger";
 import downloadFileFromTab from "../tools/downloadFileFromTab";
 
 const path = require('path');
+const promiseLimit = require('promise-limit');
 
 const logger = getLogger('ContextMenu');
+const oneThread = promiseLimit(1);
 
 class ContextMenu {
   constructor(/**Bg*/bg) {
@@ -27,26 +29,20 @@ class ContextMenu {
   }
 
   onCreateFolder() {
-    const folders = this.bg.bgStore.config.folders;
     const firstFolder = this.bg.bgStore.config.folders[0];
     const volume = firstFolder.volume;
     const path = prompt(chrome.i18n.getMessage('enterNewDirPath'), firstFolder.path);
     if (path) {
-      const found = folders.some((folder) => {
-        return folder.volume === volume && folder.path === path;
-      });
-
-      if (!found) {
+      if (!this.bg.bgStore.config.hasFolder(volume, path)) {
         this.bg.bgStore.config.addFolder(volume, path);
       }
     }
   }
 
   onCreateLabel() {
-    const labels = this.bg.bgStore.config.labels;
     const label = prompt(chrome.i18n.getMessage('enterNewLabel'));
     if (label) {
-      if (!labels.includes(label)) {
+      if (!this.bg.bgStore.config.hasLabel(label)) {
         this.bg.bgStore.config.addLabel(label);
       }
     }
@@ -113,56 +109,56 @@ class ContextMenu {
   };
 
   create() {
-    chrome.contextMenus.removeAll(() => {
-      const menuId = JSON.stringify({type: 'action', name: 'default', source: 'main'});
-      chrome.contextMenus.create({
-        id: menuId,
-        title: chrome.i18n.getMessage('addInTorrentClient'),
-        contexts: ['link']
-      }, () => {
-        switch (this.bgStore.config.contextMenuType) {
-          case 'folder': {
-            this.createFolderMenu(menuId);
-            break;
+    return oneThread(() => {
+      return contextMenusRemoveAll().then(() => {
+        const menuId = JSON.stringify({type: 'action', name: 'default', source: 'main'});
+        return contextMenusCreate({
+          id: menuId,
+          title: chrome.i18n.getMessage('addInTorrentClient'),
+          contexts: ['link']
+        }).then(() => {
+          switch (this.bgStore.config.contextMenuType) {
+            case 'folder': {
+              return this.createFolderMenu(menuId);
+            }
+            case 'label': {
+              return this.createLabelMenu(menuId);
+            }
           }
-          case 'label': {
-            this.createLabelMenu(menuId);
-            break;
-          }
-        }
+        });
       });
     });
   }
 
-  createFolderMenu(parentId) {
+  async createFolderMenu(parentId) {
     const folders = this.bgStore.config.folders;
     if (this.bgStore.config.treeViewContextMenu) {
-      transformFoldersToTree(folders).forEach((folder) => {
+      await Promise.all(transformFoldersToTree(folders).map((folder) => {
         let name = folder.name;
         if (name === './') {
           name = chrome.i18n.getMessage('currentDirectory');
         }
-        chrome.contextMenus.create({
+        return contextMenusCreate({
           id: folder.id,
           parentId: folder.parentId || parentId,
           title: name,
           contexts: ['link']
         });
-      });
+      }));
     } else {
-      folders.forEach((folder, index) => {
-        chrome.contextMenus.create({
+      await Promise.all(folders.map((folder, index) => {
+        return contextMenusCreate({
           id: JSON.stringify({type: 'folder', index}),
           parentId: parentId,
           title: folder.name || folder.path,
           contexts: ['link']
         });
-      });
+      }));
     }
 
     if (folders.length) {
       if (this.bgStore.config.putDefaultPathInContextMenu) {
-        chrome.contextMenus.create({
+        await contextMenusCreate({
           id: JSON.stringify({type: 'action', name: 'default', source: 'folder'}),
           parentId: parentId,
           title: chrome.i18n.getMessage('defaultPath'),
@@ -170,7 +166,7 @@ class ContextMenu {
         });
       }
 
-      chrome.contextMenus.create({
+      await contextMenusCreate({
         id: JSON.stringify({type: 'action', name: 'createFolder'}),
         parentId: parentId,
         title: chrome.i18n.getMessage('add') + '...',
@@ -179,19 +175,19 @@ class ContextMenu {
     }
   }
 
-  createLabelMenu(parentId) {
+  async createLabelMenu(parentId) {
     const labels = this.bgStore.config.labels;
-    labels.forEach((label, index) => {
-      chrome.contextMenus.create({
+    await Promise.all(labels.map((label, index) => {
+      return contextMenusCreate({
         id: JSON.stringify({type: 'label', index}),
         parentId: parentId,
         title: label,
         contexts: ['link']
       });
-    });
+    }));
 
     if (labels.length) {
-      chrome.contextMenus.create({
+      await contextMenusCreate({
         id: JSON.stringify({type: 'action', name: 'createLabel'}),
         parentId: parentId,
         title: chrome.i18n.getMessage('add') + '...',
@@ -214,7 +210,12 @@ function transformFoldersToTree(folders) {
   folders.forEach((folder) => {
     const place = folder.path;
     if (sep === null) {
-      sep = /\//.test(place) ? '/' : '\\';
+      if (place.indexOf('\/') !== -1) {
+        sep = '/';
+      } else
+      if (place.indexOf('\\') !== -1) {
+        sep = '\\';
+      }
     }
     let normPath = place.split(/[\\/]/).join('/');
     normPath = path.normalize(normPath);
@@ -224,6 +225,9 @@ function transformFoldersToTree(folders) {
     placeFolderMap[normPath] = folder;
     places.push(normPath);
   });
+  if (sep === null) {
+    sep = '/';
+  }
 
   const lowKeyMap = {};
   const tree = {};
@@ -252,8 +256,9 @@ function transformFoldersToTree(folders) {
   });
 
   const joinSingleParts = (tree, part) => {
-    if (typeof tree !== 'object') return;
     const subTree = tree[part];
+    if (typeof subTree !== 'object') return;
+
     const subParts = Object.keys(subTree);
     if (subParts.length === 1) {
       const subPart = subParts.shift();
@@ -266,8 +271,8 @@ function transformFoldersToTree(folders) {
         joinSingleParts(tree, joinedPart);
       }
     } else {
-      subParts.forEach((part) => {
-        joinSingleParts(subTree, part);
+      subParts.forEach((subPart) => {
+        joinSingleParts(subTree, subPart);
       });
     }
   };
@@ -291,7 +296,7 @@ function transformFoldersToTree(folders) {
         const place = item;
         const folder = placeFolderMap[place];
         const id = JSON.stringify({type: 'folder', index: folders.indexOf(folder)});
-        menus.push(Object.assign(folder, {
+        menus.push(Object.assign({}, folder, {
           name,
           id,
           parentId
@@ -303,5 +308,23 @@ function transformFoldersToTree(folders) {
 
   return menus;
 }
+
+const contextMenusRemoveAll = () => {
+  return new Promise((resolve, reject) => {
+    chrome.contextMenus.removeAll(() => {
+      const err = chrome.runtime.lastError;
+      err ? reject(err) : resolve();
+    });
+  });
+};
+
+const contextMenusCreate = (details) => {
+  return new Promise((resolve, reject) => {
+    chrome.contextMenus.create(details, () => {
+      const err = chrome.runtime.lastError;
+      err ? reject(err) : resolve();
+    });
+  });
+};
 
 export default ContextMenu;

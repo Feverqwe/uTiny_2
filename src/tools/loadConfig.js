@@ -159,6 +159,7 @@ function migrateConfig(oldConfig, config) {
     showFreeSpace: intToBoolean,
     fixCirilicTitle: intToBoolean,
     fixCirilicTorrentPath: intToBoolean,
+    folderList: folderListToFolders,
   };
 
   Object.entries(oldConfig).forEach(([key, value]) => {
@@ -174,6 +175,16 @@ function migrateConfig(oldConfig, config) {
 
   function intToBoolean(value) {
     return typeof value === 'boolean' ? value : !!value;
+  }
+
+  function folderListToFolders(value) {
+    return value.map(([volume, path, label]) => {
+      return {
+        volume: parseInt(volume, 10),
+        path,
+        label: label || ''
+      };
+    });
   }
 
   return config;

@@ -48,7 +48,7 @@ const FilesColumnStore = types.compose('FilesColumnsStore', ColumnStore, types.m
  * @property {string} path
  */
 const FolderStore = types.model('FolderStore', {
-  volume: types.string,
+  volume: types.number,
   name: types.string,
   path: types.string
 });
@@ -106,9 +106,11 @@ const SelectedLabelStore = types.model('SelectedLabelStore', {
  * @property {{by:string,[direction]:number}} [filesSort]
  * @property {SelectedLabelStore} [selectedLabel]
  * @property {number} [configVersion]
- * @property {function} addFolder
- * @property {function} addLabel
  * @property {function} setKeyValue
+ * @property {function} addFolder
+ * @property {function} hasFolder
+ * @property {function} addLabel
+ * @property {function} hasLabel
  * @property {function} moveTorrensColumn
  * @property {function} saveTorrentsColumns
  * @property {function} moveFilesColumn
@@ -117,6 +119,10 @@ const SelectedLabelStore = types.model('SelectedLabelStore', {
  * @property {function} setFilesSort
  * @property {function} setSelectedLabel
  * @property {function} setOptions
+ * @property {function} removeFolders
+ * @property {function} moveFolders
+ * @property {function} removeLabels
+ * @property {function} moveLabels
  * @property {*} url
  * @property {*} webUiUrl
  * @property {*} visibleTorrentColumns
@@ -177,20 +183,26 @@ const ConfigStore = types.model('ConfigStore', {
   configVersion: types.optional(types.number, 2),
 }).actions((self) => {
   return {
+    setKeyValue(keyValue) {
+      Object.assign(self, keyValue);
+    },
     addFolder(volume, path, name = '') {
       self.folders.push({volume, path, name});
-      storageSet({
+      return storageSet({
         folders: self.folders.toJSON()
       });
     },
+    hasFolder(volume, path) {
+      return self.folders.some((folder) => folder.volume === volume &&  folder.path === path);
+    },
     addLabel(label) {
       self.labels.push(label);
-      storageSet({
+      return storageSet({
         labels: self.labels.toJSON()
       });
     },
-    setKeyValue(keyValue) {
-      Object.assign(self, keyValue);
+    hasLabel(label) {
+      return self.labels.indexOf(label) !== -1;
     },
     moveTorrensColumn(from, to) {
       const column = resolveIdentifier(TorrentsColumnStore, self, from);
@@ -199,12 +211,12 @@ const ConfigStore = types.model('ConfigStore', {
       const columns = moveColumn(self.torrentColumns.slice(0), column, columnTarget);
 
       self.torrentColumns = columns;
-      storageSet({
+      return storageSet({
         torrentColumns: columns
       });
     },
     saveTorrentsColumns() {
-      storageSet({
+      return storageSet({
         torrentColumns: self.torrentColumns.slice(0),
       });
     },
@@ -215,37 +227,61 @@ const ConfigStore = types.model('ConfigStore', {
       const columns = moveColumn(self.filesColumns.slice(0), column, columnTarget);
 
       self.filesColumns = columns;
-      storageSet({
+      return storageSet({
         filesColumns: columns
       });
     },
     saveFilesColumns() {
-      storageSet({
+      return storageSet({
         filesColumns: self.filesColumns.slice(0),
       });
     },
     setTorrentsSort(by, direction) {
       self.torrentsSort = {by, direction};
-      storageSet({
+      return storageSet({
         torrentsSort: self.torrentsSort.toJSON()
       });
     },
     setFilesSort(by, direction) {
       self.filesSort = {by, direction};
-      storageSet({
+      return storageSet({
         filesSort: self.filesSort.toJSON()
       });
     },
     setSelectedLabel(label, isCustom) {
       self.selectedLabel = {label, custom: isCustom};
-      storageSet({
+      return storageSet({
         selectedLabel: self.selectedLabel.toJSON()
       });
     },
     setOptions(obj) {
       Object.assign(self, obj);
       return storageSet(obj);
-    }
+    },
+    removeFolders(selectedFolders) {
+      self.folders = removeItems(self.folders.slice(0), selectedFolders);
+      return storageSet({
+        folders: self.folders.toJSON()
+      });
+    },
+    moveFolders(selectedFolders, index) {
+      self.folders = moveItems(self.folders.slice(0), selectedFolders, index);
+      return storageSet({
+        folders: self.folders.toJSON()
+      });
+    },
+    removeLabels(selectedLabels) {
+      self.labels = removeItems(self.labels.slice(0), selectedLabels);
+      return storageSet({
+        labels: self.labels.toJSON()
+      });
+    },
+    moveLabels(selectedFolders, index) {
+      self.labels = moveItems(self.labels.slice(0), selectedFolders, index);
+      return storageSet({
+        labels: self.labels.toJSON()
+      });
+    },
   };
 }).views((self) => {
   const storageChangeListener = (changes, namespace) => {
@@ -309,6 +345,37 @@ function moveColumn(columns, column, columnTarget) {
   }
 
   return columns;
+}
+
+function removeItems(array, items) {
+  items.forEach((folder) => {
+    const pos = array.indexOf(folder);
+    if (pos !== -1) {
+      array.splice(pos, 1);
+    }
+  });
+  return array;
+}
+
+function moveItems(array, items, index) {
+  let startPos = null;
+  items.forEach((folder) => {
+    let pos = array.indexOf(folder);
+    if (pos !== -1) {
+      if (startPos === null) {
+        startPos = pos;
+      }
+      array.splice(pos, 1);
+    }
+  });
+
+  if (index < 0) {
+    array.splice(startPos - 1, 0, ...items);
+  } else {
+    array.splice(startPos + 1, 0, ...items);
+  }
+
+  return array;
 }
 
 export default ConfigStore;
