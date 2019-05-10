@@ -80,6 +80,13 @@ class Index extends React.Component {
 
     const uiUpdateInterval = this.rootStore.config.uiUpdateInterval;
 
+    let goInOptions = null;
+    if (this.rootStore.config.hostname === '') {
+      goInOptions = (
+        <GoInOptions isPopup={this.rootStore.isPopup}/>
+      );
+    }
+
     return (
       <>
         <Interval key={'' + uiUpdateInterval} onInit={this.onIntervalInit} onFire={this.onIntervalFire} interval={uiUpdateInterval}/>
@@ -89,6 +96,7 @@ class Index extends React.Component {
         {setPopupHeight}
         {fileList}
         <Dialogs/>
+        {goInOptions}
       </>
     );
   }
@@ -151,6 +159,26 @@ class SetPopupHeight extends React.PureComponent {
     super(props);
 
     document.getElementById('root').style.minHeight = this.props.height + 'px';
+  }
+
+  render() {
+    return null;
+  }
+}
+
+class GoInOptions extends React.PureComponent {
+  static propTypes = {
+    isPopup: PropTypes.bool.isRequired
+  };
+
+  constructor(props) {
+    super(props);
+
+    if (this.props.isPopup) {
+      location.href = '/options.html#/#redirectPopup'
+    } else {
+      location.href = '/options.html#/#redirect'
+    }
   }
 
   render() {

@@ -3,7 +3,7 @@ import React from "react";
 import RootStore from "../stores/RootStore";
 import ReactDOM from "react-dom";
 import {inject, observer, Provider} from "mobx-react";
-import {HashRouter, Switch, Route, Redirect, NavLink} from "react-router-dom";
+import {HashRouter, Switch, Route, Redirect, NavLink, withRouter} from "react-router-dom";
 import PropTypes from "prop-types";
 import {SketchPicker} from "react-color";
 import Popover from "react-tiny-popover";
@@ -85,11 +85,13 @@ class Options extends React.Component {
   }
 }
 
+@withRouter
 @inject('rootStore')
 @observer
 class ClientOptions extends React.Component {
   static propTypes = {
     rootStore: PropTypes.object,
+    location: PropTypes.object,
   };
 
   state = {
@@ -135,6 +137,12 @@ class ClientOptions extends React.Component {
       this.setState({
         clientStatus: 'done'
       });
+
+      if (this.props.location.hash === '#redirect') {
+        location.href = '/index.html'
+      } else {
+        location.href = '/index.html#popup'
+      }
     }, (err) => {
       if (!this.refPage.current) return;
       this.setState({
