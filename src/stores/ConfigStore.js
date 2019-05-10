@@ -189,7 +189,7 @@ const ConfigStore = types.model('ConfigStore', {
     addFolder(volume, path, name = '') {
       self.folders.push({volume, path, name});
       return storageSet({
-        folders: self.folders.toJSON()
+        folders: copy(self.folders)
       });
     },
     hasFolder(volume, path) {
@@ -198,7 +198,7 @@ const ConfigStore = types.model('ConfigStore', {
     addLabel(label) {
       self.labels.push(label);
       return storageSet({
-        labels: self.labels.toJSON()
+        labels: copy(self.labels)
       });
     },
     hasLabel(label) {
@@ -212,12 +212,12 @@ const ConfigStore = types.model('ConfigStore', {
 
       self.torrentColumns = columns;
       return storageSet({
-        torrentColumns: columns
+        torrentColumns: copy(columns)
       });
     },
     saveTorrentsColumns() {
       return storageSet({
-        torrentColumns: self.torrentColumns.slice(0),
+        torrentColumns: copy(self.torrentColumns),
       });
     },
     moveFilesColumn(from, to) {
@@ -228,58 +228,58 @@ const ConfigStore = types.model('ConfigStore', {
 
       self.filesColumns = columns;
       return storageSet({
-        filesColumns: columns
+        filesColumns: copy(columns)
       });
     },
     saveFilesColumns() {
       return storageSet({
-        filesColumns: self.filesColumns.slice(0),
+        filesColumns: copy(self.filesColumns),
       });
     },
     setTorrentsSort(by, direction) {
       self.torrentsSort = {by, direction};
       return storageSet({
-        torrentsSort: self.torrentsSort.toJSON()
+        torrentsSort: copy(self.torrentsSort)
       });
     },
     setFilesSort(by, direction) {
       self.filesSort = {by, direction};
       return storageSet({
-        filesSort: self.filesSort.toJSON()
+        filesSort: copy(self.filesSort)
       });
     },
     setSelectedLabel(label, isCustom) {
       self.selectedLabel = {label, custom: isCustom};
       return storageSet({
-        selectedLabel: self.selectedLabel.toJSON()
+        selectedLabel: copy(self.selectedLabel)
       });
     },
     setOptions(obj) {
       Object.assign(self, obj);
-      return storageSet(obj);
+      return storageSet(copy(obj));
     },
     removeFolders(selectedFolders) {
       self.folders = removeItems(self.folders.slice(0), selectedFolders);
       return storageSet({
-        folders: self.folders.toJSON()
+        folders: copy(self.folders)
       });
     },
     moveFolders(selectedFolders, index) {
       self.folders = moveItems(self.folders.slice(0), selectedFolders, index);
       return storageSet({
-        folders: self.folders.toJSON()
+        folders: copy(self.folders)
       });
     },
     removeLabels(selectedLabels) {
       self.labels = removeItems(self.labels.slice(0), selectedLabels);
       return storageSet({
-        labels: self.labels.toJSON()
+        labels: copy(self.labels)
       });
     },
     moveLabels(selectedFolders, index) {
       self.labels = moveItems(self.labels.slice(0), selectedFolders, index);
       return storageSet({
-        labels: self.labels.toJSON()
+        labels: copy(self.labels)
       });
     },
   };
@@ -376,6 +376,10 @@ function moveItems(array, items, index) {
   }
 
   return array;
+}
+
+function copy(obj) {
+  return JSON.parse(JSON.stringify({w: obj})).w;
 }
 
 export default ConfigStore;
