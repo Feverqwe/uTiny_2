@@ -22,6 +22,7 @@ let dialogIndex = 0;
  * @property {ClientStore|undefined} client
  * @property {TorrentListStore} [torrentList]
  * @property {FileListStore|undefined} fileList
+ * @property {SpaceWatcherStore|undefined} spaceWatcher
  * @property {Map<*,*>} dialogs
  * @property {function:Promise} init
  * @property {function} flushTorrentList
@@ -29,6 +30,8 @@ let dialogIndex = 0;
  * @property {function} destroyFileList
  * @property {function} createDialog
  * @property {function} destroyDialog
+ * @property {function} createSpaceWatcher
+ * @property {function} destroySpaceWatcher
  * @property {*} isPopup
  */
 const RootStore = types.model('RootStore', {

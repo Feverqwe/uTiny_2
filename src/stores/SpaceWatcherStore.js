@@ -24,6 +24,8 @@ const DownloadDirStore = types.model('DownloadDirStore', {
 /**
  * @typedef {Object} SpaceWatcherStore
  * @property {string} [state]
+ * @property {string} [errorMessage]
+ * @property {boolean|undefined} isSupported
  * @property {DownloadDirStore[]} downloadDirs
  * @property {function:Promise} fetchDownloadDirs
  */

@@ -50,6 +50,7 @@ import formatBytes from "../tools/formatBytes";
  * @property {*} selected
  * @property {*} actions
  * @property {*} isSeeding
+ * @property {*} isFinished
  * @property {*} isDownloading
  * @property {*} isPaused
  * @property {*} isActive
