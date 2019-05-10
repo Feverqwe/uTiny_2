@@ -206,6 +206,10 @@ class Bg {
         promise = this.client.sendFiles(message.urls, message.directory, message.label);
         break;
       }
+      case 'getDownloadDirs': {
+        promise = this.client.getDownloadDirs();
+        break;
+      }
       default: {
         promise = Promise.reject(new Error('Unknown request'));
       }

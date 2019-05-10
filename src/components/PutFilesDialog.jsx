@@ -16,7 +16,7 @@ class PutFilesDialog extends React.Component {
     return this.props.rootStore;
   }
 
-  /**@return {PutFilesDialogStore}*/
+  /**@return {SpaceWatcher}*/
   get dialogStore() {
     return this.props.dialogStore;
   }

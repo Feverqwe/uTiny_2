@@ -282,6 +282,9 @@ const ClientStore = types.model('ClientStore', {
     sendFiles(urls, directory, label) {
       return callApi({action: 'sendFiles', urls, directory, label}).then(...exceptionLog()).then(syncUi);
     },
+    getDownloadDirs() {
+      return callApi({action: 'getDownloadDirs'}).then(...exceptionLog()).then(syncUi);
+    },
     getSnapshot() {
       return getSnapshot(self);
     },

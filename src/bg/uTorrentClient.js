@@ -55,6 +55,10 @@ class UTorrentClient {
     return this.sendAction({action: 'getsettings'});
   }
 
+  getDownloadDirs() {
+    return this.sendAction({action: 'list-dirs'});
+  }
+
   sendAction(query, body) {
     return this.retryIfTokenInvalid((token) => {
       const params = queryStringify(Object.assign({token}, query), this.bgStore.config.fixCyrillicDownloadPath);
@@ -353,6 +357,11 @@ class UTorrentClient {
       this.bgStore.client.setSettings(result.settings);
     }
 
+    if (response['download-dirs']) {
+      // downlaod dirs
+      result.downloadDirs = this.normalizeDownloadDirs(response['download-dirs']);
+    }
+
     if (response.files) {
       const [torrentId, files] = response.files;
       result.files = {
@@ -435,6 +444,17 @@ class UTorrentClient {
         const localKey = utSettingMap[key] || key;
         result[localKey] = utSettingParse(type, value);
       }
+    });
+    return result;
+  };
+
+  normalizeDownloadDirs = (downloadDirs) => {
+    const result = [];
+    downloadDirs.forEach(({available, path}) => {
+      result.push({
+        path,
+        available: parseInt(available, 10),
+      });
     });
     return result;
   };

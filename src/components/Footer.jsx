@@ -3,6 +3,7 @@ import {inject, observer} from "mobx-react";
 import PropTypes from "prop-types";
 import {contextMenu} from "react-contexify";
 import SpeedMenu from "./SpeedMenu";
+import Interval from "./Interval";
 
 @inject('rootStore')
 @observer
@@ -83,6 +84,13 @@ class Footer extends React.Component {
       );
     }
 
+    let spaceWatcher = null;
+    if (this.rootStore.config.showFreeSpace) {
+      spaceWatcher = (
+        <SpaceWatcher/>
+      );
+    }
+
     return (
       <table className="status-panel" width="100%" border="0" cellSpacing="0" cellPadding="0">
         <tfoot>
@@ -90,13 +98,66 @@ class Footer extends React.Component {
           <td className="status">
             <div>{this.rootStore.client.lastErrorMessage}</div>
           </td>
-          <td className="space"/>
+          {spaceWatcher}
           <td onContextMenu={this.handleDownloadContextMenu} className="speed download">{downloadSpeedStr}{downloadLimit}</td>
           <td onContextMenu={this.handleUploadContextMenu} className="speed upload">{uploadSpeedStr}{uploadLimit}{openInTab}</td>
           <SpeedMenu/>
         </tr>
         </tfoot>
       </table>
+    );
+  }
+}
+
+@inject('rootStore')
+@observer
+class SpaceWatcher extends React.Component {
+  static propTypes = {
+    rootStore: PropTypes.object,
+  };
+
+  /**@return {RootStore}*/
+  get rootStore() {
+    return this.props.rootStore;
+  }
+
+  /**@return {SpaceWatcherStore}*/
+  get spaceWatcherStore() {
+    return this.props.rootStore.spaceWatcher;
+  }
+
+  componentDidMount() {
+    this.rootStore.createSpaceWatcher();
+  }
+
+  componentWillUnmount() {
+    this.rootStore.destroySpaceWatcher();
+  }
+
+  handleUpdate = (e) => {
+    e.preventDefault();
+    this.onIntervalFire();
+  };
+
+  onIntervalFire = () => {
+    this.spaceWatcherStore.fetchDownloadDirs();
+  };
+
+  render() {
+    if (!this.spaceWatcherStore || this.spaceWatcherStore.isSupported === false) return null;
+
+    const directories = this.spaceWatcherStore.downloadDirs.map((directory) => {
+      const title = `${chrome.i18n.getMessage('freeSpace')} ${directory.availableStr} (${directory.path})`;
+      return (
+        <div key={directory.path} title={title}>{directory.availableStr}</div>
+      );
+    });
+
+    return (
+      <>
+        <td className="space disk" onClick={this.handleUpdate}>{directories}</td>
+        <Interval interval={60 * 1000} onFire={this.onIntervalFire} onInit={this.onIntervalFire}/>
+      </>
     );
   }
 }

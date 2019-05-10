@@ -2,7 +2,7 @@ const filesize = require('filesize');
 
 const sizeList = JSON.parse(chrome.i18n.getMessage('sizeList'));
 
-const formatBytes = (bytes, asSpeed) => {
+const formatBytes = (bytes) => {
   return filesize(bytes, {
     fullform: true,
     fullforms: sizeList

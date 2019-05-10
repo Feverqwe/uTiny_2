@@ -9,6 +9,7 @@ import PutFilesDialogStore from "./PutFilesDialogStore";
 import CreateLabelDialogStore from "./CreateLabelDialogStore";
 import RemoveConfirmDialogStore from "./RemoveConfirmDialogStore";
 import PutUrlDialogStore from "./PutUrlDialogStore";
+import SpaceWatcherStore from "./SpaceWatcher";
 
 const logger = getLogger('RootStore');
 
@@ -36,6 +37,7 @@ const RootStore = types.model('RootStore', {
   client: types.maybe(ClientStore),
   torrentList: types.optional(TorrentListStore, {}),
   fileList: types.maybe(FileListStore),
+  spaceWatcher: types.maybe(SpaceWatcherStore),
   dialogs: types.map(types.union(PutFilesDialogStore, PutUrlDialogStore, CreateLabelDialogStore, RemoveConfirmDialogStore)),
 }).actions((self) => {
   return {
@@ -67,6 +69,12 @@ const RootStore = types.model('RootStore', {
     },
     destroyDialog(id) {
       self.dialogs.delete(id);
+    },
+    createSpaceWatcher() {
+      self.spaceWatcher = {};
+    },
+    destroySpaceWatcher(id) {
+      self.spaceWatcher = undefined;
     }
   };
 }).views((self) => {
