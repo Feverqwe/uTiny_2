@@ -477,7 +477,7 @@
         "message": "Maintenant entrez le \"Identifiant\", \"M. passe\", \"IP\" et le \"Port\". Si vous ne connaissez pas votre \"IP\", essayez 127.0.0.1"
     },
     "helpS7": {
-        "message": "Cliquez sur \"Les paramètres Сheck\""
+        "message": "Cliquez sur \"Appliquer\""
     },
     "badgeColor": {
         "message": "La Notification de la couleur"

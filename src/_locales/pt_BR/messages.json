@@ -481,7 +481,7 @@
         "message": "Agora insira \"Username\", \"Password\", \"IP\" e \"Port\". Se você não sabe o seu \"IP\" tente entrar 127.0.0.1"
     },
     "helpS7": {
-        "message": "Aperte o botão \"Сheck the settings\""
+        "message": "Aperte o botão \"Aplicar\""
     },
     "badgeColor": {
         "message": "Notificação de cor"

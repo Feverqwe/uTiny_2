@@ -480,7 +480,7 @@
         "message": "A continuación, introduzca \"Username\", \"Password\", \"IP\" y \"Port\". Si usted no conoce su \"IP\" intente entrar 127.0.0.1"
     },
     "helpS7": {
-        "message": "Presiona el boton \"Сheck the settings\""
+        "message": "Presiona el boton \"Aplicar\""
     },
     "badgeColor": {
         "message": "Notificación de color"

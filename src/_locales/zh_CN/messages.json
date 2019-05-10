@@ -469,7 +469,7 @@
         "message": "现在进入 \"Username\", \"Password\", \"IP\" 和 \"Port\". 如果你不知道你的 \"IP\" 尝试进入 127.0.0.1"
     },
     "helpS7": {
-        "message": "按下按钮 \"Сheck the settings\""
+        "message": "按下按钮 \"应用(A)\""
     },
     "badgeColor": {
         "message": "通知的颜色"
