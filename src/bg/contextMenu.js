@@ -64,6 +64,10 @@ class ContextMenu {
       return {url};
     }).then((data) => {
       return this.bg.client.putTorrent(data, directory, label);
+    }).then(() => {
+      if (this.bgStore.config.selectDownloadCategoryAfterPutTorrentFromContextMenu) {
+        this.bgStore.config.setSelectedLabel('DL', true);
+      }
     }).catch((err) => {
       logger.error('onSendLink error', err);
     });
