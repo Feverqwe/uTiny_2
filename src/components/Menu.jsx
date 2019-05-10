@@ -128,6 +128,13 @@ class Menu extends React.Component {
       );
     }
 
+    let graph = null;
+    if (this.rootStore.config.showSpeedGraph) {
+      graph = (
+        <ComponentLoader load-page={'graph'}/>
+      );
+    }
+
     return (
       <>
         <ul className="menu">
@@ -160,7 +167,7 @@ class Menu extends React.Component {
                className="btn pause_all" href="#pause_all"/>
           </li>
           <li className="graph">
-            <ComponentLoader load-page={'graph'}/>
+            {graph}
           </li>
           <LabelSelect/>
         </ul>
