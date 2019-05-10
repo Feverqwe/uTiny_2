@@ -48,7 +48,7 @@ class FileListTable extends React.Component {
   refFixedHead = React.createRef();
 
   handleClose = (e) => {
-    e.preventDefault();
+    e && e.preventDefault();
     this.rootStore.destroyFileList();
   };
 
@@ -65,6 +65,12 @@ class FileListTable extends React.Component {
 
   render() {
     const torrent = this.fileListStore.torrent;
+
+    if (!torrent) {
+      return (
+        <CloseFileList onClose={this.handleClose}/>
+      );
+    }
 
     let spinner = null;
     if (this.fileListStore.isLoading) {
@@ -112,6 +118,22 @@ class FileListTable extends React.Component {
         <div onClick={this.handleClose} className="file-list-layer-temp"/>
       </>
     );
+  }
+}
+
+class CloseFileList extends React.PureComponent {
+  static propTypes = {
+    onClose: PropTypes.func.isRequired,
+  };
+
+  constructor(props) {
+    super(props);
+
+    this.props.onClose();
+  }
+
+  render() {
+    return null;
   }
 }
 
