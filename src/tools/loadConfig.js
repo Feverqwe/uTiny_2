@@ -140,6 +140,12 @@ const loadConfig = () => {
       config[key] = columns;
     });
 
+    if (config.selectedLabel) {
+      if (typeof config.selectedLabel.custom === "number") {
+        config.selectedLabel.custom = !!config.selectedLabel.custom;
+      }
+    }
+
     return config;
   });
 };
