@@ -209,11 +209,13 @@ const ClientStore = types.model('ClientStore', {
     get allLabels() {
       /**@type RootStore*/const rootStore = getRoot(self);
       const result = rootStore.config.labels.slice(0);
-      self.labels.forEach(({name}) => {
-        if (result.indexOf(name) === -1) {
-          result.push(name);
-        }
-      });
+      if (self.labels) {
+        self.labels.forEach(({name}) => {
+          if (result.indexOf(name) === -1) {
+            result.push(name);
+          }
+        });
+      }
       return result;
     },
     get isSupportedApiRemoveTorrent() {
