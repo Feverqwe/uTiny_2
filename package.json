@@ -2,12 +2,12 @@
   "name": "utiny",
   "version": "1.0.0",
   "scripts": {
-    "compress": "node ./builder/compressDist",
     "watch": "webpack --mode development --watch --config webpack.config.js",
+    "release": "npm run releaseCh && npm run releaseFf",
+    "compress": "node ./builder/compressDist",
     "build": "webpack --mode production --config webpack.config.js",
     "releaseCh": "npm run build -- --BROWSER Chrome && npm run compress -- --BROWSER Chrome",
-    "releaseFf": "npm run build -- --BROWSER Firefox && npm run compress -- --BROWSER Firefox",
-    "release": "npm run releaseCh && npm run releaseFf"
+    "releaseFf": "npm run build -- --BROWSER Firefox && npm run compress -- --BROWSER Firefox"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
