@@ -141,7 +141,8 @@ class ClientOptions extends React.Component {
 
       if (this.props.location.hash === '#redirect') {
         location.href = '/index.html'
-      } else {
+      } else
+      if (this.props.location.hash === '#redirectPopup') {
         location.href = '/index.html#popup'
       }
     }, (err) => {
