@@ -123,7 +123,6 @@ const config = {
           }
         }
       },
-      {from: './src/assets/img', to: './assets/img'},
       {from: './src/assets/icons', to: './assets/icons'},
       {from: './src/_locales', to: './_locales'},
     ]),
