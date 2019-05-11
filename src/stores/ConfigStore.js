@@ -379,6 +379,7 @@ function moveItems(array, items, index) {
 }
 
 function copy(obj) {
+  // firefox incorrect stringify mobx model when save in storage
   return JSON.parse(JSON.stringify({w: obj})).w;
 }
 
