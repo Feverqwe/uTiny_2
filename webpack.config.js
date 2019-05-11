@@ -103,6 +103,12 @@ const config = {
           if (browser === 'Firefox') {
             const manifest = JSON.parse(content);
 
+            manifest.browser_specific_settings = {
+              gecko: {
+                strict_min_version: '49'
+              }
+            };
+
             manifest.options_ui = {};
             manifest.options_ui.page = manifest.options_page;
             manifest.options_ui.open_in_tab = true;
