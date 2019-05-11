@@ -8,7 +8,6 @@ import FileColumnMenu from "./FileColumnMenu";
 import {contextMenu} from "react-contexify";
 import Interval from "./Interval";
 import getLogger from "../tools/getLogger";
-import isFirefox from "../tools/isFirefox";
 
 const logger = getLogger('FileListTable');
 
