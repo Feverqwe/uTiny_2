@@ -8,6 +8,7 @@ import FileColumnMenu from "./FileColumnMenu";
 import {contextMenu} from "react-contexify";
 import Interval from "./Interval";
 import getLogger from "../tools/getLogger";
+import isFirefox from "../tools/isFirefox";
 
 const logger = getLogger('FileListTable');
 
@@ -27,8 +28,14 @@ class FileListTable extends React.Component {
 
   handleScroll = (e) => {
     const fixedHead = this.refFixedHead.current;
-    if (e.currentTarget.scrollLeft > 0) {
-      fixedHead.style.left = `${e.currentTarget.scrollLeft * -1}px`;
+
+    let ffFix = true;
+    if (isFirefox()) {
+      ffFix = e.currentTarget.clientWidth >= document.body.clientWidth;
+    }
+
+    if (ffFix && e.currentTarget.scrollLeft > 0) {
+        fixedHead.style.left = `${e.currentTarget.scrollLeft * -1}px`;
     } else
     if (fixedHead.style.left) {
       fixedHead.style.left = '';
