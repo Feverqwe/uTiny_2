@@ -105,7 +105,7 @@ const config = {
 
             manifest.browser_specific_settings = {
               gecko: {
-                strict_min_version: '49'
+                strict_min_version: '48.0'
               }
             };
 
