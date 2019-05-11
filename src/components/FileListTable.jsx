@@ -27,15 +27,14 @@ class FileListTable extends React.Component {
   }
 
   handleScroll = (e) => {
+    const fileList = e.currentTarget;
     const fixedHead = this.refFixedHead.current;
 
-    let ffFix = true;
-    if (isFirefox()) {
-      ffFix = e.currentTarget.clientWidth >= document.body.clientWidth;
-    }
+    // required for ff only
+    const isWide = fileList.scrollWidth >= document.body.clientWidth;
 
-    if (ffFix && e.currentTarget.scrollLeft > 0) {
-        fixedHead.style.left = `${e.currentTarget.scrollLeft * -1}px`;
+    if (isWide && fileList.scrollLeft > 0) {
+        fixedHead.style.left = `${fileList.scrollLeft * -1}px`;
     } else
     if (fixedHead.style.left) {
       fixedHead.style.left = '';
