@@ -5,9 +5,10 @@
     "watch": "webpack --mode development --watch --config webpack.config.js",
     "release": "npm run releaseCh && npm run releaseFf",
     "compress": "node ./builder/compressDist",
+    "compressSource": "node ./builder/compressSource",
     "build": "webpack --mode production --config webpack.config.js",
     "releaseCh": "npm run build -- --BROWSER Chrome && npm run compress -- --BROWSER Chrome",
-    "releaseFf": "npm run build -- --BROWSER Firefox && npm run compress -- --BROWSER Firefox"
+    "releaseFf": "npm run build -- --BROWSER Firefox && npm run compress -- --BROWSER Firefox && npm run compressSource -- --BROWSER Firefox"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
