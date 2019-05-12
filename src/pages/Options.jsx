@@ -163,7 +163,7 @@ class ClientOptions extends React.Component {
         case 'pending': {
           status = (
             <div>
-              <img alt="" src="../assets/img/loading.gif"/>
+              <img alt="" src={require('../assets/img/loading.gif')}/>
             </div>
           );
           break;
