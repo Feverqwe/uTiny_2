@@ -1,6 +1,7 @@
 import "whatwg-fetch";
 import getLogger from "../tools/getLogger";
 import downloadFileFromTab from "../tools/downloadFileFromTab";
+import isFirefox from "../tools/isFirefox";
 
 const path = require('path');
 const promiseLimit = require('promise-limit');
@@ -29,6 +30,11 @@ class ContextMenu {
   }
 
   onCreateFolder() {
+    if (isFirefox()) {
+      chrome.tabs.create({url: '/options.html#/ctx'});
+      return;
+    }
+
     const firstFolder = this.bg.bgStore.config.folders[0];
     const volume = firstFolder.volume;
     const path = prompt(chrome.i18n.getMessage('enterNewDirPath'), firstFolder.path);
@@ -40,6 +46,11 @@ class ContextMenu {
   }
 
   onCreateLabel() {
+    if (isFirefox()) {
+      chrome.tabs.create({url: '/options.html#/ctx'});
+      return;
+    }
+
     const label = prompt(chrome.i18n.getMessage('enterNewLabel'));
     if (label) {
       if (!this.bg.bgStore.config.hasLabel(label)) {
