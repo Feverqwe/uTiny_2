@@ -78,7 +78,7 @@ class FileListTable extends React.Component {
     }
 
     let spinner = null;
-    if (!this.fileListStore.files.length) {
+    if (this.fileListStore.isLoading) {
       spinner = (
         <div className="loading"/>
       );
