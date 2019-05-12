@@ -115,7 +115,7 @@ class UTorrentClient {
       if (err.code === 'UTORRENT_ERROR') {
         this.bg.torrentErrorNotify(err.message);
       } else {
-        this.bg.torrentErrorNotify('Unexpected error');
+        this.bg.torrentErrorNotify(chrome.i18n.getMessage('unexpectedError'));
       }
       throw err;
     });
