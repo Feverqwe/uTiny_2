@@ -1,6 +1,9 @@
+import copyData from "./copyData";
+
 const callApi = (message) => {
   return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage(message, (response) => {
+    // copyData for Firefox, it had problems with it...
+    chrome.runtime.sendMessage(copyData(message), (response) => {
       const err = chrome.runtime.lastError;
       err ? reject(err) : resolve(response);
     });
