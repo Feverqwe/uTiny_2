@@ -19,7 +19,6 @@ const byColumnMap = {
  * @property {boolean} [removeSelectOnHide]
  * @property {string} [state]
  * @property {FileStore[]} files
- * @property {boolean} [isLoading]
  * @property {string} [filter]
  * @property {function:Promise} fetchFiles
  * @property {function} setFilter
@@ -42,7 +41,6 @@ const FileListStore = types.compose('FileListStore', ListSelectStore, types.mode
   removeSelectOnHide: types.optional(types.boolean, false),
   state: types.optional(types.enumeration(['idle', 'pending', 'done', 'error']), 'idle'),
   files: types.array(FileStore),
-  isLoading: types.optional(types.boolean, true),
   filter: types.optional(types.string, ''),
 })).actions((self) => {
   return {
@@ -54,7 +52,6 @@ const FileListStore = types.compose('FileListStore', ListSelectStore, types.mode
          const files = yield rootStore.client.getTorrentFiles(self.id);
          if (isAlive(self)) {
            self.files = files;
-           self.isLoading = false;
            self.state = 'done';
          }
       } catch (err) {
