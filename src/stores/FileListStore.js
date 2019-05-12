@@ -10,6 +10,7 @@ const logger = getLogger('FileListStore');
 
 const byColumnMap = {
   done: 'progress',
+  prio: 'priority'
 };
 
 /**
