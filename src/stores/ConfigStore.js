@@ -1,7 +1,6 @@
 import {resolveIdentifier, types} from "mobx-state-tree";
 import {defaultConfig} from "../tools/loadConfig";
 import storageSet from "../tools/storageSet";
-import copyData from "../tools/copyData";
 
 const url = require('url');
 
@@ -190,7 +189,7 @@ const ConfigStore = types.model('ConfigStore', {
     addFolder(volume, path, name = '') {
       self.folders.push({volume, path, name});
       return storageSet({
-        folders: copyData(self.folders)
+        folders: self.folders
       });
     },
     hasFolder(volume, path) {
@@ -199,7 +198,7 @@ const ConfigStore = types.model('ConfigStore', {
     addLabel(label) {
       self.labels.push(label);
       return storageSet({
-        labels: copyData(self.labels)
+        labels: self.labels
       });
     },
     hasLabel(label) {
@@ -213,12 +212,12 @@ const ConfigStore = types.model('ConfigStore', {
 
       self.torrentColumns = columns;
       return storageSet({
-        torrentColumns: copyData(columns)
+        torrentColumns: columns
       });
     },
     saveTorrentsColumns() {
       return storageSet({
-        torrentColumns: copyData(self.torrentColumns),
+        torrentColumns: self.torrentColumns,
       });
     },
     moveFilesColumn(from, to) {
@@ -229,58 +228,58 @@ const ConfigStore = types.model('ConfigStore', {
 
       self.filesColumns = columns;
       return storageSet({
-        filesColumns: copyData(columns)
+        filesColumns: columns
       });
     },
     saveFilesColumns() {
       return storageSet({
-        filesColumns: copyData(self.filesColumns),
+        filesColumns: self.filesColumns,
       });
     },
     setTorrentsSort(by, direction) {
       self.torrentsSort = {by, direction};
       return storageSet({
-        torrentsSort: copyData(self.torrentsSort)
+        torrentsSort: self.torrentsSort
       });
     },
     setFilesSort(by, direction) {
       self.filesSort = {by, direction};
       return storageSet({
-        filesSort: copyData(self.filesSort)
+        filesSort: self.filesSort
       });
     },
     setSelectedLabel(label, isCustom) {
       self.selectedLabel = {label, custom: isCustom};
       return storageSet({
-        selectedLabel: copyData(self.selectedLabel)
+        selectedLabel: self.selectedLabel
       });
     },
     setOptions(obj) {
       Object.assign(self, obj);
-      return storageSet(copyData(obj));
+      return storageSet(obj);
     },
     removeFolders(selectedFolders) {
       self.folders = removeItems(self.folders.slice(0), selectedFolders);
       return storageSet({
-        folders: copyData(self.folders)
+        folders: self.folders
       });
     },
     moveFolders(selectedFolders, index) {
       self.folders = moveItems(self.folders.slice(0), selectedFolders, index);
       return storageSet({
-        folders: copyData(self.folders)
+        folders: self.folders
       });
     },
     removeLabels(selectedLabels) {
       self.labels = removeItems(self.labels.slice(0), selectedLabels);
       return storageSet({
-        labels: copyData(self.labels)
+        labels: self.labels
       });
     },
     moveLabels(selectedFolders, index) {
       self.labels = moveItems(self.labels.slice(0), selectedFolders, index);
       return storageSet({
-        labels: copyData(self.labels)
+        labels: self.labels
       });
     },
   };
