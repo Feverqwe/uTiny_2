@@ -85,8 +85,10 @@ class FileListTable extends React.Component {
     }
 
     let directory = null;
-    if (torrent) {
-      directory = torrent.directory;
+    if (torrent.directory) {
+      directory = (
+        <input type="text" value={torrent.directory} readOnly="readonly"/>
+      );
     }
 
     const uiUpdateInterval = this.rootStore.config.uiUpdateInterval;
@@ -109,7 +111,7 @@ class FileListTable extends React.Component {
             </div>
             <ul className="bottom-menu">
               <li className="path">
-                <input type="text" value={directory} readOnly="readonly"/>
+                {directory}
               </li>
               <li className="btn">
                 <a onClick={this.handleClose} className="close" title={chrome.i18n.getMessage('DLG_BTN_CLOSE')}/>
