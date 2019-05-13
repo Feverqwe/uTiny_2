@@ -25,7 +25,9 @@ class PutUrlDialog extends React.Component {
     e.preventDefault();
     const form = e.currentTarget;
 
-    const url = form.elements.url.value;
+    const url = form.elements.url.value.trim();
+    if (!url) return;
+
     const urls = [url];
 
     let label = undefined;
@@ -97,7 +99,7 @@ class PutUrlDialog extends React.Component {
           <form onSubmit={this.handleSubmit}>
             <div className="nf-subItem">
               <label>{chrome.i18n.getMessage('Paste_a_torrent_URL')}</label>
-              <input type="text" name="url" autoFocus={true}/>
+              <input type="text" name="url" autoFocus={true} required={true}/>
             </div>
             {labelSelect}
             {directorySelect}

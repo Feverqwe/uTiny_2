@@ -25,7 +25,8 @@ class CreateLabelDialog extends React.Component {
     e.preventDefault();
     const form = e.currentTarget;
 
-    const label = form.elements.label.value;
+    const label = form.elements.label.value.trim();
+    if (!label) return;
 
     this.rootStore.client.torrentsSetLabel(this.dialogStore.torrentIds, label);
 
@@ -44,7 +45,7 @@ class CreateLabelDialog extends React.Component {
           <form onSubmit={this.handleSubmit}>
             <div className="nf-subItem">
               <label>{chrome.i18n.getMessage('OV_NEWLABEL_CAPTION')}</label>
-              <input type="text" name="label" autoFocus={true}/>
+              <input type="text" name="label" autoFocus={true} required={true}/>
             </div>
             <div className="nf-subItem">
               <input type="submit" value={chrome.i18n.getMessage('DLG_BTN_APPLY')}/>
