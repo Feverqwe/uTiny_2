@@ -23,7 +23,7 @@ const config = {
   output: {
     filename: '[name].js',
     chunkFilename: '[name].chunk.js',
-    path: outputPath,
+    path: path.join(outputPath, 'src'),
   },
   mode: mode,
   devtool: devtool,
@@ -93,14 +93,14 @@ const config = {
     new CleanWebpackPlugin({
       cleanStaleWebpackAssets: false,
       cleanOnceBeforeBuildPatterns: [
-        path.join(outputPath)
+        outputPath,
       ]
     }),
     new CopyWebpackPlugin([
       {
         from: './src/manifest.json',
         transform: (content, path) => {
-          if (browser === 'Firefox') {
+          if (browser === 'firefox') {
             const manifest = JSON.parse(content);
 
             manifest.browser_specific_settings = {

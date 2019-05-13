@@ -7,8 +7,8 @@
     "compress": "node ./builder/compressDist",
     "compressSource": "node ./builder/compressSource",
     "build": "webpack --mode production --config webpack.config.js",
-    "releaseCh": "npm run build -- --BROWSER Chrome && npm run compress -- --BROWSER Chrome",
-    "releaseFf": "npm run build -- --BROWSER Firefox && npm run compress -- --BROWSER Firefox && npm run compressSource -- --BROWSER Firefox"
+    "releaseCh": "npm run build -- --BROWSER chrome && npm run compress -- --BROWSER chrome",
+    "releaseFf": "npm run build -- --BROWSER firefox && npm run compress -- --BROWSER firefox && npm run compressSource -- --BROWSER firefox"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",

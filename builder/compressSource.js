@@ -4,7 +4,7 @@ const zipDirectory = require('./zipDirectory');
 
 const compressSource = () => {
   const ext = 'zip';
-  const outputPath = path.join(BUILD_ENV.outputPath, '../');
+  const outputPath = BUILD_ENV.outputPath;
 
   return zipDirectory({
     dirs: [
