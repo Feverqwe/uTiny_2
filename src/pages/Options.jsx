@@ -610,11 +610,11 @@ class CtxOptionsDirs extends OptionsPage {
             </select>
           </div>
           <div className="optionItem">
-            <button onClick={this.handleRemove}>{chrome.i18n.getMessage('deleteSelected')}</button>
+            <button type="button" onClick={this.handleRemove}>{chrome.i18n.getMessage('deleteSelected')}</button>
             {' '}
-            <button onClick={this.handleMoveUp}>{chrome.i18n.getMessage('up')}</button>
+            <button type="button" onClick={this.handleMoveUp}>{chrome.i18n.getMessage('up')}</button>
             {' '}
-            <button onClick={this.handleMoveDown}>{chrome.i18n.getMessage('down')}</button>
+            <button type="button" onClick={this.handleMoveDown}>{chrome.i18n.getMessage('down')}</button>
           </div>
         </div>
       </>
@@ -686,11 +686,11 @@ class CtxOptionsLabels extends OptionsPage {
           </select>
         </div>
         <div className="optionItem">
-          <button onClick={this.handleRemove}>{chrome.i18n.getMessage('deleteSelected')}</button>
+          <button type="button" onClick={this.handleRemove}>{chrome.i18n.getMessage('deleteSelected')}</button>
           {' '}
-          <button onClick={this.handleMoveUp}>{chrome.i18n.getMessage('up')}</button>
+          <button type="button" onClick={this.handleMoveUp}>{chrome.i18n.getMessage('up')}</button>
           {' '}
-          <button onClick={this.handleMoveDown}>{chrome.i18n.getMessage('down')}</button>
+          <button type="button" onClick={this.handleMoveDown}>{chrome.i18n.getMessage('down')}</button>
         </div>
       </>
     );
