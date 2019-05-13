@@ -681,7 +681,7 @@ class CtxOptionsLabels extends OptionsPage {
           </form>
         </div>
         <div className="optionItem">
-          <select ref={this.refLabelSelect} multiple>
+          <select ref={this.refLabelSelect} multiple id="labelList">
             {labels}
           </select>
         </div>
