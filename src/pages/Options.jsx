@@ -201,11 +201,11 @@ class ClientOptions extends React.Component {
           </label>
           <label>
             <span>{chrome.i18n.getMessage('PRS_COL_IP')}</span>
-            <input name="hostname" type="text" defaultValue={this.configStore.hostname} placeholder="127.0.0.1"/>
+            <input name="hostname" type="text" defaultValue={this.configStore.hostname} placeholder="127.0.0.1" required={true}/>
           </label>
           <label>
             <span>{chrome.i18n.getMessage('PRS_COL_PORT')}</span>
-            <input name="port" type="number" defaultValue={this.configStore.port}/>
+            <input name="port" type="number" defaultValue={this.configStore.port} required={true}/>
           </label>
           <h3>{chrome.i18n.getMessage('ST_CAPT_ADVANCED')}</h3>
           <label>
