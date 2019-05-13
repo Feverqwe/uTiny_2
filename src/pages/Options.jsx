@@ -550,7 +550,7 @@ class CtxOptionsDirs extends OptionsPage {
           {' '}
           <span>{chrome.i18n.getMessage('available')}</span>:
           {' '}
-          <span id="availableCount">{this.selectedDownloadDir.available}</span>
+          <span>{this.selectedDownloadDir.available}</span>
         </>
       );
     }
@@ -583,24 +583,24 @@ class CtxOptionsDirs extends OptionsPage {
               <div className="optionItem">
                 <span>{chrome.i18n.getMessage('dirList')}</span>
                 {' '}
-                <select ref={this.refDownloadDirSelect} name="volume" id="dirList">
+                <select ref={this.refDownloadDirSelect} name="volume" id="dirList" required={true}>
                   {downloadDirs}
                 </select>
                 {downloadDirAvailable}
                 {' '}
-                <button onClick={this.handleUpdateDownloadDirs} id="updateDirList">{chrome.i18n.getMessage('update')}</button>
+                <button onClick={this.handleUpdateDownloadDirs} type="button">{chrome.i18n.getMessage('update')}</button>
               </div>
               <div className="optionItem">
                 <span>{chrome.i18n.getMessage('subPath')}</span>
                 {' '}
-                <input name="path" type="text" id="subPath"/>
+                <input name="path" type="text" required={true}/>
               </div>
               <div className="optionItem">
                 <span>{chrome.i18n.getMessage('shortName')}</span>
                 {' '}
-                <input name="name" type="text" id="pathLabel"/>
+                <input name="name" type="text"/>
                 {' '}
-                <button disabled={!downloadDirs.length} type="submit" id="addSubPath">{chrome.i18n.getMessage('add')}</button>
+                <button disabled={!downloadDirs.length} type="submit">{chrome.i18n.getMessage('add')}</button>
               </div>
             </form>
           </div>
@@ -610,11 +610,11 @@ class CtxOptionsDirs extends OptionsPage {
             </select>
           </div>
           <div className="optionItem">
-            <button onClick={this.handleRemove} id="folderDeleteSelected">{chrome.i18n.getMessage('deleteSelected')}</button>
+            <button onClick={this.handleRemove}>{chrome.i18n.getMessage('deleteSelected')}</button>
             {' '}
-            <button onClick={this.handleMoveUp} id="folderUp">{chrome.i18n.getMessage('up')}</button>
+            <button onClick={this.handleMoveUp}>{chrome.i18n.getMessage('up')}</button>
             {' '}
-            <button onClick={this.handleMoveDown} id="folderDown">{chrome.i18n.getMessage('down')}</button>
+            <button onClick={this.handleMoveDown}>{chrome.i18n.getMessage('down')}</button>
           </div>
         </div>
       </>
@@ -675,22 +675,22 @@ class CtxOptionsLabels extends OptionsPage {
           <form onSubmit={this.handleSubmit} autoComplete="off">
             <span>{chrome.i18n.getMessage('OV_COL_LABEL')}</span>
             {' '}
-            <input name="label" type="text" id="label"/>
+            <input name="label" type="text" required={true}/>
             {' '}
-            <button type="submit" id="addLabel">{chrome.i18n.getMessage('add')}</button>
+            <button type="submit">{chrome.i18n.getMessage('add')}</button>
           </form>
         </div>
         <div className="optionItem">
-          <select ref={this.refLabelSelect} id="labelList" multiple>
+          <select ref={this.refLabelSelect} multiple>
             {labels}
           </select>
         </div>
         <div className="optionItem">
-          <button onClick={this.handleRemove} id="labelDeleteSelected">{chrome.i18n.getMessage('deleteSelected')}</button>
+          <button onClick={this.handleRemove}>{chrome.i18n.getMessage('deleteSelected')}</button>
           {' '}
-          <button onClick={this.handleMoveUp} id="labelUp">{chrome.i18n.getMessage('up')}</button>
+          <button onClick={this.handleMoveUp}>{chrome.i18n.getMessage('up')}</button>
           {' '}
-          <button onClick={this.handleMoveDown} id="labelDown">{chrome.i18n.getMessage('down')}</button>
+          <button onClick={this.handleMoveDown}>{chrome.i18n.getMessage('down')}</button>
         </div>
       </>
     );
@@ -759,7 +759,7 @@ class BackupOptions extends React.Component {
     let data = null;
     if (this.state.state === 'done') {
       data = (
-        <textarea ref={this.refData} id="backupInp" defaultValue={this.state.storage}/>
+        <textarea ref={this.refData} defaultValue={this.state.storage}/>
       );
     } else {
       data = (
@@ -768,26 +768,25 @@ class BackupOptions extends React.Component {
     }
 
     let saveToCloudDisabled = this.state.state !== 'done';
-    let saveToCloudText = null;
-    if (['idle', 'done'].indexOf(this.state.saveState) !== -1) {
-      saveToCloudText = chrome.i18n.getMessage('optSaveInCloud');
-    } else
+    let saveToCloudText = chrome.i18n.getMessage('optSaveInCloud');
     if (this.state.saveState === 'pending') {
       saveToCloudDisabled = true;
-      saveToCloudText = chrome.i18n.getMessage('optSaveInCloud') + '...';
-    } else {
+    } else
+    if (this.state.saveState === 'error') {
       saveToCloudText = chrome.i18n.getMessage('OV_FL_ERROR');
     }
 
     return (
       <div ref={this.refPage} className="page backup">
         <h2>{chrome.i18n.getMessage('backup')}</h2>
-        <div className="btnList">
-          <input onClick={this.handleUpdate} type="button" id="backupUpdate" value={chrome.i18n.getMessage('update')}/>
-          {' '}
-          <input disabled={saveToCloudDisabled} onClick={this.handleSaveInCloud} value={saveToCloudText} type="button" id="saveInCloud"/>
-        </div>
-        {data}
+        <form onSubmit={this.handleSaveInCloud}>
+          <div className="btnList">
+            <input onClick={this.handleUpdate} type="button" value={chrome.i18n.getMessage('update')}/>
+            {' '}
+            <input disabled={saveToCloudDisabled} value={saveToCloudText} type="submit"/>
+          </div>
+          {data}
+        </form>
       </div>
     );
   }
@@ -864,14 +863,16 @@ class RestoreOptions extends React.Component {
     return (
       <div ref={this.refPage} className="page restore">
         <h2>{chrome.i18n.getMessage('restore')}</h2>
-        <div className="btnList">
-          <input onClick={this.handleRestore} type="button" id="restoreBtn" value={chrome.i18n.getMessage('toRestore')}/>
-          {' '}
-          <input disabled={this.state.hasCloudData === false} onClick={this.handleGetBackup} type="button" id="getFromCloudBtn" value={chrome.i18n.getMessage('optGetFromCloud')}/>
-          {' '}
-          <input onClick={this.handleClearCloud} type="button" id="clearCloudStorage" value={chrome.i18n.getMessage('optClearCloudStorage')}/>
-        </div>
-        <textarea ref={this.refData} id="restoreInp" defaultValue={this.state.data}/>
+        <form onSubmit={this.handleRestore}>
+          <div className="btnList">
+            <input type="submit" value={chrome.i18n.getMessage('toRestore')}/>
+            {' '}
+            <input disabled={this.state.hasCloudData === false} onClick={this.handleGetBackup} type="button" value={chrome.i18n.getMessage('optGetFromCloud')}/>
+            {' '}
+            <input disabled={this.state.hasCloudData === false} onClick={this.handleClearCloud} type="button" value={chrome.i18n.getMessage('optClearCloudStorage')}/>
+          </div>
+          <textarea ref={this.refData} defaultValue={this.state.data} required={true}/>
+        </form>
       </div>
     );
   }
