@@ -12,6 +12,7 @@ import storageGet from "../tools/storageGet";
 import storageSet from "../tools/storageSet";
 import storageRemove from "../tools/storageRemove";
 import {migrateConfig} from "../tools/loadConfig";
+import formatBytes from "../tools/formatBytes";
 
 const logger = getLogger('Options');
 
@@ -550,7 +551,7 @@ class CtxOptionsDirs extends OptionsPage {
           {' '}
           <span>{chrome.i18n.getMessage('available')}</span>:
           {' '}
-          <span>{this.selectedDownloadDir.available}</span>
+          <span>{formatBytes(this.selectedDownloadDir.available * 1024 * 1024)}</span>
         </>
       );
     }
