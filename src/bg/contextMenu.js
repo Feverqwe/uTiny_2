@@ -87,28 +87,38 @@ class ContextMenu {
       case 'action': {
         switch (itemInfo.name) {
           case 'default': {
-            this.onSendLink(linkUrl, tab.id, frameId);
+            this.bg.whenReady().then(() => {
+              return this.onSendLink(linkUrl, tab.id, frameId);
+            });
             break;
           }
           case 'createFolder': {
-            this.onCreateFolder();
+            this.bg.whenReady().then(() => {
+              return this.onCreateFolder();
+            });
             break;
           }
           case 'createLabel': {
-            this.onCreateLabel();
+            this.bg.whenReady().then(() => {
+              return this.onCreateLabel();
+            });
             break;
           }
         }
         break;
       }
       case 'folder': {
-        const folder = this.bgStore.config.folders[itemInfo.index];
-        this.onSendLink(linkUrl, tab.id, frameId, folder);
+        this.bg.whenReady().then(() => {
+          const folder = this.bgStore.config.folders[itemInfo.index];
+          return this.onSendLink(linkUrl, tab.id, frameId, folder);
+        });
         break;
       }
       case 'label': {
-        const label = this.bgStore.config.labels[itemInfo.index];
-        this.onSendLink(linkUrl, tab.id, frameId, undefined, label);
+        this.bg.whenReady().then(() => {
+          const label = this.bgStore.config.labels[itemInfo.index];
+          return this.onSendLink(linkUrl, tab.id, frameId, undefined, label);
+        });
         break;
       }
     }

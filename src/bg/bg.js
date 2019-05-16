@@ -31,11 +31,10 @@ class Bg {
 
   init() {
     chrome.runtime.onMessage.addListener(this.handleMessage);
+    this.daemon = new Daemon(this);
+    this.contextMenu = new ContextMenu(this);
 
     return this.initPromise = this.bgStore.fetchConfig().then(() => {
-      this.daemon = new Daemon(this);
-      this.contextMenu = new ContextMenu(this);
-
       const logger = getLogger('autorun');
 
       autorun(() => {
