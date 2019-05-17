@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "watch": "webpack --mode development --watch --config webpack.config.js",
+    "watchFirfox": "npm run watch -- --BROWSER firefox",
     "release": "npm run releaseCh && npm run releaseFf",
     "compress": "node ./builder/compressDist",
     "compressSource": "node ./builder/compressSource",

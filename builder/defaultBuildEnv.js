@@ -10,7 +10,7 @@ const browser = getArgvValue('--BROWSER') || 'chrome';
 let targets = null;
 if (browser === 'firefox') {
   targets = {
-    firefox: '48',
+    firefox: mode === 'development' ? '66' : '48',
   };
 } else {
   targets = {
