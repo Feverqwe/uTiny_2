@@ -1,5 +1,5 @@
 const isFirefox = () => {
-  return /Firefox\/\d/.test(navigator.userAgent);
+  return BUILD_ENV.browser === 'firefox';
 };
 
 export default isFirefox;
