@@ -4,6 +4,7 @@ import utFixCyrillic from "../tools/utFixCyrillic";
 import getLogger from "../tools/getLogger";
 import queryStringify from "../tools/utQueryStringify";
 import splitByPart from "../tools/splitByPart";
+import arrayDifferent from "../tools/arrayDifferent";
 
 const logger = getLogger('UTorrentClient');
 
@@ -493,10 +494,6 @@ function utSettingParse(type, value) {
       return value;
     }
   }
-}
-
-function arrayDifferent(prev, current) {
-  return prev.filter(i => current.indexOf(i) === -1);
 }
 
 export default UTorrentClient;
