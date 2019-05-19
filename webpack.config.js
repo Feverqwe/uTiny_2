@@ -100,9 +100,8 @@ const config = {
       {
         from: './src/manifest.json',
         transform: (content, path) => {
+          const manifest = JSON.parse(content);
           if (browser === 'firefox') {
-            const manifest = JSON.parse(content);
-
             manifest.browser_specific_settings = {
               gecko: {
                 strict_min_version: '48.0'
@@ -116,11 +115,8 @@ const config = {
             delete manifest.options_page;
 
             delete manifest.minimum_chrome_version;
-
-            return JSON.stringify(manifest, null, 4);
-          } else {
-            return content;
           }
+          return JSON.stringify(manifest, null, 4);
         }
       },
       {from: './src/assets/icons', to: './assets/icons'},
