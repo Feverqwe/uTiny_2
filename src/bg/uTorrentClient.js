@@ -263,10 +263,14 @@ class UTorrentClient {
         }, (err) => {
           if (err.code === 'FILE_SIZE_EXCEEDED') {
             this.bg.torrentErrorNotify(chrome.i18n.getMessage('fileSizeError'));
-          } else {
-            this.bg.torrentErrorNotify(chrome.i18n.getMessage('unexpectedError'));
+            throw err;
           }
-          throw err;
+          if (!/^https?:/.test(url)) {
+            this.bg.torrentErrorNotify(chrome.i18n.getMessage('unexpectedError'));
+            throw err;
+          }
+          logger.error('download url error, fallback to url', err);
+          return {url};
         });
       }).then((data) => {
         return this.putTorrent(data, directory, label);
