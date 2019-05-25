@@ -241,7 +241,7 @@ class UTorrentClient {
   sendFiles(urls, directory, label) {
     return Promise.all(urls.map((url) => {
       return Promise.resolve().then(() => {
-        if (!/^blob:/.test(url)) {
+        if (!/^(blob|https?):/.test(url)) {
           return {url};
         }
 
@@ -256,7 +256,9 @@ class UTorrentClient {
 
           return response.blob();
         }).then((blob) => {
-          URL.revokeObjectURL(url);
+          if (/^blob:/.test(url)) {
+            URL.revokeObjectURL(url);
+          }
           return {blob};
         }, (err) => {
           if (err.code === 'FILE_SIZE_EXCEEDED') {
