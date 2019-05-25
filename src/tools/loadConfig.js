@@ -195,7 +195,7 @@ function migrateConfig(oldConfig, config) {
       return {
         volume: parseInt(volume, 10),
         path,
-        label: label || ''
+        name: label || ''
       };
     });
   }
