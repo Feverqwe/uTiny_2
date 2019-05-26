@@ -248,10 +248,7 @@ class Bg {
 
   torrentCompleteNotify(torrent) {
     const icon = notificationIcons.complete;
-    let statusText = '';
-    if (torrent.status) {
-      statusText = chrome.i18n.getMessage('OV_COL_STATUS') + ': ' + torrent.status;
-    }
+    const statusText = chrome.i18n.getMessage('OV_COL_STATUS') + ': ' + torrent.stateText;
     showNotification('complete-' + torrent.id, icon, torrent.name, statusText);
   }
 
