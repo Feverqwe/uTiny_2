@@ -77,7 +77,7 @@ const SettingsStore = types.model('SettingsStore', {
  * @property {function} setDownloadSpeedLimit
  * @property {function} setUploadSpeedLimit
  * @property {function} getTorrentFiles
- * @property {function} getSettings
+ * @property {function} updateSettings
  * @property {function} sendFiles
  * @property {function} getDownloadDirs
  * @property {function} getSnapshot
@@ -283,8 +283,8 @@ const ClientStore = types.model('ClientStore', {
     getTorrentFiles(id) {
       return callApi({action: 'getFileList', id: id}).then(...exceptionLog());
     },
-    getSettings() {
-      return callApi({action: 'getSettings'}).then(...exceptionLog()).then(fetchUi);
+    updateSettings() {
+      return callApi({action: 'updateSettings'}).then(...exceptionLog()).then(fetchUi);
     },
     sendFiles(urls, directory, label) {
       return callApi({action: 'sendFiles', urls, directory, label}).then(...exceptionLog()).then(syncUi);

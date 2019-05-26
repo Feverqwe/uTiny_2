@@ -53,7 +53,7 @@ class UTorrentClient {
     });
   }
 
-  getSettings() {
+  updateSettings() {
     return this.sendAction({action: 'getsettings'});
   }
 
@@ -229,13 +229,13 @@ class UTorrentClient {
 
   setDownloadSpeedLimit(speed) {
     return this.sendAction({action: 'setsetting', s: 'max_dl_rate', v: speed}).then(() => {
-      return this.getSettings();
+      return this.updateSettings();
     });
   }
 
   setUploadSpeedLimit(speed) {
     return this.sendAction({action: 'setsetting', s: 'max_ul_rate', v: speed}).then(() => {
-      return this.getSettings();
+      return this.updateSettings();
     });
   }
 

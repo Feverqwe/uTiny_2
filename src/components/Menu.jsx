@@ -68,8 +68,8 @@ class Menu extends React.Component {
   handleRefresh = (e) => {
     e.preventDefault();
     this.rootStore.client.syncUiClient();
-    this.rootStore.client.getSettings().catch((err) => {
-      logger.error('handleRefresh, getSettings error', err);
+    this.rootStore.client.updateSettings().catch((err) => {
+      logger.error('handleRefresh, updateSettings error', err);
     });
   };
 
