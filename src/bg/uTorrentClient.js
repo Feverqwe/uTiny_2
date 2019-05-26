@@ -202,8 +202,6 @@ class UTorrentClient {
   }
 
   async removetorrent(ids) {
-    if (!ids.length) return;
-
     return this.sendAction({list: 1, cid: this.cid, action: 'removetorrent', hash: ids}).then(this.thenUpdateTorrents);
   }
 
@@ -212,8 +210,6 @@ class UTorrentClient {
   }
 
   async removedatatorrent(ids) {
-    if (!ids.length) return;
-
     return this.sendAction({list: 1, cid: this.cid, action: 'removedatatorrent', hash: ids}).then(this.thenUpdateTorrents);
   }
 
