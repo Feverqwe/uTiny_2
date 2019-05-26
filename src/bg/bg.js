@@ -239,7 +239,7 @@ class Bg {
   torrentAddedNotify(torrent) {
     const icon = notificationIcons.add;
     const statusText = chrome.i18n.getMessage('torrentAdded');
-    showNotification(torrent.id, icon, torrent.name, statusText);
+    showNotification('added-' + torrent.id, icon, torrent.name, statusText);
   }
 
   torrentExistsNotify() {
@@ -254,7 +254,7 @@ class Bg {
     if (torrent.status) {
       statusText = chrome.i18n.getMessage('OV_COL_STATUS') + ': ' + torrent.status;
     }
-    showNotification(torrent.id, icon, torrent.name, statusText);
+    showNotification('complete-' + torrent.id, icon, torrent.name, statusText);
   }
 
   torrentErrorNotify(message) {
