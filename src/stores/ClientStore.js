@@ -154,6 +154,10 @@ const ClientStore = types.model('ClientStore', {
     return self.syncUiClient().then(() => result);
   };
 
+  const fetchUi = (result) => {
+    return self.fetchUiClient().then(() => result);
+  };
+
   return {
     get torrentIds() {
       return Array.from(self.torrents.keys());
@@ -271,16 +275,16 @@ const ClientStore = types.model('ClientStore', {
       return callApi({action: 'setPriority', level, id: id, fileIdxs}).then(...exceptionLog());
     },
     setDownloadSpeedLimit(speed) {
-      return callApi({action: 'setDownloadSpeedLimit', speed}).then(...exceptionLog()).then(syncUi);
+      return callApi({action: 'setDownloadSpeedLimit', speed}).then(...exceptionLog()).then(fetchUi);
     },
     setUploadSpeedLimit(speed) {
-      return callApi({action: 'setUploadSpeedLimit', speed}).then(...exceptionLog()).then(syncUi);
+      return callApi({action: 'setUploadSpeedLimit', speed}).then(...exceptionLog()).then(fetchUi);
     },
     getTorrentFiles(id) {
       return callApi({action: 'getFileList', id: id}).then(...exceptionLog());
     },
     getSettings() {
-      return callApi({action: 'getSettings'}).then(...exceptionLog()).then(syncUi);
+      return callApi({action: 'getSettings'}).then(...exceptionLog()).then(fetchUi);
     },
     sendFiles(urls, directory, label) {
       return callApi({action: 'sendFiles', urls, directory, label}).then(...exceptionLog()).then(syncUi);
@@ -298,7 +302,14 @@ const ClientStore = types.model('ClientStore', {
         self.setSettings(client.settings);
         self.speedRoll.setData(client.speedRoll.data);
       }).then(...exceptionLog());
-    }
+    },
+    fetchUiClient() {
+      return callApi({action: 'getClientStore'}).then((client) => {
+        self.setTorrents(client.torrents);
+        self.setSettings(client.settings);
+        self.speedRoll.setData(client.speedRoll.data);
+      }).then(...exceptionLog());
+    },
   };
 });
 
