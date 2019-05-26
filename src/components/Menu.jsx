@@ -67,7 +67,9 @@ class Menu extends React.Component {
 
   handleRefresh = (e) => {
     e.preventDefault();
-    this.rootStore.client.syncUiClient();
+    this.rootStore.client.updateTorrentList().catch((err) => {
+      logger.error('onIntervalInit updateTorrentList error', err);
+    });
     this.rootStore.client.updateSettings().catch((err) => {
       logger.error('handleRefresh, updateSettings error', err);
     });

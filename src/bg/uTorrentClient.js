@@ -31,6 +31,10 @@ class UTorrentClient {
     return this.bg.bgStore;
   }
 
+  thenUpdateTorrents = (result) => {
+    return this.updateTorrents().then(() => result);
+  };
+
   updateTorrents() {
     const params = {
       list: 1
@@ -52,6 +56,10 @@ class UTorrentClient {
       return files;
     });
   }
+
+  thenUpdateSettings = (result) => {
+    return this.updateSettings().then(() => result);
+  };
 
   updateSettings() {
     return this.sendAction({action: 'getsettings'});
@@ -166,59 +174,59 @@ class UTorrentClient {
   }
 
   start(ids) {
-    return this.sendAction({list: 1, cid: this.cid, action: 'start', hash: ids});
+    return this.sendAction({list: 1, cid: this.cid, action: 'start', hash: ids}).then(this.thenUpdateTorrents);
   }
 
   forcestart(ids) {
-    return this.sendAction({list: 1, cid: this.cid, action: 'forcestart', hash: ids});
+    return this.sendAction({list: 1, cid: this.cid, action: 'forcestart', hash: ids}).then(this.thenUpdateTorrents);
   }
 
   unpause(ids) {
-    return this.sendAction({list: 1, cid: this.cid, action: 'unpause', hash: ids});
+    return this.sendAction({list: 1, cid: this.cid, action: 'unpause', hash: ids}).then(this.thenUpdateTorrents);
   }
 
   pause(ids) {
-    return this.sendAction({list: 1, cid: this.cid, action: 'pause', hash: ids});
+    return this.sendAction({list: 1, cid: this.cid, action: 'pause', hash: ids}).then(this.thenUpdateTorrents);
   }
 
   stop(ids) {
-    return this.sendAction({list: 1, cid: this.cid, action: 'stop', hash: ids});
+    return this.sendAction({list: 1, cid: this.cid, action: 'stop', hash: ids}).then(this.thenUpdateTorrents);
   }
 
   recheck(ids) {
-    return this.sendAction({list: 1, cid: this.cid, action: 'recheck', hash: ids});
+    return this.sendAction({list: 1, cid: this.cid, action: 'recheck', hash: ids}).then(this.thenUpdateTorrents);
   }
 
   remove(ids) {
-    return this.sendAction({list: 1, cid: this.cid, action: 'remove', hash: ids});
+    return this.sendAction({list: 1, cid: this.cid, action: 'remove', hash: ids}).then(this.thenUpdateTorrents);
   }
 
   async removetorrent(ids) {
     if (!ids.length) return;
 
-    return this.sendAction({list: 1, cid: this.cid, action: 'removetorrent', hash: ids});
+    return this.sendAction({list: 1, cid: this.cid, action: 'removetorrent', hash: ids}).then(this.thenUpdateTorrents);
   }
 
   removedata(ids) {
-    return this.sendAction({list: 1, cid: this.cid, action: 'removedata', hash: ids});
+    return this.sendAction({list: 1, cid: this.cid, action: 'removedata', hash: ids}).then(this.thenUpdateTorrents);
   }
 
   async removedatatorrent(ids) {
     if (!ids.length) return;
 
-    return this.sendAction({list: 1, cid: this.cid, action: 'removedatatorrent', hash: ids});
+    return this.sendAction({list: 1, cid: this.cid, action: 'removedatatorrent', hash: ids}).then(this.thenUpdateTorrents);
   }
 
   queueUp(ids) {
-    return this.sendAction({list: 1, cid: this.cid, action: 'queueup', hash: ids});
+    return this.sendAction({list: 1, cid: this.cid, action: 'queueup', hash: ids}).then(this.thenUpdateTorrents);
   }
 
   queueDown(ids) {
-    return this.sendAction({list: 1, cid: this.cid, action: 'queuedown', hash: ids});
+    return this.sendAction({list: 1, cid: this.cid, action: 'queuedown', hash: ids}).then(this.thenUpdateTorrents);
   }
 
   setLabel(ids, label = '') {
-    return this.sendAction({list: 1, cid: this.cid, action: 'setprops', s: 'label', hash: ids, v: label});
+    return this.sendAction({list: 1, cid: this.cid, action: 'setprops', s: 'label', hash: ids, v: label}).then(this.thenUpdateTorrents);
   }
 
   setPriority(id, level, idxs) {
@@ -228,15 +236,11 @@ class UTorrentClient {
   }
 
   setDownloadSpeedLimit(speed) {
-    return this.sendAction({action: 'setsetting', s: 'max_dl_rate', v: speed}).then(() => {
-      return this.updateSettings();
-    });
+    return this.sendAction({action: 'setsetting', s: 'max_dl_rate', v: speed}).then(this.thenUpdateSettings);
   }
 
   setUploadSpeedLimit(speed) {
-    return this.sendAction({action: 'setsetting', s: 'max_ul_rate', v: speed}).then(() => {
-      return this.updateSettings();
-    });
+    return this.sendAction({action: 'setsetting', s: 'max_ul_rate', v: speed}).then(this.thenUpdateSettings);
   }
 
   sendFiles(urls, directory, label) {
@@ -262,7 +266,7 @@ class UTorrentClient {
         logger.error('sendFile error', url, err);
         return {error: err};
       });
-    }));
+    })).then(this.thenUpdateTorrents);
   }
 
   retryIfTokenInvalid(callback) {

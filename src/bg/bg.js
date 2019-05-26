@@ -123,9 +123,7 @@ class Bg {
       }
       case 'updateTorrentList': {
         promise = this.whenReady().then(() => {
-          return this.client.updateTorrents().then(() => {
-            return this.bgStore.client.getSnapshot();
-          });
+          return this.client.updateTorrents();
         });
         break;
       }

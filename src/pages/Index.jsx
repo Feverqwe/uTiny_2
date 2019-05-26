@@ -48,8 +48,8 @@ class Index extends React.Component {
   };
 
   onIntervalFire = () => {
-    this.rootStore.client.syncUiClient().catch((err) => {
-      logger.error('onIntervalFire syncUiClient error', err);
+    this.rootStore.client.updateTorrentList().catch((err) => {
+      logger.error('onIntervalFire updateTorrentList error', err);
     });
   };
 
