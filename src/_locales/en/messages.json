@@ -1,4 +1,7 @@
 {
+    "appName": {
+        "message": "uTorrent easy client"
+    },
     "appDesc": {
         "message": "Extension add uTorrent web GUI in your web browser"
     },
