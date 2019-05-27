@@ -31,7 +31,6 @@ const byColumnMap = {
  * @property {*} filteredFiles
  * @property {*} sortedFiles
  * @property {*} _sortedIds
- * @property {*} isSelectedAll
  * @property {*} selectedIndexes
  * @property {*} filterLevel
  * @property {function} afterCreate

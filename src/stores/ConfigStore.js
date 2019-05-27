@@ -75,7 +75,7 @@ const FilesColumnStore = types.compose('FilesColumnsStore', ColumnStore, types.m
 
 /**
  * @typedef {Object} FolderStore
- * @property {string} volume
+ * @property {number} volume
  * @property {string} name
  * @property {string} path
  */
@@ -132,8 +132,8 @@ const SelectedLabelStore = types.model('SelectedLabelStore', {
  * @property {boolean} [fixCyrillicDownloadPath]
  * @property {FolderStore[]} folders
  * @property {string[]} labels
- * @property {TorrentsColumnStore[]} torrentColumns
- * @property {FilesColumnStore[]} filesColumns
+ * @property {TorrentsColumnStore[]} [torrentColumns]
+ * @property {FilesColumnStore[]} [filesColumns]
  * @property {{by:string,[direction]:number}} [torrentsSort]
  * @property {{by:string,[direction]:number}} [filesSort]
  * @property {SelectedLabelStore} [selectedLabel]
