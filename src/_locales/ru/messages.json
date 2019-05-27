@@ -1,4 +1,7 @@
 {
+    "appName": {
+        "message": "uTorrent easy client"
+    },
     "appDesc": {
         "message": "Расширение добавит Web-интерфейс uTorrent в ваш браузер"
     },

@@ -1,4 +1,7 @@
 {
+    "appName": {
+        "message": "uTorrent easy client"
+    },
     "appDesc": {
         "message": "Cette extension vous permet d'utiliser uTorrent directement dans votre navigateur"
     },
