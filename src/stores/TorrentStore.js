@@ -105,7 +105,7 @@ const TorrentStore = types.model('TorrentStore', {
       return formatBytes(self.remaining);
     },
     get isCompleted() {
-      return self.progress === 1000 && !!self.completedTime;
+      return self.progress === 1000 && (self.completedTime === undefined || !!self.completedTime);
     },
     get sizeStr() {
       return formatBytes(self.size);
