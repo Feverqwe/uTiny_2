@@ -292,12 +292,8 @@ const ClientStore = types.model('ClientStore', {
       return callApi({action: 'updateTorrentList'}).then(...exceptionLog()).then(thenSyncClient);
     },
     syncClient() {
-      return callApi({action: 'getClientStore'}).then((client) => {
-        self.setTorrents(client.torrents);
-        self.setLabels(client.labels);
-        self.setSettings(client.settings);
-        self.speedRoll.setData(client.speedRoll.data);
-      }).then(...exceptionLog());
+      const rootStore = getRoot(self);
+      return rootStore.syncClient().then(...exceptionLog());
     },
   };
 });

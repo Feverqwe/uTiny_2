@@ -109,9 +109,9 @@ class Bg {
     let promise = null;
 
     switch (message && message.action) {
-      case 'getClientStore': {
+      case 'getClientStoreDelta': {
         promise = this.whenReady().then(() => {
-          return this.bgStore.client.toJSON();
+          return this.bgStore.clientPatchLine.getDelta(message.id, message.patchId);
         });
         break;
       }
