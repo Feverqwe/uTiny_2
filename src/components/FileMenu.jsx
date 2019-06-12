@@ -34,6 +34,7 @@ class FileMenuBody extends ContextMenuBody {
     const id = this.fileListStore.id;
     const selectedIndexes = this.fileListStore.selectedIndexes;
     this.rootStore.client.filesSetPriority(id, selectedIndexes, priority);
+    this.fileListStore.resetSelectedIds();
   };
 
   handleDownload = ({event: e, props}) => {
@@ -43,6 +44,7 @@ class FileMenuBody extends ContextMenuBody {
         chrome.tabs.create({url});
       }
     });
+    this.fileListStore.resetSelectedIds();
   };
 
   render() {
