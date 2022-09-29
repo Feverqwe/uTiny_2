@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
-    "d3": "^5.9.2",
+    "d3": "^7.6.1",
     "fecha": "^3.0.3",
     "filesize": "^4.1.2",
     "mobx": "^5.10.1",
